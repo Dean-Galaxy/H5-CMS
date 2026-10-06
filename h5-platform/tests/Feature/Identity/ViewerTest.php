@@ -17,6 +17,14 @@ class ViewerTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_password_reset_email_origin_does_not_trust_request_host(): void
+    {
+        Notification::fake();
+        $viewer = $this->viewer();
+        $this->withHeader('Host', 'poison.example.test')->postJson('/api/v1/auth/forgot-password', ['email' => $viewer->email])->assertOk();
+        Notification::assertSentTo($viewer, ResetPassword::class, fn ($notification) => str_starts_with($notification->toMail($viewer)->actionUrl, config('app.url').'/identity/reset-password?'));
+    }
+
     private function viewer(array $extra = []): Viewer
     {
         return Viewer::create(['name' => 'Viewer', 'email' => 'viewer@example.test', 'password' => 'LongPassword1234', ...$extra]);

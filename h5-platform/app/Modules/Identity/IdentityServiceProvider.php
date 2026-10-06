@@ -43,6 +43,10 @@ final class IdentityServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Never construct emailed credentials from an untrusted request Host header.
+        \Illuminate\Support\Facades\URL::forceRootUrl(config('app.url'));
+        \Illuminate\Support\Facades\URL::forceScheme(parse_url(config('app.url'), PHP_URL_SCHEME));
+        \Illuminate\Validation\Rules\Password::defaults(fn () => \Illuminate\Validation\Rules\Password::min(12)->letters()->numbers());
         Livewire::setUpdateRoute(fn ($handle) => Route::post('/admin/livewire/update', $handle)->middleware('web'));
         Fortify::createUsersUsing(CreateViewer::class);
         Fortify::resetUserPasswordsUsing(ResetViewerPassword::class);

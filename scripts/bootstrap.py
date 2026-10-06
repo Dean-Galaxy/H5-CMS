@@ -5,6 +5,8 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import re
+import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
 APP = ROOT / 'h5-platform'
@@ -32,17 +34,28 @@ def main():
         call([brew, 'install', 'php@8.4', 'postgresql@17'], env=env)
     call([PHP, '-r', 'exit(PHP_VERSION_ID >= 80426 && PHP_VERSION_ID < 80500 ? 0 : 1);'])
     version = call([PG, '--version'], capture_output=True, text=True).stdout
-    if not version.strip().startswith('postgres (PostgreSQL) 17.'):
-        raise SystemExit('本机基础锁定 PostgreSQL 17；请由 00 核对版本。')
+    pg_version = re.search(r'PostgreSQL\) (\d+)\.(\d+)', version)
+    if not pg_version or int(pg_version[1]) != 17 or int(pg_version[2]) < 11:
+        raise SystemExit('本机基础要求 PostgreSQL 17.11 或更新的 17.x 安全补丁；请由 00 核对版本。')
     tools = RUN / 'tools'
     tools.mkdir(exist_ok=True)
     composer = tools / 'composer.phar'
+    env = os.environ.copy()
+    # curl/Composer do not automatically use the macOS system proxy.
+    for scheme, proxy in urllib.request.getproxies().items():
+        if scheme in ('http', 'https'):
+            env[scheme + '_proxy'] = proxy
+    env['no_proxy'] = '127.0.0.1,localhost,::1'
     if not composer.exists():
-        call(['curl', '--fail', '--location', '--silent', '--show-error', '--proto', '=https',
-              f'https://getcomposer.org/download/{COMPOSER_VERSION}/composer.phar', '-o', composer])
+        download = tools / 'composer.download'
+        call(['curl', '--fail', '--location', '--silent', '--show-error', '--proto', '=https', '--proto-redir', '=https',
+              '--connect-timeout', '15', '--max-time', '120', '--retry', '2',
+              f'https://getcomposer.org/download/{COMPOSER_VERSION}/composer.phar', '-o', download], env=env)
+        if hashlib.sha256(download.read_bytes()).hexdigest() != COMPOSER_SHA256:
+            raise SystemExit('Composer 下载摘要不符，未执行。')
+        download.replace(composer)
     if hashlib.sha256(composer.read_bytes()).hexdigest() != COMPOSER_SHA256:
         raise SystemExit('Composer 官方文件校验不符，已停止，未执行下载文件。')
-    env = os.environ.copy()
     env.update(COMPOSER_HOME=str(RUN / 'composer-home'), COMPOSER_CACHE_DIR=str(RUN / 'composer-cache'))
     env['PATH'] = str(Path(PHP).parent) + os.pathsep + env.get('PATH', '')
     call([PHP, composer, 'install', '--prefer-dist', '--no-interaction', '--no-scripts'], cwd=APP, env=env)
