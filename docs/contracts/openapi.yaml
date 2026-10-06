@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H5 common contracts",
-    "version": "1.0.0",
-    "description": "00 冻结共同契约 v1；01 身份已实现，02–05 业务仍为接口及 503 骨架。F01 恢复确认和 F02 首页分类已纳入。JSON 是 YAML 1.2 子集。字段必填及可空规则以 Schema 为准。"
+    "version": "1.0.1",
+    "description": "00 共同契约 1.0.1；兼容 1.0.0 HTTP 字段，补齐开发期装载、可信地区和播放会话语义。01 身份已实现，02–05 尚未集成；普通环境仍明确未就绪。"
   },
   "servers": [
     {
@@ -3767,7 +3767,7 @@
             "description": "省略为全部公开剧目。格式错误 422；不存在或停用分类 404；启用但无公开剧目返回空 items。cursor 绑定 category_id、locale 及排序版本，不能跨条件使用。"
           }
         ],
-        "description": "公开剧目按 02 目录排序值、id 升序；按 category_id 筛选。禁止返回草稿或已下架剧目；分页游标不透明且绑定筛选及排序版本。"
+        "description": "公开剧目按 02 目录排序值、id 升序；按 category_id 筛选。禁止返回草稿或已下架剧目；分页游标不透明且绑定筛选及排序版本。 真实 Content 提供方通过 RegionResolver 读取同一地区上下文；ZZ 表示未知，返回 403 REGION_BLOCKED，不伪装为空内容。"
       }
     },
     "/api/v1/dramas/{id}": {
@@ -4023,7 +4023,8 @@
             },
             "description": "省略用 en；仅 en、zh_CN。界面默认语言由 04 选择并传入，不能据此更改币种或授权地区。"
           }
-        ]
+        ],
+        "description": " 真实 Content 提供方通过 RegionResolver 读取同一地区上下文；ZZ 表示未知，返回 403 REGION_BLOCKED，不伪装为空内容。"
       }
     },
     "/api/v1/episodes/{id}/playback-grants": {
@@ -4284,7 +4285,8 @@
               }
             }
           }
-        }
+        },
+        "description": "地区来自公共 RegionResolver，不接收 query/body/header 自报地区。未知地区按 REGION_BLOCKED 拒绝，不返回许可字段。未知、他人或其他分集会话统一 404；本人已失效会话 409 STALE_VERSION，新的申请按当前规则重判。"
       }
     },
     "/api/v1/billing/offer": {
@@ -7114,7 +7116,7 @@
             "description": "省略用 en；仅 en、zh_CN。界面默认语言由 04 选择并传入，不能据此更改币种或授权地区。"
           }
         ],
-        "description": "02 提供、04 消费。只读、允许访客；真实内容未接入前返回 503，不加载文档样例。"
+        "description": "02 提供、04 消费。只读、允许访客；真实内容未接入前返回 503，不加载文档样例。 真实 Content 提供方通过 RegionResolver 读取同一地区上下文；ZZ 表示未知，返回 403 REGION_BLOCKED，不伪装为空内容。"
       }
     },
     "/api/v1/categories": {
@@ -7376,7 +7378,7 @@
             "description": "省略用 en；仅 en、zh_CN。界面默认语言由 04 选择并传入，不能据此更改币种或授权地区。"
           }
         ],
-        "description": "分类排序和语言与首页一致；分页剧目通过 catalog?category_id=... 获取。"
+        "description": "分类排序和语言与首页一致；分页剧目通过 catalog?category_id=... 获取。 真实 Content 提供方通过 RegionResolver 读取同一地区上下文；ZZ 表示未知，返回 403 REGION_BLOCKED，不伪装为空内容。"
       }
     },
     "/api/v1/billing/subscription/resume-quote": {
@@ -8340,7 +8342,8 @@
               }
             }
           }
-        ]
+        ],
+        "description": "播放许可仍受短期有效期限制；play_session_id 仅供同身份/匿名会话、同集、有限连续窗口续签，不是会员凭证或任意媒体地址。续签重新检查地区、发布、授权、媒体和相关付费权益；免费 N 的有限例外见 content-context-v1.0.1.md。"
       },
       "PlaybackInput": {
         "type": "object",
@@ -8361,7 +8364,8 @@
         "required": [
           "play_session_id"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "新打开、刷新、切集、身份改变传 play_session_id=null；只有当前同集连续播放续签回传该会话的服务端 ID。不得从持久存储复用旧会话逃避新判断；地区不由请求指定。详见 content-context-v1.0.1.md。"
       },
       "Progress": {
         "type": "object",
@@ -9289,6 +9293,63 @@
         ],
         "additionalProperties": false,
         "description": "02 输出的首页配置和公开剧目快照；各数组独立按 sort_order、id 升序。内容可为空，但未安装 02 时必须 503。展示文本按请求语言逐字段取值，缺失用另一已提供语言，不自动翻译。详见 shared-v1.md。"
+      },
+      "ResolvedRegion": {
+        "type": "object",
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "local_us_test",
+              "trusted",
+              "unresolved"
+            ]
+          }
+        },
+        "required": [
+          "country_code",
+          "source"
+        ],
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "properties": {
+              "source": {
+                "const": "local_us_test"
+              },
+              "country_code": {
+                "const": "US"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source": {
+                "const": "unresolved"
+              },
+              "country_code": {
+                "const": "ZZ"
+              }
+            }
+          },
+          {
+            "properties": {
+              "source": {
+                "const": "trusted"
+              },
+              "country_code": {
+                "not": {
+                  "const": "ZZ"
+                }
+              }
+            }
+          }
+        ],
+        "description": "内部 RegionResolver 的返回结构，不是公开地区选择接口。首版默认 unresolved/ZZ；只有显式启用的 local/testing 直接 loopback HTTP 返回 local_us_test/US。尚无真实地区服务实现。"
       }
     }
   }
