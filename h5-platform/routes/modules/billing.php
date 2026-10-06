@@ -14,6 +14,7 @@ Route::middleware('auth:web')->group(function () {
     Route::get('/api/v1/me/membership', fn () => throw new DependencyNotReady('Billing'));
     Route::get('/api/v1/billing/orders/{id}', fn () => throw new DependencyNotReady('Billing'));
     Route::post('/api/v1/billing/subscription/cancel', fn () => throw new DependencyNotReady('Billing'));
+    Route::get('/api/v1/billing/subscription/resume-quote', fn () => throw new DependencyNotReady('Billing'));
     Route::post('/api/v1/billing/subscription/resume', fn () => throw new DependencyNotReady('Billing'));
 });
 Route::post('/webhooks/stripe', fn () => throw new DependencyNotReady('Billing'));

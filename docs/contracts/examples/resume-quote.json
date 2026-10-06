@@ -1,0 +1,9 @@
+{
+  "quote_id": "019a2b3c-1234-7000-8000-000000000020",
+  "subscription_id": "019a2b3c-1234-7000-8000-000000000021",
+  "confirmation_version": 3,
+  "currency": "USD",
+  "next_renewal_at": "2026-10-13T12:00:00Z",
+  "next_renewal_amount_minor": 1200,
+  "expires_at": "2026-10-07T12:05:00Z"
+}

@@ -1,0 +1,60 @@
+{
+  "id": "019a2b3c-1234-7000-8000-000000000120",
+  "title": "A Star Between Us",
+  "synopsis": "Contract example only.",
+  "cover_url": "https://assets.example.test/cover.jpg",
+  "published_episode_count": 6,
+  "total_episode_count": 62,
+  "free_episode_count": 5,
+  "publication_state": "updating",
+  "episodes": [
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000131",
+      "number": 1,
+      "title": "Episode 1",
+      "duration_seconds": 90,
+      "access_requirement": "free",
+      "media_state": "ready"
+    },
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000132",
+      "number": 2,
+      "title": "Episode 2",
+      "duration_seconds": 90,
+      "access_requirement": "free",
+      "media_state": "ready"
+    },
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000133",
+      "number": 3,
+      "title": "Episode 3",
+      "duration_seconds": 90,
+      "access_requirement": "free",
+      "media_state": "ready"
+    },
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000134",
+      "number": 4,
+      "title": "Episode 4",
+      "duration_seconds": 90,
+      "access_requirement": "free",
+      "media_state": "ready"
+    },
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000135",
+      "number": 5,
+      "title": "Episode 5",
+      "duration_seconds": 90,
+      "access_requirement": "free",
+      "media_state": "ready"
+    },
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000136",
+      "number": 6,
+      "title": "Episode 6",
+      "duration_seconds": 90,
+      "access_requirement": "membership",
+      "media_state": "ready"
+    }
+  ]
+}

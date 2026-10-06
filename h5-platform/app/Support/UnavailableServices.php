@@ -9,9 +9,11 @@ use App\Contracts\PlaybackAuthorizer;
 use App\Contracts\ProgressService;
 use App\Data\AttributionSnapshot;
 use App\Data\CatalogPage;
+use App\Data\CategoryList;
 use App\Data\Checkout;
 use App\Data\CheckoutInput;
 use App\Data\Drama;
+use App\Data\HomePage;
 use App\Data\Membership;
 use App\Data\Offer;
 use App\Data\Order;
@@ -19,12 +21,23 @@ use App\Data\PlaybackGrant;
 use App\Data\Progress;
 use App\Data\ProgressInput;
 use App\Data\ResumeInput;
+use App\Data\ResumeQuote;
 use App\Data\StaffIdentity;
 use App\Data\ViewerIdentity;
 
 final class UnavailableServices implements BillingService, CatalogReader, MembershipReader, PlaybackAuthorizer, ProgressService
 {
-    public function catalog(?string $cursor = null, int $limit = 20, string $locale = 'en'): CatalogPage
+    public function catalog(?string $cursor = null, int $limit = 20, string $locale = 'en', ?string $categoryId = null): CatalogPage
+    {
+        throw new DependencyNotReady('Content');
+    }
+
+    public function homepage(string $locale = 'en'): HomePage
+    {
+        throw new DependencyNotReady('Content');
+    }
+
+    public function categories(string $locale = 'en'): CategoryList
     {
         throw new DependencyNotReady('Content');
     }
@@ -60,6 +73,11 @@ final class UnavailableServices implements BillingService, CatalogReader, Member
     }
 
     public function resume(ViewerIdentity $viewer, ResumeInput $confirmation): Membership
+    {
+        throw new DependencyNotReady('Billing');
+    }
+
+    public function resumeQuote(ViewerIdentity $viewer): ResumeQuote
     {
         throw new DependencyNotReady('Billing');
     }

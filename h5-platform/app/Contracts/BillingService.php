@@ -9,6 +9,7 @@ use App\Data\Membership;
 use App\Data\Offer;
 use App\Data\Order;
 use App\Data\ResumeInput;
+use App\Data\ResumeQuote;
 use App\Data\StaffIdentity;
 use App\Data\ViewerIdentity;
 
@@ -21,6 +22,9 @@ interface BillingService
     public function order(ViewerIdentity $viewer, string $orderId): Order;
 
     public function cancel(ViewerIdentity $viewer): Membership;
+
+    /** Read the original subscription's terms; never resume or charge on this call. */
+    public function resumeQuote(ViewerIdentity $viewer): ResumeQuote;
 
     public function resume(ViewerIdentity $viewer, ResumeInput $confirmation): Membership;
 

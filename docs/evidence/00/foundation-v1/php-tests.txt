@@ -1,0 +1,51 @@
+INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   6.89s
+  ✓ home consumer can follow a category and banner without media or ext… 0.27s
+  ✓ new ports require the real provider even when empty examples exist   0.08s
+  ✓ public home and categories remain accessible to guests but unavaila… 2.20s
+  ✓ resume quote and submission require an audience session              0.47s
+
+   PASS  Tests\Feature\Identity\AuthorizationTest
+  ✓ fixed roles and resource scopes match business rules                 0.07s
+  ✓ staff api rejects non owner direct requests and audits denial        0.23s
+  ✓ owner can create change and disable staff with version control       0.60s
+  ✓ missing mfa proof does not unlock staff api                          0.03s
+  ✓ disabled account and old version session are revoked                 0.04s
+  ✓ audit uses allowlisted changes and request ids                       0.07s
+
+   PASS  Tests\Feature\Identity\ContractsTest
+  ✓ business samples roundtrip through typed php consumers               0.22s
+  ✓ missing provider never fabricates business success                   0.06s
+  ✓ controlled return rejects open redirect encodings                    0.02s
+  ✓ openapi routes and enums match runtime                               0.04s
+
+   PASS  Tests\Feature\Identity\MfaTest
+  ✓ password alone and empty recovery code cannot bypass mfa             3.14s
+  ✓ real totp challenge authenticates and sets session proof             0.62s
+  ✓ totp and recovery codes cannot be replayed                           0.06s
+  ✓ mfa secrets are encrypted and hidden                                 0.02s
+  ✓ disabled employee cannot reach challenge or login                    0.25s
+  ✓ first staff login requires enrollment before dashboard               0.18s
+  ✓ configured staff without challenge proof cannot open any panel page  0.02s
+  ✓ generic staff login event does not grant mfa proof                   0.02s
+  ✓ staff password change invalidates old session version                0.03s
+
+   PASS  Tests\Feature\Identity\ViewerTest
+  ✓ password reset email origin does not trust request host              0.65s
+  ✓ guest entry and missing business are truthful                        0.11s
+  ✓ registration uses fortify and cannot create staff                    0.22s
+  ✓ verification checkout gate and link replay                           0.06s
+  ✓ expired and tampered verification are rejected                       0.07s
+  ✓ correct email invalidates old link and cannot alter verified accoun… 0.06s
+  ✓ email resend is limited with retry after                             0.07s
+  ✓ reset link is single use and revokes old session                     0.08s
+  ✓ expired reset does not change password                               0.24s
+  ✓ password recovery does not enumerate accounts                        0.47s
+  ✓ login rate limit and controlled return                               1.42s
+  ✓ guest verification continues after login                             0.04s
+
+  Tests:    36 passed (245 assertions)
+  Duration: 21.82s

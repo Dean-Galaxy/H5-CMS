@@ -1,0 +1,37 @@
+{
+  "locale": "en",
+  "categories": [
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000100",
+      "name": "Romance",
+      "sort_order": 10
+    },
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000101",
+      "name": "Drama",
+      "sort_order": 20
+    }
+  ],
+  "banners": [
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000110",
+      "title": "Featured series",
+      "image_url": "https://assets.example.test/banner.jpg",
+      "target_drama_id": "019a2b3c-1234-7000-8000-000000000120",
+      "sort_order": 10
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000120",
+      "title": "A Star Between Us",
+      "synopsis": "Contract example only.",
+      "cover_url": "https://assets.example.test/cover.jpg",
+      "published_episode_count": 0,
+      "total_episode_count": 62,
+      "free_episode_count": 5,
+      "publication_state": "updating",
+      "sort_order": 10
+    }
+  ]
+}

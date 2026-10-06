@@ -1,4 +1,4 @@
-# 内部接口候选 v1
+# 内部接口 v1（1.0.0）
 
 全部 PHP 接口位于 `h5-platform/app/Contracts`；值对象位于 `app/Data`，状态枚举位于 `app/Enums`。签名是代码约定，JSON 字段及可空规则以 openapi.yaml 为准。返回 DTO 可 `toArray()` / JSON 序列化；`fromArray()` 是类型装配入口，不替代业务输入校验和 JSON Schema 校验。
 
@@ -8,14 +8,17 @@
 | requireViewer | verified=false；返回 ViewerIdentity | 未登录 401 AUTHENTICATION_REQUIRED；verified=true 且未验证 403 EMAIL_UNVERIFIED |
 | requireStaff | Permission；可空 ResourceScope；返回 StaffIdentity | 401 未登录；403 MFA_REQUIRED / NOT_AUTHORIZED；ResourceScope 只接受业务提供方从数据库建立的范围 |
 | AuditRecorder.record | action、subjectType、可空 subjectId、result、changes=[]；void | 01 自动补 actor、UTC 时间和 request_id；禁止传请求体、邮箱、令牌、媒体链接；changes 白名单见实现 |
-| CatalogReader.catalog | cursor=null，limit=20（1–50），locale=en（en/zh_CN）；CatalogPage | 02 未接入503；未来只返回公开目录；cursor 不透明，失效返回422 |
+| CatalogReader.catalog | cursor=null，limit=20（1–50），locale=en（en/zh_CN），categoryId=null；CatalogPage | 02 未接入503；公开目录可按分类筛选；cursor 绑定筛选、语言和排序版本，失效422；无效/停用分类404 |
+| CatalogReader.homepage | locale=en；HomePage | 分类、Banner、推荐摘要；排序、语言回退和下架过滤见 shared-v1.md；当前503 |
+| CatalogReader.categories | locale=en；CategoryList | 启用分类；与相同语言首页 categories 一致；允许真实空内容，缺提供方503 |
 | CatalogReader.drama | dramaId、locale=en；Drama | 02 未接入503；不存在或不公开404，不透露隐藏媒体 |
 | MembershipReader.membership | 可信 viewerId、DateTimeImmutable at；Membership | 03 未接入503；没有权益与依赖未就绪必须分开。状态未知时 payment_resolution_required=true |
 | BillingService.offer | 可空 ViewerIdentity；Offer | 03 未接入503；游客优惠资格为 null；报价不等于锁定结算金额 |
 | BillingService.checkout | ViewerIdentity、CheckoutInput、idempotencyKey、可空 AttributionSnapshot；Checkout | 必须核对已验证身份、报价、已有订阅/订单、幂等请求；EMAIL_UNVERIFIED/STALE_VERSION/BILLING_PENDING/SUBSCRIPTION_EXISTS 等按 OpenAPI；目前503 |
 | BillingService.order | ViewerIdentity、orderId；Order | 只读本人订单；他人及不存在统一404；当前503 |
 | BillingService.cancel | ViewerIdentity；Membership | 03 核对原订阅与平台结果；未知不能返回成功；当前503 |
-| BillingService.resume | ViewerIdentity、ResumeInput；Membership | 主动确认原价和下一续费时刻；禁止创建第二订阅；当前503 |
+| BillingService.resumeQuote | ViewerIdentity；ResumeQuote | 本人原订阅的确认编号、版本、币种、原价、下一时刻、有效期；只读账务状态；当前503 |
+| BillingService.resume | ViewerIdentity、ResumeInput；Membership | quote_id 绑定本人及原订阅；主动确认币种、原价和下一时刻；过期或冲突409；同凭证幂等且不能覆盖之后的新操作；当前503 |
 | BillingService.cancelForSupport | StaffIdentity、viewerId、verifiedCaseId；Membership | 03 必须从自身已核实客服记录检查身份与意愿，并调用 requireStaff(SubscriptionCancel, 服务端范围)；客服不得恢复；当前503 |
 | PlaybackAuthorizer.authorizePlayback | 可空 ViewerIdentity、episodeId、可信 region、playSessionId=null；PlaybackGrant | 02 未接入503；匿名免费许可受支持；业务拒绝用 allowed=false 与 reason，所有许可字段为 null；状态规则见 Schema |
 | ProgressService.progress | ViewerIdentity、dramaId；Progress 或 null | 04 未接入503；本人尚无记录时 null，不丢弃已有记录 |
@@ -38,4 +41,4 @@ $viewer = app(App\Contracts\IdentityContext::class)->requireViewer(verified: tru
 // 后续 03 的实现接收上述身份；目前其骨架明确抛出 DependencyNotReady。
 ```
 
-`tests/Feature/Identity/ContractsTest.php` 执行正例 DTO 往返消费、未就绪行为、路由/枚举与 OpenAPI 对齐。`scripts/validate_contracts.py` 执行 Schema 与正反例校验；`scripts/smoke_http.py` 消费真实身份响应。未来提供方增加成功响应时，必须加入同一套 Schema 验证和自己的对象权限/状态机测试。
+`tests/Feature/Identity/ContractsTest.php` 执行正例 DTO 往返消费、未就绪行为、路由/枚举与 OpenAPI 对齐。`tests/Feature/Contracts/SharedContractsTest.php` 验证原价恢复信息的消费、首页到分类/详情的样例衔接和新增入口的会话/未就绪边界。`scripts/validate_contracts.py` 执行 Schema 与正反例校验；`scripts/smoke_http.py` 消费真实身份响应。未来提供方增加成功响应时，必须加入同一套 Schema 验证和自己的对象权限/状态机测试。完整语义及后续验收见 [shared-v1.md](shared-v1.md)。

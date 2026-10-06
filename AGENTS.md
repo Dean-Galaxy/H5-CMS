@@ -5,7 +5,7 @@
 - Git 根目录是 `/Volumes/KESU/H5`；应用统一在 `h5-platform/`。独立工作区可有不同绝对路径，不得回历史目录建立第二套主工程。
 - `原版/` 永久只读、不跟踪、不导入旧业务数据，不复用其中密钥、认证或支付逻辑。真实密钥、素材、依赖、缓存、数据库、邮件预览不进入 Git。
 - 先读 `docs/H5首版业务规则确认稿.md` 和 `docs/多任务开发规划/00-总计划.md` 至 `03-进度与交接台账.md`。保留已有变更。已确认业务规则优先，未确认事项不得冒充事实。
-- 当前 01 只实现共同基础与 Identity，不启动其他模块开发；00 接收基础门槛后才允许从同一基础分支并行。
+- 01 已提交共同基础与 Identity；00 的共同起点、契约版本和放行范围以总台账为准。接口放行不等于用户已指示创建或启动任务。
 
 ## 文件及事实归属
 
@@ -13,7 +13,7 @@
 
 | 任务 | 归属 |
 |---|---|
-| 00 | 根配置、依赖及锁文件、bootstrap、公共路由装载、app/Contracts、app/Data、app/Enums、公共 app/Support、docs/contracts、根 AGENTS.md；总台账与串行合并 |
+| 00 | 根配置、依赖及锁文件、bootstrap、公共路由装载、app/Contracts、app/Data、app/Enums、公共 app/Support、tests/Feature/Contracts、docs/contracts、根 AGENTS.md；总台账与串行合并 |
 | 01 | app/Modules/Identity、身份配置、routes/modules/identity.php、resources/views/identity、tests/Feature/Identity；观众、员工、认证、权限与审计基础 |
 | 02 | app/Modules/Content、routes/modules/content.php、内容资源/视图/迁移及 tests/Feature/Content |
 | 03 | app/Modules/Billing、routes/modules/billing.php、账务资源/迁移及 tests/Feature/Billing；唯一付款、订阅、权益事实 |

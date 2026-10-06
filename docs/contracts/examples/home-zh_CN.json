@@ -1,0 +1,37 @@
+{
+  "locale": "zh_CN",
+  "categories": [
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000100",
+      "name": "爱情",
+      "sort_order": 10
+    },
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000101",
+      "name": "剧情",
+      "sort_order": 20
+    }
+  ],
+  "banners": [
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000110",
+      "title": "推荐剧集",
+      "image_url": "https://assets.example.test/banner.jpg",
+      "target_drama_id": "019a2b3c-1234-7000-8000-000000000120",
+      "sort_order": 10
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "019a2b3c-1234-7000-8000-000000000120",
+      "title": "A Star Between Us",
+      "synopsis": "仅用于接口样例，不是已审核的正式简介。",
+      "cover_url": "https://assets.example.test/cover.jpg",
+      "published_episode_count": 6,
+      "total_episode_count": 62,
+      "free_episode_count": 5,
+      "publication_state": "updating",
+      "sort_order": 10
+    }
+  ]
+}

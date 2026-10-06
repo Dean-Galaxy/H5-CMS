@@ -88,5 +88,105 @@
     "file": "progress-input.json",
     "schema": "ProgressInput",
     "valid": true
+  },
+  {
+    "file": "resume-quote.json",
+    "schema": "ResumeQuote",
+    "valid": true
+  },
+  {
+    "file": "resume-input.json",
+    "schema": "ResumeInput",
+    "valid": true
+  },
+  {
+    "file": "offer-after-price-change.json",
+    "schema": "Offer",
+    "valid": true
+  },
+  {
+    "file": "invalid-resume-quote-no-version.json",
+    "schema": "ResumeQuote",
+    "valid": false
+  },
+  {
+    "file": "invalid-resume-quote-no-renewal.json",
+    "schema": "ResumeQuote",
+    "valid": false
+  },
+  {
+    "file": "invalid-resume-input-no-quote.json",
+    "schema": "ResumeInput",
+    "valid": false
+  },
+  {
+    "file": "invalid-resume-input-currency.json",
+    "schema": "ResumeInput",
+    "valid": false
+  },
+  {
+    "file": "invalid-resume-input-owner.json",
+    "schema": "ResumeInput",
+    "valid": false
+  },
+  {
+    "file": "home-en.json",
+    "schema": "HomePage",
+    "valid": true
+  },
+  {
+    "file": "categories-en.json",
+    "schema": "CategoryList",
+    "valid": true
+  },
+  {
+    "file": "catalog-category.json",
+    "schema": "CatalogPage",
+    "valid": true
+  },
+  {
+    "file": "drama-from-home.json",
+    "schema": "Drama",
+    "valid": true
+  },
+  {
+    "file": "home-zh_CN.json",
+    "schema": "HomePage",
+    "valid": true
+  },
+  {
+    "file": "categories-zh_CN.json",
+    "schema": "CategoryList",
+    "valid": true
+  },
+  {
+    "file": "home-empty.json",
+    "schema": "HomePage",
+    "valid": true
+  },
+  {
+    "file": "invalid-home-banner-target.json",
+    "schema": "HomePage",
+    "valid": false
+  },
+  {
+    "file": "invalid-home-banner-image.json",
+    "schema": "HomePage",
+    "valid": false
+  },
+  {
+    "file": "invalid-home-media-leak.json",
+    "schema": "HomePage",
+    "valid": false
+  },
+  {
+    "file": "invalid-home-draft.json",
+    "schema": "HomePage",
+    "valid": false
+  },
+  {
+    "file": "invalid-home-no-published-episodes.json",
+    "schema": "HomePage",
+    "valid": false
   }
 ]
