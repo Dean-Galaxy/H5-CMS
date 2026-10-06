@@ -1,0 +1,1 @@
+<x-layouts.site><section class="card"><h1>{{ $message }}</h1><p>{{ $code }}</p><p>Request ID: <code>{{ $request_id }}</code></p><a href="/identity/account">{{ __('identity.account') }}</a> · <a href="/identity/login">{{ __('identity.login') }}</a></section></x-layouts.site>

@@ -1,0 +1,9 @@
+{
+  "grant_id": "019a2b3c-1234-7000-8000-000000000004",
+  "episode_id": "019a2b3c-1234-7000-8000-000000000003",
+  "allowed": true,
+  "reason": "allowed_free",
+  "short_lived_url": "https://media.example.test/short-grant",
+  "expires_at": "2026-10-06T12:02:00Z",
+  "play_session_id": "019a2b3c-1234-7000-8000-000000000005"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Example viewer",
+  "email": "viewer@example.test",
+  "password": "ExampleOnly1234",
+  "password_confirmation": "ExampleOnly1234",
+  "return_to": "/watch/019bd41e-0000-7000-8000-000000000004"
+}

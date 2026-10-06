@@ -1,0 +1,10 @@
+{
+  "offer_id": "019a2b3c-1234-7000-8000-000000000002",
+  "price_version": 1,
+  "currency": "USD",
+  "regular_amount_minor": 12.5,
+  "first_week_amount_minor": 300,
+  "eligible_for_first_offer": null,
+  "expires_at": "2026-10-06T12:15:00Z",
+  "next_renewal_amount_minor": 1200
+}

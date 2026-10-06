@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "NOT_AUTHORIZED",
+    "message": "无权执行此操作",
+    "request_id": "019a2b3c-1234-7000-8000-000000000001",
+    "fields": null,
+    "retryable": false
+  }
+}

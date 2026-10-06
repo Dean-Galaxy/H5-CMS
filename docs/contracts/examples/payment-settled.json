@@ -1,0 +1,14 @@
+{
+  "event_id": "019a2b3c-1234-7000-8000-000000000001",
+  "schema_version": "PaymentSettled.v1",
+  "payment_id": "019a2b3c-1234-7000-8000-000000000002",
+  "order_id": "019a2b3c-1234-7000-8000-000000000003",
+  "subscription_id": "019a2b3c-1234-7000-8000-000000000004",
+  "transaction_kind": "first_subscription",
+  "discount_applied": true,
+  "amount_minor": 300,
+  "currency": "USD",
+  "occurred_at": "2026-10-06T12:00:00Z",
+  "is_test": true,
+  "attribution_snapshot": null
+}

@@ -1,0 +1,8 @@
+{
+  "viewer": {
+    "id": "019a2b3c-1234-7000-8000-000000000001",
+    "email": "viewer@example.test",
+    "email_verified": false
+  },
+  "staff": null
+}

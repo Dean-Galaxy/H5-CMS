@@ -1,0 +1,92 @@
+[
+  {
+    "file": "identity-guest.json",
+    "schema": "Identity",
+    "valid": true
+  },
+  {
+    "file": "identity-viewer.json",
+    "schema": "Identity",
+    "valid": true
+  },
+  {
+    "file": "offer.json",
+    "schema": "Offer",
+    "valid": true
+  },
+  {
+    "file": "membership-canceled-paid.json",
+    "schema": "Membership",
+    "valid": true
+  },
+  {
+    "file": "membership-payment-unresolved.json",
+    "schema": "Membership",
+    "valid": true
+  },
+  {
+    "file": "playback-denied.json",
+    "schema": "PlaybackGrant",
+    "valid": true
+  },
+  {
+    "file": "playback-allowed.json",
+    "schema": "PlaybackGrant",
+    "valid": true
+  },
+  {
+    "file": "progress.json",
+    "schema": "Progress",
+    "valid": true
+  },
+  {
+    "file": "payment-settled.json",
+    "schema": "PaymentSettled",
+    "valid": true
+  },
+  {
+    "file": "dependency-not-ready.json",
+    "schema": "Error",
+    "valid": true
+  },
+  {
+    "file": "permission-denied.json",
+    "schema": "Error",
+    "valid": true
+  },
+  {
+    "file": "invalid-fractional-money.json",
+    "schema": "Offer",
+    "valid": false
+  },
+  {
+    "file": "invalid-denied-media-leak.json",
+    "schema": "PlaybackGrant",
+    "valid": false
+  },
+  {
+    "file": "invalid-payment-status.json",
+    "schema": "Membership",
+    "valid": false
+  },
+  {
+    "file": "register-request.json",
+    "schema": "Register",
+    "valid": true
+  },
+  {
+    "file": "login-request.json",
+    "schema": "Login",
+    "valid": true
+  },
+  {
+    "file": "staff-create-request.json",
+    "schema": "StaffCreate",
+    "valid": true
+  },
+  {
+    "file": "progress-input.json",
+    "schema": "ProgressInput",
+    "valid": true
+  }
+]

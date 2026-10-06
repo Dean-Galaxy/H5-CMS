@@ -1,0 +1,12 @@
+{
+  "result": "passed",
+  "checks": [
+    "health + OpenAPI response",
+    "real CSRF mismatch blocked",
+    "registration + independent viewer/staff cookies",
+    "unverified gate + signed email preview + replay refusal + honest missing billing",
+    "logout + login + controlled return"
+  ],
+  "mail": "local preview only",
+  "database": "h5_5c78d05e4e"
+}

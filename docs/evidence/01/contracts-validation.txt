@@ -1,0 +1,19 @@
+ACCEPT identity-guest.json
+ACCEPT identity-viewer.json
+ACCEPT offer.json
+ACCEPT membership-canceled-paid.json
+ACCEPT membership-payment-unresolved.json
+ACCEPT playback-denied.json
+ACCEPT playback-allowed.json
+ACCEPT progress.json
+ACCEPT payment-settled.json
+ACCEPT dependency-not-ready.json
+ACCEPT permission-denied.json
+REJECT invalid-fractional-money.json
+REJECT invalid-denied-media-leak.json
+REJECT invalid-payment-status.json
+ACCEPT register-request.json
+ACCEPT login-request.json
+ACCEPT staff-create-request.json
+ACCEPT progress-input.json
+OpenAPI 1.0.0-candidate.1 structure and 18 examples passed.

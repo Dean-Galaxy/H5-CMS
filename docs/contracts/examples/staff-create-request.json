@@ -1,0 +1,6 @@
+{
+  "name": "Example content operator",
+  "email": "content@example.test",
+  "password": "ExampleOnly1234",
+  "role": "content_operator"
+}

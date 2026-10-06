@@ -1,0 +1,14 @@
+{
+  "access_active": false,
+  "access_from": null,
+  "access_until": null,
+  "renewal_enabled": true,
+  "subscription_state": "past_due",
+  "payment_resolution_required": true,
+  "next_renewal_at": null,
+  "next_renewal_amount_minor": 1200,
+  "allowed_actions": [
+    "resolve_payment",
+    "cancel"
+  ]
+}

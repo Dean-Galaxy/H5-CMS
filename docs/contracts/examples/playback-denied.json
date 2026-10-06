@@ -1,0 +1,9 @@
+{
+  "grant_id": null,
+  "episode_id": "019a2b3c-1234-7000-8000-000000000003",
+  "allowed": false,
+  "reason": "MEMBERSHIP_REQUIRED",
+  "short_lived_url": null,
+  "expires_at": null,
+  "play_session_id": null
+}

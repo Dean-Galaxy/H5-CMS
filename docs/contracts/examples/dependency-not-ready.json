@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "DEPENDENCY_NOT_READY",
+    "message": "Billing 模块未就绪",
+    "request_id": "019a2b3c-1234-7000-8000-000000000001",
+    "fields": null,
+    "retryable": false
+  }
+}
