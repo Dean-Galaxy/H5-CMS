@@ -1,0 +1,71 @@
+{
+  "recorded_at_utc": "2026-10-06 15:41:14 UTC",
+  "received_delivery_commit": "71e37417a724e8a033331b4edb205cdbdf2f2180",
+  "source_commit": "3c1bf10b64a853c3ce89cb8c35b8de8c5661aeea",
+  "candidate_tag": "h5-foundation-candidate-v1",
+  "candidate_contract": "1.0.0-candidate.1",
+  "scope": "00 reception review only; no application or contract edits; no new module tasks",
+  "independently_rerun": {
+    "identity_permissions_mfa_contract_tests": {
+      "exit_code": 0,
+      "tests": 31,
+      "assertions": 184
+    },
+    "openapi_examples": {
+      "exit_code": 0,
+      "count": 18
+    },
+    "runtime_checks": {
+      "web": true,
+      "queue": true,
+      "scheduler": true,
+      "database": true,
+      "http": true
+    },
+    "source_manifest": {
+      "verified_source_files": 167,
+      "verified_artifacts": 2,
+      "mismatches": 0
+    },
+    "repository": {
+      "delivery_tag_matches_head": true,
+      "initial_worktree_clean": true,
+      "forbidden_tracked_paths": [],
+      "remote_names": []
+    }
+  },
+  "existing_evidence_reviewed_only": [
+    "01 browser and actual TOTP flows in docs/evidence/01/independent-workspace.json; not re-enacted by 00",
+    "01 fresh detached-worktree installation and stop isolation; not recreated by 00",
+    "01 same-day Composer audit and platform-requirements receipts; no new online audit by 00"
+  ],
+  "reception": {
+    "local_runtime_and_identity": "accepted_with_documented_scope",
+    "gate_a": "partially_passed_contract_closure_pending",
+    "contract": "candidate_not_frozen",
+    "parallel_tasks": "not_started_or_authorized"
+  },
+  "findings": [
+    {
+      "id": "F01",
+      "scope": "shared billing contract",
+      "summary": "ResumeInput requires confirmation_version and next charge details, but no response supplies confirmation_version; the canceled-paid sample permits resume with next-charge fields null."
+    },
+    {
+      "id": "F02",
+      "scope": "shared content contract",
+      "summary": "CatalogReader and CatalogPage provide drama listing/detail only; no category or Banner/homepage query contract for the approved audience flow."
+    }
+  ],
+  "external_acceptance": {
+    "real_email": "unverified_local_preview_only",
+    "stripe": "not_implemented_or_officially_tested",
+    "media": "not_implemented_or_externally_tested",
+    "meta_tiktok": "not_implemented_or_externally_tested",
+    "deployment_recovery": "unverified"
+  },
+  "limitations": [
+    "Review of existing evidence is distinguished from independent reruns.",
+    "No claim of full-system, production-security or paid-launch acceptance."
+  ]
+}
