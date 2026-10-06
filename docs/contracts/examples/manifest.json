@@ -188,5 +188,35 @@
     "file": "invalid-home-no-published-episodes.json",
     "schema": "HomePage",
     "valid": false
+  },
+  {
+    "file": "region-local-us.json",
+    "schema": "ResolvedRegion",
+    "valid": true
+  },
+  {
+    "file": "region-unresolved.json",
+    "schema": "ResolvedRegion",
+    "valid": true
+  },
+  {
+    "file": "invalid-region-source.json",
+    "schema": "ResolvedRegion",
+    "valid": false
+  },
+  {
+    "file": "playback-input-new.json",
+    "schema": "PlaybackInput",
+    "valid": true
+  },
+  {
+    "file": "playback-input-renew.json",
+    "schema": "PlaybackInput",
+    "valid": true
+  },
+  {
+    "file": "invalid-playback-client-region.json",
+    "schema": "PlaybackInput",
+    "valid": false
   }
 ]

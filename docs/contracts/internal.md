@@ -1,4 +1,4 @@
-# 内部接口 v1（1.0.0）
+# 内部接口 v1（1.0.1）
 
 全部 PHP 接口位于 `h5-platform/app/Contracts`；值对象位于 `app/Data`，状态枚举位于 `app/Enums`。签名是代码约定，JSON 字段及可空规则以 openapi.yaml 为准。返回 DTO 可 `toArray()` / JSON 序列化；`fromArray()` 是类型装配入口，不替代业务输入校验和 JSON Schema 校验。
 
@@ -21,6 +21,7 @@
 | BillingService.resume | ViewerIdentity、ResumeInput；Membership | quote_id 绑定本人及原订阅；主动确认币种、原价和下一时刻；过期或冲突409；同凭证幂等且不能覆盖之后的新操作；当前503 |
 | BillingService.cancelForSupport | StaffIdentity、viewerId、verifiedCaseId；Membership | 03 必须从自身已核实客服记录检查身份与意愿，并调用 requireStaff(SubscriptionCancel, 服务端范围)；客服不得恢复；当前503 |
 | PlaybackAuthorizer.authorizePlayback | 可空 ViewerIdentity、episodeId、可信 region、playSessionId=null；PlaybackGrant | 02 未接入503；匿名免费许可受支持；业务拒绝用 allowed=false 与 reason，所有许可字段为 null；状态规则见 Schema |
+| RegionResolver.resolve | 无参数；ResolvedRegion(country_code, source) | 服务端可信上下文。默认 ZZ/unresolved；显式 local/testing 且直接 loopback HTTP 可返回 US/local_us_test，控制台不假设观众地区；客户端地区字段不可信。详见 content-context-v1.0.1.md |
 | ProgressService.progress | ViewerIdentity、dramaId；Progress 或 null | 04 未接入503；本人尚无记录时 null，不丢弃已有记录 |
 | ProgressService.saveProgress | ViewerIdentity、dramaId、ProgressInput；Progress | 04 必须校验分集归属、有效时长、会话序号/延迟写入；不能授予播放权限；当前503 |
 | AttributionService.enabled / snapshot | bool；snapshot 接可空不可信来源标记，返回 AttributionSnapshot 或 null | 05 未启用时 false/null，不阻塞未来付款；没有请求时自动拼造来源的路径 |

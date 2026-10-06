@@ -1,0 +1,31 @@
+{
+  "reviewed_at": "2026-10-06T16:42:03.665777+00:00",
+  "base_commit": "7a7ee4b57b0edcf747ba35111c68fd08db186b20",
+  "delivery_tag": "h5-shared-v1.0.1",
+  "contract_version": "1.0.1",
+  "source_request_commit": "7551e7b",
+  "php_tests": 42,
+  "php_assertions": 269,
+  "test_database": "h5_5c78d05e4e_test",
+  "schema_examples": 44,
+  "source_files_hashed": 208,
+  "runtime_defaults": {
+    "H5_LOCAL_MODULES": "",
+    "H5_LOCAL_US_TEST_REGION": false,
+    "content_provider": "not integrated"
+  },
+  "dependencies_changed": false,
+  "new_migrations": [],
+  "public_http_fields_changed": false,
+  "modules_created_or_started_by_00": [],
+  "02_worktree_changed_by_00": false,
+  "cross_task_message": "auto-review rejected; no retry; awaiting user permission to return the reviewed patch",
+  "D03": "question sent; business decision pending",
+  "limits": [
+    "No actual Content provider loaded in main",
+    "No real region service or geographical acceptance",
+    "Playback lifecycle, media access and scheduling remain module work",
+    "Existing foundation evidence is historical and unchanged; this manifest records the new patch source",
+    "No Stripe, media import or external account operations performed"
+  ]
+}
