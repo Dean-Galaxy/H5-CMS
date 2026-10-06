@@ -1,0 +1,44 @@
+{
+  "recorded_at": "2026-10-06T15:33:45.248642+00:00",
+  "source_commit": "3c1bf10b64a853c3ce89cb8c35b8de8c5661aeea",
+  "workspace": "/private/tmp/h5-01-foundation-acceptance",
+  "workspace_id": "h5_a1ad47c321",
+  "web_port": 8686,
+  "db_port": 6186,
+  "database": "h5_a1ad47c321",
+  "tests": "31 passed / 184 assertions",
+  "openapi": "18 examples passed",
+  "http": "passed",
+  "fresh_install": "passed",
+  "repeat_bootstrap": "passed",
+  "isolation_keys_verified_distinct": [
+    "APP_KEY",
+    "DB_PASSWORD",
+    "DB_DATABASE",
+    "DB_PORT",
+    "APP_URL",
+    "CACHE_PREFIX",
+    "DB_QUEUE",
+    "H5_MEDIA_ROOT"
+  ],
+  "browser_verified": [
+    "main viewer login and logout",
+    "viewer credentials rejected by staff login",
+    "new owner CLI creation in temporary workspace",
+    "first staff login redirects to MFA enrollment",
+    "configured secret without session challenge cannot access dashboard",
+    "real TOTP login challenge succeeded",
+    "owner staff-management page and audit table rendered"
+  ],
+  "limits": [
+    "Authenticator secret was a temporary test fixture; no real phone enrollment or email delivery was claimed",
+    "No production data or external business provider used"
+  ],
+  "stop_verified": {
+    "web": false,
+    "queue": false,
+    "scheduler": false,
+    "database": false,
+    "http": false
+  }
+}

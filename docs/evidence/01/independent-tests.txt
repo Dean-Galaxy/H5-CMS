@@ -1,0 +1,44 @@
+INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Identity\AuthorizationTest
+  ✓ fixed roles and resource scopes match business rules                 0.26s
+  ✓ staff api rejects non owner direct requests and audits denial        0.12s
+  ✓ owner can create change and disable staff with version control       0.05s
+  ✓ missing mfa proof does not unlock staff api                          0.02s
+  ✓ disabled account and old version session are revoked                 0.03s
+  ✓ audit uses allowlisted changes and request ids                       0.02s
+
+   PASS  Tests\Feature\Identity\ContractsTest
+  ✓ business samples roundtrip through typed php consumers               0.02s
+  ✓ missing provider never fabricates business success                   0.03s
+  ✓ controlled return rejects open redirect encodings                    0.02s
+  ✓ openapi routes and enums match runtime                               0.02s
+
+   PASS  Tests\Feature\Identity\MfaTest
+  ✓ password alone and empty recovery code cannot bypass mfa             0.56s
+  ✓ real totp challenge authenticates and sets session proof             0.46s
+  ✓ totp and recovery codes cannot be replayed                           0.04s
+  ✓ mfa secrets are encrypted and hidden                                 0.02s
+  ✓ disabled employee cannot reach challenge or login                    0.24s
+  ✓ first staff login requires enrollment before dashboard               0.04s
+  ✓ configured staff without challenge proof cannot open any panel page  0.03s
+  ✓ generic staff login event does not grant mfa proof                   0.02s
+  ✓ staff password change invalidates old session version                0.03s
+
+   PASS  Tests\Feature\Identity\ViewerTest
+  ✓ password reset email origin does not trust request host              0.24s
+  ✓ guest entry and missing business are truthful                        0.03s
+  ✓ registration uses fortify and cannot create staff                    0.04s
+  ✓ verification checkout gate and link replay                           0.03s
+  ✓ expired and tampered verification are rejected                       0.03s
+  ✓ correct email invalidates old link and cannot alter verified accoun… 0.05s
+  ✓ email resend is limited with retry after                             0.09s
+  ✓ reset link is single use and revokes old session                     0.04s
+  ✓ expired reset does not change password                               0.26s
+  ✓ password recovery does not enumerate accounts                        0.44s
+  ✓ login rate limit and controlled return                               1.30s
+  ✓ guest verification continues after login                             0.05s
+
+  Tests:    31 passed (184 assertions)
+  Duration: 5.03s
