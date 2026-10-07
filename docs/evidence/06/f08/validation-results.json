@@ -1,0 +1,69 @@
+{
+  "code_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd",
+  "checks": [
+    {
+      "name": "format",
+      "command": [
+        "/opt/homebrew/opt/php@8.4/bin/php",
+        "h5-platform/vendor/bin/pint",
+        "--test",
+        "h5-platform/tests/Integration/RecoveryScenarioTest.php",
+        "h5-platform/tests/Integration/Support/RecoveryScenario.php",
+        "h5-platform/tests/Integration/Support/recovery_fixture.php",
+        "h5-platform/tests/Security/Support/runtime-probe.php"
+      ],
+      "exit_code": 0,
+      "seconds": 0.52,
+      "code_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd"
+    },
+    {
+      "name": "contracts",
+      "command": [
+        ".runtime/contracts/bin/python",
+        "scripts/validate_contracts.py"
+      ],
+      "exit_code": 0,
+      "seconds": 4.74,
+      "code_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd"
+    },
+    {
+      "name": "affected",
+      "command": [
+        "python3",
+        "scripts/ops/run_acceptance.py",
+        "tests/Feature/Contracts",
+        "tests/Integration",
+        "tests/Security",
+        "tests/Feature/Billing/BillingStagingPolicyTest.php",
+        "tests/Feature/Billing/BillingCheckoutSafetyTest.php",
+        "tests/Feature/Billing/BillingCheckoutCompatibilityTest.php",
+        "tests/Feature/Billing/StripeGatewayTest.php"
+      ],
+      "exit_code": 0,
+      "seconds": 27.16,
+      "code_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd"
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "python3",
+        "scripts/ops/runtime_probe.py"
+      ],
+      "exit_code": 0,
+      "seconds": 8.71,
+      "code_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd"
+    },
+    {
+      "name": "backup-restore",
+      "command": [
+        "python3",
+        "scripts/ops/backup_restore.py",
+        "--with-unpaid-accounts"
+      ],
+      "exit_code": 0,
+      "seconds": 54.99,
+      "code_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd"
+    }
+  ],
+  "recorded_utc": "2026-10-07T12:20:54.386896+00:00"
+}

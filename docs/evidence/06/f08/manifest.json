@@ -1,0 +1,58 @@
+{
+  "created_utc": "2026-10-07T12:25:41.824774+00:00",
+  "approved_application_commit": "f273e2710c9965dd6f8c565bd5dd1055d13a67cf",
+  "tested_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd",
+  "application_tree": "1d58f9df0f0d9483abf1d6e50d99686adbe196d8",
+  "contract_observed": "1.0.4",
+  "affected_tests": {
+    "passed": 92,
+    "assertions": 2568,
+    "framework_seconds": 25.71
+  },
+  "runtime_cases_passed": 44,
+  "contract_examples_passed": 57,
+  "recovery": {
+    "tables": 47,
+    "media": 42,
+    "seconds": 54.41,
+    "preexisting_unpaid_accounts": 3,
+    "target_object_ids": 11,
+    "same_target_ids_after_restore": true,
+    "unrelated_accounts_unchanged": true,
+    "official_payment": false
+  },
+  "failures_preserved": {
+    "f08_reproduction_commit": "7fcf16b676bc595ec45b6e3511328864646213ad",
+    "old_probe_on_approved_merge_commit": "1e2d5ef2b3754a18f6a50dd9d4f424b05daa1220"
+  },
+  "historical_evidence_unchanged": true,
+  "application_matches_00_candidate": true,
+  "not_executed": [
+    "full 312-case suite",
+    "new HTTP or browser/device replay",
+    "real FPM/systemd/container/nginx/TLS",
+    "official Stripe or SMTP delivery",
+    "external deployment/offsite recovery"
+  ],
+  "source_sha256": {
+    "h5-platform/tests/Integration/RecoveryScenarioTest.php": "dfbfbc4e4376ed6a032112bef428702d70473ba006a1e84f8f098b9439d4f921",
+    "h5-platform/tests/Integration/Support/RecoveryScenario.php": "fed9c1a02929c4c7f15943cab26187892b0625a6c36971d0fac6da62a0992ffd",
+    "h5-platform/tests/Integration/Support/recovery_fixture.php": "68d895de418745d4e250fdc8fc5313c2e12d2e42bdea57e64853cee4c11fd691",
+    "h5-platform/tests/Security/Support/runtime-probe.php": "5b20b49f9a7c2b6cba80c8fd886ee9fa0caecf6a1198bfc00704edb0715deded",
+    "scripts/ops/backup_restore.py": "ba4710288f75314447943946f76c9154c5ba018ea06df5236b1b70eaaca1cade",
+    "scripts/ops/runtime_probe.py": "45805b3cfe417234553c3c630da11a95dd36f1e074c2db9c62c7b8e95962451e"
+  },
+  "evidence_sha256": {
+    "README.md": "d18ba02b1b9c682557807d19c6e5f0a0edc0c724908b99846708d4dfcf35abdb",
+    "affected.txt": "6603eae5d15939a42088d1ce7998f1b99c36ee4c3c06e9bc318cc5e43a663f9d",
+    "backup-restore.json": "5d8a08f675ce9c3ec3b5826bdbbac6a50f807af394d2799cc023c63bb147bbe6",
+    "cleanup.json": "c6154275df9ec594509738124857fe6f17bb9219dfd360bc5f4514e2a73815a0",
+    "contracts.txt": "329024caf20fddc73b4da205a671630fa3ce157aec1652188942911b5c45ba35",
+    "format.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
+    "pre-adaptation-probe.json": "5f546e0002e7c869e4c6f0dfd22964141ec039316662910c900ae56e1df306be",
+    "pre-adaptation-probe.txt": "82b6a85d06d8080f8657be8c353d135662eb8ad7e973f7f623d147d29ea9fcb5",
+    "reproduction.json": "de99d970e59237f45c4919051306f6ebccec2710d6c80cb3ff7c9b7897f6d835",
+    "runtime.json": "7ca33215fff1ec057978674995e4f7b7a6fd629801aae47bb01799bc01ea9012",
+    "validation-results.json": "dabce0826ab9d046af37b5baaff4f276526010dcfde21e7576675890dddbc67f"
+  }
+}

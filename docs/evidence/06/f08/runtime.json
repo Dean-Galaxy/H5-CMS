@@ -1,0 +1,551 @@
+{
+  "checkout_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd",
+  "contract": "1.0.4",
+  "checks": [
+    {
+      "name": "uncached safe staging with default opt-out",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "staging",
+        "container_environment": "staging",
+        "process_environment": "staging",
+        "cached": false,
+        "controlled_staging": false,
+        "origin": null,
+        "network_functions_disabled": true,
+        "billing_availability": null,
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "unconfigured",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "safe exact environment local",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "local",
+        "container_environment": "local",
+        "process_environment": "local",
+        "cached": false,
+        "controlled_staging": false,
+        "origin": null,
+        "network_functions_disabled": true,
+        "billing_availability": null,
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "unconfigured",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "safe exact environment testing",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "testing",
+        "container_environment": "testing",
+        "process_environment": "testing",
+        "cached": false,
+        "controlled_staging": false,
+        "origin": null,
+        "network_functions_disabled": true,
+        "billing_availability": null,
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "unconfigured",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "safe exact environment production",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "production",
+        "container_environment": "production",
+        "process_environment": "production",
+        "cached": false,
+        "controlled_staging": false,
+        "origin": null,
+        "network_functions_disabled": true,
+        "billing_availability": null,
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "unconfigured",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "controlled opt-in cannot enable production",
+      "observed": {
+        "ok": false,
+        "reason": "STAGING_ENVIRONMENT_REQUIRED"
+      },
+      "passed": true
+    },
+    {
+      "name": "controlled origin opt-in, still ZZ and unconfigured payment",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "staging",
+        "container_environment": "staging",
+        "process_environment": "staging",
+        "cached": false,
+        "controlled_staging": true,
+        "origin": "https://staging.example.test",
+        "network_functions_disabled": true,
+        "billing_availability": null,
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "unconfigured",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached controlled Stripe test boots but empty credentials refuse payment",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "staging",
+        "container_environment": "staging",
+        "process_environment": "staging",
+        "cached": false,
+        "controlled_staging": true,
+        "origin": "https://staging.example.test",
+        "network_functions_disabled": true,
+        "billing_availability": {
+          "ready": false,
+          "reason": "DEPENDENCY_NOT_READY",
+          "status": 503
+        },
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "stripe_test",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached APP_DEBUG",
+      "changed_field": "APP_DEBUG",
+      "expected_reason": "RUNTIME_DEBUG_FORBIDDEN",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_DEBUG_FORBIDDEN"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached APP_DEBUG",
+      "changed_field": "APP_DEBUG",
+      "expected_reason": "RUNTIME_BOOLEAN_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_BOOLEAN_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached H5_CONTROLLED_STAGING",
+      "changed_field": "H5_CONTROLLED_STAGING",
+      "expected_reason": "RUNTIME_BOOLEAN_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_BOOLEAN_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached H5_SIMULATION",
+      "changed_field": "H5_SIMULATION",
+      "expected_reason": "RUNTIME_LOCAL_OVERRIDE_FORBIDDEN",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_LOCAL_OVERRIDE_FORBIDDEN"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached H5_LOCAL_US_TEST_REGION",
+      "changed_field": "H5_LOCAL_US_TEST_REGION",
+      "expected_reason": "RUNTIME_LOCAL_OVERRIDE_FORBIDDEN",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_LOCAL_OVERRIDE_FORBIDDEN"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached APP_ENV",
+      "changed_field": "APP_ENV",
+      "expected_reason": "RUNTIME_ENVIRONMENT_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_ENVIRONMENT_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached APP_URL",
+      "changed_field": "APP_URL",
+      "expected_reason": "RUNTIME_ORIGIN_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_ORIGIN_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached SESSION_SECURE_COOKIE",
+      "changed_field": "SESSION_SECURE_COOKIE",
+      "expected_reason": "RUNTIME_COOKIE_UNSAFE",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_COOKIE_UNSAFE"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached SESSION_HTTP_ONLY",
+      "changed_field": "SESSION_HTTP_ONLY",
+      "expected_reason": "RUNTIME_COOKIE_UNSAFE",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_COOKIE_UNSAFE"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached SESSION_SAME_SITE",
+      "changed_field": "SESSION_SAME_SITE",
+      "expected_reason": "RUNTIME_COOKIE_UNSAFE",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_COOKIE_UNSAFE"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached MAIL_REQUIRE_TLS",
+      "changed_field": "MAIL_REQUIRE_TLS",
+      "expected_reason": "RUNTIME_MAIL_TLS_REQUIRED",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_TLS_REQUIRED"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached MAIL_REQUIRE_TLS",
+      "changed_field": "MAIL_REQUIRE_TLS",
+      "expected_reason": "RUNTIME_MAIL_TLS_REQUIRED",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_TLS_REQUIRED"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached MAIL_TIMEOUT",
+      "changed_field": "MAIL_TIMEOUT",
+      "expected_reason": "RUNTIME_MAIL_ENDPOINT_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_ENDPOINT_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached MAIL_HOST",
+      "changed_field": "MAIL_HOST",
+      "expected_reason": "RUNTIME_MAIL_ENDPOINT_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_ENDPOINT_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached MAIL_PASSWORD",
+      "changed_field": "MAIL_PASSWORD",
+      "expected_reason": "RUNTIME_MAIL_CREDENTIALS_REQUIRED",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_CREDENTIALS_REQUIRED"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached MAIL_MAILER",
+      "changed_field": "MAIL_MAILER",
+      "expected_reason": "RUNTIME_MAIL_TRANSPORT_FORBIDDEN",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_TRANSPORT_FORBIDDEN"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached MAIL_MAILER",
+      "changed_field": "MAIL_MAILER",
+      "expected_reason": "RUNTIME_MAIL_PATH_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_PATH_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached MAIL_FROM_ADDRESS",
+      "changed_field": "MAIL_FROM_ADDRESS",
+      "expected_reason": "RUNTIME_MAIL_FROM_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_FROM_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached H5_LOCAL_MODULES",
+      "changed_field": "H5_LOCAL_MODULES",
+      "expected_reason": "RUNTIME_LOCAL_OVERRIDE_FORBIDDEN",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_LOCAL_OVERRIDE_FORBIDDEN"
+      },
+      "passed": true
+    },
+    {
+      "name": "uncached H5_BILLING_DRIVER",
+      "changed_field": "H5_BILLING_DRIVER",
+      "expected_reason": "BILLING_STAGING_NOT_ENABLED",
+      "observed": {
+        "ok": false,
+        "reason": "BILLING_STAGING_NOT_ENABLED"
+      },
+      "passed": true
+    },
+    {
+      "name": "default opt-out origin denied",
+      "observed": {
+        "ok": false,
+        "reason": "STAGING_NOT_ENABLED"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached safe staging",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "staging",
+        "container_environment": "staging",
+        "process_environment": "staging",
+        "cached": true,
+        "controlled_staging": false,
+        "origin": null,
+        "network_functions_disabled": true,
+        "billing_availability": null,
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "unconfigured",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "cached app.debug",
+      "changed_field": "app.debug",
+      "expected_reason": "RUNTIME_DEBUG_FORBIDDEN",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_DEBUG_FORBIDDEN"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached app.debug",
+      "changed_field": "app.debug",
+      "expected_reason": "RUNTIME_BOOLEAN_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_BOOLEAN_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached app.env",
+      "changed_field": "app.env",
+      "expected_reason": "RUNTIME_ENVIRONMENT_INVALID",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_ENVIRONMENT_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached session.secure",
+      "changed_field": "session.secure",
+      "expected_reason": "RUNTIME_COOKIE_UNSAFE",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_COOKIE_UNSAFE"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached trustedproxy.proxies",
+      "changed_field": "trustedproxy.proxies",
+      "expected_reason": "RUNTIME_PROXY_FORBIDDEN",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_PROXY_FORBIDDEN"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached mail.mailers.smtp.verify_peer",
+      "changed_field": "mail.mailers.smtp.verify_peer",
+      "expected_reason": "RUNTIME_MAIL_TLS_REQUIRED",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_MAIL_TLS_REQUIRED"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached h5.modules.acquisition.ready",
+      "changed_field": "h5.modules.acquisition.ready",
+      "expected_reason": "RUNTIME_ACQUISITION_NOT_RELEASED",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_ACQUISITION_NOT_RELEASED"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached billing.driver",
+      "changed_field": "billing.driver",
+      "expected_reason": "BILLING_STAGING_NOT_ENABLED",
+      "observed": {
+        "ok": false,
+        "reason": "BILLING_STAGING_NOT_ENABLED"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached controlled Stripe test boots but empty credentials refuse payment",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "staging",
+        "container_environment": "staging",
+        "process_environment": "staging",
+        "cached": true,
+        "controlled_staging": true,
+        "origin": "https://staging.example.test",
+        "network_functions_disabled": true,
+        "billing_availability": {
+          "ready": false,
+          "reason": "DEPENDENCY_NOT_READY",
+          "status": 503
+        },
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "stripe_test",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "cached process APP_ENV missing",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_ENVIRONMENT_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "cached process APP_ENV local",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_ENVIRONMENT_INVALID"
+      },
+      "passed": true
+    },
+    {
+      "name": "old CLI probe retains config until exit; new process refuses changed cache",
+      "old_probe_exited": true,
+      "new_process": {
+        "ok": false,
+        "reason": "RUNTIME_DEBUG_FORBIDDEN"
+      },
+      "passed": true,
+      "scope": "real long-lived CLI probe, not FPM or queue worker"
+    },
+    {
+      "name": "actual release preflight with cached staging",
+      "observed": {
+        "ok": true,
+        "contract": "1.0.4",
+        "config_environment": "staging",
+        "container_environment": "staging",
+        "process_environment": "staging",
+        "cached": true,
+        "controlled_staging": false,
+        "origin": null,
+        "region": {
+          "country_code": "ZZ",
+          "source": "unresolved"
+        },
+        "billing_driver": "unconfigured",
+        "acquisition_ready": false
+      },
+      "passed": true
+    },
+    {
+      "name": "release preflight requires cache",
+      "observed": {
+        "ok": false,
+        "reason": "PREFLIGHT_CACHE_REQUIRED"
+      },
+      "passed": true
+    },
+    {
+      "name": "release preflight rejects unsafe changed cache",
+      "observed": {
+        "ok": false,
+        "reason": "RUNTIME_DEBUG_FORBIDDEN"
+      },
+      "passed": true
+    }
+  ],
+  "workspace_binding": true,
+  "database_identity": "h5_217e1741db|5606|h5_app_217e1741db|f|f",
+  "scope": "independent CLI boot/config cache and local DB identity only; synthetic SMTP and empty Stripe credentials; native network functions disabled in probes; no external connection or delivery; no real FPM/systemd execution"
+}

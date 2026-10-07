@@ -1,0 +1,8 @@
+{
+  "code_commit": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd",
+  "restored_cluster_stopped": true,
+  "pg_ctl_status_exit_code": 3,
+  "target_manifest_private_mode": "0600",
+  "preserved_source_database": "h5_217e1741db_recovery_bbb1edd5_test",
+  "normal_database_used_only_as_backup_source": true
+}
