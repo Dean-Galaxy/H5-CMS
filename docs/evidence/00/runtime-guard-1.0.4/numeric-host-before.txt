@@ -1,0 +1,28 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   FAIL  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
+  ⨯ origin cannot contain unsafe components or non domain hosts          1.16s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Contracts\RuntimeEnvironmentG…  AssertionFailedError   
+  Unsafe configuration must fail before any operation.
+
+  at tests/Feature/Contracts/RuntimeEnvironmentGuardTest.php:77
+     73▕     private function rejects(callable $action): void
+     74▕     {
+     75▕         try {
+     76▕             $action();
+  ➜  77▕             $this->fail('Unsafe configuration must fail before any operation.');
+     78▕         } catch (LogicException $error) {
+     79▕             $this->assertMatchesRegularExpression('/\A[A-Z0-9_]+\z/', $error->getMessage());
+     80▕             $this->assertStringNotContainsString('SYNTHETIC_SECRET', $error->getMessage());
+     81▕         }
+
+  1   tests/Feature/Contracts/RuntimeEnvironmentGuardTest.php:77
+  2   tests/Feature/Contracts/RuntimeEnvironmentGuardTest.php:153
+
+
+  Tests:    1 failed (29 assertions)
+  Duration: 5.01s
+

@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-07",
+  "tested_candidate": "6a61dd46586b15bddb075d82cc00076c0a14a5d7",
+  "initial_guard_source": "c5e4fcffec1bbdd580ffffa24f1444ebbdf20553",
+  "module_06_delivery": "9748a1eea31698995553b69fdf617285dce36e06",
+  "contract": "1.0.4",
+  "full_suite": {
+    "passed": 293,
+    "assertions": 3287,
+    "seconds": 107.1
+  },
+  "focused": {
+    "passed": 17,
+    "assertions": 378,
+    "seconds": 9.02,
+    "real_cached_boot_cases": 11,
+    "real_uncached_boot_cases": 16
+  },
+  "http": {
+    "staging_denials": 8,
+    "local_checks": 5,
+    "real_tls": false
+  },
+  "contract_examples": 57,
+  "contracts_and_audit_checked_at": "d18d644a70119bd44fbedcee313dab1187a2c182",
+  "contract_spec_and_lock_unchanged_since_audit": true,
+  "unchanged_business_paths": [
+    "h5-platform/app/Modules",
+    "h5-platform/database/migrations",
+    "h5-platform/composer.json",
+    "h5-platform/composer.lock",
+    "h5-platform/public",
+    "h5-platform/resources",
+    "scripts/dev.py"
+  ],
+  "module06_evidence": "00 verified hashes/source/browser records; own 293 tests rerun, no repeated browser/restore/cloud run claimed.",
+  "limitations": [
+    "Billing staging adapter not yet delivered",
+    "ServerRegionResolver still ZZ/unresolved outside limited local fixture",
+    "No real SMTP or official Stripe/advertising calls",
+    "Deployment templates not run under nginx/FPM/TLS",
+    "D03/D05, resources and real devices pending"
+  ],
+  "source_file_sha256": {
+    "docs/contracts/controlled-staging-v1.0.4.md": "376d74448ce9c1fba2c295aef9fe0f1caa775228d295cacd57dea0429f8e4712",
+    "docs/contracts/openapi.yaml": "9f0683fd739b85ef8d31d2c8758a6cd9a749115d51cb4c4db46c46e4c269d807",
+    "h5-platform/.env.example": "2abb1e46c2c859bc75b1c7c55559c5bf4df2c0ce11aa8c9bd39b89ff516baed4",
+    "h5-platform/app/Providers/AppServiceProvider.php": "db6d9ac92beee8a954b65f3fd90bea902306cadd90c89ddd70fa4c93afd67be8",
+    "h5-platform/app/Support/DirectConnectionContext.php": "cc305dfc9769c1547d552221e48c3cb23000e4efd1a74924589e7459d1ddfa83",
+    "h5-platform/app/Support/RuntimeEnvironmentGuard.php": "9296afa0cdd3121c47901691f87ecb394d9d24ab5626643e9e980a457cd8f957",
+    "h5-platform/bootstrap/app.php": "d804de6e7c0a6ae9f49372aaeebd77d17fdb9b11fcd22769e07159c1f3d1fb47",
+    "h5-platform/config/app.php": "027a6d4cf49850eb28a680d5ff9fa527934436ca625742621c3e1ac834da2b9b",
+    "h5-platform/config/h5.php": "aa89329520051427cb2e632d1bdbf5c0ad744f5c01d262a23a82cc0cc2aefc95",
+    "h5-platform/config/mail.php": "840f680053bf1dd8086fd233e347d9c62d90519daabf5088f5672a50710d93de",
+    "h5-platform/tests/Feature/Contracts/RuntimeEnvironmentGuardTest.php": "f4b553136adc34a8b57c888c740c8aaf1065e43d49462dc052b26d2ca726d45b",
+    "h5-platform/tests/Feature/Contracts/SharedInfrastructureTest.php": "96ee9614f1563c464bf07e7deba9a6ddf1ce94f85dded61c77020000e8e369a3",
+    "h5-platform/tests/Feature/Contracts/Support/runtime-guard-probe.php": "abcc55f30fce4d065c9168a2094a9a7ee6680a9221d7a581172230afd8301bfb"
+  },
+  "evidence_sha256": {
+    "06-manifest-review.json": "c664dcbc2c932f9beb3c5bcd31b386eb13b71158a7ea616db4c4737e56790e1e",
+    "combined.txt": "cbf3633660d3175d621e912c5e0769f25af8ca334bba0e2c2774868634636990",
+    "composer-audit.json": "3d68c4566587606c21e4bcd82b55d322ddb79158f657d9fb90bf0d24ab5bccdf",
+    "contracts.txt": "7503796591c64d7ce1507331c5d439ded938323ffa4d85de3e16c8e99607ce3b",
+    "focused.txt": "1e05993fbb0ecef62fd1fd53f1a101dbffd967c3e2bd3553c102d11d4b698f18",
+    "format.txt": "cd1a94fc2cf6a965b86e1a4809d6c7fb9148b1ee374e1010ed2ac96ff4876ec2",
+    "local-http.json": "68aa770d3bb9bf40080813b660b1e64a76b23520db7fff735cd28edd12f114bf",
+    "numeric-host-before.txt": "bcfd8a2f53b041a2b3629c3668b076e2ca86dc2afd43c41e449602f604f15ecc",
+    "restart.txt": "6e58d5dbab1784c0bd317b8dbd8f29657089840ee01d8aeb14b47c78e111a83c",
+    "runtime.json": "9e9fcb8ac3d576c72b3166204716d3f9fdaaa3877557d91a8b1859a58326e676",
+    "staging-http.json": "e492c0099396eadfff84de72c1916a80dbb5be5085aed6150d87cf784b1c6e39"
+  }
+}
