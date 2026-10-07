@@ -24,7 +24,7 @@ return [
         'identity' => ['provider' => IdentityServiceProvider::class, 'ready' => true],
         'content' => ['provider' => ContentServiceProvider::class, 'ready' => true],
         'billing' => ['provider' => BillingServiceProvider::class, 'ready' => true],
-        'audience' => ['provider' => null, 'ready' => false],
+        'audience' => ['provider' => AudienceServiceProvider::class, 'ready' => true],
         'acquisition' => ['provider' => null, 'ready' => false],
     ],
 ];

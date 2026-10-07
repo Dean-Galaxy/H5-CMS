@@ -1,0 +1,4 @@
+<x-layouts.site :title="$drama->title">
+<section class="drama-detail"><div class="detail-poster">@if($drama->cover_url)<img src="{{ $drama->cover_url }}" alt="{{ $drama->title }}">@endif</div><div><p class="eyebrow">{{ __('audience::messages.published', ['count'=>$drama->published_episode_count]) }}</p><h1>{{ $drama->title }}</h1><p class="synopsis">{{ $drama->synopsis }}</p><p class="tag">{{ __('audience::messages.free_count', ['count'=>$drama->free_episode_count]) }}</p><div class="actions">@if(count($drama->episodes))<a class="button" href="/dramas/{{ $drama->id }}/episodes/{{ $drama->episodes[0]->id }}">▶ {{ __('audience::messages.watch') }}</a>@endif<a class="button secondary" data-continue-drama="{{ $drama->id }}" data-viewer="{{ auth('web')->id() }}" hidden>{{ __('audience::messages.continue') }}</a></div></div></section>
+@include('audience.partials.episodes')
+</x-layouts.site>

@@ -22,7 +22,7 @@ class AcceptedBillingTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_real_billing_loads_without_opt_in_and_does_not_enable_external_payments_or_other_modules(): void
+    public function test_real_billing_loads_without_opt_in_and_does_not_enable_external_payments_or_acquisition(): void
     {
         $this->assertSame('', config('h5.local_modules'));
         $this->assertSame(['provider' => BillingServiceProvider::class, 'ready' => true], config('h5.modules.billing'));
@@ -32,7 +32,7 @@ class AcceptedBillingTest extends TestCase
         $this->assertFalse(app(AttributionService::class)->enabled());
         $this->getJson('/health')->assertOk()
             ->assertJsonPath('modules.identity', 'ready')->assertJsonPath('modules.content', 'ready')
-            ->assertJsonPath('modules.billing', 'ready')->assertJsonPath('modules.audience', 'not_ready')
+            ->assertJsonPath('modules.billing', 'ready')->assertJsonPath('modules.audience', 'ready')
             ->assertJsonPath('modules.acquisition', 'not_ready');
 
         $commands = array_map(fn ($event) => $event->command, app(Schedule::class)->events());

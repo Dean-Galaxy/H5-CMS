@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-07",
+  "environment": "independent local workspace, port 8204, real Identity Content Billing",
+  "browser": "Codex in-app browser, native HLS",
+  "viewports": [
+    {"width": 1440, "height": 1000, "horizontal_overflow": false},
+    {"width": 390, "height": 844, "horizontal_overflow": false}
+  ],
+  "real_browser_checks": [
+    "Chinese and English homepage, category, drama, episode and membership navigation",
+    "Guest free video actual playback readyState 4 with advancing time and supplied English subtitle track showing",
+    "Episode 6 denied without membership",
+    "Guest Continue watching link retained episode 1 at position 15",
+    "Existing local test viewer login returned only current episode 1 position 37",
+    "Logged in actual playback saved a current account bookmark",
+    "Real MembershipReader reports no subscription, real Offer reports explicit test USD 3 then USD 12 weekly",
+    "Explicit local checkout confirmation displays unconfigured-payment error; no success or entitlement invented",
+    "After paused renewal and subsequent playback, account Continue watching showed episode 2 at position 23"
+  ],
+  "native_paused_renewal": {
+    "before": {"position_seconds": 9.166554, "paused": true, "expires_epoch": 1791357026},
+    "after_grant": {"native_current_time_before_metadata": 0, "paused": true, "expires_epoch": 1791357126, "status": "Paused", "membership_return_position": 9, "explicit_play_button": true},
+    "after_explicit_play": {"position_seconds": 23.879409, "paused": false, "readyState": 4, "status": "Playing"},
+    "result": "passed"
+  },
+  "player_state_tests": {
+    "passed": 16,
+    "source": "actual shipped player.js",
+    "fixtures": "browser events, clocks, fetch, Hls loader and media are controlled test doubles",
+    "covers": ["F06 pending offline/pagehide and late success/failure", "old finally cannot unlock new request", "15 second authorization deadline and explicit retry", "bounded bookmark restore and late result", "non-native HLS allowed-only startup and fatal error", "renewal denial prevents old callbacks from restarting", "paused renewal retains position until metadata", "actual advance before save and session sequencing"]
+  },
+  "pending": [
+    "Real Chrome/non-native hls.js decoding: browser connection timed out",
+    "Actual network cut and renewal denial in a real browser: covered by deterministic state tests only",
+    "Physical mobile device: requires 06 accessible environment",
+    "Official Stripe sandbox, payment, cancel, refund and resume browser chain",
+    "Real email delivery"
+  ],
+  "no_public_launch_or_paid_readiness_claim": true
+}

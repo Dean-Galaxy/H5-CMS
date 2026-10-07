@@ -1,0 +1,168 @@
+{
+  "contract": "1.0.2",
+  "workspace": "h5_743b4f0f33",
+  "drama_id": "01a11516-263a-71af-a995-a50683978079",
+  "source_read_only": true,
+  "rights_verified": false,
+  "assets": [
+    {
+      "key": "cover",
+      "id": "01a11516-1b04-7027-aac8-fa8d7301f48c",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 3770283,
+      "duration_seconds": null,
+      "decode_checked": null,
+      "subtitle_source_reordered": null,
+      "subtitle_timestamps_modified": null
+    },
+    {
+      "key": "banner",
+      "id": "01a11516-1fad-71e5-93ce-b36cf67b2ee9",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 5064540,
+      "duration_seconds": null,
+      "decode_checked": null,
+      "subtitle_source_reordered": null,
+      "subtitle_timestamps_modified": null
+    },
+    {
+      "key": "video-1",
+      "id": "01a11516-264b-73d6-87f1-8a760816d8fa",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 102291989,
+      "duration_seconds": 84,
+      "decode_checked": true,
+      "subtitle_source_reordered": null,
+      "subtitle_timestamps_modified": null
+    },
+    {
+      "key": "subtitle-1",
+      "id": "01a11516-5014-70d7-ae19-64b9dbfd6680",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 2226,
+      "duration_seconds": null,
+      "decode_checked": null,
+      "subtitle_source_reordered": true,
+      "subtitle_timestamps_modified": false
+    },
+    {
+      "key": "video-2",
+      "id": "01a11516-5044-70e5-afb7-075f299b2477",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 124366974,
+      "duration_seconds": 102,
+      "decode_checked": true,
+      "subtitle_source_reordered": null,
+      "subtitle_timestamps_modified": null
+    },
+    {
+      "key": "subtitle-2",
+      "id": "01a11516-82c8-734f-85c0-ee0168bdd932",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 3051,
+      "duration_seconds": null,
+      "decode_checked": null,
+      "subtitle_source_reordered": false,
+      "subtitle_timestamps_modified": false
+    },
+    {
+      "key": "video-3",
+      "id": "01a11516-831e-70d3-ab1e-7c7c6c018dbd",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 104451067,
+      "duration_seconds": 86,
+      "decode_checked": true,
+      "subtitle_source_reordered": null,
+      "subtitle_timestamps_modified": null
+    },
+    {
+      "key": "subtitle-3",
+      "id": "01a11516-b2fc-7166-b0d7-a8fca9f42309",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 2359,
+      "duration_seconds": null,
+      "decode_checked": null,
+      "subtitle_source_reordered": false,
+      "subtitle_timestamps_modified": false
+    },
+    {
+      "key": "video-4",
+      "id": "01a11516-b34b-73e4-8381-0c9a4a8f7e8e",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 124589599,
+      "duration_seconds": 102,
+      "decode_checked": true,
+      "subtitle_source_reordered": null,
+      "subtitle_timestamps_modified": null
+    },
+    {
+      "key": "subtitle-4",
+      "id": "01a11516-ec51-7292-bbd8-5230391c0678",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 3470,
+      "duration_seconds": null,
+      "decode_checked": null,
+      "subtitle_source_reordered": false,
+      "subtitle_timestamps_modified": false
+    },
+    {
+      "key": "video-5",
+      "id": "01a11516-ec83-73f7-8cde-8affa77c34aa",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 74190269,
+      "duration_seconds": 61,
+      "decode_checked": true,
+      "subtitle_source_reordered": null,
+      "subtitle_timestamps_modified": null
+    },
+    {
+      "key": "subtitle-5",
+      "id": "01a11517-0af1-72b4-a413-9e59f81bc043",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 1686,
+      "duration_seconds": null,
+      "decode_checked": null,
+      "subtitle_source_reordered": false,
+      "subtitle_timestamps_modified": false
+    },
+    {
+      "key": "video-6",
+      "id": "01a11517-0b35-73de-9746-598217218638",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 133535467,
+      "duration_seconds": 110,
+      "decode_checked": true,
+      "subtitle_source_reordered": null,
+      "subtitle_timestamps_modified": null
+    },
+    {
+      "key": "subtitle-6",
+      "id": "01a11517-532d-70b4-9159-56401dd661f5",
+      "state": "ready",
+      "source_sha256_matches": true,
+      "bytes": 3785,
+      "duration_seconds": null,
+      "decode_checked": null,
+      "subtitle_source_reordered": false,
+      "subtitle_timestamps_modified": false
+    }
+  ],
+  "billing_rows": {
+    "orders": 0,
+    "payments": 0,
+    "entitlements": 0
+  }
+}

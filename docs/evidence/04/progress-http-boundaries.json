@@ -1,0 +1,48 @@
+{
+  "base_url": "http://127.0.0.1:8204",
+  "boundary": "Real local HTTP, own browser cookies, no test accounts or media created. No token/cookie recorded.",
+  "checks": [
+    {
+      "case": "progress_missing_csrf",
+      "status": 419,
+      "expected_status": 419,
+      "error_code": "CSRF_MISMATCH",
+      "passed": true
+    },
+    {
+      "case": "progress_foreign_session_csrf",
+      "status": 419,
+      "expected_status": 419,
+      "error_code": "CSRF_MISMATCH",
+      "passed": true
+    },
+    {
+      "case": "progress_valid_csrf_guest_denied",
+      "status": 401,
+      "expected_status": 401,
+      "error_code": "AUTHENTICATION_REQUIRED",
+      "passed": true
+    },
+    {
+      "case": "playback_missing_csrf",
+      "status": 419,
+      "expected_status": 419,
+      "error_code": "CSRF_MISMATCH",
+      "passed": true
+    },
+    {
+      "case": "playback_foreign_session_csrf",
+      "status": 419,
+      "expected_status": 419,
+      "error_code": "CSRF_MISMATCH",
+      "passed": true
+    },
+    {
+      "case": "playback_valid_csrf_checks_content",
+      "status": 404,
+      "expected_status": 404,
+      "error_code": "NOT_FOUND",
+      "passed": true
+    }
+  ]
+}
