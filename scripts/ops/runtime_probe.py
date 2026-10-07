@@ -18,10 +18,12 @@ probe_root = dev.RUN / '06/runtime-probes'
 probe_root.mkdir(parents=True, exist_ok=True)
 helper = ROOT / 'h5-platform/tests/Security/Support/runtime-probe.php'
 results = []
+# Probe boots/readiness must remain offline even if a guard regresses.
+php_args = [dev.PHP, '-d', 'disable_functions=curl_exec,curl_multi_exec,stream_socket_client,fsockopen,pfsockopen']
 
 
-def run(env, action='boot', stdin=None, expected=None, executable=None):
-    args = [dev.PHP, helper, action] if executable is None else [dev.PHP, *executable]
+def run(env, action='boot', stdin=None, expected=None, executable=None, expected_driver='unconfigured'):
+    args = [*php_args, helper, action] if executable is None else [*php_args, *executable]
     p = subprocess.run(args, env=env, cwd=dev.APP, input=stdin, text=True, capture_output=True, timeout=25)
     try:
         observed = json.loads(p.stdout)
@@ -35,7 +37,9 @@ def run(env, action='boot', stdin=None, expected=None, executable=None):
     elif action != 'cache':
         assert observed['config_environment'] == observed['container_environment'] == observed['process_environment']
         assert observed['region'] == {'country_code': 'ZZ', 'source': 'unresolved'}
-        assert observed['billing_driver'] == 'unconfigured' and not observed['acquisition_ready']
+        assert observed['billing_driver'] == expected_driver and not observed['acquisition_ready']
+        if executable is None:
+            assert observed['network_functions_disabled'] is True
     return observed
 
 
@@ -65,6 +69,11 @@ with tempfile.TemporaryDirectory(prefix='run-', dir=probe_root) as tmp:
     origin = run(on, 'origin')
     assert origin['origin'] == 'https://staging.example.test'
     results.append({'name': 'controlled origin opt-in, still ZZ and unconfigured payment', 'observed': origin, 'passed': True})
+    stripe_without_credentials = {**on, 'H5_BILLING_DRIVER': 'stripe_test'}
+    unpaid = run(stripe_without_credentials, 'billing', expected_driver='stripe_test')
+    assert unpaid['origin'] == 'https://staging.example.test'
+    assert unpaid['billing_availability'] == {'ready': False, 'reason': 'DEPENDENCY_NOT_READY', 'status': 503}
+    results.append({'name': 'uncached controlled Stripe test boots but empty credentials refuse payment', 'observed': unpaid, 'passed': True})
     cases = [
         ('APP_DEBUG', 'true', 'RUNTIME_DEBUG_FORBIDDEN'), ('APP_DEBUG', 'junk', 'RUNTIME_BOOLEAN_INVALID'),
         ('H5_CONTROLLED_STAGING', 'junk', 'RUNTIME_BOOLEAN_INVALID'), ('H5_SIMULATION', 'true', 'RUNTIME_LOCAL_OVERRIDE_FORBIDDEN'),
@@ -77,7 +86,7 @@ with tempfile.TemporaryDirectory(prefix='run-', dir=probe_root) as tmp:
         ('MAIL_MAILER', 'preview', 'RUNTIME_MAIL_TRANSPORT_FORBIDDEN'), ('MAIL_MAILER', 'failover', 'RUNTIME_MAIL_PATH_INVALID'),
         ('MAIL_FROM_ADDRESS', 'invalid', 'RUNTIME_MAIL_FROM_INVALID'),
         ('H5_LOCAL_MODULES', 'acquisition', 'RUNTIME_LOCAL_OVERRIDE_FORBIDDEN'),
-        ('H5_BILLING_DRIVER', 'stripe_test', 'Billing only supports an explicitly configured isolated Stripe test environment.'),
+        ('H5_BILLING_DRIVER', 'stripe_test', 'BILLING_STAGING_NOT_ENABLED'),
     ]
     for field, value, reason in cases:
         observed = run({**base, field: value}, expected=reason)
@@ -101,9 +110,15 @@ with tempfile.TemporaryDirectory(prefix='run-', dir=probe_root) as tmp:
         ('trustedproxy.proxies', ['127.0.0.1'], 'RUNTIME_PROXY_FORBIDDEN'),
         ('mail.mailers.smtp.verify_peer', False, 'RUNTIME_MAIL_TLS_REQUIRED'),
         ('h5.modules.acquisition.ready', True, 'RUNTIME_ACQUISITION_NOT_RELEASED'),
+        ('billing.driver', 'stripe_test', 'BILLING_STAGING_NOT_ENABLED'),
     ]:
         observed = run(cache({field: value}), expected=reason)
         results.append({'name': 'cached ' + field, 'changed_field': field, 'expected_reason': reason, 'observed': observed, 'passed': True})
+    cached_unpaid = run(cache({'billing.driver': 'stripe_test', 'h5.controlled_staging': True}), 'billing', expected_driver='stripe_test')
+    assert cached_unpaid['cached'] is True
+    assert cached_unpaid['origin'] == 'https://staging.example.test'
+    assert cached_unpaid['billing_availability'] == {'ready': False, 'reason': 'DEPENDENCY_NOT_READY', 'status': 503}
+    results.append({'name': 'cached controlled Stripe test boots but empty credentials refuse payment', 'observed': cached_unpaid, 'passed': True})
     cached = cache({})
     for value in (None, 'local'):
         changed = dict(cached)
@@ -114,7 +129,7 @@ with tempfile.TemporaryDirectory(prefix='run-', dir=probe_root) as tmp:
         results.append({'name': 'cached process APP_ENV ' + ('missing' if value is None else value),
                         'observed': run(changed, expected='RUNTIME_ENVIRONMENT_INVALID'), 'passed': True})
     # Existing process intentionally retains loaded settings; replacing its cache does not refresh it.
-    process = subprocess.Popen([dev.PHP, helper, 'hold'], cwd=dev.APP, env=cached, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    process = subprocess.Popen([*php_args, helper, 'hold'], cwd=dev.APP, env=cached, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
     try:
         first = json.loads(process.stdout.readline())
         assert first['ok'] and first['cached']
@@ -150,6 +165,6 @@ assert fields['H5_MEDIA_ROOT'] == str(dev.RUN/'media') and (dev.APP/'.env').stat
 assert r.stdout.strip().split('|') == [c['db'], str(c['db_port']), c['user'], 'f', 'f']
 report = {'checkout_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
           'contract': safe['contract'], 'checks': results, 'workspace_binding': True, 'database_identity': r.stdout.strip(),
-          'scope': 'independent CLI boot/config cache and local DB identity only; synthetic SMTP credentials; no external connection or delivery; no real FPM/systemd execution'}
+          'scope': 'independent CLI boot/config cache and local DB identity only; synthetic SMTP and empty Stripe credentials; native network functions disabled in probes; no external connection or delivery; no real FPM/systemd execution'}
 (dev.RUN/'06/runtime-probe.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
 print(json.dumps(report, ensure_ascii=False, indent=2))
