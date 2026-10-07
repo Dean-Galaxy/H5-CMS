@@ -1,0 +1,63 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Billing\StripeGatewayTest
+  ✓ configuration and live credentials fail closed without http          0.13s
+  ✓ actual client options and global tls are checked before http         0.02s
+  ✓ each network step rechecks mutated configuration                     0.06s
+  ✓ unconfigured gateway never fabricates checkout success               0.02s
+  ✓ checkout persists new preparation deadline weekly snapshot and cont… 0.02s
+  ✓ old return origins and order ids are read only and never exposed     0.02s
+  ✓ untrusted checkout urls and remote return mismatch are not returned  0.02s
+  ✓ regular price checkout omits discounts and promotion code input      0.02s
+  ✓ http fixture rejects coupon and serialized false promotion flag      0.02s
+  ✓ legacy conflict reconciles all statuses without post or mutating in… 0.02s
+  ✓ legacy conflict with zero or multiple sessions stays pending and un… 0.02s
+  ✓ persisted promotion flag rejects values other than strict false bef… 0.02s
+  ✓ persisted coupon shape must match discounted order before http       0.02s
+  ✓ preparation attaches controlled test clock and accepts same clock c… 0.02s
+  ✓ preparation refuses existing customer on another clock without rebi… 0.02s
+  ✓ preparation refuses customer response omitting requested clock       0.02s
+  ✓ unknown create finds original session without recreating customer c… 0.02s
+  ✓ unknown or too late create with no match remains pending without ne… 0.02s
+  ✓ reconciliation paginates and refuses multiple matching sessions      0.02s
+  ✓ provider deadline must exactly match the persisted request           0.02s
+  ✓ paid invoice requires actual payment and uses line service interval  0.02s
+  ✓ unpaid invoice reads current required action without granting payme… 0.02s
+  ✓ manually marked paid invoice is not verified payment                 0.02s
+  ✓ payment for another customer is not verified                         0.02s
+  ✓ restore updates only cancellation flag and rechecks same period      0.02s
+  ✓ refunds include all pages and preserve partial pending and failed f… 0.02s
+  ✓ signed webhook retains only minimum reconciliation identity          0.02s
+  ✓ refund event exposes charge id only as reconciliation hint           0.01s
+  ✓ tampered signature is rejected                                       0.02s
+  ✓ live webhook and version mismatch fail closed                        0.02s
+  ✓ platform timeout has safe fixed error and no false success           0.02s
+
+   PASS  Tests\Feature\Billing\BillingCheckoutCompatibilityTest
+  ✓ unknown legacy intent with no session keeps original snapshot and b… 0.42s
+  ✓ later unique session recovers original legacy checkout without crea… 0.04s
+  ✓ unattempted legacy coupon intent is read only even inside initial c… 0.04s
+
+   PASS  Tests\Feature\Billing\BillingCheckoutSafetyTest
+  ✓ existing safe checkout returns official fragment without creating a… 0.04s
+  ✓ existing checkout hides unsafe saved request without rewriting or r… 0.15s
+  ✓ existing checkout hides unsafe provider urls without changing payme… 0.17s
+  ✓ changed origin hides existing checkout and restoring configuration…  0.05s
+  ✓ untrusted or non us region is rejected before gateway or order rese… 0.03s
+  ✓ missing stripe credentials never create orders placeholders or webh… 0.03s
+
+   PASS  Tests\Feature\Billing\BillingStagingPolicyTest
+  ✓ safe staging boots with official transport but never makes a paymen… 0.21s
+  ✓ cached missing credentials and unconfigured driver allow boot but b… 0.99s
+  ✓ cached provider rejects disallowed payment modes credentials and ve… 2.96s
+  ✓ same gateway and provider recheck loaded configuration after succes… 3.67s
+  ✓ missing credentials after boot disable existing gateway without fai… 0.39s
+  ✓ staging rejects replaced sdk at boot and on an existing gateway      0.77s
+  ✓ staging rejects fake gateway bindings and cannot retrieve a rejecte… 1.17s
+  ✓ offline diagnostic reports configuration readiness without claiming… 1.14s
+  ✓ uncached real environment loading respects opt in and credential bo… 2.46s
+
+  Tests:    49 passed (1907 assertions)
+  Duration: 15.65s
