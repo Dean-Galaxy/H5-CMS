@@ -4,11 +4,37 @@ namespace Tests\Feature\Acquisition;
 
 use App\Enums\Role;
 use App\Modules\Acquisition\Filament\Pages\AcquisitionDesk;
+use App\Modules\Acquisition\Services\AcquisitionStore;
+use App\Modules\Acquisition\Services\AssetManager;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 final class DeskTest extends AcquisitionTestCase
 {
+    public function test_old_pixel_beyond_two_hundred_assets_remains_paged_and_repopulates_saved_link(): void
+    {
+        $staff = $this->signIn();
+        [$pixel, $link] = $this->assets();
+        $rows = [];
+        for ($i = 0; $i < 201; $i++) {
+            $rows[] = ['id' => AcquisitionStore::id(), 'owner_id' => $staff->id, 'name' => 'Later local fixture '.$i,
+                'platform' => 'meta', 'external_id' => (string) (100000 + $i), 'environment' => 'test',
+                'created_at' => now(), 'updated_at' => now()];
+        }
+        DB::table('acquisition_pixels')->insert($rows);
+        $manager = app(AssetManager::class);
+        $this->assertNotContains($pixel['id'], array_column($manager->pixels(), 'id'));
+        $last = $manager->assetPage('pixel', 5);
+        $this->assertSame(202, $last['total']);
+        $this->assertContains($pixel['id'], array_column($last['items'], 'id'));
+        $page = Livewire::test(AcquisitionDesk::class)->call('selectLink', $link['id'])->assertSet('link.pixel_id', $pixel['id'])
+            ->assertSeeHtml('value="'.$pixel['id'].'"')->set('link.name', 'Old binding retained')->call('saveLink')->assertHasNoErrors();
+        $this->assertDatabaseHas('acquisition_links', ['id' => $link['id'], 'pixel_id' => $pixel['id'], 'name' => 'Old binding retained']);
+        $this->signIn();
+        $this->assertSame(0, $manager->assetPage('pixel', 5)['total']);
+    }
+
     public function test_form_save_reopen_local_probe_link_edit_disable_and_summary(): void
     {
         $this->signIn();

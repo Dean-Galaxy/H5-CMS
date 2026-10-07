@@ -25,9 +25,12 @@
             @forelse($pixels as $asset)
                 <tr wire:key="pixel-{{ $asset['id'] }}"><td><strong>{{ $asset['name'] }}</strong><br>{{ ucfirst($asset['platform']) }} · {{ $asset['external_id'] }}<br><span class="acq-badge">{{ $asset['environment'] === 'test' ? '测试' : '正式' }}</span> · 版本 {{ $asset['version'] }}</td>
                     <td>{{ $asset['active'] ? '启用' : '停用' }}<br>可见关联链接 {{ $asset['affected_links'] }} 个<br>共享人员 {{ count($asset['assigned_staff_ids']) }} 名</td>
-                    <td>本地：{{ $asset['local_status'] === 'simulated' ? '模拟通过' : '未测试' }}<br>平台：待联调<br><button wire:click="selectPixel('{{ $asset['id'] }}')">编辑 / 启停</button>@if($asset['environment'] === 'test')<button wire:click="simulatePixel('{{ $asset['id'] }}')">本地模拟校验</button>@endif</td></tr>
+                    <td>本地：{{ $asset['local_status'] === 'simulated' ? '模拟通过' : '未测试' }}<br>平台：待联调<br><button wire:click="selectPixel('{{ $asset['id'] }}')">编辑 / 启停</button>@if($asset['environment'] === 'test')<button wire:click="simulatePixel('{{ $asset['id'] }}')">本地模拟校验</button>@endif @if($owner)<button wire:click="selectAssignment('pixel', '{{ $asset['id'] }}')">分配像素</button>@endif</td></tr>
             @empty<tr><td colspan="3">尚无可见像素，请登记你拥有或获授权的测试资产。</td></tr>@endforelse
         </tbody></table></div>
+        <p class="acq-note">共 {{ $pixelPagination['total'] }} 项 · 第 {{ $pixelPagination['page'] }} / {{ $pixelPagination['last_page'] }} 页</p>
+        @if($pixelPagination['page'] > 1)<button wire:click="$set('pixelPage', {{ $pixelPagination['page'] - 1 }})">上一页像素</button>@endif
+        @if($pixelPagination['page'] < $pixelPagination['last_page'])<button wire:click="$set('pixelPage', {{ $pixelPagination['page'] + 1 }})">下一页像素</button>@endif
     </section>
     <section class="acq-card">
         <h2>{{ $linkId ? '编辑推广链接' : '生成推广链接' }}</h2>
@@ -37,19 +40,22 @@
                 <label>推广名称<input wire:model="link.name" maxlength="100" required></label>
                 <label>平台<select wire:model="link.platform"><option value="meta">Meta</option><option value="tiktok">TikTok</option></select></label>
                 <label>已发布剧目<select wire:model="link.drama_id" required><option value="">请选择</option>@foreach($catalog as $drama)<option value="{{ $drama['id'] }}">{{ $drama['title'] }}</option>@endforeach</select></label>
-                <label>授权像素<select wire:model="link.pixel_id" required><option value="">请选择</option>@foreach($pixels as $asset)<option value="{{ $asset['id'] }}">{{ $asset['name'] }} · {{ $asset['platform'] }}{{ $asset['active'] ? '' : '（停用）' }}</option>@endforeach</select></label>
+                <label>授权像素<select wire:model="link.pixel_id" required><option value="">请选择</option>@foreach($pixelOptions as $asset)<option value="{{ $asset['id'] }}">{{ $asset['name'] }} · {{ $asset['platform'] }}{{ $asset['active'] ? '' : '（停用）' }}</option>@endforeach</select></label>
                 <label>启用状态<select wire:model="link.active"><option value="1">启用</option><option value="0">停用</option></select></label>
             </div>
-            <p class="acq-note">版本 {{ $link['version'] }}；当前可改名称与启停。落地目标 / 像素变更和旧链接规则待 D05。</p>
+            <p class="acq-note">版本 {{ $link['version'] }}；当前可改名称与启停。落地目标 / 像素变更和旧链接规则待 D05。找不到像素时可在上方像素列表翻页，已选项会保留。</p>
             <button type="submit">保存并生成链接</button><button type="button" wire:click="newLink">新建另一条</button>
         </form>
         <div class="acq-table"><table><thead><tr><th>推广链接</th><th>复制与状态</th><th>管理</th></tr></thead><tbody>
         @forelse($links as $entry)
             <tr wire:key="link-{{ $entry['id'] }}"><td><strong>{{ $entry['name'] }}</strong><br>{{ $entry['drama_title'] }}<br>{{ ucfirst($entry['platform']) }} · 版本 {{ $entry['version'] }}</td>
                 <td><input class="acq-url" readonly value="{{ $entry['url'] }}" aria-label="推广链接" onclick="this.select()"><button type="button" x-data="{ copied: false }" x-on:click="navigator.clipboard.writeText(@js($entry['url'])).then(() => copied = true)" x-text="copied ? '已复制' : '复制链接'">复制链接</button><br>{{ $entry['active'] ? '启用配置' : '停用' }} · 落地待 D05</td>
-                <td><button wire:click="selectLink('{{ $entry['id'] }}')">编辑 / 停用</button><button wire:click="showSummary('{{ $entry['id'] }}')">本站汇总</button><button wire:click="retry('{{ $entry['id'] }}')">重试待处理发送</button></td></tr>
+                <td><button wire:click="selectLink('{{ $entry['id'] }}')">编辑 / 停用</button><button wire:click="showSummary('{{ $entry['id'] }}')">本站汇总</button><button wire:click="retry('{{ $entry['id'] }}')">重试待处理发送</button>@if($owner)<button wire:click="selectAssignment('link', '{{ $entry['id'] }}')">分配链接</button>@endif</td></tr>
         @empty<tr><td colspan="3">尚无可见推广链接。</td></tr>@endforelse
         </tbody></table></div>
+        <p class="acq-note">共 {{ $linkPagination['total'] }} 项 · 第 {{ $linkPagination['page'] }} / {{ $linkPagination['last_page'] }} 页</p>
+        @if($linkPagination['page'] > 1)<button wire:click="$set('linkPage', {{ $linkPagination['page'] - 1 }})">上一页链接</button>@endif
+        @if($linkPagination['page'] < $linkPagination['last_page'])<button wire:click="$set('linkPage', {{ $linkPagination['page'] + 1 }})">下一页链接</button>@endif
     </section>
     @if($summary)
         <section class="acq-card"><h2>对应链接的本站汇总</h2><p>{{ $summary['definition'] }}</p><p>落地访问：待 D05 和 04 插槽接入；预加载不计作真实观看。</p>
@@ -59,5 +65,20 @@
             @foreach($summary['deliveries'] as $row)<p>发送 {{ $row['state'] }}：{{ $row['count'] }} 项 @if($row['reason'])（{{ $row['reason'] }}）@endif</p>@endforeach
         </section>
     @endif
-    @if($owner)<section class="acq-card"><h2>负责人分配</h2><p>多人共享等待 01 的最小员工名单契约后开放选择。投流同事看不到用户联系方式或逐人订单。</p></section>@endif
+    @if($owner)
+        <section class="acq-card"><h2>负责人分配</h2>
+            <p>点击资产旁的“分配像素”或“分配链接”。资产创建人保留访问权；勾选多人可共享管理。编辑启用链接还需拥有对应像素的权限，请分别分配。</p>
+            <p class="acq-note">投流同事只看自己和被分配资产的本站汇总，不提供用户联系方式或逐人订单。</p>
+            @if($shareId)
+                <p>正在分配：{{ $shareName }} · {{ $shareType === 'pixel' ? '像素' : '链接' }} · 版本 {{ $shareVersion }}</p>
+                <p>{{ $staffMessage }}</p><button wire:click="loadStaff">{{ $staffCursor ? '读取下一页人员' : '读取可分配人员' }}</button>
+                <form wire:submit="share">
+                    @foreach($staffCandidates as $candidate)
+                        <label style="display:block;margin:8px 0"><input type="checkbox" wire:model="staffIds" value="{{ $candidate['id'] }}"> {{ $candidate['name'] }}</label>
+                    @endforeach
+                    <button type="submit">保存共享分配</button>
+                </form>
+            @else<p>尚未选择要分配的资产。</p>@endif
+        </section>
+    @endif
 </x-filament-panels::page>

@@ -123,14 +123,44 @@ final class DeliveryTest extends AcquisitionTestCase
     {
         $this->signIn();
         foreach (['meta', 'tiktok'] as $platform) {
-            Http::swap(new Factory);
-            Http::preventStrayRequests();
-            [, , , , $delivery] = $this->queueEvent($platform, simulation: false);
-            $this->httpCredentials($delivery);
-            Http::fake(['*' => Http::response($platform === 'meta' ? ['error' => ['code' => 190]] : ['code' => 40001], 200)]);
-            app(DeliveryWorker::class)->deliver($delivery->id);
-            $this->assertDatabaseHas('acquisition_deliveries', ['id' => $delivery->id, 'state' => 'failed']);
+            foreach ([200, 302] as $status) {
+                Http::swap(new Factory);
+                Http::preventStrayRequests();
+                [, , , , $delivery] = $this->queueEvent($platform, simulation: false);
+                $this->httpCredentials($delivery);
+                Http::fake(['*' => Http::response($platform === 'meta' ? ['error' => ['code' => 190]] : ['code' => 40001], $status)]);
+                app(DeliveryWorker::class)->deliver($delivery->id);
+                $this->assertDatabaseHas('acquisition_deliveries', ['id' => $delivery->id, 'state' => 'failed']);
+                Http::assertSentCount(1);
+            }
         }
+    }
+
+    public function test_external_review_match_context_and_event_age_are_checked_before_http(): void
+    {
+        $this->signIn();
+        [, $link, $source, , $delivery] = $this->queueEvent(simulation: false);
+        $this->httpCredentials($delivery);
+        $worker = app(DeliveryWorker::class);
+        $manager = app(AssetManager::class);
+        config(['acquisition.platform_reviewed' => false]);
+        $worker->deliver($delivery->id);
+        $this->assertDatabaseHas('acquisition_deliveries', ['last_error' => 'EXTERNAL_REVIEW_REQUIRED', 'attempts' => 0]);
+        config(['acquisition.platform_reviewed' => true]);
+        $base = ['page_url' => 'https://localhost/dramas/example', 'ip' => '8.8.8.8', 'user_agent' => 'Test only'];
+        foreach ([['page_url' => 'https://elsewhere.example/dramas/example'], ['page_url' => 'https://localhost/?email=private@example.test'],
+            ['ip' => '127.0.0.1'], ['user_agent' => '']] as $invalid) {
+            DB::table('acquisition_sources')->where('id', $source->source_id)->update(['context_encrypted' => Crypt::encryptString(json_encode(array_replace($base, $invalid)))]);
+            $manager->retry($link['id']);
+            $worker->deliver($delivery->id);
+            $this->assertDatabaseHas('acquisition_deliveries', ['last_error' => 'MATCH_CONTEXT_REQUIRED', 'attempts' => 0]);
+        }
+        DB::table('acquisition_sources')->where('id', $source->source_id)->update(['context_encrypted' => Crypt::encryptString(json_encode($base))]);
+        $this->travel(8)->days();
+        $manager->retry($link['id']);
+        $worker->deliver($delivery->id);
+        $this->assertDatabaseHas('acquisition_deliveries', ['last_error' => 'PLATFORM_EVENT_TIME_OUT_OF_RANGE', 'attempts' => 0]);
+        Http::assertNothingSent();
     }
 
     public function test_simulated_context_missing_credentials_and_disabled_pixel_are_blocked(): void

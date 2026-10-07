@@ -2,13 +2,11 @@
 
 namespace Tests\Feature\Acquisition;
 
-use App\Contracts\CatalogReader;
+use App\Contracts\PromotableCatalog;
 use App\Data\AttributionSnapshot;
-use App\Data\CatalogPage;
-use App\Data\CategoryList;
-use App\Data\Drama;
-use App\Data\HomePage;
 use App\Data\PaymentSettled;
+use App\Data\PromotableDrama;
+use App\Data\PromotableDramaPage;
 use App\Enums\Role;
 use App\Enums\TransactionKind;
 use App\Modules\Acquisition\AcquisitionServiceProvider;
@@ -45,31 +43,21 @@ abstract class AcquisitionTestCase extends TestCase
             $request->setLaravelSession($session);
         });
         $id = AcquisitionStore::id();
-        $this->dramas[$id] = new Drama($id, '明确的 testing 片单样例', '', null, 6, 6, 5, 'published', []);
-        // Explicit test double for the existing public catalog; it never reaches local HTTP.
+        $this->dramas[$id] = new PromotableDrama($id, '明确的 testing 片单样例', 'zh_CN', 'US', 6);
+        // Explicit testing double of the 1.0.3 staff catalog; ordinary local requests use the real binding.
         $test = $this;
-        $this->app->instance(CatalogReader::class, new class($test) implements CatalogReader
+        $this->app->instance(PromotableCatalog::class, new class($test) implements PromotableCatalog
         {
             public function __construct(private AcquisitionTestCase $test) {}
 
-            public function catalog(?string $cursor = null, int $limit = 20, string $locale = 'en', ?string $categoryId = null): CatalogPage
+            public function promotable(?string $cursor = null, int $limit = 20, string $locale = 'en'): PromotableDramaPage
             {
-                return new CatalogPage(array_values($this->test->fixtureDramas()), null);
+                return new PromotableDramaPage(array_values($this->test->fixtureDramas()), null);
             }
 
-            public function drama(string $dramaId, string $locale = 'en'): Drama
+            public function promotableDrama(string $dramaId, string $locale = 'en'): PromotableDrama
             {
                 return $this->test->fixtureDramas()[$dramaId] ?? throw new ApiProblem('NOT_FOUND', 404, '剧目不存在');
-            }
-
-            public function homepage(string $locale = 'en'): HomePage
-            {
-                throw new \LogicException('Not used by Acquisition');
-            }
-
-            public function categories(string $locale = 'en'): CategoryList
-            {
-                return new CategoryList([]);
             }
         });
     }

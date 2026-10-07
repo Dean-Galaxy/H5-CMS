@@ -2,10 +2,12 @@
 
 namespace App\Modules\Acquisition\Services;
 
+use App\Contracts\AcquisitionStaffDirectory;
 use App\Contracts\AuditRecorder;
-use App\Contracts\CatalogReader;
 use App\Contracts\IdentityContext;
+use App\Contracts\PromotableCatalog;
 use App\Enums\Permission;
+use App\Enums\Role;
 use App\Modules\Acquisition\Sending\LocalSimulator;
 use App\Modules\Acquisition\Sending\MetaAdapter;
 use App\Modules\Acquisition\Sending\TikTokAdapter;
@@ -22,7 +24,7 @@ final class AssetManager
 
     public function pixels(): array
     {
-        return $this->access->query('pixel')->orderByDesc('created_at')->limit(200)->get()->map(fn ($r) => $this->pixelView($r))->all();
+        return $this->assetPage('pixel')['items'];
     }
 
     public function pixel(string $id): array
@@ -74,7 +76,18 @@ final class AssetManager
 
     public function links(): array
     {
-        return $this->access->query('link')->orderByDesc('created_at')->limit(200)->get()->map(fn ($r) => $this->linkView($r))->all();
+        return $this->assetPage('link')['items'];
+    }
+
+    public function assetPage(string $type, int $page = 1): array
+    {
+        $query = $this->access->query($type);
+        $total = $query->count();
+        $last = max(1, (int) ceil($total / 50));
+        $page = max(1, min($last, $page));
+        $items = $query->orderByDesc('id')->forPage($page, 50)->get()->map(fn ($r) => $type === 'pixel' ? $this->pixelView($r) : $this->linkView($r))->all();
+
+        return ['items' => $items, 'total' => $total, 'page' => $page, 'last_page' => $last];
     }
 
     public function link(string $id): array
@@ -86,8 +99,7 @@ final class AssetManager
     {
         $this->access->actor();
         app(IdentityContext::class)->requireStaff(Permission::PublishedCatalogRead);
-        // Initial 1.0.2 consumer; an admin/target-region contract is requested in 05-001.
-        $page = app(CatalogReader::class)->catalog($cursor, 50, 'zh_CN');
+        $page = app(PromotableCatalog::class)->promotable($cursor, 50, 'zh_CN');
 
         return $page->toArray();
     }
@@ -114,8 +126,8 @@ final class AssetManager
                 if (! $pixel->active || $pixel->platform !== $data['platform']) {
                     throw new ApiProblem('VALIDATION_FAILED', 422, '请选择已启用且平台一致的授权像素');
                 }
-                $drama = app(CatalogReader::class)->drama($data['drama_id'], 'zh_CN');
-                if ($drama->publication_state !== 'published' || $drama->published_episode_count < 1) {
+                $drama = app(PromotableCatalog::class)->promotableDrama($data['drama_id'], 'zh_CN');
+                if ($drama->country_code !== 'US' || $drama->published_episode_count < 1) {
                     throw new ApiProblem('NOT_FOUND', 404, '剧目当前不可投放');
                 }
             }
@@ -141,9 +153,57 @@ final class AssetManager
     public function share(string $type, string $id, int $version, array $staffIds): void
     {
         app(IdentityContext::class)->requireStaff(Permission::StaffManage);
-        $this->access->get($type, $id);
-        // Do not invent an Identity query contract or accept arbitrary staff UUIDs.
-        throw new DependencyNotReady('Identity：投流可分配人员名单（05-001）');
+        Validator::make(['staff_ids' => $staffIds], ['staff_ids' => ['present', 'array', 'max:200'],
+            'staff_ids.*' => ['required', 'uuid', 'distinct']])->validate();
+        DB::transaction(function () use ($type, $id, $version, $staffIds) {
+            $row = $this->access->get($type, $id, true);
+            $this->version($row, $version);
+            // Every selected ID is revalidated through Identity, including IDs from older pages.
+            foreach ($staffIds as $staffId) {
+                $candidate = app(AcquisitionStaffDirectory::class)->candidate($staffId);
+                if (! $candidate->active || $candidate->role !== Role::Acquisition || $candidate->id !== $staffId) {
+                    throw new ApiProblem('NOT_FOUND', 404, '人员当前不再符合投流分配条件');
+                }
+            }
+            DB::table('acquisition_assignments')->where('resource_type', $type)->where('resource_id', $id)->delete();
+            foreach ($staffIds as $staffId) {
+                DB::table('acquisition_assignments')->insert(['resource_type' => $type, 'resource_id' => $id, 'staff_id' => $staffId, 'created_at' => now()]);
+            }
+            DB::table($this->access->table($type))->where('id', $id)->update(['version' => $version + 1, 'updated_at' => now()]);
+            if ($type === 'pixel') {
+                DB::table('acquisition_pixel_versions')->insert(['pixel_id' => $id, 'version' => $version + 1,
+                    'platform' => $row->platform, 'external_id' => $row->external_id, 'environment' => $row->environment, 'created_at' => now()]);
+            }
+            app(AuditRecorder::class)->record('acquisition.'.$type.'.assigned', 'acquisition_'.$type, $id, 'success', ['version' => $version + 1]);
+        }, 3);
+    }
+
+    public function staffCandidates(?string $cursor = null): array
+    {
+        app(IdentityContext::class)->requireStaff(Permission::StaffManage);
+
+        return app(AcquisitionStaffDirectory::class)->candidates($cursor, 50)->toArray();
+    }
+
+    public function assignment(string $type, string $id): array
+    {
+        app(IdentityContext::class)->requireStaff(Permission::StaffManage);
+        $row = $this->access->get($type, $id);
+        $selected = [];
+        foreach (DB::table('acquisition_assignments')->where('resource_type', $type)->where('resource_id', $id)->pluck('staff_id') as $staffId) {
+            try {
+                $candidate = app(AcquisitionStaffDirectory::class)->candidate($staffId);
+                $selected[] = ['id' => $candidate->id, 'name' => $candidate->name, 'available' => true];
+            } catch (ApiProblem $e) {
+                if ($e->errorCode !== 'NOT_FOUND') {
+                    throw $e;
+                }
+                // Keep an unavailable selection visible so it can be deliberately removed.
+                $selected[] = ['id' => $staffId, 'name' => '已失去分配资格（请取消勾选）', 'available' => false];
+            }
+        }
+
+        return ['name' => $row->name, 'version' => $row->version, 'selected' => $selected];
     }
 
     public function simulatePixel(string $id): void
