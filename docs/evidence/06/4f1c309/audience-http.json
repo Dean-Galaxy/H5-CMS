@@ -1,0 +1,17 @@
+{
+  "result": "passed",
+  "checks": [
+    "real registration retains only the requested current playback path",
+    "no progress is created by merely obtaining a playback grant",
+    "same account sees its saved point from a separate HTTP cookie jar",
+    "active rewatch of an earlier episode wins over a delayed older session",
+    "out-of-duration write is rejected",
+    "real website blocks first checkout before email verification",
+    "verified viewer sees explicit unconfigured-payment failure and gains no access",
+    "viewer remains separate from staff"
+  ],
+  "mail": "local preview only",
+  "payments": "unconfigured, never simulated",
+  "database": "h5_217e1741db",
+  "progress": "synthetic HTTP position inputs; actual video playback verified separately"
+}
