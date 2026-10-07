@@ -35,16 +35,17 @@
   "evidence_sha256": {
     "06-F08-diagnosis.json": "cfd97a4dd5cd774cfa3f9f9079b0743892a8362a45a158d44f2348328b4bfc42",
     "06-F08-failure.txt": "7cbf1831f256c43fcfc2a9535bcbbe90e944ef69002bff3119fdd9d7a225e6fb",
-    "06-initial-affected.txt": "cbcd24681d5fc4111e0fc938c9a631f7b58063f6bcab40520a6047f74fe834dd",
+    "06-initial-affected.txt": "cd03e769b20e8b81bec72d91ab54dc2c4f01111c7ead2a6f7637743789c555f9",
     "06-initial-runtime.json": "6c6b7270f6185f0322f598c5e8c6ba3fab64ff94a9691774dd714ca8b2f16f7d",
     "06-initial-source-audit.json": "6701083c7ab3bccc9ab9bb73a18be606d590a039ae21707e3157784ade71999b",
     "06-initial-static.json": "175c99115e7d20d67905ee453d12bc5bdfa251719f46ec8350be75e9c9a33cf3",
     "config-check.json": "c6b1e319430b7e391a54f8bb1afa364e132e3274061142a5d230ac351dd0a9e2",
     "contracts.txt": "95d160eb17e79150d63608f49da9f994a64eec99172a86c77a64e09250bbcad3",
-    "format.txt": "cd1a94fc2cf6a965b86e1a4809d6c7fb9148b1ee374e1010ed2ac96ff4876ec2",
-    "full-tests.txt": "a8eb04324b441e01542c57515c91b6fc16f9e8c89178b8f456caf7cb029ca07f",
+    "format.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
+    "full-tests.txt": "394bac76dbc759a7744ef4ea6673763035f96aa18a21308b27e80b4040fb7179",
     "http.json": "226d3c4819ff7598186d47eda873559faae00bb2261ea260d938823037bedf52",
     "source-audit.json": "8f5a2adb34acc265b850cbf0c0adca955d82273cf4c1501805d4db314bfd23bb",
-    "start.txt": "050f40894ef683716038aa3f022a040792138460f647d8ffafadc284aa4d347c"
-  }
+    "start.txt": "2fde0e5e0017d9553fecb7815b87ae6112393d51aafb8d23271e30378314cdaa"
+  },
+  "evidence_log_normalization": "ANSI color and trailing whitespace removed; substantive output unchanged, originals retained privately."
 }

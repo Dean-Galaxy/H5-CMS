@@ -1,5 +1,4 @@
-
-   INFO  Nothing to migrate.  
+INFO  Nothing to migrate.
 
 {
   "workspace": "h5_979f222b25",
