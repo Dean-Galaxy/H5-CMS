@@ -1,0 +1,14 @@
+{
+  "candidate": "cabbc76f6b8e8a368fcc4b6f4b06864a238ed966",
+  "integration_test_commit": "2bc3570807b0aca42a412d927263bce52827d44d",
+  "status": "05_returned_for_F07",
+  "files": {
+    "AcquisitionDeliveryBoundaryProbeTest.php": "c33723cfab90e563cbcbd825ccbb13d20ca64d4be74f24c46f20fc87c18e1a2f",
+    "AcquisitionDirectoryIntegrationTest.php": "3f628283e4bf61ff8b4d12780150e19a0d0c8138cc17cd0c7df78429fcc930c8",
+    "README.md": "3a061114f57ee2769b9eeee396aae8d649a3870f75c8fa2dc4bd19e6974790ae",
+    "combined-tests.txt": "6eda1c18278334349d906052a4612e951210f296ce58a6e1a7550a69a2f2806f",
+    "f07-probe-failing.txt": "7c9a7c4f3606328cc97a4145f00c7cb7ed42e78b963bd3e52103fb36a1a0a9f2",
+    "real-directory-integration.txt": "4872020bfb0d33c7f5807196324e1d4cba698c5015653edeb04f4ada525587b1",
+    "schema.txt": "846fc815924f0b13ddc5d0948469c7f415d33cc8e937842467ac9d43f66f2a4e"
+  }
+}
