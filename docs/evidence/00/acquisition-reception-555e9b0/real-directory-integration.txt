@@ -1,0 +1,10 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Contracts\AcquisitionDirectoryIntegrationTest
+  ✓ real directories support sharing selection revalidation and revocat… 6.62s  
+
+  Tests:    1 passed (27 assertions)
+  Duration: 10.43s
+

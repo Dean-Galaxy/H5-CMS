@@ -1,0 +1,10 @@
+{
+  "candidate": "0c2fea3f5372092ba6ba1ae9d817196d2cc393c0",
+  "files": {
+    "README.md": "6e29358db90dd71a95305da374098669b38add2a2044be113cd3ff93b7775d93",
+    "http.json": "4b0887c2b3a0093325efd91b710986448ca157201e4732d7171068f31dc3ce9a",
+    "runtime.json": "887fce855e3ca3c0b43b580fb0f72de890c2b52bc21e88b12fcbf2ae1f90e7c2",
+    "start.txt": "523238115a46f3e7fdef6a1ce991b9fd907804ef09feb4ff05f050abb25ac3b9",
+    "tests.txt": "90bd9a1c1c93c9d8da70aae01a6d14d5911848e1cfe8906ebe3e55466112d5d7"
+  }
+}

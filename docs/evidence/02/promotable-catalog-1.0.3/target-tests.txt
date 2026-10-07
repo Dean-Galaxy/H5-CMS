@@ -1,0 +1,18 @@
+Test database: h5_2e3d6828b8_test port: 5602
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Content\PromotableCatalogTest
+  ✓ provider returns minimal dtos from real publication facts and exist… 0.59s
+  ✓ both methods require current staff mfa and published catalog permis… 0.14s
+  ✓ inventory is us scoped without reading or changing viewer region or… 0.08s
+  ✓ us licence uses current half open interval and each read revalidate… 0.11s
+  ✓ only currently published episodes with usable media qualify          0.13s
+  ✓ missing or unsafe media and subtitle files are rechecked on every c… 0.14s
+  ✓ keyset pagination skips unusable batches and single lookup fills an… 0.23s
+  ✓ cursor integrity purpose country locale order and version are bound  0.12s
+  ✓ empty inventory and invalid inputs do not fabricate candidates       0.05s
+
+  Tests:    9 passed (237 assertions)
+  Duration: 1.94s
