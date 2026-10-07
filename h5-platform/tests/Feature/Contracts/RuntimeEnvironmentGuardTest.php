@@ -146,6 +146,7 @@ class RuntimeEnvironmentGuardTest extends TestCase
             'https://staging.example.test/#fragment', "https://staging.example.test\n",
             'https://staging.example.test.', 'https://localhost', 'https://a.localhost',
             'https://127.0.0.1', 'https://[::1]', 'https://bad_host.example.test',
+            'https://127.1', 'https://0x7f.0x0.0x0.0x1', 'https://0177.0.0.1', 'https://127.0.0.0x1',
             'https://staging.example.test\\@evil.test', null, [], 123,
         ] as $url) {
             $this->safeStaging(['app.url' => $url]);

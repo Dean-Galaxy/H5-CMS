@@ -61,6 +61,8 @@ final class RuntimeEnvironmentGuard
     {
         return is_string($value) && strlen($value) <= 253 && str_contains($value, '.')
             && ! str_ends_with($value, '.') && ! str_ends_with(strtolower($value), '.localhost')
+            // A public DNS suffix cannot be a shortened/octal/hexadecimal IPv4 component.
+            && preg_match('/\.[a-zA-Z][a-zA-Z0-9-]*\z/D', $value) === 1
             && filter_var($value, FILTER_VALIDATE_IP) === false
             && filter_var($value, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false;
     }
