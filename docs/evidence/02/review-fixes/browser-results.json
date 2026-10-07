@@ -1,0 +1,611 @@
+{
+  "environment": "Real browser on http://127.0.0.1:8202/admin/content-library, real Identity login+TOTP, CSRF and PostgreSQL. No mocked API responses.",
+  "fixture_boundary": "A/B are private local acceptance drafts created via ContentManager, referencing existing real media. 205 canceled metadata-only asset fixtures exercised pagination; removed after verification. No fake playable media, no membership stub, no publication.",
+  "ui_observations": [
+    {
+      "step": "edit A1 then number=2, save",
+      "message": "请检查输入：同一剧目的分集序号不能重复 [VALIDATION_FAILED]"
+    },
+    {
+      "step": "same edit form then number=3, save",
+      "message": "原分集的修改已保存。"
+    },
+    {
+      "step": "edit A2, 清空并新增分集",
+      "mode": "新增草稿分集",
+      "number": 1,
+      "title": "",
+      "video": "",
+      "subtitle": ""
+    },
+    {
+      "step": "create A1",
+      "message": "新分集已创建。"
+    },
+    {
+      "step": "edit A2, switch to B",
+      "mode": "新增草稿分集",
+      "number": 2,
+      "title": "",
+      "video": "",
+      "subtitle": ""
+    },
+    {
+      "step": "create B2 after switch",
+      "message": "新分集已创建。"
+    },
+    {
+      "step": "edit B1, 刷新状态",
+      "mode": "新增草稿分集",
+      "number": 3,
+      "title": ""
+    },
+    {
+      "step": "edit B1, 新增剧目",
+      "mode": "新增草稿分集",
+      "tools_hidden": true,
+      "title": ""
+    },
+    {
+      "step": "edit A title only and save",
+      "message": "剧目已保存。保存和上传不会自动公开。",
+      "cover": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+    },
+    {
+      "step": "edit inactive fixture Banner title only, save, reopen",
+      "image": "01a11431-8af8-7313-bb07-1e630cb13e04",
+      "active": false
+    }
+  ],
+  "database_assertions": {
+    "duplicate_number_preserves_both_dramas_and_episodes": true,
+    "move_keeps_original_id": true,
+    "move_does_not_add_row": true,
+    "second_episode_unchanged": true,
+    "explicit_new_adds_distinct_id": true,
+    "switch_drama_preserves_original_B": true,
+    "switch_drama_creates_B2": true,
+    "old_cover_retained_after_title_edit": true,
+    "old_video_and_subtitle_retained_after_renumber": true,
+    "old_banner_retained_after_title_edit": true,
+    "real_drama_and_plan_unchanged": true,
+    "all_verification_dramas_stay_draft": true,
+    "metadata_padding_removed": true
+  },
+  "database_snapshots": {
+    "before": {
+      "recorded_at": "2026-10-07T03:34:50+00:00",
+      "workspace": "h5_2e3d6828b8",
+      "database": "h5_2e3d6828b8",
+      "fixtures": {
+        "A": {
+          "drama": {
+            "id": "01a1146d-9d55-70b8-99eb-e539d3e79719",
+            "version": 3,
+            "title_en": "F03 browser draft A",
+            "title_zh": "F03 验收草稿 A",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d68-72a5-a85e-5a804657285b",
+              "version": 1,
+              "number": 1,
+              "title_en": "A original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d6c-735c-931c-2fbd64e61989",
+              "version": 1,
+              "number": 2,
+              "title_en": "A original 2",
+              "title_zh": "",
+              "video_asset_id": "01a11420-e2b4-73ca-81df-f953f6617a8c",
+              "subtitle_asset_id": "01a11421-1fc5-7200-beab-7659e18fa0f6",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        },
+        "B": {
+          "drama": {
+            "id": "01a1146d-9d6f-7145-92e1-79fbf994bce8",
+            "version": 2,
+            "title_en": "F03 browser draft B",
+            "title_zh": "F03 验收草稿 B",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d74-72e1-94cb-8bd4aa5c9449",
+              "version": 1,
+              "number": 1,
+              "title_en": "B original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        }
+      },
+      "banner": {
+        "id": "01a1146d-9d77-714d-8c9f-4908bc8b487e",
+        "version": 1,
+        "title_en": "F04 browser banner",
+        "image_asset_id": "01a11431-8af8-7313-bb07-1e630cb13e04",
+        "active": false
+      },
+      "canceled_padding_count": 205,
+      "real_drama": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "state": "published",
+        "published_count": 6,
+        "plan_state": "paused"
+      }
+    },
+    "conflict": {
+      "recorded_at": "2026-10-07T03:36:11+00:00",
+      "workspace": "h5_2e3d6828b8",
+      "database": "h5_2e3d6828b8",
+      "fixtures": {
+        "A": {
+          "drama": {
+            "id": "01a1146d-9d55-70b8-99eb-e539d3e79719",
+            "version": 3,
+            "title_en": "F03 browser draft A",
+            "title_zh": "F03 验收草稿 A",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d68-72a5-a85e-5a804657285b",
+              "version": 1,
+              "number": 1,
+              "title_en": "A original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d6c-735c-931c-2fbd64e61989",
+              "version": 1,
+              "number": 2,
+              "title_en": "A original 2",
+              "title_zh": "",
+              "video_asset_id": "01a11420-e2b4-73ca-81df-f953f6617a8c",
+              "subtitle_asset_id": "01a11421-1fc5-7200-beab-7659e18fa0f6",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        },
+        "B": {
+          "drama": {
+            "id": "01a1146d-9d6f-7145-92e1-79fbf994bce8",
+            "version": 2,
+            "title_en": "F03 browser draft B",
+            "title_zh": "F03 验收草稿 B",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d74-72e1-94cb-8bd4aa5c9449",
+              "version": 1,
+              "number": 1,
+              "title_en": "B original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        }
+      },
+      "banner": {
+        "id": "01a1146d-9d77-714d-8c9f-4908bc8b487e",
+        "version": 1,
+        "title_en": "F04 browser banner",
+        "image_asset_id": "01a11431-8af8-7313-bb07-1e630cb13e04",
+        "active": false
+      },
+      "canceled_padding_count": 205,
+      "real_drama": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "state": "published",
+        "published_count": 6,
+        "plan_state": "paused"
+      }
+    },
+    "move": {
+      "recorded_at": "2026-10-07T03:36:30+00:00",
+      "workspace": "h5_2e3d6828b8",
+      "database": "h5_2e3d6828b8",
+      "fixtures": {
+        "A": {
+          "drama": {
+            "id": "01a1146d-9d55-70b8-99eb-e539d3e79719",
+            "version": 4,
+            "title_en": "F03 browser draft A",
+            "title_zh": "F03 验收草稿 A",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d6c-735c-931c-2fbd64e61989",
+              "version": 1,
+              "number": 2,
+              "title_en": "A original 2",
+              "title_zh": "",
+              "video_asset_id": "01a11420-e2b4-73ca-81df-f953f6617a8c",
+              "subtitle_asset_id": "01a11421-1fc5-7200-beab-7659e18fa0f6",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d68-72a5-a85e-5a804657285b",
+              "version": 2,
+              "number": 3,
+              "title_en": "A original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        },
+        "B": {
+          "drama": {
+            "id": "01a1146d-9d6f-7145-92e1-79fbf994bce8",
+            "version": 2,
+            "title_en": "F03 browser draft B",
+            "title_zh": "F03 验收草稿 B",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d74-72e1-94cb-8bd4aa5c9449",
+              "version": 1,
+              "number": 1,
+              "title_en": "B original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        }
+      },
+      "banner": {
+        "id": "01a1146d-9d77-714d-8c9f-4908bc8b487e",
+        "version": 1,
+        "title_en": "F04 browser banner",
+        "image_asset_id": "01a11431-8af8-7313-bb07-1e630cb13e04",
+        "active": false
+      },
+      "canceled_padding_count": 205,
+      "real_drama": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "state": "published",
+        "published_count": 6,
+        "plan_state": "paused"
+      }
+    },
+    "created": {
+      "recorded_at": "2026-10-07T03:37:01+00:00",
+      "workspace": "h5_2e3d6828b8",
+      "database": "h5_2e3d6828b8",
+      "fixtures": {
+        "A": {
+          "drama": {
+            "id": "01a1146d-9d55-70b8-99eb-e539d3e79719",
+            "version": 5,
+            "title_en": "F03 browser draft A",
+            "title_zh": "F03 验收草稿 A",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146f-46bd-71d8-b3c3-620428918f2b",
+              "version": 1,
+              "number": 1,
+              "title_en": "A newly created 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": null,
+              "subtitle_language": null,
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d6c-735c-931c-2fbd64e61989",
+              "version": 1,
+              "number": 2,
+              "title_en": "A original 2",
+              "title_zh": "",
+              "video_asset_id": "01a11420-e2b4-73ca-81df-f953f6617a8c",
+              "subtitle_asset_id": "01a11421-1fc5-7200-beab-7659e18fa0f6",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d68-72a5-a85e-5a804657285b",
+              "version": 2,
+              "number": 3,
+              "title_en": "A original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        },
+        "B": {
+          "drama": {
+            "id": "01a1146d-9d6f-7145-92e1-79fbf994bce8",
+            "version": 3,
+            "title_en": "F03 browser draft B",
+            "title_zh": "F03 验收草稿 B",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d74-72e1-94cb-8bd4aa5c9449",
+              "version": 1,
+              "number": 1,
+              "title_en": "B original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146f-664f-711e-bfe3-50a464840e5b",
+              "version": 1,
+              "number": 2,
+              "title_en": "B newly created 2 after switch",
+              "title_zh": "",
+              "video_asset_id": null,
+              "subtitle_asset_id": null,
+              "subtitle_language": null,
+              "published_at": null
+            }
+          ]
+        }
+      },
+      "banner": {
+        "id": "01a1146d-9d77-714d-8c9f-4908bc8b487e",
+        "version": 1,
+        "title_en": "F04 browser banner",
+        "image_asset_id": "01a11431-8af8-7313-bb07-1e630cb13e04",
+        "active": false
+      },
+      "canceled_padding_count": 205,
+      "real_drama": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "state": "published",
+        "published_count": 6,
+        "plan_state": "paused"
+      }
+    },
+    "final": {
+      "recorded_at": "2026-10-07T03:37:59+00:00",
+      "workspace": "h5_2e3d6828b8",
+      "database": "h5_2e3d6828b8",
+      "fixtures": {
+        "A": {
+          "drama": {
+            "id": "01a1146d-9d55-70b8-99eb-e539d3e79719",
+            "version": 6,
+            "title_en": "F03 browser draft A renamed",
+            "title_zh": "F03 验收草稿 A",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146f-46bd-71d8-b3c3-620428918f2b",
+              "version": 1,
+              "number": 1,
+              "title_en": "A newly created 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": null,
+              "subtitle_language": null,
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d6c-735c-931c-2fbd64e61989",
+              "version": 1,
+              "number": 2,
+              "title_en": "A original 2",
+              "title_zh": "",
+              "video_asset_id": "01a11420-e2b4-73ca-81df-f953f6617a8c",
+              "subtitle_asset_id": "01a11421-1fc5-7200-beab-7659e18fa0f6",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d68-72a5-a85e-5a804657285b",
+              "version": 2,
+              "number": 3,
+              "title_en": "A original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        },
+        "B": {
+          "drama": {
+            "id": "01a1146d-9d6f-7145-92e1-79fbf994bce8",
+            "version": 3,
+            "title_en": "F03 browser draft B",
+            "title_zh": "F03 验收草稿 B",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d74-72e1-94cb-8bd4aa5c9449",
+              "version": 1,
+              "number": 1,
+              "title_en": "B original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146f-664f-711e-bfe3-50a464840e5b",
+              "version": 1,
+              "number": 2,
+              "title_en": "B newly created 2 after switch",
+              "title_zh": "",
+              "video_asset_id": null,
+              "subtitle_asset_id": null,
+              "subtitle_language": null,
+              "published_at": null
+            }
+          ]
+        }
+      },
+      "banner": {
+        "id": "01a1146d-9d77-714d-8c9f-4908bc8b487e",
+        "version": 2,
+        "title_en": "F04 browser banner renamed",
+        "image_asset_id": "01a11431-8af8-7313-bb07-1e630cb13e04",
+        "active": false
+      },
+      "canceled_padding_count": 205,
+      "real_drama": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "state": "published",
+        "published_count": 6,
+        "plan_state": "paused"
+      }
+    },
+    "cleanup": {
+      "recorded_at": "2026-10-07T03:39:47+00:00",
+      "workspace": "h5_2e3d6828b8",
+      "database": "h5_2e3d6828b8",
+      "fixtures": {
+        "A": {
+          "drama": {
+            "id": "01a1146d-9d55-70b8-99eb-e539d3e79719",
+            "version": 6,
+            "title_en": "F03 browser draft A renamed",
+            "title_zh": "F03 验收草稿 A",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146f-46bd-71d8-b3c3-620428918f2b",
+              "version": 1,
+              "number": 1,
+              "title_en": "A newly created 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": null,
+              "subtitle_language": null,
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d6c-735c-931c-2fbd64e61989",
+              "version": 1,
+              "number": 2,
+              "title_en": "A original 2",
+              "title_zh": "",
+              "video_asset_id": "01a11420-e2b4-73ca-81df-f953f6617a8c",
+              "subtitle_asset_id": "01a11421-1fc5-7200-beab-7659e18fa0f6",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146d-9d68-72a5-a85e-5a804657285b",
+              "version": 2,
+              "number": 3,
+              "title_en": "A original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            }
+          ]
+        },
+        "B": {
+          "drama": {
+            "id": "01a1146d-9d6f-7145-92e1-79fbf994bce8",
+            "version": 3,
+            "title_en": "F03 browser draft B",
+            "title_zh": "F03 验收草稿 B",
+            "state": "draft",
+            "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+          },
+          "episodes": [
+            {
+              "id": "01a1146d-9d74-72e1-94cb-8bd4aa5c9449",
+              "version": 1,
+              "number": 1,
+              "title_en": "B original 1",
+              "title_zh": "",
+              "video_asset_id": "01a11420-20c1-7241-9587-f33d81080625",
+              "subtitle_asset_id": "01a1141f-d492-72ed-988a-25fbe504b759",
+              "subtitle_language": "en",
+              "published_at": null
+            },
+            {
+              "id": "01a1146f-664f-711e-bfe3-50a464840e5b",
+              "version": 1,
+              "number": 2,
+              "title_en": "B newly created 2 after switch",
+              "title_zh": "",
+              "video_asset_id": null,
+              "subtitle_asset_id": null,
+              "subtitle_language": null,
+              "published_at": null
+            }
+          ]
+        }
+      },
+      "banner": {
+        "id": "01a1146d-9d77-714d-8c9f-4908bc8b487e",
+        "version": 2,
+        "title_en": "F04 browser banner renamed",
+        "image_asset_id": "01a11431-8af8-7313-bb07-1e630cb13e04",
+        "active": false
+      },
+      "canceled_padding_count": 0,
+      "real_drama": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "state": "published",
+        "published_count": 6,
+        "plan_state": "paused"
+      }
+    }
+  }
+}

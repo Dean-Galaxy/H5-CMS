@@ -5,8 +5,8 @@ namespace Tests\Feature\Content;
 use App\Modules\Content\Models\Publication;
 use App\Modules\Content\Services\PublicationService;
 use Illuminate\Foundation\Testing\RefreshDatabaseState;
-use Illuminate\Support\Facades\DB;
-use Symfony\Component\Process\Process;
+use RuntimeException;
+use Tests\Feature\Content\Support\PublicationRace;
 
 final class ConcurrencyTest extends ContentTestCase
 {
@@ -56,43 +56,62 @@ final class ConcurrencyTest extends ContentTestCase
         }
     }
 
-    private function race($drama, array $actions): array
+    public function test_slow_startup_has_its_own_budget_and_still_contends_on_real_locks(): void
+    {
+        $d = $this->fixture(20);
+        $runner = new PublicationRace;
+        $results = $runner->run($this->payload($d), ['scheduled', 'scheduled'], ['startup_delay_ms' => 12000]);
+        sort($results);
+        $this->assertSame(['duplicate', 'published'], $results);
+        $this->assertGreaterThanOrEqual(12, $runner->report['startup_seconds']);
+        $this->assertLessThan(20, $runner->report['execution_seconds']);
+        $this->assertTrue($runner->report['lock_observed']);
+        $this->assertTrue($runner->report['children_stopped']);
+        $this->assertSame(10, $d->episodes()->whereNotNull('published_at')->count());
+        $this->assertSame(1, Publication::where('plan_id', $d->plan->id)->count());
+    }
+
+    public function test_failed_startup_reports_the_phase_and_cleans_children_before_unlocking(): void
+    {
+        foreach (['timeout', 'exit'] as $failure) {
+            $d = $this->fixture(20);
+            $runner = new PublicationRace;
+            $options = $failure === 'timeout'
+                ? ['startup_delay_ms' => 2000, 'budgets' => ['startup' => 0.4]]
+                : ['fail_worker' => 0];
+            try {
+                $runner->run($this->payload($d), ['scheduled', 'scheduled'], $options);
+                $this->fail('The injected startup failure must fail the race');
+            } catch (RuntimeException $e) {
+                $this->assertStringContainsString('Concurrency startup:', $e->getMessage());
+                $this->assertStringContainsString($failure === 'timeout' ? 'Deadline exceeded' : 'Injected startup failure', $e->getMessage());
+            }
+            $this->assertSame('startup', $runner->report['failure_stage']);
+            $this->assertTrue($runner->report['children_stopped']);
+            $this->assertSame(0, $runner->report['parent_transaction_level']);
+            $this->assertSame(0, $d->episodes()->whereNotNull('published_at')->count());
+            $this->assertSame(0, Publication::where('drama_id', $d->id)->count());
+        }
+    }
+
+    private function payload($drama): array
     {
         $p = $drama->plan;
         $preview = app(PublicationService::class)->preview($drama->id, 3);
-        $processes = [];
-        // Hold the same first lock until both children have booted and reached their
-        // independent connections. Releasing it lets PostgreSQL serialize the race.
-        DB::beginTransaction();
-        DB::table('content_settings')->where('id', 1)->lockForUpdate()->first();
-        try {
-            foreach ($actions as $i => $action) {
-                $payload = ['action' => $action, 'drama' => $drama->id, 'owner' => $this->owner->id,
-                    'version' => $drama->version, 'plan' => $p->id, 'plan_version' => $p->version,
-                    'at' => $p->next_at->toIso8601String(), 'media_root' => $this->mediaRoot,
-                    'confirmation' => $preview['confirmation'], 'ready' => $this->mediaRoot.'/ready-'.$i];
-                $proc = new Process([PHP_BINARY, __DIR__.'/Support/publication-worker.php', base64_encode(json_encode($payload))], base_path());
-                $proc->setTimeout(20);
-                $proc->start();
-                $processes[] = $proc;
-            }
-            $deadline = microtime(true) + 10;
-            while ((! is_file($this->mediaRoot.'/ready-0') || ! is_file($this->mediaRoot.'/ready-1')) && microtime(true) < $deadline) {
-                usleep(10000);
-            }
-            $this->assertFileExists($this->mediaRoot.'/ready-0', $processes[0]->getErrorOutput().$processes[0]->getOutput().' Exit '.$processes[0]->getExitCode());
-            $this->assertFileExists($this->mediaRoot.'/ready-1', $processes[1]->getErrorOutput().$processes[1]->getOutput().' Exit '.$processes[1]->getExitCode());
-        } finally {
-            DB::commit();
-        }
-        $results = [];
-        foreach ($processes as $proc) {
-            $proc->wait();
-            $this->assertTrue($proc->isSuccessful(), $proc->getErrorOutput().$proc->getOutput());
-            $results[] = json_decode(trim($proc->getOutput()), true, flags: JSON_THROW_ON_ERROR)['result'];
-        }
-        unlink($this->mediaRoot.'/ready-0');
-        unlink($this->mediaRoot.'/ready-1');
+
+        return ['drama' => $drama->id, 'owner' => $this->owner->id,
+            'version' => $drama->version, 'plan' => $p->id, 'plan_version' => $p->version,
+            'at' => $p->next_at->toIso8601String(), 'media_root' => $this->mediaRoot,
+            'confirmation' => $preview['confirmation']];
+    }
+
+    private function race($drama, array $actions): array
+    {
+        $runner = new PublicationRace;
+        $results = $runner->run($this->payload($drama), $actions);
+        $this->assertTrue($runner->report['lock_observed']);
+        $this->assertTrue($runner->report['children_stopped']);
+        $this->assertSame(0, $runner->report['parent_transaction_level']);
 
         return $results;
     }

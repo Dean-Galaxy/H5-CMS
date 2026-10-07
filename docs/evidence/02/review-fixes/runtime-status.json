@@ -1,0 +1,18 @@
+{
+  "workspace": "h5_2e3d6828b8",
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "website": "http://127.0.0.1:8202",
+  "admin": "http://127.0.0.1:8202/admin",
+  "database": "h5_2e3d6828b8",
+  "db_port": 5602,
+  "mail": "仅本地预览，未验证真实送达",
+  "media": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/.runtime/media",
+  "actual_application_media_root": "/Volumes/KESU/H5-02-runtime-2e3d6828b8/media",
+  "note": "dev.py media is the initialization record; actual application media root was read from current app config. No long-running content:process-media/import/ffmpeg process was present in the process snapshot."
+}

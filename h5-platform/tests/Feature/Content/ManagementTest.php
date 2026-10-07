@@ -4,6 +4,7 @@ namespace Tests\Feature\Content;
 
 use App\Enums\Role;
 use App\Modules\Content\Models\Asset;
+use App\Modules\Content\Models\Banner;
 use App\Modules\Content\Models\DramaRecord;
 use App\Modules\Identity\Models\Viewer;
 
@@ -83,18 +84,61 @@ final class ManagementTest extends ContentTestCase
     public function test_older_bound_assets_remain_editable_after_more_than_200_uploads(): void
     {
         $d = $this->fixture(1);
-        $video = $d->episodes()->first()->video_asset_id;
+        $episode = $d->episodes()->first();
+        $video = $episode->video_asset_id;
+        $subtitle = $this->readyAsset('subtitle');
+        $episode->update(['subtitle_asset_id' => $subtitle->id, 'subtitle_language' => 'en']);
+        $image = $this->readyAsset('banner');
+        $bannerInput = ['drama_id' => $d->id, 'image_asset_id' => $image->id, 'title_en' => 'Old banner', 'title_zh' => '', 'active' => false, 'sort_order' => 0];
+        $banner = $this->postJson('/api/v1/admin/content/banners', $bannerInput)->assertOk()->json('id');
         for ($i = 0; $i < 205; $i++) {
             Asset::create(['created_by' => $this->owner->id, 'kind' => 'video', 'extension' => 'mp4', 'expected_bytes' => 1]);
         }
         $index = $this->getJson('/api/v1/admin/content')->assertOk()->json();
         $this->assertNotContains($video, array_column($index['assets'], 'id'));
+        $this->assertContains($d->cover_asset_id, array_column($index['assets'], 'id'));
+        $this->assertContains($image->id, array_column($index['assets'], 'id'));
         $detail = $this->getJson('/api/v1/admin/content/dramas/'.$d->id)->assertOk()->json();
         $this->assertContains($video, array_column($detail['assets'], 'id'));
+        $this->assertContains($subtitle->id, array_column($detail['assets'], 'id'));
+        $this->patchJson('/api/v1/admin/content/dramas/'.$d->id, [...$this->draftInput(), 'version' => $d->version, 'title_en' => 'Title only', 'cover_asset_id' => $d->cover_asset_id])->assertOk();
+        $this->patchJson('/api/v1/admin/content/dramas/'.$d->id.'/episodes/'.$episode->id, ['version' => $episode->version, 'number' => 1, 'title_en' => 'Episode title only', 'title_zh' => '', 'video_asset_id' => $video, 'subtitle_asset_id' => $subtitle->id, 'subtitle_language' => 'en'])->assertOk();
+        $this->patchJson('/api/v1/admin/content/banners/'.$banner, [...$bannerInput, 'version' => 1, 'title_en' => 'Banner title only'])->assertOk();
+        $this->assertSame($d->cover_asset_id, $d->fresh()->cover_asset_id);
+        $this->assertSame($video, $episode->fresh()->video_asset_id);
+        $this->assertSame($subtitle->id, $episode->fresh()->subtitle_asset_id);
+        $this->assertSame($image->id, Banner::findOrFail($banner)->image_asset_id);
         $older = $this->getJson('/api/v1/admin/content/assets?before='.$index['asset_cursor'])->assertOk()->json();
         $this->assertContains($video, array_column($older['assets'], 'id'));
         $this->assertNull($older['next_cursor']);
         $this->assertArrayNotHasKey('source_key', $older['assets'][0]);
+    }
+
+    public function test_edit_keeps_original_identity_and_rejects_conflict_without_changing_either_episode(): void
+    {
+        $d = $this->fixture(2, 62);
+        [$first, $second] = $d->episodes()->orderBy('number')->get()->all();
+        $first->update(['title_en' => 'Original one']);
+        $second->update(['title_en' => 'Original two', 'video_asset_id' => $this->readyAsset()->id]);
+        $before = $d->episodes()->orderBy('id')->get()->toArray();
+        $payload = ['version' => $first->version, 'number' => 2, 'title_en' => 'Moved one', 'title_zh' => '', 'video_asset_id' => $first->video_asset_id];
+        $url = '/api/v1/admin/content/dramas/'.$d->id.'/episodes';
+        $this->patchJson($url.'/'.$first->id, $payload)->assertStatus(422);
+        $this->assertSame($before, $d->episodes()->orderBy('id')->get()->toArray());
+        $this->assertSame($d->version, $d->fresh()->version);
+        $this->patchJson($url.'/'.$first->id, [...$payload, 'number' => 3])->assertOk()->assertJsonPath('id', $first->id);
+        $this->assertSame(2, $d->episodes()->count());
+        $this->assertSame(3, $first->fresh()->number);
+        $this->assertSame($first->video_asset_id, $first->fresh()->video_asset_id);
+        $this->assertSame($second->toArray(), $second->fresh()->toArray());
+        $afterMove = $d->episodes()->orderBy('id')->get()->toArray();
+        $this->patchJson($url.'/'.$first->id, [...$payload, 'number' => 4])->assertStatus(409)->assertJsonPath('error.code', 'STALE_VERSION');
+        $this->postJson($url, $payload)->assertStatus(422);
+        $this->assertSame($afterMove, $d->episodes()->orderBy('id')->get()->toArray());
+        $created = $this->postJson($url, [...$payload, 'number' => 1])->assertOk()->json('id');
+        $this->assertNotContains($created, [$first->id, $second->id]);
+        $this->assertSame(3, $d->episodes()->count());
+        $this->assertSame($afterMove, $d->episodes()->whereIn('id', [$first->id, $second->id])->orderBy('id')->get()->toArray());
     }
 
     public function test_versions_and_episode_object_scope_prevent_overwrite(): void
