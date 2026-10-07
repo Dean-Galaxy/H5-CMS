@@ -1,0 +1,19 @@
+
+   INFO  Nothing to migrate.
+
+{
+  "workspace": "h5_785df0be15",
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "website": "http://127.0.0.1:8203",
+  "admin": "http://127.0.0.1:8203/admin",
+  "database": "h5_785df0be15",
+  "db_port": 5603,
+  "mail": "仅本地预览，未验证真实送达",
+  "media": "/Users/hejunxiang/.codex/worktrees/h5-03-billing/H5/.runtime/media"
+}
