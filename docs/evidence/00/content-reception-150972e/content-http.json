@@ -1,0 +1,69 @@
+{
+  "result": "passed",
+  "runtime": "00 independent reception; no Content opt-in, unresolved region preserved",
+  "modules": {
+    "identity": "ready",
+    "content": "ready",
+    "billing": "not_ready",
+    "audience": "not_ready",
+    "acquisition": "not_ready"
+  },
+  "checks": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "status": 200,
+      "code": null
+    },
+    {
+      "path": "/api/v1/home",
+      "method": "GET",
+      "status": 403,
+      "code": "REGION_BLOCKED"
+    },
+    {
+      "path": "/api/v1/categories",
+      "method": "GET",
+      "status": 403,
+      "code": "REGION_BLOCKED"
+    },
+    {
+      "path": "/api/v1/catalog?region=US",
+      "method": "GET",
+      "status": 403,
+      "code": "REGION_BLOCKED"
+    },
+    {
+      "path": "/api/v1/admin/content",
+      "method": "GET",
+      "status": 401,
+      "code": "AUTHENTICATION_REQUIRED"
+    },
+    {
+      "path": "/api/v1/billing/offer",
+      "method": "GET",
+      "status": 503,
+      "code": "DEPENDENCY_NOT_READY"
+    },
+    {
+      "path": "/api/v1/episodes/019a2b3c-1234-7000-8000-000000000001/playback-grants",
+      "method": "POST",
+      "status": 419,
+      "code": "CSRF_MISMATCH"
+    },
+    {
+      "path": "/api/v1/auth/csrf",
+      "method": "GET",
+      "status": 200,
+      "code": null
+    },
+    {
+      "path": "/api/v1/episodes/019a2b3c-1234-7000-8000-000000000001/playback-grants",
+      "method": "POST",
+      "status": 200,
+      "code": "REGION_BLOCKED"
+    }
+  ],
+  "admin_js_sha256": "b4f712df566d1ccabf30f12983b4c507dfb227dec3eb0ccce79f94f6fe605cee",
+  "media": "No user media copied; local 02 media evidence remains separately attributed."
+}

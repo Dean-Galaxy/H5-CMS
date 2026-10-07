@@ -1,0 +1,40 @@
+{
+  "result": "passed",
+  "root": "/Volumes/KESU/H5",
+  "main_merge": "8f2e326132609a685da50e9c05b53f4cef56471d",
+  "http": [
+    {
+      "path": "/health",
+      "status": 200,
+      "modules": {
+        "identity": "ready",
+        "content": "ready",
+        "billing": "not_ready",
+        "audience": "not_ready",
+        "acquisition": "not_ready"
+      },
+      "code": null
+    },
+    {
+      "path": "/api/v1/admin/content",
+      "status": 401,
+      "modules": null,
+      "code": "AUTHENTICATION_REQUIRED"
+    },
+    {
+      "path": "/api/v1/catalog",
+      "status": 403,
+      "modules": null,
+      "code": "REGION_BLOCKED"
+    },
+    {
+      "path": "/api/v1/billing/offer",
+      "status": 503,
+      "modules": null,
+      "code": "DEPENDENCY_NOT_READY"
+    }
+  ],
+  "content_counts_dramas_assets_publications": "0|0|0",
+  "media_copied": false,
+  "other_workspace_touched": false
+}

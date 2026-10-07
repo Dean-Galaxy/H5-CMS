@@ -1,0 +1,69 @@
+  ⇂ public/js/filament/forms/components/builder.js
+  ⇂ public/js/filament/forms/components/checkbox-list.js
+  ⇂ public/js/filament/forms/components/code-editor.js
+  ⇂ public/js/filament/forms/components/color-picker.js
+  ⇂ public/js/filament/forms/components/date-time-picker.js
+  ⇂ public/js/filament/forms/components/file-upload.js
+  ⇂ public/js/filament/forms/components/key-value.js
+  ⇂ public/js/filament/forms/components/markdown-editor.js
+  ⇂ public/js/filament/forms/components/rich-editor.js
+  ⇂ public/js/filament/forms/components/select.js
+  ⇂ public/js/filament/forms/components/slider.js
+  ⇂ public/js/filament/forms/components/tags-input.js
+  ⇂ public/js/filament/forms/components/textarea.js
+  ⇂ public/js/filament/schemas/components/actions.js
+  ⇂ public/js/filament/schemas/components/tabs.js
+  ⇂ public/js/filament/schemas/components/wizard.js
+  ⇂ public/js/filament/tables/components/columns/checkbox.js
+  ⇂ public/js/filament/tables/components/columns/select.js
+  ⇂ public/js/filament/tables/components/columns/text-input.js
+  ⇂ public/js/filament/tables/components/columns/toggle.js
+  ⇂ public/js/filament/widgets/components/chart.js
+  ⇂ public/js/filament/widgets/components/stats-overview/stat/chart.js
+  ⇂ public/fonts/filament/filament/inter/index.css
+  ⇂ public/fonts/filament/filament/inter/inter-cyrillic-ext-wght-normal-SP7Z6XGK.woff2
+  ⇂ public/fonts/filament/filament/inter/inter-cyrillic-wght-normal-DR6K5BQD.woff2
+  ⇂ public/fonts/filament/filament/inter/inter-greek-ext-wght-normal-A2J6H3EX.woff2
+  ⇂ public/fonts/filament/filament/inter/inter-greek-wght-normal-ZABHMKQG.woff2
+  ⇂ public/fonts/filament/filament/inter/inter-latin-ext-wght-normal-ZIT2UBIY.woff2
+  ⇂ public/fonts/filament/filament/inter/inter-latin-wght-normal-DIHYUR35.woff2
+  ⇂ public/fonts/filament/filament/inter/inter-vietnamese-wght-normal-VWEHJHBA.woff2
+  ⇂ public/js/filament/actions/actions.js
+  ⇂ public/js/filament/filament/app.js
+  ⇂ public/js/filament/filament/echo.js
+  ⇂ public/js/filament/notifications/notifications.js
+  ⇂ public/js/filament/schemas/schemas.js
+  ⇂ public/js/filament/support/support.js
+  ⇂ public/js/filament/tables/tables.js
+  ⇂ public/css/filament/filament/app.css
+
+   INFO  Successfully published assets!
+
+
+   INFO  Preparing database.
+
+  Creating migration table ..................................... 627.83ms DONE
+
+   INFO  Running migrations.
+
+  0001_01_01_000001_create_cache_table ......................... 139.81ms DONE
+  0001_01_01_000002_create_jobs_table ........................... 83.12ms DONE
+  2026_10_06_000001_identity_foundation ......................... 14.24ms DONE
+  2026_10_07_020001_create_content_tables ...................... 137.10ms DONE
+
+{
+  "workspace": "h5_979f222b25",
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "website": "http://127.0.0.1:8300",
+  "admin": "http://127.0.0.1:8300/admin",
+  "database": "h5_979f222b25",
+  "db_port": 5630,
+  "mail": "仅本地预览，未验证真实送达",
+  "media": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/.runtime/media"
+}

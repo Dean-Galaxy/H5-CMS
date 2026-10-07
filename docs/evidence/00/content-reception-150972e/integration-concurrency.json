@@ -1,0 +1,757 @@
+[
+  {
+    "actions": [
+      "scheduled",
+      "scheduled"
+    ],
+    "budgets_seconds": {
+      "startup": 60,
+      "contention": 10,
+      "execution": 20
+    },
+    "workers": [
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 8.125e-06,
+            "pid": 41011
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.186651
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.324532875
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.324570125,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 0.37790225,
+            "pg_pid": 41013
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 0.416548,
+            "result": "duplicate"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":8.125e-6,\"pid\":41011}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.186651}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.324532875}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.324570125,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"ready\",\"elapsed_seconds\":0.37790225,\"pg_pid\":41013}\n{\"phase\":\"result\",\"elapsed_seconds\":0.416548,\"result\":\"duplicate\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41013,
+        "ready_after_seconds": 0.504767542,
+        "result": "duplicate"
+      },
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 7.917e-06,
+            "pid": 41012
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.186646042
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.324532459
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.324569917,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 0.377894375,
+            "pg_pid": 41014
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 0.411719667,
+            "result": "published"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":7.917e-6,\"pid\":41012}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.186646042}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.324532459}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.324569917,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"ready\",\"elapsed_seconds\":0.377894375,\"pg_pid\":41014}\n{\"phase\":\"result\",\"elapsed_seconds\":0.411719667,\"result\":\"published\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41014,
+        "ready_after_seconds": 0.504791542,
+        "result": "published"
+      }
+    ],
+    "path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-races/0d0440816420c2cc60a6b7c7.json",
+    "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+    "database": "h5_979f222b25_test",
+    "lock_observed": true,
+    "parent_pg_pid": 41010,
+    "startup_seconds": 0.504798333,
+    "locks": [
+      {
+        "pid": 41013,
+        "wait_event_type": "Lock",
+        "wait_event": "tuple",
+        "blockers": "{41014}"
+      },
+      {
+        "pid": 41014,
+        "wait_event_type": "Lock",
+        "wait_event": "transactionid",
+        "blockers": "{41010}"
+      }
+    ],
+    "execution_seconds": 0.025345208,
+    "results": [
+      "duplicate",
+      "published"
+    ],
+    "outcome": "completed",
+    "children_stopped": true,
+    "parent_transaction_level": 0,
+    "total_seconds": 0.546944333
+  },
+  {
+    "actions": [
+      "scheduled",
+      "manual"
+    ],
+    "budgets_seconds": {
+      "startup": 60,
+      "contention": 10,
+      "execution": 20
+    },
+    "workers": [
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 9.75e-06,
+            "pid": 41017
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.026554709
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.161028167
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.161063459,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 0.204544084,
+            "pg_pid": 41020
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 0.251865709,
+            "result": "published"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":9.75e-6,\"pid\":41017}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.026554709}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.161028167}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.161063459,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"ready\",\"elapsed_seconds\":0.204544084,\"pg_pid\":41020}\n{\"phase\":\"result\",\"elapsed_seconds\":0.251865709,\"result\":\"published\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41020,
+        "ready_after_seconds": 0.27766575,
+        "result": "published"
+      },
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 9.75e-06,
+            "pid": 41018
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.026518917
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.161047792
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.16108525,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 0.204574708,
+            "pg_pid": 41019
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 0.283475292,
+            "result": "STALE_VERSION"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":9.75e-6,\"pid\":41018}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.026518917}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.161047792}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.16108525,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"ready\",\"elapsed_seconds\":0.204574708,\"pg_pid\":41019}\n{\"phase\":\"result\",\"elapsed_seconds\":0.283475292,\"result\":\"STALE_VERSION\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41019,
+        "ready_after_seconds": 0.277684375,
+        "result": "STALE_VERSION"
+      }
+    ],
+    "path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-races/b154d6b936a470404d2769a7.json",
+    "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+    "database": "h5_979f222b25_test",
+    "lock_observed": true,
+    "parent_pg_pid": 41016,
+    "startup_seconds": 0.277690709,
+    "locks": [
+      {
+        "pid": 41019,
+        "wait_event_type": "Lock",
+        "wait_event": "tuple",
+        "blockers": "{41020}"
+      },
+      {
+        "pid": 41020,
+        "wait_event_type": "Lock",
+        "wait_event": "transactionid",
+        "blockers": "{41016}"
+      }
+    ],
+    "execution_seconds": 0.070572333,
+    "results": [
+      "published",
+      "STALE_VERSION"
+    ],
+    "outcome": "completed",
+    "children_stopped": true,
+    "parent_transaction_level": 0,
+    "total_seconds": 0.351769917
+  },
+  {
+    "actions": [
+      "scheduled",
+      "edit"
+    ],
+    "budgets_seconds": {
+      "startup": 60,
+      "contention": 10,
+      "execution": 20
+    },
+    "workers": [
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 5.417e-06,
+            "pid": 41021
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.028570833
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.145240083
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.145275125,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 0.167624542,
+            "pg_pid": 41023
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 0.195488333,
+            "result": "published"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":5.417e-6,\"pid\":41021}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.028570833}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.145240083}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.145275125,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"ready\",\"elapsed_seconds\":0.167624542,\"pg_pid\":41023}\n{\"phase\":\"result\",\"elapsed_seconds\":0.195488333,\"result\":\"published\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41023,
+        "ready_after_seconds": 0.2449435,
+        "result": "published"
+      },
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 1.25e-05,
+            "pid": 41022
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.028678417
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.145314042
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.145345209,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 0.1676665,
+            "pg_pid": 41024
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 0.198964167,
+            "result": "RANGE_CHANGED"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":1.25e-5,\"pid\":41022}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.028678417}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.145314042}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.145345209,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"ready\",\"elapsed_seconds\":0.1676665,\"pg_pid\":41024}\n{\"phase\":\"result\",\"elapsed_seconds\":0.198964167,\"result\":\"RANGE_CHANGED\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41024,
+        "ready_after_seconds": 0.244960792,
+        "result": "RANGE_CHANGED"
+      }
+    ],
+    "path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-races/f174afdfc60d4bfd39d41e43.json",
+    "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+    "database": "h5_979f222b25_test",
+    "lock_observed": true,
+    "parent_pg_pid": 41016,
+    "startup_seconds": 0.244966083,
+    "locks": [
+      {
+        "pid": 41023,
+        "wait_event_type": "Lock",
+        "wait_event": "transactionid",
+        "blockers": "{41016}"
+      },
+      {
+        "pid": 41024,
+        "wait_event_type": "Lock",
+        "wait_event": "tuple",
+        "blockers": "{41023}"
+      }
+    ],
+    "execution_seconds": 0.037140083,
+    "results": [
+      "published",
+      "RANGE_CHANGED"
+    ],
+    "outcome": "completed",
+    "children_stopped": true,
+    "parent_transaction_level": 0,
+    "total_seconds": 0.283310917
+  },
+  {
+    "actions": [
+      "scheduled",
+      "withdraw"
+    ],
+    "budgets_seconds": {
+      "startup": 60,
+      "contention": 10,
+      "execution": 20
+    },
+    "workers": [
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 7.333e-06,
+            "pid": 41025
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.021347708
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.560918291
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.561059166,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 0.612209125,
+            "pg_pid": 41027
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 0.678792375,
+            "result": "published"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":7.333e-6,\"pid\":41025}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.021347708}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.560918291}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.561059166,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"ready\",\"elapsed_seconds\":0.612209125,\"pg_pid\":41027}\n{\"phase\":\"result\",\"elapsed_seconds\":0.678792375,\"result\":\"published\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41027,
+        "ready_after_seconds": 0.668328209,
+        "result": "published"
+      },
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 5.666e-06,
+            "pid": 41026
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.021280625
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.580489333
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.580595708,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 0.619406166,
+            "pg_pid": 41028
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 0.682556208,
+            "result": "STALE_VERSION"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":5.666e-6,\"pid\":41026}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.021280625}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.580489333}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.580595708,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"ready\",\"elapsed_seconds\":0.619406166,\"pg_pid\":41028}\n{\"phase\":\"result\",\"elapsed_seconds\":0.682556208,\"result\":\"STALE_VERSION\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41028,
+        "ready_after_seconds": 0.680871,
+        "result": "STALE_VERSION"
+      }
+    ],
+    "path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-races/7fc16990a21a5518d8ad2ef1.json",
+    "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+    "database": "h5_979f222b25_test",
+    "lock_observed": true,
+    "parent_pg_pid": 41016,
+    "startup_seconds": 0.681275292,
+    "locks": [
+      {
+        "pid": 41027,
+        "wait_event_type": "Lock",
+        "wait_event": "transactionid",
+        "blockers": "{41016}"
+      },
+      {
+        "pid": 41028,
+        "wait_event_type": "Lock",
+        "wait_event": "tuple",
+        "blockers": "{41027}"
+      }
+    ],
+    "execution_seconds": 0.074439458,
+    "results": [
+      "published",
+      "STALE_VERSION"
+    ],
+    "outcome": "completed",
+    "children_stopped": true,
+    "parent_transaction_level": 0,
+    "total_seconds": 0.759640584
+  },
+  {
+    "actions": [
+      "scheduled",
+      "scheduled"
+    ],
+    "budgets_seconds": {
+      "startup": 60,
+      "contention": 10,
+      "execution": 20
+    },
+    "workers": [
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 1.1292e-05,
+            "pid": 41035
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.041218417
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.179185834
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.179220292,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "startup_delay",
+            "elapsed_seconds": 0.17923025,
+            "milliseconds": 12000
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 12.79119725,
+            "pg_pid": 41275
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 13.238981042,
+            "result": "published"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":1.1292e-5,\"pid\":41035}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.041218417}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.179185834}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.179220292,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"startup_delay\",\"elapsed_seconds\":0.17923025,\"milliseconds\":12000}\n{\"phase\":\"ready\",\"elapsed_seconds\":12.79119725,\"pg_pid\":41275}\n{\"phase\":\"result\",\"elapsed_seconds\":13.238981042,\"result\":\"published\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41275,
+        "ready_after_seconds": 12.975305917,
+        "result": "published"
+      },
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 5.25e-06,
+            "pid": 41036
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.041800625
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 0.179172542
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 0.179210208,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "startup_delay",
+            "elapsed_seconds": 0.179220083,
+            "milliseconds": 12000
+          },
+          {
+            "phase": "ready",
+            "elapsed_seconds": 12.791188167,
+            "pg_pid": 41274
+          },
+          {
+            "phase": "result",
+            "elapsed_seconds": 13.23899075,
+            "result": "duplicate"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":5.25e-6,\"pid\":41036}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.041800625}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":0.179172542}\n{\"phase\":\"guarded\",\"elapsed_seconds\":0.179210208,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"startup_delay\",\"elapsed_seconds\":0.179220083,\"milliseconds\":12000}\n{\"phase\":\"ready\",\"elapsed_seconds\":12.791188167,\"pg_pid\":41274}\n{\"phase\":\"result\",\"elapsed_seconds\":13.23899075,\"result\":\"duplicate\"}\n",
+        "running": false,
+        "exit_code": 0,
+        "pg_pid": 41274,
+        "ready_after_seconds": 12.97584275,
+        "result": "duplicate"
+      }
+    ],
+    "path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-races/364c5a8ec8d2ffdcdf9bd232.json",
+    "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+    "database": "h5_979f222b25_test",
+    "lock_observed": true,
+    "parent_pg_pid": 41032,
+    "startup_seconds": 12.975856042,
+    "locks": [
+      {
+        "pid": 41274,
+        "wait_event_type": "Lock",
+        "wait_event": "tuple",
+        "blockers": "{41275}"
+      },
+      {
+        "pid": 41275,
+        "wait_event_type": "Lock",
+        "wait_event": "transactionid",
+        "blockers": "{41032}"
+      }
+    ],
+    "execution_seconds": 0.445832125,
+    "results": [
+      "published",
+      "duplicate"
+    ],
+    "outcome": "completed",
+    "children_stopped": true,
+    "parent_transaction_level": 0,
+    "total_seconds": 13.461468375
+  },
+  {
+    "actions": [
+      "scheduled",
+      "scheduled"
+    ],
+    "budgets_seconds": {
+      "startup": 0.4,
+      "contention": 10,
+      "execution": 20
+    },
+    "workers": [
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 6.459e-06,
+            "pid": 41278
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":6.459e-6,\"pid\":41278}\n",
+        "running": false,
+        "exit_code": 143
+      },
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 9e-06,
+            "pid": 41279
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":9.0e-6,\"pid\":41279}\n",
+        "running": false,
+        "exit_code": 143
+      }
+    ],
+    "path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-races/aec1c6533a28c6d6d4db6b79.json",
+    "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+    "database": "h5_979f222b25_test",
+    "lock_observed": false,
+    "parent_pg_pid": 41277,
+    "outcome": "failed",
+    "failure_stage": "startup",
+    "failure": "Deadline exceeded after 0.4 seconds",
+    "children_stopped": true,
+    "parent_transaction_level": 0,
+    "total_seconds": 0.438856375
+  },
+  {
+    "actions": [
+      "scheduled",
+      "scheduled"
+    ],
+    "budgets_seconds": {
+      "startup": 60,
+      "contention": 10,
+      "execution": 20
+    },
+    "workers": [
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 5.292e-06,
+            "pid": 41280
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.959499458
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 8.259733167
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 8.259819458,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          },
+          {
+            "phase": "error",
+            "elapsed_seconds": 8.259848667,
+            "class": "RuntimeException",
+            "message": "Injected startup failure"
+          }
+        ],
+        "stderr": "RuntimeException: Injected startup failure\n",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":5.292e-6,\"pid\":41280}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.959499458}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":8.259733167}\n{\"phase\":\"guarded\",\"elapsed_seconds\":8.259819458,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n{\"phase\":\"error\",\"elapsed_seconds\":8.259848667,\"class\":\"RuntimeException\",\"message\":\"Injected startup failure\"}\n",
+        "running": false,
+        "exit_code": 143,
+        "error": "Injected startup failure"
+      },
+      {
+        "events": [
+          {
+            "phase": "entered",
+            "elapsed_seconds": 8.916e-06,
+            "pid": 41281
+          },
+          {
+            "phase": "autoloaded",
+            "elapsed_seconds": 0.960047833
+          },
+          {
+            "phase": "bootstrapped",
+            "elapsed_seconds": 8.259737625
+          },
+          {
+            "phase": "guarded",
+            "elapsed_seconds": 8.259825083,
+            "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+            "provider_path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+          }
+        ],
+        "stderr": "",
+        "stdout": "{\"phase\":\"entered\",\"elapsed_seconds\":8.916e-6,\"pid\":41281}\n{\"phase\":\"autoloaded\",\"elapsed_seconds\":0.960047833}\n{\"phase\":\"bootstrapped\",\"elapsed_seconds\":8.259737625}\n{\"phase\":\"guarded\",\"elapsed_seconds\":8.259825083,\"app_base\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform\",\"provider_path\":\"/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/app/Modules/Content/ContentServiceProvider.php\"}\n",
+        "running": false,
+        "exit_code": 143
+      }
+    ],
+    "path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-races/32478a833f8ca3ed988f3cec.json",
+    "app_base": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform",
+    "database": "h5_979f222b25_test",
+    "lock_observed": false,
+    "parent_pg_pid": 41277,
+    "outcome": "failed",
+    "failure_stage": "startup",
+    "failure": "Worker exited or failed before a valid result: Injected startup failure",
+    "children_stopped": true,
+    "parent_transaction_level": 0,
+    "total_seconds": 8.332585
+  }
+]

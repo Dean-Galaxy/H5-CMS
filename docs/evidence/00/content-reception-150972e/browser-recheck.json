@@ -1,0 +1,79 @@
+{
+  "candidate": "150972e66721df00e5a8af580d79ee0029aa8e9d",
+  "result": "passed",
+  "scope": "00 real browser, unchanged candidate admin.js and form controls, synthetic fetch; verifies constructed requests and UI state only. Real database conflict, move and asset binding are separately verified by the candidate full test suite.",
+  "checks": [
+    {
+      "case": "duplicate-number",
+      "method": "PATCH",
+      "url": "/api/v1/admin/content/dramas/drama-one/episodes/episode-one",
+      "body": {
+        "number": 2,
+        "version": 1,
+        "title_en": "Episode one",
+        "video_asset_id": "video-one"
+      },
+      "visible_result": "重复集号，未修改任何记录 [VALIDATION_FAILED]"
+    },
+    {
+      "case": "move-to-unused-number",
+      "method": "PATCH",
+      "url": "/api/v1/admin/content/dramas/drama-one/episodes/episode-one",
+      "body": {
+        "number": 3,
+        "version": 1,
+        "title_en": "Episode one",
+        "video_asset_id": "video-one"
+      },
+      "visible_result": "原分集的修改已保存。",
+      "episode_rows_after": 2
+    },
+    {
+      "case": "explicit-new-after-edit",
+      "method": "POST",
+      "url": "/api/v1/admin/content/dramas/drama-one/episodes",
+      "body": {
+        "number": 1,
+        "title_en": "",
+        "video_asset_id": null,
+        "subtitle_asset_id": null
+      },
+      "old_id_and_version_omitted": true
+    },
+    {
+      "case": "switch-drama",
+      "method": "POST",
+      "url": "/api/v1/admin/content/dramas/drama-other/episodes",
+      "body": {
+        "number": 1,
+        "title_en": "",
+        "video_asset_id": null,
+        "subtitle_asset_id": null
+      },
+      "mode": "新增草稿分集"
+    },
+    {
+      "case": "refresh-clears-edit",
+      "mode": "新增草稿分集",
+      "number": 1,
+      "title_en": "",
+      "video_asset_id": "",
+      "subtitle_asset_id": ""
+    },
+    {
+      "case": "old-cover-preserved",
+      "method": "PATCH",
+      "url": "/api/v1/admin/content/dramas/drama-one",
+      "body": {
+        "title_en": "Title change only",
+        "cover_asset_id": "cover-old",
+        "version": 1
+      }
+    },
+    {
+      "case": "new-drama-clears-edit",
+      "tools_hidden": true,
+      "mode": "新增草稿分集"
+    }
+  ]
+}

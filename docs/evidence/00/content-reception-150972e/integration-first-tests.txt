@@ -1,0 +1,142 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Content\CatalogTest
+  ✓ real home category banner language and actual published counts      10.05s
+  ✓ visibility expiry drafts unknown region and empty category           0.29s
+  ✓ cursor is stable signed and bound to filter locale region sort vers… 0.23s
+
+   PASS  Tests\Feature\Content\ConcurrencyTest
+  ✓ separate processes cannot publish an occurrence twice                7.87s
+  ✓ manual publish edit and withdraw serialize with scheduler            2.49s
+  ✓ slow startup has its own budget and still contends on real locks    13.54s
+  ✓ failed startup reports the phase and cleans children before unlocki… 5.92s
+
+   PASS  Tests\Feature\Content\ManagementTest
+  ✓ new drama snapshots defaults and fixed beijing tomorrow              0.35s
+  ✓ license offsets round trip without beijing drift                     0.04s
+  ✓ manual same value is override and sync requires current impact       0.17s
+  ✓ content permissions mfa and viewer staff separation                  0.13s
+  ✓ older bound assets remain editable after more than 200 uploads       0.20s
+  ✓ edit keeps original identity and rejects conflict without changing…  0.13s
+  ✓ versions and episode object scope prevent overwrite                  0.20s
+
+   PASS  Tests\Feature\Content\MediaTest
+  ✓ upload is private sequential owned and rejects traversal type size   0.44s
+  ✓ cancel is owned and a canceled partial upload cannot finish          0.06s
+  ✓ subtitles reorder without retiming and reject markup bad utf8 or ti… 0.17s
+  ✓ actual small h264 aac is decoded and packaged privately              0.45s
+  ✓ real image is reencoded and subtitle out of duration blocks publish  0.08s
+  ✓ draft preview and private range require mfa and content permission   0.19s
+
+   PASS  Tests\Feature\Content\PlaybackTest
+  ✓ free fifth paid sixth and no raw media or forged grant access        0.34s
+  ✓ hls subtitle map and every caption request are protected             0.11s
+  ✓ head and invalid range do not start a session and missing hls block… 0.11s
+  ✓ n change only protects started same episode with finite window       0.32s
+  ✓ refund membership loss is checked on every manifest segment range a… 0.16s
+  ✓ expiry region withdrawal and other identity cannot reuse grants      0.17s
+
+   PASS  Tests\Feature\Content\PublicationTest
+  ✓ 35 episodes publish 10 10 10 5 and each occurrence is idempotent     0.20s
+  ✓ completed requires all and missing or processing blocks whole batch  0.20s
+  ✓ missing packaged segment blocks the entire scheduled batch           0.06s
+  ✓ manual pause resume edit and withdraw make old executions obsolete   0.23s
+  ✓ saving plan invalidates old job and activation requires preview and… 0.17s
+  ✓ unapproved missed schedule is held and not silently caught up        0.06s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.39s
+  ✓ public content still requires a trusted region then reads its own d… 0.07s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.20s
+  ✓ home consumer can follow a category and banner without media or ext… 0.14s
+  ✓ new ports require the real provider even when empty examples exist   0.02s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.03s
+  ✓ resume quote and submission require an audience session              0.03s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.08s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.02s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.02s
+  ✓ explicit us fixture is limited to direct loopback http               0.02s
+  ✓ production never accepts forged country headers or local region ove… 0.02s
+
+   PASS  Tests\Feature\Identity\AuthorizationTest
+  ✓ fixed roles and resource scopes match business rules                 0.03s
+  ✓ staff api rejects non owner direct requests and audits denial        0.08s
+  ✓ owner can create change and disable staff with version control       0.26s
+  ✓ missing mfa proof does not unlock staff api                          0.03s
+  ✓ disabled account and old version session are revoked                 0.03s
+  ✓ audit uses allowlisted changes and request ids                       0.02s
+
+   PASS  Tests\Feature\Identity\ContractsTest
+  ✓ business samples roundtrip through typed php consumers               0.05s
+  ✓ missing provider never fabricates business success                   0.04s
+  ✓ controlled return rejects open redirect encodings                    0.03s
+  ✓ openapi routes and enums match runtime                               0.02s
+
+   PASS  Tests\Feature\Identity\MfaTest
+  ✓ password alone and empty recovery code cannot bypass mfa             3.58s
+  ✓ real totp challenge authenticates and sets session proof             0.70s
+  ✓ totp and recovery codes cannot be replayed                           0.04s
+  ✓ mfa secrets are encrypted and hidden                                 0.02s
+  ✓ disabled employee cannot reach challenge or login                    0.25s
+  ✓ first staff login requires enrollment before dashboard               0.24s
+  ✓ configured staff without challenge proof cannot open any panel page  0.03s
+  ✓ generic staff login event does not grant mfa proof                   0.03s
+  ✓ staff password change invalidates old session version                0.08s
+
+   FAIL  Tests\Feature\Identity\ViewerTest
+  ✓ password reset email origin does not trust request host              0.76s
+  ⨯ guest entry and missing business are truthful                        0.48s
+  ✓ registration uses fortify and cannot create staff                    0.35s
+  ✓ verification checkout gate and link replay                           0.08s
+  ✓ expired and tampered verification are rejected                       0.04s
+  ✓ correct email invalidates old link and cannot alter verified accoun… 0.06s
+  ✓ email resend is limited with retry after                             0.11s
+  ✓ reset link is single use and revokes old session                     0.11s
+  ✓ expired reset does not change password                               0.25s
+  ✓ password recovery does not enumerate accounts                        0.45s
+  ✓ login rate limit and controlled return                               1.55s
+  ✓ guest verification continues after login                             0.05s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Identity\ViewerTest > guest entry and missing busin…
+  Expected response status code [503] but received 403.
+Failed asserting that 403 is identical to 503.
+
+  at tests/Feature/Identity/ViewerTest.php:42
+     38▕     public function test_guest_entry_and_missing_business_are_truthful(): void
+     39▕     {
+     40▕         $this->get('/')->assertOk();
+     41▕         $this->getJson('/api/v1/auth/me')->assertExactJson(['viewer' => null, 'staff' => null]);
+  ➜  42▕         $this->getJson('/api/v1/catalog')->assertStatus(503)->assertJsonPath('error.code', 'DEPENDENCY_NOT_READY');
+     43▕         $this->postJson('/api/v1/episodes/test/playback-grants')->assertStatus(503); // no forced sign-in for free-grant skeleton
+     44▕         $this->postJson('/api/v1/billing/checkout')->assertUnauthorized();
+     45▕     }
+     46▕
+
+
+  Tests:    1 failed, 75 passed (738 assertions)
+  Duration: 60.44s
+
+Traceback (most recent call last):
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 245, in <module>
+    main()
+    ~~~~^^
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 231, in main
+    test()
+    ~~~~^^
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 212, in test
+    call([PHP, APP / 'artisan', 'test'], cwd=APP, env=env)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 26, in call
+    return subprocess.run([str(x) for x in args], check=True, **kw)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/opt/homebrew/opt/php@8.4/bin/php', '/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/artisan', 'test']' returned non-zero exit status 1.
