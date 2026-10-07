@@ -1,0 +1,45 @@
+{
+  "recorded_at_utc": "2026-10-07T09:00:39.929762+00:00",
+  "workspace": "03 independent worktree",
+  "source_commit": "c0868055f1b085f34e029c4663fffe81282d07c2",
+  "public_patch": "6fe17f126b3e1d21e3b3a925973281f31d3945b6",
+  "contract": "1.0.3",
+  "application_and_runner_identical_to_public_patch": true,
+  "private_configuration_preserved": true,
+  "proposal_03_002_unchanged": true,
+  "initial_run": {
+    "command": "python3 scripts/dev.py test",
+    "exit_code": 1,
+    "passed": 211,
+    "failed": 3,
+    "assertions": 1937,
+    "reason": "Historical private H5_LOCAL_MODULES=billing conflicts with default-loading assertions in AcceptedAudienceTest, AcceptedBillingTest and AcceptedContentTest."
+  },
+  "corrected_run": {
+    "command": "H5_LOCAL_MODULES='' python3 scripts/dev.py test",
+    "exit_code": 0,
+    "passed": 214,
+    "assertions": 1968,
+    "duration_seconds": 31.36,
+    "scope": "Temporary test-process environment only; .env and application source unchanged."
+  },
+  "schema": {
+    "command": ".runtime/contracts/bin/python scripts/validate_contracts.py",
+    "exit_code": 0,
+    "version": "1.0.3",
+    "examples": 57,
+    "warning": "Existing urllib3/LibreSSL compatibility warning; not a TLS payment verification."
+  },
+  "not_performed": [
+    "staging implementation or runtime tests",
+    "Stripe account access or official payment tests",
+    "live charging",
+    "new browser or real HTTP acceptance",
+    "new dependency audit (lock unchanged)",
+    "web/queue/scheduler restart"
+  ],
+  "evidence_sha256": {
+    "initial-tests.txt": "894567d46148bc8d7b36adf698785cb57eb9076144b5adcdae53df08a4a0f4e2",
+    "default-loading-tests.txt": "d34acb0e5fcd07df8143fb2028d2886642bd8399028fda67e9d5d10fbb605318"
+  }
+}
