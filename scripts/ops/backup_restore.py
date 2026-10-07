@@ -83,12 +83,13 @@ try:
     call([pg/'pg_ctl','-D',run/'postgres','-l',run/'postgres.log','-w','start']); started=True
     assert fingerprint(target)==before
     after=json.loads(call([dev.PHP,ROOT/'h5-platform/tests/Integration/Support/recovery_fixture.php','verify'],php_env(port)))
+    assert isinstance(seed['contract'], str) and seed['contract']
     assert after==seed
     for _ in range(2): call([dev.PHP,dev.APP/'artisan','content:publish-due'],php_env(port),cwd=dev.APP)
     policy=json.loads(call([dev.PHP,ROOT/'h5-platform/tests/Integration/Support/recovery_fixture.php','verify'],php_env(port)))
     assert policy['public_episodes']==seed['public_episodes'] and 'missed_pending_policy' in policy['plan_states']
     report={'result':'passed','code_commit':call(['git','-C',ROOT,'rev-parse','HEAD']).strip(),
-        'contract':'1.0.3','source_port':c['db_port'],'source_database':fixture_db,'restore_port':port,'restore_database':fixture_db,
+        'contract':seed['contract'],'source_port':c['db_port'],'source_database':fixture_db,'restore_port':port,'restore_database':fixture_db,
         'independent_pg_instance':True,'tables':before,'media_files':len(files),'media_sha256_match':True,
         'dump_sha256':hashlib.sha256((run/'database.dump').read_bytes()).hexdigest(),'seed':seed,'after_restart':after,'after_two_publish_runs':policy,
         'seconds':round(time.monotonic()-start,2),'payment_evidence':'testing-only FakeGateway; not official Stripe',

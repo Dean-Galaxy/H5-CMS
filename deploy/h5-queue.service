@@ -7,6 +7,8 @@ Type=simple
 User=h5
 Group=h5
 WorkingDirectory=/srv/h5/current/h5-platform
+Environment=APP_ENV=staging
+ExecStartPre=/usr/bin/php /srv/h5/current/scripts/ops/check_runtime.php --expect-env=staging --require-cache
 ExecStart=/usr/bin/php artisan queue:work --queue=h5_staging --sleep=1 --tries=3 --timeout=60 --max-time=3600
 Restart=always
 RestartSec=5
