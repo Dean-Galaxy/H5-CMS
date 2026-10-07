@@ -1,0 +1,35 @@
+{
+  "result": "reproduced_failure",
+  "code_commit": "7fcf16b676bc595ec45b6e3511328864646213ad",
+  "contract": "1.0.4",
+  "first_failing_check": "scripts/ops/backup_restore.py:60 seed access_active assertion",
+  "preexisting_unpaid_accounts_added": 3,
+  "seed": {
+    "contract": "1.0.4",
+    "orders": 1,
+    "payments": 1,
+    "entitlements": 1,
+    "refunds": 1,
+    "outbox": 1,
+    "access_active": false,
+    "renewal_enabled": false,
+    "public_episodes": 6,
+    "publications": 1,
+    "plan_states": [
+      "finished",
+      "active"
+    ],
+    "mfa_ciphertext_decrypts": true
+  },
+  "diagnostic": {
+    "first_matches_paid_viewer": false,
+    "first_access_active": false,
+    "paid_access_active": true,
+    "paid_renewal_enabled": false,
+    "account_count": 4
+  },
+  "source_database": "h5_217e1741db_recovery_b0a11f67_test",
+  "source_port": 5606,
+  "private_artifacts": "/Users/hejunxiang/.codex/worktrees/h5-06-acceptance/H5/.runtime/06/f08-reproduction/b0a11f67",
+  "scope": "06-owned new cloned testing DB only; no restore attempted; testing FakeGateway, no external requests"
+}
