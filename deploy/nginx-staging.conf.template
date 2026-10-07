@@ -2,22 +2,30 @@
 # Install inside http{} context. All requests go to the fixed front controller.
 # Access logging is disabled because private paths/query contain signatures and user IDs.
 server {
+    access_log off;
+    error_log /dev/null crit;
     listen 80 default_server;
     server_name _;
     return 444;
 }
 server {
+    access_log off;
+    error_log /dev/null crit;
     listen 443 ssl default_server;
     server_name _;
     ssl_reject_handshake on;
 }
 server {
+    access_log off;
+    error_log /dev/null crit;
     listen 80;
     server_name __DOMAIN__;
     location ^~ /.well-known/acme-challenge/ { root /var/lib/letsencrypt; }
     location / { return 308 https://__DOMAIN__$request_uri; }
 }
 server {
+    access_log off;
+    error_log /dev/null crit;
     listen 443 ssl;
     server_name __DOMAIN__;
     ssl_certificate /etc/letsencrypt/live/__DOMAIN__/fullchain.pem;
@@ -26,10 +34,8 @@ server {
     root /srv/h5/current/h5-platform/public;
     index index.php;
     server_tokens off;
-    access_log off;
     # Nginx error logs may include full request URLs; retain no raw request error log.
     # Service/process and application logs use separate, reviewed channels.
-    error_log /dev/null crit;
     client_max_body_size 2m;
     if ($host != __DOMAIN__) { return 444; }
     location ~ /\. { deny all; }
