@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Identity;
 
+use App\Contracts\BillingService;
 use App\Modules\Identity\Models\Staff;
 use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\Verification;
+use App\Support\UnavailableServices;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -61,6 +63,8 @@ class ViewerTest extends TestCase
 
     public function test_verification_checkout_gate_and_link_replay(): void
     {
+        // This Identity test explicitly covers unavailable billing, regardless of loaded modules.
+        $this->app->bind(BillingService::class, UnavailableServices::class);
         Notification::fake();
         $v = $this->viewer();
         $v->sendEmailVerificationNotification();

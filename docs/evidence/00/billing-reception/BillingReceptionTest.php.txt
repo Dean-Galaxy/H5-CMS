@@ -1,0 +1,142 @@
+<?php
+
+namespace Tests\Feature\Contracts;
+
+use App\Contracts\MembershipReader;
+use App\Data\CheckoutInput;
+use App\Data\ViewerIdentity;
+use App\Modules\Billing\BillingServiceProvider;
+use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\StripeGateway;
+use App\Modules\Billing\Services\BillingEngine;
+use App\Modules\Billing\Services\BillingStore;
+use App\Modules\Billing\Services\SettlementService;
+use App\Modules\Identity\Models\Viewer;
+use Illuminate\Support\Facades\DB;
+use Stripe\ApiRequestor;
+use Stripe\HttpClient\ClientInterface;
+use Stripe\HttpClient\CurlClient;
+use Tests\Feature\Billing\Support\FakeGateway;
+use Tests\Feature\Content\ContentTestCase;
+
+/** 00 independent reception probes. Only testing fixtures; never calls Stripe. */
+final class BillingReceptionTest extends ContentTestCase
+{
+    public function test_real_billing_controls_content_after_cancel_partial_and_full_refund(): void
+    {
+        $this->app->register(BillingServiceProvider::class);
+        $gateway = new FakeGateway;
+        $this->app->instance(PaymentGateway::class, $gateway);
+        $this->assertInstanceOf(BillingEngine::class, app(MembershipReader::class));
+        DB::table('billing_prices')->insert(['id' => BillingStore::id(), 'version' => 1,
+            'regular_amount_minor' => 1200, 'first_week_amount_minor' => 300,
+            'currency' => 'USD', 'is_test' => true, 'created_at' => now()]);
+        $drama = $this->fixture(6, 6, true);
+        $viewer = Viewer::forceCreate(['id' => BillingStore::id(), 'name' => '00 local review',
+            'email' => BillingStore::id().'@example.test', 'password' => bcrypt('ReviewFixture9!'),
+            'active' => true, 'email_verified_at' => now()]);
+        $this->asViewer($viewer);
+        $identity = new ViewerIdentity($viewer->id, $viewer->email, true);
+        $sixth = '/api/v1/episodes/'.$drama->episodes[5]->id.'/playback-grants';
+        $fifth = '/api/v1/episodes/'.$drama->episodes[4]->id.'/playback-grants';
+        $this->postJson($sixth, ['play_session_id' => null])->assertOk()->assertJsonPath('allowed', false)->assertJsonPath('reason', 'MEMBERSHIP_REQUIRED');
+        $billing = app(BillingEngine::class);
+        $offer = $billing->offer($identity);
+        $checkout = $billing->checkout($identity, new CheckoutInput($offer->offer_id, $offer->price_version, '/membership'), BillingStore::id(), null);
+        $order = DB::table('billing_orders')->find($checkout->order_id);
+        $sub = DB::table('billing_subscriptions')->find($order->subscription_id);
+        $sid = 'sub_'.$sub->id;
+        $iid = 'in_'.$order->id;
+        $charge = 'ch_'.$order->id;
+        $start = now()->startOfSecond();
+        $end = $start->addWeek();
+        $gateway->subscriptions[$sid] = ['id' => $sid, 'customer_id' => $sub->customer_id,
+            'status' => 'active', 'cancel_at_period_end' => false,
+            'period_start' => BillingStore::iso($start), 'period_end' => BillingStore::iso($end),
+            'regular_amount_minor' => 1200, 'currency' => 'USD', 'order_id' => $order->id,
+            'latest_invoice_id' => $iid, 'is_test' => true];
+        $gateway->checkouts[$order->checkout_id] = ['id' => $order->checkout_id,
+            'status' => 'complete', 'payment_status' => 'paid', 'subscription_id' => $sid,
+            'customer_id' => $sub->customer_id, 'order_id' => $order->id, 'is_test' => true];
+        $gateway->invoices[$iid] = ['id' => $iid, 'subscription_id' => $sid,
+            'customer_id' => $sub->customer_id, 'order_id' => $order->id,
+            'amount_minor' => 300, 'currency' => 'USD',
+            'period_start' => BillingStore::iso($start), 'period_end' => BillingStore::iso($end),
+            'paid_at' => BillingStore::iso($start), 'status' => 'paid', 'paid' => true,
+            'verified_payment' => true, 'charge_id' => $charge, 'is_test' => true,
+            'billing_reason' => 'subscription_create', 'regular_amount_minor' => 1200,
+            'discount_amount_minor' => 900, 'payment_state' => 'succeeded'];
+        $settlement = app(SettlementService::class);
+        $settlement->syncCheckout($order->id);
+        $grant = $this->postJson($sixth, ['play_session_id' => null])->assertOk()->assertJsonPath('reason', 'allowed_member')->json();
+        $this->get($grant['short_lived_url'])->assertOk();
+        $canceled = $billing->cancel($identity);
+        $this->assertTrue($canceled->access_active);
+        $this->assertFalse($canceled->renewal_enabled);
+        $this->assertSame(BillingStore::iso($end), $canceled->access_until);
+        $this->postJson($sixth, ['play_session_id' => null])->assertOk()->assertJsonPath('allowed', true);
+        $gateway->refunds[$charge] = [['id' => 're_review_a', 'amount_minor' => 100, 'status' => 'succeeded', 'currency' => 'USD']];
+        $settlement->syncRefunds($charge);
+        $this->postJson($sixth, ['play_session_id' => null])->assertOk()->assertJsonPath('allowed', true);
+        $gateway->refunds[$charge][] = ['id' => 're_review_b', 'amount_minor' => 200, 'status' => 'succeeded', 'currency' => 'USD'];
+        $settlement->syncRefunds($charge);
+        $this->get($grant['short_lived_url'])->assertForbidden()->assertJsonPath('error.code', 'MEMBERSHIP_REQUIRED');
+        $this->postJson($sixth, ['play_session_id' => null])->assertOk()->assertJsonPath('allowed', false);
+        $this->postJson($fifth, ['play_session_id' => null])->assertOk()->assertJsonPath('reason', 'allowed_free');
+        $this->assertDatabaseCount('billing_payments', 1);
+        $this->assertDatabaseCount('billing_entitlements', 1);
+        $this->assertDatabaseCount('billing_outbox', 1);
+    }
+
+    public function test_coupon_checkout_omits_conflicting_promotion_code_parameter(): void
+    {
+        config(['billing.driver' => 'stripe_test', 'billing.api_version' => StripeGateway::API_VERSION,
+            'billing.stripe_secret' => 'sk_test_00_fixture_not_a_credential',
+            'billing.test_clock_id' => null, 'app.url' => 'http://localhost:8300']);
+        $http = new class implements ClientInterface {
+            public ?array $checkoutParams = null;
+
+            public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1', $maxNetworkRetries = null)
+            {
+                $path = parse_url($absUrl, PHP_URL_PATH);
+                $reply = match ($path) {
+                    '/v1/customers' => ['id' => 'cus_review', 'livemode' => false, 'test_clock' => null, 'metadata' => ['viewer_id' => 'viewer_review']],
+                    '/v1/coupons' => ['id' => 'coupon_review', 'livemode' => false, 'duration' => 'once', 'currency' => 'usd', 'amount_off' => 900],
+                    '/v1/checkout/sessions' => ['id' => 'cs_review', 'livemode' => false, 'mode' => 'subscription',
+                        'status' => 'open', 'customer' => 'cus_review', 'client_reference_id' => 'order_review',
+                        'metadata' => ['order_id' => 'order_review'], 'amount_total' => 300, 'currency' => 'usd',
+                        'expires_at' => $params['expires_at'], 'url' => 'https://checkout.stripe.com/c/pay/cs_review'],
+                    default => throw new \RuntimeException('Unexpected fixture request'),
+                };
+                if ($path === '/v1/checkout/sessions') {
+                    $this->checkoutParams = $params;
+                }
+                return [json_encode($reply, JSON_THROW_ON_ERROR), 200, []];
+            }
+        };
+        ApiRequestor::setHttpClient($http);
+        try {
+            $order = (object) ['id' => 'order_review', 'viewer_id' => 'viewer_review', 'subscription_id' => 'subscription_review',
+                'regular_amount_minor' => 1200, 'amount_minor' => 300, 'currency' => 'USD',
+                'is_test' => true, 'discount_applied' => true, 'price_version' => 1, 'return_to' => '/membership'];
+            $sub = (object) ['id' => 'subscription_review', 'viewer_id' => 'viewer_review',
+                'regular_amount_minor' => 1200, 'currency' => 'USD', 'is_test' => true, 'customer_id' => null];
+            $gateway = new StripeGateway;
+            $intent = $gateway->prepareCheckout($order, $sub);
+            $order->checkout_request = $intent;
+            $order->checkout_prepared_at = $intent['prepared_at'];
+            $gateway->createCheckout($order, $sub);
+            $this->assertSame('coupon_review', $http->checkoutParams['discounts'][0]['coupon']);
+            file_put_contents(base_path('../.runtime/00-checkout-params.json'), json_encode([
+                'scope' => 'SDK intercepted HTTP fixture, no Stripe request',
+                'coupon_attached' => isset($http->checkoutParams['discounts']),
+                'allow_promotion_codes_present' => array_key_exists('allow_promotion_codes', $http->checkoutParams),
+                'allow_promotion_codes_serialized' => $http->checkoutParams['allow_promotion_codes'] ?? null,
+            ], JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)."\n");
+            $this->assertArrayNotHasKey('allow_promotion_codes', $http->checkoutParams,
+                'A coupon Checkout must omit the mutually exclusive promotion-code field, not serialize false.');
+        } finally {
+            ApiRequestor::setHttpClient(CurlClient::instance());
+        }
+    }
+}
