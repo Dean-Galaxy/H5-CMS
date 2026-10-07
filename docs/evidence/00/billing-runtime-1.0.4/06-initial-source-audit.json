@@ -1,0 +1,10 @@
+{
+  "delivery": "7fcf16b676bc595ec45b6e3511328864646213ad",
+  "tested_06": "6dcf6038e964678a8261379736482a6200631f07",
+  "source_digests": 9,
+  "evidence_digests": 11,
+  "ownership_paths": 25,
+  "prior_06_evidence_unchanged": true,
+  "restore_version_fields_match": true,
+  "scope": "Independent source/hash inspection; runtime tests recorded separately."
+}

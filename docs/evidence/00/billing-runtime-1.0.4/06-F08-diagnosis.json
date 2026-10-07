@@ -1,0 +1,10 @@
+{
+  "accounts": 3,
+  "first_matches_paid_viewer": false,
+  "first_access_active": false,
+  "paid_access_active": true,
+  "paid_renewal_enabled": false,
+  "candidate": "f37b64d9653838c2ec990ad3375613939de72c3d",
+  "source_fixture_db": "h5_979f222b25_recovery_c37611ff_test",
+  "cause": "06 recovery_fixture chooses unrelated billing_accounts.first(), not the viewer whose payment was just seeded."
+}
