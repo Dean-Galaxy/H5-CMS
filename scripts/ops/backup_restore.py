@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """06 local recovery drill. Never restores over any existing database. No external services."""
+import argparse
 import hashlib
 import importlib.util
 import json
@@ -11,6 +12,9 @@ import subprocess
 import time
 
 ROOT = Path(__file__).resolve().parents[2]
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--with-unpaid-accounts', action='store_true', help='Add three unrelated unpaid viewers only to the newly cloned recovery test database (F08 regression).')
+args = parser.parse_args()
 spec = importlib.util.spec_from_file_location('h5_dev', ROOT/'scripts/dev.py')
 dev = importlib.util.module_from_spec(spec); spec.loader.exec_module(dev)
 os.umask(0o077)
@@ -56,8 +60,21 @@ call([pg/'pg_dump','-Fc','--no-owner','--no-acl','-f',run/'preview.dump'],dev.pg
 call([pg/'createdb','-O',c['user'],fixture_db],dev.pg_env(admin=True))
 source=dev.pg_env(); source['PGDATABASE']=fixture_db
 call([pg/'pg_restore','--exit-on-error','--no-owner','--no-acl','-d',fixture_db,run/'preview.dump'],source)
-seed=json.loads(call([dev.PHP, ROOT/'h5-platform/tests/Integration/Support/recovery_fixture.php','seed'],php_env(c['db_port'])))
-assert seed['payments']==seed['entitlements']==seed['refunds']==1 and seed['access_active'] and not seed['renewal_enabled']
+fixture = ROOT/'h5-platform/tests/Integration/Support/recovery_fixture.php'
+unpaid = {'viewer_ids': []}
+if args.with_unpaid_accounts:
+    unpaid = json.loads(call([dev.PHP, fixture, 'prepare-unpaid'], php_env(c['db_port'])))
+    assert len(unpaid['viewer_ids']) == 3
+seed_result = json.loads(call([dev.PHP, fixture, 'seed'], php_env(c['db_port'])))
+manifest = seed_result['manifest']
+manifest_json = json.dumps(manifest, ensure_ascii=False, indent=2)
+(run/'targets.json').write_text(manifest_json)
+seed = seed_result['summary']
+assert seed['targets'] == manifest['targets']
+assert set(unpaid['viewer_ids']).issubset(manifest['unrelated_viewer_ids'])
+assert seed['targets']['viewer_id'] not in manifest['unrelated_viewer_ids']
+assert seed['unrelated_accounts_unchanged']
+assert seed['orders']==seed['payments']==seed['entitlements']==seed['refunds']==seed['outbox']==1 and seed['access_active'] and not seed['renewal_enabled']
 before=fingerprint(source)
 call([pg/'pg_dump','-Fc','--no-owner','--no-acl','-f',run/'database.dump'],source)
 media=ROOT/'.runtime/media'
@@ -82,18 +99,30 @@ try:
     call([pg/'pg_ctl','-D',run/'postgres','-m','fast','-w','stop']); started=False
     call([pg/'pg_ctl','-D',run/'postgres','-l',run/'postgres.log','-w','start']); started=True
     assert fingerprint(target)==before
-    after=json.loads(call([dev.PHP,ROOT/'h5-platform/tests/Integration/Support/recovery_fixture.php','verify'],php_env(port)))
+    after=json.loads(call([dev.PHP,fixture,'verify'],php_env(port),input=manifest_json))
+    assert isinstance(seed['contract'], str) and seed['contract']
     assert after==seed
-    for _ in range(2): call([dev.PHP,dev.APP/'artisan','content:publish-due'],php_env(port),cwd=dev.APP)
-    policy=json.loads(call([dev.PHP,ROOT/'h5-platform/tests/Integration/Support/recovery_fixture.php','verify'],php_env(port)))
-    assert policy['public_episodes']==seed['public_episodes'] and 'missed_pending_policy' in policy['plan_states']
+    policies = []
+    for _ in range(2):
+        call([dev.PHP,dev.APP/'artisan','content:publish-due'],php_env(port),cwd=dev.APP)
+        policies.append(json.loads(call([dev.PHP,fixture,'verify'],php_env(port),input=manifest_json)))
+    policy = policies[-1]
+    assert policies[0] == policies[1], 'Repeated publish command changed the recovery subjects'
+    assert policy['targets'] == seed['targets'] and policy['unrelated_accounts_unchanged']
+    assert policy['public_episodes']==seed['public_episodes'] and policy['published_publications']==seed['published_publications']
+    assert policy['target_publication_results']==['held']
+    assert policy['target_plan_state']=='missed_pending_policy' and policy['target_drama_state']=='draft'
     report={'result':'passed','code_commit':call(['git','-C',ROOT,'rev-parse','HEAD']).strip(),
-        'contract':'1.0.3','source_port':c['db_port'],'source_database':fixture_db,'restore_port':port,'restore_database':fixture_db,
+        'contract':seed['contract'],'source_port':c['db_port'],'source_database':fixture_db,'restore_port':port,'restore_database':fixture_db,
         'independent_pg_instance':True,'tables':before,'media_files':len(files),'media_sha256_match':True,
-        'dump_sha256':hashlib.sha256((run/'database.dump').read_bytes()).hexdigest(),'seed':seed,'after_restart':after,'after_two_publish_runs':policy,
+        'dump_sha256':hashlib.sha256((run/'database.dump').read_bytes()).hexdigest(),
+        'manifest_sha256':hashlib.sha256(manifest_json.encode()).hexdigest(),'added_unpaid_accounts':len(unpaid['viewer_ids']),
+        'same_target_ids_after_restore':after['targets']==seed['targets'],'unrelated_accounts_unchanged':policy['unrelated_accounts_unchanged'],
+        'seed':seed,'after_restart':after,'after_two_publish_runs':policy,
         'seconds':round(time.monotonic()-start,2),'payment_evidence':'testing-only FakeGateway; not official Stripe',
         'scope':'local independent recovery, no cloud reboot or offsite retrieval; no worker/web/SMTP/ad/payment network started',
         'private_artifacts':str(run),'application_key':'same checkout key loaded to verify MFA decrypt; not printed or exported'}
+    (run/'report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     (ROOT/'.runtime/06/backup-restore.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     print(json.dumps({k:v for k,v in report.items() if k!='tables'},ensure_ascii=False,indent=2))
 finally:
