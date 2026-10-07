@@ -1,0 +1,132 @@
+{
+    "meta": {
+        "killed_attempts": [
+            {
+                "pid": 26125,
+                "transaction_level": 0,
+                "attempts": 1,
+                "first_attempted_at": "2026-10-07 09:55:05+00",
+                "event_key": "h5_83350096cce0fc9354c604a622999b16146dfb7c44592438567490aef1458a17",
+                "request_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "frozen_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "signal": 9
+            },
+            {
+                "pid": 26127,
+                "transaction_level": 0,
+                "attempts": 2,
+                "first_attempted_at": "2026-10-07 09:55:05+00",
+                "event_key": "h5_83350096cce0fc9354c604a622999b16146dfb7c44592438567490aef1458a17",
+                "request_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "frozen_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "signal": 9
+            },
+            {
+                "pid": 26129,
+                "transaction_level": 0,
+                "attempts": 3,
+                "first_attempted_at": "2026-10-07 09:55:05+00",
+                "event_key": "h5_83350096cce0fc9354c604a622999b16146dfb7c44592438567490aef1458a17",
+                "request_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "frozen_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "signal": 9
+            },
+            {
+                "pid": 26132,
+                "transaction_level": 0,
+                "attempts": 4,
+                "first_attempted_at": "2026-10-07 09:55:05+00",
+                "event_key": "h5_83350096cce0fc9354c604a622999b16146dfb7c44592438567490aef1458a17",
+                "request_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "frozen_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "signal": 9
+            },
+            {
+                "pid": 26134,
+                "transaction_level": 0,
+                "attempts": 5,
+                "first_attempted_at": "2026-10-07 09:55:05+00",
+                "event_key": "h5_83350096cce0fc9354c604a622999b16146dfb7c44592438567490aef1458a17",
+                "request_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "frozen_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "signal": 9
+            },
+            {
+                "pid": 26136,
+                "transaction_level": 0,
+                "attempts": 6,
+                "first_attempted_at": "2026-10-07 09:55:05+00",
+                "event_key": "h5_83350096cce0fc9354c604a622999b16146dfb7c44592438567490aef1458a17",
+                "request_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "frozen_sha256": "53a2cd886e6b13f119519f4bea4a32bf0667caa9ea1ce310a95a87e2290f290c",
+                "signal": 9
+            }
+        ],
+        "seventh_transport_calls": 0
+    },
+    "tiktok": {
+        "killed_attempts": [
+            {
+                "pid": 26140,
+                "transaction_level": 0,
+                "attempts": 1,
+                "first_attempted_at": "2026-10-07 09:55:06+00",
+                "event_key": "h5_34ba5b1fc54fe6d323a7d0a0073b5f6772a7bfca0adaba86912b2970de6a92e3",
+                "request_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "frozen_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "signal": 9
+            },
+            {
+                "pid": 26143,
+                "transaction_level": 0,
+                "attempts": 2,
+                "first_attempted_at": "2026-10-07 09:55:06+00",
+                "event_key": "h5_34ba5b1fc54fe6d323a7d0a0073b5f6772a7bfca0adaba86912b2970de6a92e3",
+                "request_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "frozen_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "signal": 9
+            },
+            {
+                "pid": 26147,
+                "transaction_level": 0,
+                "attempts": 3,
+                "first_attempted_at": "2026-10-07 09:55:06+00",
+                "event_key": "h5_34ba5b1fc54fe6d323a7d0a0073b5f6772a7bfca0adaba86912b2970de6a92e3",
+                "request_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "frozen_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "signal": 9
+            },
+            {
+                "pid": 26149,
+                "transaction_level": 0,
+                "attempts": 4,
+                "first_attempted_at": "2026-10-07 09:55:06+00",
+                "event_key": "h5_34ba5b1fc54fe6d323a7d0a0073b5f6772a7bfca0adaba86912b2970de6a92e3",
+                "request_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "frozen_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "signal": 9
+            },
+            {
+                "pid": 26151,
+                "transaction_level": 0,
+                "attempts": 5,
+                "first_attempted_at": "2026-10-07 09:55:06+00",
+                "event_key": "h5_34ba5b1fc54fe6d323a7d0a0073b5f6772a7bfca0adaba86912b2970de6a92e3",
+                "request_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "frozen_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "signal": 9
+            },
+            {
+                "pid": 26153,
+                "transaction_level": 0,
+                "attempts": 6,
+                "first_attempted_at": "2026-10-07 09:55:06+00",
+                "event_key": "h5_34ba5b1fc54fe6d323a7d0a0073b5f6772a7bfca0adaba86912b2970de6a92e3",
+                "request_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "frozen_sha256": "6add9f33a18731b7f39c220b818febc9d4438f965d77cd9f3cdb97231fbcb159",
+                "signal": 9
+            }
+        ],
+        "seventh_transport_calls": 0
+    }
+}
