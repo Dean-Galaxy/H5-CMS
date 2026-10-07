@@ -18,22 +18,22 @@
 | CatalogReader.drama | dramaId、locale=en；Drama | 02 未接入503；不存在或不公开404，不透露隐藏媒体 |
 | MembershipReader.membership | 可信 viewerId、DateTimeImmutable at；Membership | 03 未接入503；没有权益与依赖未就绪必须分开。状态未知时 payment_resolution_required=true |
 | BillingService.offer | 可空 ViewerIdentity；Offer | 03 未接入503；游客优惠资格为 null；有效报价保留版本价，建单重新核验资格，改变应付金额须重新确认；见 billing-lifecycle-v1.md |
-| BillingService.checkout | ViewerIdentity、CheckoutInput、idempotencyKey、可空 AttributionSnapshot；Checkout | 必须核对已验证身份、报价、已有订阅/订单、幂等请求；EMAIL_UNVERIFIED/STALE_VERSION/BILLING_PENDING/SUBSCRIPTION_EXISTS 等按 OpenAPI；目前503 |
-| BillingService.order | ViewerIdentity、orderId；Order | 只读本人订单；他人及不存在统一404；当前503 |
-| BillingService.cancel | ViewerIdentity；Membership | 03 核对原订阅与平台结果；未知不能返回成功；当前503 |
-| BillingService.resumeQuote | ViewerIdentity；ResumeQuote | 本人原订阅的确认编号、版本、币种、原价、下一时刻、有效期；只读账务状态；当前503 |
-| BillingService.resume | ViewerIdentity、ResumeInput；Membership | quote_id 绑定本人及原订阅；主动确认币种、原价和下一时刻；过期或冲突409；同凭证幂等且不能覆盖之后的新操作；当前503 |
-| BillingService.cancelForSupport | StaffIdentity、viewerId、verifiedCaseId；Membership | 03 必须从自身已核实客服记录检查身份与意愿，并调用 requireStaff(SubscriptionCancel, 服务端范围)；客服不得恢复；当前503 |
+| BillingService.checkout | ViewerIdentity、CheckoutInput、idempotencyKey、可空 AttributionSnapshot；Checkout | 必须核对已验证身份、报价、已有订阅/订单、幂等请求；EMAIL_UNVERIFIED/STALE_VERSION/BILLING_PENDING/SUBSCRIPTION_EXISTS 等按 OpenAPI；依赖未配置时503 |
+| BillingService.order | ViewerIdentity、orderId；Order | 只读本人订单；他人及不存在统一404；所需外部依赖未配置时503 |
+| BillingService.cancel | ViewerIdentity；Membership | 03 核对原订阅与平台结果；未知不能返回成功；所需外部依赖未配置时503 |
+| BillingService.resumeQuote | ViewerIdentity；ResumeQuote | 本人原订阅的确认编号、版本、币种、原价、下一时刻、有效期；只读账务状态；所需外部依赖未配置时503 |
+| BillingService.resume | ViewerIdentity、ResumeInput；Membership | quote_id 绑定本人及原订阅；主动确认币种、原价和下一时刻；过期或冲突409；同凭证幂等且不能覆盖之后的新操作；所需外部依赖未配置时503 |
+| BillingService.cancelForSupport | StaffIdentity、viewerId、verifiedCaseId；Membership | 03 必须从自身已核实客服记录检查身份与意愿，并调用 requireStaff(SubscriptionCancel, 服务端范围)；客服不得恢复；所需外部依赖未配置时503 |
 | PlaybackAuthorizer.authorizePlayback | 可空 ViewerIdentity、episodeId、可信 region、playSessionId=null；PlaybackGrant | 02 未接入503；匿名免费许可受支持；业务拒绝用 allowed=false 与 reason，所有许可字段为 null；状态规则见 Schema |
 | RegionResolver.resolve | 无参数；ResolvedRegion(country_code, source) | 服务端可信上下文。默认 ZZ/unresolved；显式 local/testing 且直接 loopback HTTP 可返回 US/local_us_test，控制台不假设观众地区；客户端地区字段不可信。详见 content-context-v1.0.1.md |
 | ProgressService.progress | ViewerIdentity、dramaId；Progress 或 null | 04 未接入503；本人尚无记录时 null，不丢弃已有记录 |
-| ProgressService.saveProgress | ViewerIdentity、dramaId、ProgressInput；Progress | 04 必须校验分集归属、有效时长、会话序号/延迟写入；不能授予播放权限；当前503 |
+| ProgressService.saveProgress | ViewerIdentity、dramaId、ProgressInput；Progress | 04 必须校验分集归属、有效时长、会话序号/延迟写入；不能授予播放权限；缺提供方时503 |
 | AttributionService.enabled / snapshot | bool；snapshot 接可空不可信来源标记，返回 AttributionSnapshot 或 null | 05 未启用时 false/null，不阻塞未来付款；没有请求时自动拼造来源的路径 |
-| PaymentSettled.v1 | PaymentSettled 值对象，无本站可写公开入口 | 03 唯一生成，05 消费；event_id 去重、付款已核实、稳定来源快照、is_test；没有可执行发布器或发送成功桩 |
+| PaymentSettled.v1 | PaymentSettled 值对象，无本站可写公开入口 | 03 唯一生成，05 消费；event_id 去重、付款已核实、稳定来源快照、is_test；03真实outbox已接收；05缺提供方时待投递，不假报发送成功 |
 
 共同异常为 `App\Support\ApiProblem`（errorCode、status、retryable），缺提供方用 `DependencyNotReady`（503）。HTTP 映射保持统一错误结构，内部消费方不能捕获 503 然后返回无会员、已取消或已付款。业务输入校验、状态机与成功响应均由各提供方实现，01 不代写业务。
 
-Offer 30 分钟和首次支付创建意图固定 +1860 秒的两个窗口，以及部分退款/累计全退后的权益与续费规则，统一见 [账务实施约定 v1](billing-lifecycle-v1.md)。Checkout.expires_at 来自核实的支付平台结果，不能拿 Offer 的截止时间替代；F01 恢复确认的 5 分钟期限不变。开发允许列表不等于 03 已正式接入。
+Offer 30 分钟和首次支付创建意图固定 +1860 秒的两个窗口，以及部分退款/累计全退后的权益与续费规则，统一见 [账务实施约定 v1](billing-lifecycle-v1.md)。Checkout.expires_at 来自核实的支付平台结果，不能拿 Offer 的截止时间替代；F01 恢复确认的 5 分钟期限不变。03 已默认接入；开发允许列表不代表官方支付或新模块已验收。
 
 ## 类型消费示例
 
@@ -45,7 +45,7 @@ assert($membership->toArray() === $sample);
 
 // 实际模块入口从服务端取得身份；不从 request('viewer_id') 拼装身份。
 $viewer = app(App\Contracts\IdentityContext::class)->requireViewer(verified: true);
-// 后续 03 的实现接收上述身份；目前其骨架明确抛出 DependencyNotReady。
+// 03 的真实实现接收上述身份；缺必需的外部支付配置时明确抛出 DependencyNotReady。
 ```
 
 `tests/Feature/Identity/ContractsTest.php` 执行正例 DTO 往返消费、未就绪行为、路由/枚举与 OpenAPI 对齐。`tests/Feature/Contracts/SharedContractsTest.php` 验证原价恢复信息的消费、首页到分类/详情的样例衔接和新增入口的会话/未就绪边界。`scripts/validate_contracts.py` 执行 Schema 与正反例校验；`scripts/smoke_http.py` 消费真实身份响应。未来提供方增加成功响应时，必须加入同一套 Schema 验证和自己的对象权限/状态机测试。完整语义及后续验收见 [shared-v1.md](shared-v1.md)。
