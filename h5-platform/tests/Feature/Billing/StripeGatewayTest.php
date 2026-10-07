@@ -8,8 +8,10 @@ use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
 use Stripe\ApiRequestor;
 use Stripe\Exception\ApiConnectionException;
+use Stripe\Exception\InvalidRequestException;
 use Stripe\HttpClient\ClientInterface;
 use Stripe\HttpClient\CurlClient;
+use Stripe\StripeClient;
 use Tests\TestCase;
 
 final class StripeGatewayTest extends TestCase
@@ -40,6 +42,16 @@ final class StripeGatewayTest extends TestCase
                 $path = parse_url($absUrl, PHP_URL_PATH);
                 $key = strtoupper($method).' '.$path;
                 $this->requests[] = compact('key', 'headers', 'params', 'absUrl');
+                // Contract fixture for Stripe's mutually exclusive parameter
+                // presence rule, not evidence of an official sandbox response.
+                if ($key === 'POST /v1/checkout/sessions'
+                    && array_key_exists('discounts', $params)
+                    && array_key_exists('allow_promotion_codes', $params)) {
+                    return [json_encode(['error' => [
+                        'type' => 'invalid_request_error',
+                        'message' => 'You may only specify one of these parameters: allow_promotion_codes, discounts.',
+                    ]], JSON_THROW_ON_ERROR), 400, ['Request-Id' => 'req_local_parameter_conflict']];
+                }
                 if (! isset($this->replies[$key]) || $this->replies[$key] === []) {
                     throw new \RuntimeException('Unexpected HTTP call: '.$key);
                 }
@@ -149,15 +161,17 @@ final class StripeGatewayTest extends TestCase
         (new UnconfiguredGateway)->createCheckout((object) [], (object) []);
     }
 
-    private function preparedCheckout(int $ageSeconds = 0, bool $attempted = false, ?string $customerClock = null): array
+    private function preparedCheckout(int $ageSeconds = 0, bool $attempted = false, ?string $customerClock = null, bool $discounted = true): array
     {
         $this->reply('customers', ['id' => 'cus_fixture', 'object' => 'customer', 'livemode' => false,
             'metadata' => ['viewer_id' => 'viewer_fixture'], 'test_clock' => $customerClock], 'POST');
-        $this->reply('coupons', ['id' => 'coupon_fixture', 'object' => 'coupon', 'livemode' => false,
-            'duration' => 'once', 'currency' => 'usd', 'amount_off' => 900], 'POST');
+        if ($discounted) {
+            $this->reply('coupons', ['id' => 'coupon_fixture', 'object' => 'coupon', 'livemode' => false,
+                'duration' => 'once', 'currency' => 'usd', 'amount_off' => 900], 'POST');
+        }
         $order = (object) ['id' => 'order_fixture', 'viewer_id' => 'viewer_fixture', 'subscription_id' => 'local_sub',
-            'is_test' => true, 'currency' => 'USD', 'regular_amount_minor' => 1200, 'amount_minor' => 300,
-            'discount_applied' => true, 'price_version' => 3, 'created_at' => now()->subMinutes(20)->toIso8601String(),
+            'is_test' => true, 'currency' => 'USD', 'regular_amount_minor' => 1200, 'amount_minor' => $discounted ? 300 : 1200,
+            'discount_applied' => $discounted, 'price_version' => 3, 'created_at' => now()->subMinutes(20)->toIso8601String(),
             'return_to' => '/membership?from=drama&order_id=untrusted#plans'];
         $sub = (object) ['id' => 'local_sub', 'viewer_id' => 'viewer_fixture', 'is_test' => true, 'currency' => 'USD',
             'regular_amount_minor' => 1200, 'customer_id' => null];
@@ -175,12 +189,12 @@ final class StripeGatewayTest extends TestCase
         return [$order, $sub, $request];
     }
 
-    private function sessionFixture(array $request, string $status = 'open'): array
+    private function sessionFixture(array $request, string $status = 'open', int $amount = 300): array
     {
         return ['id' => 'cs_fixture', 'object' => 'checkout.session', 'livemode' => false,
             'mode' => 'subscription', 'status' => $status, 'customer' => 'cus_fixture',
             'client_reference_id' => 'order_fixture', 'metadata' => ['order_id' => 'order_fixture'],
-            'amount_total' => 300, 'currency' => 'usd', 'url' => $status === 'open' ? 'https://checkout.stripe.com/c/pay/fixture' : null,
+            'amount_total' => $amount, 'currency' => 'usd', 'url' => $status === 'open' ? 'https://checkout.stripe.com/c/pay/fixture' : null,
             'expires_at' => $request['params']['expires_at'], 'subscription' => $status === 'complete' ? 'sub_fixture' : null,
             'payment_status' => $status === 'complete' ? 'paid' : 'unpaid'];
     }
@@ -203,7 +217,8 @@ final class StripeGatewayTest extends TestCase
         $this->assertSame(1200, $posted['params']['line_items'][0]['price_data']['unit_amount']);
         $this->assertSame('week', $posted['params']['line_items'][0]['price_data']['recurring']['interval']);
         $this->assertSame('coupon_fixture', $posted['params']['discounts'][0]['coupon']);
-        $this->assertSame('false', $posted['params']['allow_promotion_codes']);
+        $this->assertArrayNotHasKey('allow_promotion_codes', $request['params']);
+        $this->assertArrayNotHasKey('allow_promotion_codes', $posted['params']);
         $this->assertSame(['card'], $posted['params']['payment_method_types']);
         $this->assertSame($request['params']['expires_at'], $posted['params']['expires_at']);
         $this->assertSame('http://localhost:8203/membership?from=drama&order_id=order_fixture#plans', $posted['params']['success_url']);
@@ -211,6 +226,142 @@ final class StripeGatewayTest extends TestCase
         $this->assertSame($posted['params']['metadata'], $posted['params']['subscription_data']['metadata']);
         $this->assertStringContainsString('Stripe-Version: '.StripeGateway::API_VERSION, implode("\n", $posted['headers']));
         $this->assertStringContainsString('Idempotency-Key: '.$request['idempotency_key'], implode("\n", $posted['headers']));
+    }
+
+    public function test_regular_price_checkout_omits_discounts_and_promotion_code_input(): void
+    {
+        [$order, $sub, $request] = $this->preparedCheckout(discounted: false);
+        $this->assertSame(['POST /v1/customers'], array_column($this->http->requests, 'key'));
+        $this->assertArrayNotHasKey('allow_promotion_codes', $request['params']);
+        $this->assertArrayNotHasKey('discounts', $request['params']);
+        $this->reply('checkout/sessions', $this->sessionFixture($request, amount: 1200), 'POST');
+        $result = $this->gateway->createCheckout($order, $sub);
+        $posted = $this->http->requests[1];
+        $this->assertSame('cs_fixture', $result['session_id']);
+        $this->assertArrayNotHasKey('allow_promotion_codes', $posted['params']);
+        $this->assertArrayNotHasKey('discounts', $posted['params']);
+        $this->assertSame(1200, $posted['params']['line_items'][0]['price_data']['unit_amount']);
+        $this->assertSame('week', $posted['params']['line_items'][0]['price_data']['recurring']['interval']);
+        $this->assertSame($request['params']['expires_at'], $posted['params']['expires_at']);
+        $this->assertStringContainsString('Idempotency-Key: '.$request['idempotency_key'], implode("\n", $posted['headers']));
+    }
+
+    public function test_http_fixture_rejects_coupon_and_serialized_false_promotion_flag(): void
+    {
+        $client = new StripeClient(['api_key' => config('billing.stripe_secret'), 'stripe_version' => StripeGateway::API_VERSION]);
+        try {
+            $client->checkout->sessions->create([
+                'mode' => 'subscription', 'discounts' => [['coupon' => 'coupon_fixture']],
+                'allow_promotion_codes' => false,
+            ]);
+            $this->fail('Fixture accepted mutually exclusive Checkout parameters.');
+        } catch (InvalidRequestException $error) {
+            $this->assertSame(400, $error->getHttpStatus());
+            $this->assertSame('invalid_request_error', $error->getError()->type);
+        }
+        $this->assertCount(1, $this->http->requests);
+        $this->assertSame('false', $this->http->requests[0]['params']['allow_promotion_codes']);
+        $this->assertSame('coupon_fixture', $this->http->requests[0]['params']['discounts'][0]['coupon']);
+    }
+
+    private function legacyPreparedCheckout(bool $attempted): array
+    {
+        [$order, $sub, $request] = $this->preparedCheckout(attempted: $attempted);
+        // A pre-F05 persisted request must stay byte-for-byte unchanged.
+        $request['params']['allow_promotion_codes'] = false;
+        $order->checkout_request = json_encode($request, JSON_THROW_ON_ERROR);
+        $this->http->requests = [];
+
+        return [$order, $sub, $request];
+    }
+
+    public function test_legacy_conflict_reconciles_all_statuses_without_post_or_mutating_intent(): void
+    {
+        foreach ([false, true] as $attempted) {
+            foreach (['open', 'complete', 'expired'] as $status) {
+                [$order, $sub, $request] = $this->legacyPreparedCheckout($attempted);
+                $original = clone $order;
+                $this->assertSame($request, $this->gateway->prepareCheckout($order, $sub));
+                $this->assertSame([], $this->http->requests);
+                $session = $this->sessionFixture($request, $status);
+                $this->reply('checkout/sessions', ['object' => 'list', 'has_more' => false, 'data' => [$session]]);
+                $this->reply('checkout/sessions/cs_fixture', $session);
+                $result = $this->gateway->createCheckout($order, $sub);
+                $this->assertSame('cs_fixture', $result['session_id']);
+                $this->assertSame($status, $result['status']);
+                $this->assertSame($request['expires_at'], $result['expires_at']);
+                $this->assertSame($status === 'open' ? $session['url'] : null, $result['url']);
+                $this->assertSame(['GET /v1/checkout/sessions', 'GET /v1/checkout/sessions/cs_fixture'], array_column($this->http->requests, 'key'));
+                $this->assertSame('cus_fixture', $this->http->requests[0]['params']['customer']);
+                $this->assertEquals($original, $order);
+                $this->assertSame($original->checkout_request, $order->checkout_request);
+                $this->assertSame($request, json_decode($order->checkout_request, true, flags: JSON_THROW_ON_ERROR));
+            }
+        }
+    }
+
+    public function test_legacy_conflict_with_zero_or_multiple_sessions_stays_pending_and_unchanged(): void
+    {
+        foreach ([false, true] as $attempted) {
+            foreach ([0, 2] as $matchCount) {
+                [$order, $sub, $request] = $this->legacyPreparedCheckout($attempted);
+                $original = clone $order;
+                $one = $this->sessionFixture($request);
+                $sessions = $matchCount === 0 ? [] : [$one, [...$one, 'id' => 'cs_duplicate']];
+                $this->reply('checkout/sessions', ['object' => 'list', 'has_more' => false, 'data' => $sessions]);
+                try {
+                    $this->gateway->createCheckout($order, $sub);
+                    $this->fail('Unresolved legacy intent was reopened.');
+                } catch (ApiProblem $error) {
+                    $this->assertSame('BILLING_PENDING', $error->errorCode);
+                }
+                $this->assertSame(['GET /v1/checkout/sessions'], array_column($this->http->requests, 'key'));
+                $this->assertEquals($original, $order);
+                $this->assertSame($original->checkout_request, $order->checkout_request);
+                $this->assertSame($request, json_decode($order->checkout_request, true, flags: JSON_THROW_ON_ERROR));
+            }
+        }
+    }
+
+    public function test_persisted_promotion_flag_rejects_values_other_than_strict_false_before_http(): void
+    {
+        foreach ([true, null, 'false', 0] as $value) {
+            [$order, $sub, $request] = $this->preparedCheckout();
+            $request['params']['allow_promotion_codes'] = $value;
+            $order->checkout_request = json_encode($request, JSON_THROW_ON_ERROR);
+            $original = $order->checkout_request;
+            $this->http->requests = [];
+            try {
+                $this->gateway->createCheckout($order, $sub);
+                $this->fail('Unsafe persisted promotion-code input was accepted.');
+            } catch (ApiProblem $error) {
+                $this->assertSame('BILLING_PENDING', $error->errorCode);
+            }
+            $this->assertSame([], $this->http->requests);
+            $this->assertSame($original, $order->checkout_request);
+        }
+    }
+
+    public function test_persisted_coupon_shape_must_match_discounted_order_before_http(): void
+    {
+        foreach ([[true, null], [true, []], [true, [['promotion_code' => 'promo_fixture']]],
+            [true, [['coupon' => '']]], [false, [['coupon' => 'coupon_fixture']]]] as [$discounted, $discounts]) {
+            [$order, $sub, $request] = $this->preparedCheckout(discounted: $discounted);
+            if ($discounts === null) {
+                unset($request['params']['discounts']);
+            } else {
+                $request['params']['discounts'] = $discounts;
+            }
+            $order->checkout_request = json_encode($request, JSON_THROW_ON_ERROR);
+            $this->http->requests = [];
+            try {
+                $this->gateway->createCheckout($order, $sub);
+                $this->fail('Coupon parameters contradicting the order were accepted.');
+            } catch (ApiProblem $error) {
+                $this->assertSame('BILLING_PENDING', $error->errorCode);
+            }
+            $this->assertSame([], $this->http->requests);
+        }
     }
 
     public function test_preparation_attaches_controlled_test_clock_and_accepts_same_clock_customer(): void

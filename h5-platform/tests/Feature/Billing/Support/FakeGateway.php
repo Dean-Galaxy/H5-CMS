@@ -41,7 +41,12 @@ final class FakeGateway implements PaymentGateway
     {
         $this->assertAvailable();
 
-        return ['params' => ['metadata' => ['order_id' => $order->id]], 'idempotency_key' => 'checkout-'.$order->id,
+        $params = ['metadata' => ['order_id' => $order->id]];
+        if ($order->amount_minor < $order->regular_amount_minor) {
+            $params['discounts'] = [['coupon' => 'coupon_test_'.$order->id]];
+        }
+
+        return ['params' => $params, 'idempotency_key' => 'checkout-'.$order->id,
             'customer_id' => 'cus_'.$order->viewer_id, 'prepared_at' => now()->startOfSecond()->toIso8601ZuluString(),
             'expires_at' => now()->startOfSecond()->addSeconds(1860)->toIso8601ZuluString()];
     }
@@ -50,6 +55,12 @@ final class FakeGateway implements PaymentGateway
     {
         $this->assertAvailable();
         $this->createCalls++;
+        $intent = is_string($order->checkout_request) ? json_decode($order->checkout_request, true, flags: JSON_THROW_ON_ERROR) : $order->checkout_request;
+        $params = $intent['params'];
+        if ((array_key_exists('allow_promotion_codes', $params) && $params['allow_promotion_codes'] !== false)
+            || (array_key_exists('discounts', $params) && array_key_exists('allow_promotion_codes', $params))) {
+            throw new ApiProblem('BILLING_PENDING', 409, 'test fixture rejects incompatible promotion parameters');
+        }
         if ($this->failCreate) {
             throw new ApiProblem('BILLING_PENDING', 409, 'test timeout');
         }

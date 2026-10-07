@@ -166,7 +166,7 @@ final class StripeGateway implements PaymentGateway
                 'quantity' => 1,
             ]],
             'payment_method_types' => ['card'],
-            'allow_promotion_codes' => false,
+            // Omission keeps manual promotion codes disabled and avoids the coupon conflict.
             'adaptive_pricing' => ['enabled' => false],
             'automatic_tax' => ['enabled' => false],
             'success_url' => $returnUrl,
@@ -219,7 +219,8 @@ final class StripeGateway implements PaymentGateway
             && ($params['line_items'][0]['price_data']['unit_amount'] ?? null) === (int) $order->regular_amount_minor
             && ($params['line_items'][0]['price_data']['currency'] ?? null) === 'usd'
             && ($params['line_items'][0]['price_data']['recurring'] ?? null) === ['interval' => 'week', 'interval_count' => 1]
-            && ($params['allow_promotion_codes'] ?? null) === false
+            // Read old immutable intents without silently normalizing them.
+            && (! array_key_exists('allow_promotion_codes', $params) || $params['allow_promotion_codes'] === false)
             && ($params['client_reference_id'] ?? null) === (string) $order->id
             && ($params['metadata']['order_id'] ?? null) === (string) $order->id
             && ($params['metadata']['viewer_id'] ?? null) === (string) $order->viewer_id
@@ -227,6 +228,15 @@ final class StripeGateway implements PaymentGateway
             && ($params['subscription_data']['metadata'] ?? null) === ($params['metadata'] ?? null)
             && is_int($params['expires_at'] ?? null)
             && is_string($request['prepared_at'] ?? null) && is_string($request['expires_at'] ?? null));
+        $discount = (int) $order->regular_amount_minor - (int) $order->amount_minor;
+        if ($discount > 0) {
+            $discounts = $params['discounts'] ?? null;
+            $this->require(is_array($discounts) && count($discounts) === 1
+                && is_array($discounts[0] ?? null) && array_keys($discounts[0]) === ['coupon']
+                && is_string($discounts[0]['coupon']) && $discounts[0]['coupon'] !== '');
+        } else {
+            $this->require(! array_key_exists('discounts', $params));
+        }
         try {
             $prepared = CarbonImmutable::parse($request['prepared_at'])->timestamp;
             $expires = CarbonImmutable::parse($request['expires_at'])->timestamp;
@@ -245,7 +255,10 @@ final class StripeGateway implements PaymentGateway
         $params = $request['params'];
         $unknown = ! empty($order->checkout_attempted_at);
         $late = $params['expires_at'] - CarbonImmutable::now('UTC')->timestamp <= 1800;
-        if ($unknown || $late) {
+        // F05: legacy coupon + false is readable for reconciliation, never sendable.
+        // Even an unattempted old intent must not be edited or re-POSTed with new parameters.
+        $legacyPromotionConflict = array_key_exists('discounts', $params) && array_key_exists('allow_promotion_codes', $params);
+        if ($unknown || $late || $legacyPromotionConflict) {
             // List by the persisted Customer, not by a newly minted Customer.
             // This also finds Sessions omitted by a lost create response.
             $sessions = $this->all(fn ($stripe, $args) => $stripe->checkout->sessions->all([

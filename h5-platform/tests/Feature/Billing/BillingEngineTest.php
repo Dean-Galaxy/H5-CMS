@@ -163,7 +163,33 @@ final class BillingEngineTest extends BillingTestCase
         $again = DB::table('billing_orders')->find($order->id);
         $this->assertSame($order->checkout_request, $again->checkout_request);
         $this->assertSame($order->expires_at, $again->expires_at);
-        $this->assertDatabaseCount('billing_orders',1);
-        $this->assertDatabaseCount('billing_subscriptions',1);
+        $this->assertDatabaseCount('billing_orders', 1);
+        $this->assertDatabaseCount('billing_subscriptions', 1);
+    }
+
+    public function test_testing_gateway_does_not_hide_conflicting_coupon_parameters(): void
+    {
+        $viewer = $this->viewer();
+        $offer = $this->engine->offer($viewer);
+        $this->gateway->failCreate = true;
+        $this->assertProblem('BILLING_PENDING', fn () => $this->engine->checkout($viewer, new CheckoutInput($offer->offer_id, 1, '/membership'), 'fixture-parameter-conflict', null));
+        $order = DB::table('billing_orders')->first();
+        $intent = BillingStore::json($order->checkout_request);
+        $this->assertArrayHasKey('discounts', $intent['params']);
+        $this->assertArrayNotHasKey('allow_promotion_codes', $intent['params']);
+        // Model the old stored request; the local fake must not invent success for it.
+        $intent['params']['allow_promotion_codes'] = false;
+        DB::table('billing_orders')->where('id', $order->id)->update(['checkout_request' => json_encode($intent, JSON_THROW_ON_ERROR)]);
+        $before = DB::table('billing_orders')->find($order->id);
+        $this->gateway->failCreate = false;
+        $this->engine->retryPendingOperations();
+        $after = DB::table('billing_orders')->find($order->id);
+        $this->assertNull($after->checkout_id);
+        $this->assertSame('processing', $after->state);
+        $this->assertSame($before->checkout_request, $after->checkout_request);
+        $this->assertDatabaseCount('billing_orders', 1);
+        $this->assertDatabaseCount('billing_subscriptions', 1);
+        $this->assertDatabaseCount('billing_payments', 0);
+        $this->assertDatabaseCount('billing_entitlements', 0);
     }
 }

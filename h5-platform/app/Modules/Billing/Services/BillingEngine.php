@@ -567,6 +567,6 @@ final class BillingEngine implements BillingService, MembershipReader
 
     private function notFound(): never
     {
-        throw new ApiProblem('NOT_FOUND',404,'记录不存在');
+        throw new ApiProblem('NOT_FOUND', 404, '记录不存在');
     }
 }
