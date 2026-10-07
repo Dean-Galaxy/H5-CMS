@@ -1,4 +1,4 @@
-# 内部接口 v1（1.0.1）
+# 内部接口 v1（1.0.2）
 
 全部 PHP 接口位于 `h5-platform/app/Contracts`；值对象位于 `app/Data`，状态枚举位于 `app/Enums`。签名是代码约定，JSON 字段及可空规则以 openapi.yaml 为准。返回 DTO 可 `toArray()` / JSON 序列化；`fromArray()` 是类型装配入口，不替代业务输入校验和 JSON Schema 校验。
 

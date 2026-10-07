@@ -17,6 +17,7 @@ use App\Enums\SubscriptionAction;
 use App\Modules\Identity\Models\Staff;
 use App\Modules\Identity\Models\Viewer;
 use App\Support\DependencyNotReady;
+use App\Support\UnavailableServices;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -92,6 +93,8 @@ class SharedContractsTest extends TestCase
 
     public function test_new_ports_require_the_real_provider_even_when_empty_examples_exist(): void
     {
+        // Exercise the missing-provider boundary explicitly after Content acceptance.
+        $this->app->bind(CatalogReader::class, UnavailableServices::class);
         $viewer = new ViewerIdentity('019a2b3c-1234-7000-8000-000000000001', 'contract@example.test', true);
         $catalog = app(CatalogReader::class);
         $billing = app(BillingService::class);
@@ -113,6 +116,7 @@ class SharedContractsTest extends TestCase
 
     public function test_public_home_and_categories_remain_accessible_to_guests_but_unavailable(): void
     {
+        $this->app->bind(CatalogReader::class, UnavailableServices::class);
         foreach (['/api/v1/home?locale=zh_CN', '/api/v1/categories?locale=en', '/api/v1/catalog?category_id='.$this->sample('home-en')['categories'][0]['id']] as $url) {
             $this->getJson($url)->assertStatus(503)->assertHeader('X-Request-ID')->assertJsonPath('error.code', 'DEPENDENCY_NOT_READY');
         }

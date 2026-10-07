@@ -1,0 +1,11 @@
+{
+  "status": "ok",
+  "request_id": "019a2b3c-1234-7000-8000-000000000001",
+  "modules": {
+    "identity": "ready",
+    "content": "ready",
+    "billing": "not_ready",
+    "audience": "not_ready",
+    "acquisition": "not_ready"
+  }
+}

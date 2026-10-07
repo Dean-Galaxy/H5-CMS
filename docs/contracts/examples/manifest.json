@@ -218,5 +218,20 @@
     "file": "invalid-playback-client-region.json",
     "schema": "PlaybackInput",
     "valid": false
+  },
+  {
+    "file": "health-foundation.json",
+    "schema": "Health",
+    "valid": true
+  },
+  {
+    "file": "health-content.json",
+    "schema": "Health",
+    "valid": true
+  },
+  {
+    "file": "invalid-health-state.json",
+    "schema": "Health",
+    "valid": false
   }
 ]

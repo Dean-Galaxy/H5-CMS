@@ -39,8 +39,10 @@ class ViewerTest extends TestCase
     {
         $this->get('/')->assertOk();
         $this->getJson('/api/v1/auth/me')->assertExactJson(['viewer' => null, 'staff' => null]);
-        $this->getJson('/api/v1/catalog')->assertStatus(503)->assertJsonPath('error.code', 'DEPENDENCY_NOT_READY');
-        $this->postJson('/api/v1/episodes/test/playback-grants')->assertStatus(503); // no forced sign-in for free-grant skeleton
+        $this->getJson('/api/v1/catalog')->assertForbidden()->assertJsonPath('error.code', 'REGION_BLOCKED');
+        // Content is accepted: guests reach real authorization without forced sign-in.
+        $this->postJson('/api/v1/episodes/019a2b3c-1234-7000-8000-000000000001/playback-grants', ['play_session_id' => null])
+            ->assertOk()->assertJsonPath('allowed', false)->assertJsonPath('reason', 'REGION_BLOCKED');
         $this->postJson('/api/v1/billing/checkout')->assertUnauthorized();
     }
 
