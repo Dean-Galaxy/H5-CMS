@@ -1,0 +1,52 @@
+{
+  "review_date": "2026-10-07",
+  "reviewer": "00",
+  "decision": "changes_requested",
+  "contract": "1.0.2",
+  "main_before_review": "d5de0982981963b6d560b698b44df8f65c553859",
+  "candidate_commit": "48af857811ab86fa6a14f4e8e653a8564bdee9b6",
+  "source_commit": "d68147f58bca64f3d87f4744c17f24b96f9c9d9d",
+  "review_workspace": "/Volumes/KESU/H5/.runtime/reviews/02-a787700",
+  "app_source_loaded_from_review_workspace": true,
+  "ports": {
+    "http": 8300,
+    "postgresql": 5630
+  },
+  "databases": {
+    "development": "h5_979f222b25",
+    "testing": "h5_979f222b25_test"
+  },
+  "source_manifest_verified_files": 31,
+  "checks": {
+    "candidate_tests": {
+      "passed": 159,
+      "assertions": 1299
+    },
+    "additional_probes": {
+      "tests": 2,
+      "passed": 1,
+      "failed": 1,
+      "assertions": 29,
+      "failure": "F05 coupon plus allow_promotion_codes=false"
+    },
+    "real_billing_content_in_testing": "passed; verified payment adapter and media bytes are fixtures; real Billing/Content code and PostgreSQL",
+    "contract_examples": 47,
+    "real_local_http": "passed",
+    "billing_migrations_ran": 4,
+    "dependency_audit": {
+      "advisories": [],
+      "abandoned": []
+    }
+  },
+  "stripe_official": "not_configured_not_verified_no_external_payment_call",
+  "main_billing_module_accepted": false,
+  "F05": {
+    "observed": "pinned SDK serializes allow_promotion_codes=false together with discounts[0][coupon]",
+    "evidence_kind": "local request interception plus primary repository compatibility reports; no account-level Stripe rejection observed",
+    "reference_urls": [
+      "https://github.com/stripe/stripe-node/issues/1076",
+      "https://github.com/laravel/cashier-stripe/issues/1163",
+      "https://github.com/stripe/stripe-node/issues/2248"
+    ]
+  }
+}

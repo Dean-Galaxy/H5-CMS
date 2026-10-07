@@ -1,0 +1,21 @@
+INFO  Configuration cache cleared successfully.
+
+PHPUnit 12.5.38 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/phpunit.xml
+
+.F                                                                  2 / 2 (100%)
+
+Time: 00:06.291, Memory: 71.00 MB
+
+There was 1 failure:
+
+1) Tests\Feature\Contracts\BillingReceptionTest::test_coupon_checkout_omits_conflicting_promotion_code_parameter
+A coupon Checkout must omit the mutually exclusive promotion-code field, not serialize false.
+Failed asserting that an array does not have the key 'allow_promotion_codes'.
+
+/Volumes/KESU/H5/.runtime/reviews/02-a787700/.runtime/00-billing-review-tests/BillingReceptionTest.php:136
+
+FAILURES!
+Tests: 2, Assertions: 29, Failures: 1.
