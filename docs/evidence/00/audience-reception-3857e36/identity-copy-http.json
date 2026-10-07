@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/",
+    "lang": "zh_CN",
+    "status": 200,
+    "text": "H5 · H5 H5 基础验收 简体中文 English 我的账号 员工后台 H5 / 01 账号与权限基础已就位 浏览与免费试看不需要登录。首次购买会员前，请登录并验证邮箱。 注册观众账号 观众登录 账号与身份 注册、邮箱验证、找回密码，以及独立的员工后台。 本页功能 本页提供账号与身份功能入口，不提供播放或付款操作。 账号与身份管理"
+  },
+  {
+    "path": "/identity/login",
+    "lang": "zh_CN",
+    "status": 200,
+    "text": "H5 · H5 H5 基础验收 简体中文 English 我的账号 员工后台 观众登录 浏览与免费试看不需要登录。首次购买会员前，请登录并验证邮箱。 邮箱 密码 观众登录 注册观众账号 忘记密码 账号与身份管理"
+  },
+  {
+    "path": "/",
+    "lang": "en",
+    "status": 200,
+    "text": "H5 · H5 H5 Foundation preview 简体中文 English My account Staff admin H5 / 01 Identity and access foundation Browsing and free previews do not require sign-in. Sign in and verify your email before your first membership purchase. Create viewer account Viewer sign-in Accounts and identity Registration, email verification, password reset and a separate staff admin. About this page This page provides access to account and identity features. It does not handle playback or payments. Account and identity management"
+  },
+  {
+    "path": "/identity/login",
+    "lang": "en",
+    "status": 200,
+    "text": "H5 · H5 H5 Foundation preview 简体中文 English My account Staff admin Viewer sign-in Browsing and free previews do not require sign-in. Sign in and verify your email before your first membership purchase. Email Password Viewer sign-in Create viewer account Forgot password Account and identity management"
+  }
+]

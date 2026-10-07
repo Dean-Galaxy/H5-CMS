@@ -1,0 +1,21 @@
+{
+  "observer": "00",
+  "browser": "Codex In-app Browser",
+  "base": "http://127.0.0.1:8300",
+  "database": "isolated empty local development database",
+  "region": "explicit direct-loopback US local fixture",
+  "viewed": [
+    "Chinese home empty state",
+    "Chinese membership unconfigured-price/payment state"
+  ],
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "document_scroll_width": 390
+  },
+  "membership_console_errors": [],
+  "screenshot_local": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/.runtime/00-audience-final-membership-mobile.png",
+  "native_video_repeated_by_00": false,
+  "non_native_actual_decode_verified": false,
+  "viewport_reset_and_temporary_tab_closed": true
+}

@@ -1,0 +1,43 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Contracts\AcceptedAudienceTest
+  ✓ default website and progress use the accepted provider without loca… 8.59s
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.55s
+  ✓ fresh progress is empty and a guest cannot write account progress    0.41s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund   0.98s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 0.21s
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.04s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.02s
+  ✓ public content still requires a trusted region then reads its own d… 0.06s
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.02s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.02s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.02s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.10s
+  ✓ home consumer can follow a category and banner without media or ext… 0.02s
+  ✓ new ports require the real provider even when empty examples exist   0.02s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.02s
+  ✓ resume quote and submission require an audience session              0.03s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.03s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.02s
+
+  Tests:    23 passed (216 assertions)
+  Duration: 15.77s

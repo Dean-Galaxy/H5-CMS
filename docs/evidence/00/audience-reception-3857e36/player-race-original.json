@@ -1,0 +1,36 @@
+{
+  "type": "00 independent isolated lifecycle probe; mocked DOM/fetch; no browser or network",
+  "expectation": "original defect reproduces",
+  "results": [
+    {
+      "event": "offline",
+      "afterEvent": {
+        "buttonDisabled": true,
+        "status": "Network",
+        "requestAborted": false
+      },
+      "afterLateGrant": {
+        "assignedSources": 1,
+        "playCalls": 1,
+        "activeTimers": 1,
+        "buttonHidden": true
+      },
+      "violation": true
+    },
+    {
+      "event": "pagehide",
+      "afterEvent": {
+        "buttonDisabled": true,
+        "status": "Loading",
+        "requestAborted": false
+      },
+      "afterLateGrant": {
+        "assignedSources": 1,
+        "playCalls": 1,
+        "activeTimers": 1,
+        "buttonHidden": true
+      },
+      "violation": true
+    }
+  ]
+}

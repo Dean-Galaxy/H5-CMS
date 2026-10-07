@@ -1,0 +1,46 @@
+[
+  {
+    "port": 8101,
+    "path": "/health",
+    "status": 200,
+    "modules": {
+      "identity": "ready",
+      "content": "ready",
+      "billing": "ready",
+      "audience": "ready",
+      "acquisition": "not_ready"
+    }
+  },
+  {
+    "port": 8101,
+    "path": "/?lang=en",
+    "status": 403
+  },
+  {
+    "port": 8101,
+    "path": "/identity/login?lang=zh_CN",
+    "status": 200
+  },
+  {
+    "port": 8101,
+    "path": "/membership?lang=en",
+    "status": 503
+  },
+  {
+    "port": 8204,
+    "path": "/health",
+    "status": 200,
+    "modules": {
+      "identity": "ready",
+      "content": "ready",
+      "billing": "ready",
+      "audience": "ready",
+      "acquisition": "not_ready"
+    }
+  },
+  {
+    "port": 8204,
+    "path": "/",
+    "status": 200
+  }
+]

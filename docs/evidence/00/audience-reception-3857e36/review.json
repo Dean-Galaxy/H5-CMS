@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-07",
+  "contract": "1.0.2",
+  "candidate": "3857e36de7136a3c5afb66206b6ef03ae1aaf93e",
+  "fixed_combination_before_default_activation": "99a43b122f38ee960c2d0c548518cde30fbda942",
+  "activation": "5b3e27b849a126f50fa38ba0b6f94dea21daaa7e",
+  "identity_copy": "47a9af321a318958333a128bc715ca0f5e1c62c1",
+  "identity_test_adaptation": "343830ab7330aa49aaa42985c601b8a9a2eb4397",
+  "tested_integration": "2eb746581fcaa427041f10be6336dabada0a606d",
+  "main_merge": "7d493763e052c28cd7e63d84fa7d2e453fe95a84",
+  "accepted": "01-04 local code integration; F06 closed",
+  "results": {
+    "candidate_tests": 209,
+    "candidate_assertions": 1914,
+    "integrated_tests": 212,
+    "integrated_assertions": 1940,
+    "player_state_tests": 16,
+    "http_checks": 14,
+    "contract_examples": 47
+  },
+  "unverified": [
+    "Stripe official test payments and callbacks",
+    "Real outgoing email",
+    "Actual non-native HLS browser decode",
+    "Actual browser network interruption and renewal denial",
+    "Real mobile devices",
+    "External deployment",
+    "Meta/TikTok provider integration"
+  ],
+  "dependency_audit": "Composer files unchanged from 00-08; same-lock prior audit reused. HLS locked asset check rerun. No claim of new network audit.",
+  "test_harness_corrections": [
+    "Region provider replacement moved before first controller instance by separate test",
+    "Top-level JSON null checked as literal response content"
+  ],
+  "review_environment_stopped": true,
+  "new_module_chats_started": [],
+  "main_runtime_checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "main_and_preview_http_checks": 6
+}
