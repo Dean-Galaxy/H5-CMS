@@ -1,0 +1,150 @@
+Browser tab: 1, Title: "投流链接与像素 - H5 员工后台", URL: "http://127.0.0.1:8205/admin/acquisition-desk".
+1 AXWebArea 投流链接与像素 - H5 员工后台, URL: 127.0.0.1:8205/admin/acquisition-desk
+	2 link Description: Skip to content, Value: 127.0.0.1:8205/admin/acquisition-desk#fi-main-content
+	3 container Topbar
+		4 link Description: H5 员工后台, Value: 127.0.0.1:8205/admin
+		5 pop up button (collapsed) Description: 用户菜单, Secondary Actions: Expand
+			6 image 05 本地验收负责人 的头像
+	7 container Sidebar navigation
+		8 content list
+			9 content list
+				10 link Description: 仪表板, Value: 127.0.0.1:8205/admin
+				11 link Description: 员工账号与角色, Value: 127.0.0.1:8205/admin/staff-accounts
+				12 link Description: 内容媒体与发布, Value: 127.0.0.1:8205/admin/content-library
+				13 link Description: 订单会员与客服, Value: 127.0.0.1:8205/admin/billing-desk
+				14 link Description: 投流链接与像素, Value: 127.0.0.1:8205/admin/acquisition-desk
+	15 container fi-main-content
+		16 heading 投流链接与像素, Value: 1
+			17 text 投流链接与像素
+		18 container
+			19 heading 本站投流工作台 · 本地开发, Value: 2
+				20 text 本站投流工作台 · 本地开发
+			21 text Meta / TikTok 均待账号持有人联调。外部发送：
+			22 text 关闭
+			23 text 。本地模拟、接口接受与平台确认分别记录。 D05 来源窗口、旧链接与落地隐私规则待总控接收。当前链接入口明确显示未就绪，不会假造来源或影响订阅。
+		24 container
+			25 heading 登记已有像素, Value: 2
+				26 text 登记已有像素
+			27 container
+				28 text 名称
+				29 text field (settable) 名称
+			30 container
+				31 text 平台
+				32 pop up button (collapsed, settable) 平台, Value: Meta, Secondary Actions: Expand
+					33 menu
+						34 (selected) Meta
+						35 TikTok
+			36 container
+				37 text 平台像素编号
+				38 text field (settable) 平台像素编号
+			39 container
+				40 text 资产用途
+				41 pop up button (collapsed, settable) 资产用途, Value: 专用测试资产, Secondary Actions: Expand
+					42 menu
+						43 (selected) 专用测试资产
+						44 正式资产（默认不发送）
+			45 container
+				46 text 启用状态
+				47 pop up button (collapsed, settable) 启用状态, Value: 启用, Secondary Actions: Expand
+					48 menu
+						49 (selected) 启用
+						50 停用
+			51 text 仅登记平台已有资产；不会在平台创建像素。没有任意脚本或令牌输入框。版本 0。
+			52 button 保存像素
+			53 button 登记另一个
+			54 table
+				55 row
+					56 cell
+						57 text 像素资产
+					58 cell
+						59 text 状态
+					60 cell
+						61 text 验证与操作
+				62 row
+					63 cell
+						64 text TikTok 本地模拟资产（非真实平台）
+						65 text Tiktok · LOCAL_TIKTOK_00005
+						66 text 测试
+						67 text  · 版本 3
+					68 cell
+						69 text 启用
+						70 text 可见关联链接 0 个
+						71 text 共享人员 0 名
+					72 cell
+						73 text 本地：模拟通过
+						74 text 平台：待联调
+						75 button 编辑 / 启停
+						76 button 本地模拟校验
+						77 button 分配像素
+				78 row
+					79 cell
+						80 text Meta 本地模拟资产（非真实平台）
+						81 text Meta · 900000000005
+						82 text 测试
+						83 text  · 版本 1
+					84 cell
+						85 text 启用
+						86 text 可见关联链接 0 个
+						87 text 共享人员 0 名
+					88 cell
+						89 text 本地：模拟通过
+						90 text 平台：待联调
+						91 button 编辑 / 启停
+						92 button 本地模拟校验
+						93 button 分配像素
+			94 text 共 2 项 · 第 1 / 1 页
+		95 container
+			96 heading 生成推广链接, Value: 2
+				97 text 生成推广链接
+			98 text Content 当前没有可投放的已发布剧目
+			99 button 读取可投放剧目
+			100 container
+				101 text 推广名称
+				102 text field (settable) 推广名称
+			103 container
+				104 text 平台
+				105 pop up button (collapsed, settable) 平台, Value: Meta, Secondary Actions: Expand
+					106 menu
+						107 (selected) Meta
+						108 TikTok
+			109 container
+				110 text 已发布剧目
+				111 pop up button (collapsed, settable) 已发布剧目, Value: 请选择, Secondary Actions: Expand
+					112 menu
+						113 (selected) 请选择
+			114 container
+				115 text 授权像素
+				116 pop up button (collapsed, settable) 授权像素, Value: 请选择, Secondary Actions: Expand
+					117 menu
+						118 (selected) 请选择
+						119 TikTok 本地模拟资产（非真实平台） · tiktok
+						120 Meta 本地模拟资产（非真实平台） · meta
+			121 container
+				122 text 启用状态
+				123 pop up button (collapsed, settable) 启用状态, Value: 启用, Secondary Actions: Expand
+					124 menu
+						125 (selected) 启用
+						126 停用
+			127 text 版本 0；当前可改名称与启停。落地目标 / 像素变更和旧链接规则待 D05。找不到像素时可在上方像素列表翻页，已选项会保留。
+			128 button 保存并生成链接
+			129 button 新建另一条
+			130 table
+				131 row
+					132 cell
+						133 text 推广链接
+					134 cell
+						135 text 复制与状态
+					136 cell
+						137 text 管理
+				138 row
+					139 cell
+						140 text 尚无可见推广链接。
+			141 text 共 0 项 · 第 1 / 1 页
+		142 container
+			143 heading 负责人分配, Value: 2
+				144 text 负责人分配
+			145 text 点击资产旁的“分配像素”或“分配链接”。资产创建人保留访问权；勾选多人可共享管理。编辑启用链接还需拥有对应像素的权限，请分别分配。 投流同事只看自己和被分配资产的本站汇总，不提供用户联系方式或逐人订单。 正在分配：TikTok 本地模拟资产（非真实平台） · 像素 · 版本 3 Identity 当前没有其他可分配人员
+			146 button 读取可分配人员
+			147 button 保存共享分配
+
+The focused UI element is 146 button 读取可分配人员

@@ -1,0 +1,18 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Acquisition\DeliveryTest
+  ✓ both platforms have explicit local sending and no external requests  0.42s  
+  ✓ disabled sender and unknown or revoked consent block real attempts   0.04s  
+  ✓ test payments can never be sent to production assets                 0.04s  
+  ✓ http adapters map integer usd stable ids and do not send contact or… 0.08s  
+  ✓ failed retry uses frozen payload and stable event id then stops aft… 0.05s  
+  ✓ http 200 errors and redirects are not marked accepted                0.04s  
+  ✓ simulated context missing credentials and disabled pixel are blocke… 0.05s  
+  ✓ active lease prevents duplicate sending and expired lease can recov… 0.06s  
+  ✓ retry limit and production simulation boot guard                     0.05s  
+
+  Tests:    9 passed (69 assertions)
+  Duration: 1.00s
+

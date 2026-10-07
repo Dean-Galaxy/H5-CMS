@@ -1,0 +1,53 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Acquisition\AssetTest
+  ✓ owner and assigned scope is enforced for reads writes probe summary… 0.40s  
+  ✓ mfa disabled staff and wrong roles cannot read assets                0.03s  
+  ✓ registration does not enable external delivery or accept script or…  0.04s  
+  ✓ pixel versions and link versions reject stale updates and unfrozen…  0.04s  
+  ✓ link requires accessible matching pixel and current content          0.04s  
+  ✓ unfrozen attribution is explicitly unavailable and does not trust m… 0.05s  
+
+   PASS  Tests\Feature\Acquisition\AssignmentTest
+  ✓ owner shares multiple people and removal revokes access without cha… 0.06s  
+  ✓ selected person outside current page is repopulated and revalidated… 0.16s  
+  ✓ unavailable read ports are explicit and never replaced with public…  0.04s  
+
+   PASS  Tests\Feature\Acquisition\BillingBridgeTest
+  ✓ consumer failure leaves verified payment and membership intact and…  0.07s  
+  ✓ real billing outbox reaches consumer once and unattributed does not… 0.06s  
+
+   PASS  Tests\Feature\Acquisition\ConcurrencyTest
+  ✓ two postgresql connections contend and record one payment even with… 0.44s  
+
+   PASS  Tests\Feature\Acquisition\DeliveryTest
+  ✓ both platforms have explicit local sending and no external requests  0.20s  
+  ✓ disabled sender and unknown or revoked consent block real attempts   0.06s  
+  ✓ test payments can never be sent to production assets                 0.04s  
+  ✓ http adapters map integer usd stable ids and do not send contact or… 0.09s  
+  ✓ failed retry uses frozen payload and stable event id then stops aft… 0.07s  
+  ✓ http 200 errors and redirects are not marked accepted                0.08s  
+  ✓ external review match context and event age are checked before http  0.06s  
+  ✓ simulated context missing credentials and disabled pixel are blocke… 0.05s  
+  ✓ active lease prevents duplicate sending and expired lease can recov… 0.04s  
+  ✓ retry limit and production simulation boot guard                     0.04s  
+  ✓ unknown remote outcome is not resent after the retry window even if… 0.07s  
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.19s  
+  ✓ form save reopen local probe link edit disable and summary           0.19s  
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.08s  
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.04s  
+
+   PASS  Tests\Feature\Acquisition\PaymentTest
+  ✓ event and payment deduplication preserve one receipt and one conver… 0.04s  
+  ✓ same payment with changed facts is rejected without overwriting his… 0.04s  
+  ✓ unknown source is not reinterpreted as current pixel and no source…  0.04s  
+  ✓ first resubscription renewal and test real are separate but same ki… 0.07s  
+  ✓ pixel and link edits do not rewrite already received attribution or… 0.04s  
+
+  Tests:    32 passed (253 assertions)
+  Duration: 3.18s
+
