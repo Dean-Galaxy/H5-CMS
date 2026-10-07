@@ -1,0 +1,19 @@
+{
+    "contract": "1.0.3",
+    "attribution_enabled": false,
+    "snapshot_null": null,
+    "ports": [
+        {
+            "contract": "App\\Contracts\\AcquisitionStaffDirectory",
+            "implementation": "App\\Support\\UnavailableStaffDirectory",
+            "status": 503,
+            "code": "DEPENDENCY_NOT_READY"
+        },
+        {
+            "contract": "App\\Contracts\\PromotableCatalog",
+            "implementation": "App\\Support\\UnavailablePromotableCatalog",
+            "status": 503,
+            "code": "DEPENDENCY_NOT_READY"
+        }
+    ]
+}
