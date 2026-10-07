@@ -2,14 +2,8 @@
 
 use App\Contracts\RegionResolver;
 use App\Data\ResolvedRegion;
-use App\Modules\Billing\Services\BillingEngine;
-use App\Modules\Billing\Services\SettlementService;
-use App\Modules\Content\Models\DramaRecord;
-use App\Modules\Content\Models\Plan;
-use App\Modules\Identity\Models\Staff;
 use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Support\Facades\DB;
-use Tests\Integration\Support\PaymentScenario;
+use Tests\Integration\Support\RecoveryScenario;
 
 $root = dirname(__DIR__, 4);
 require $root.'/h5-platform/vendor/autoload.php';
@@ -26,17 +20,10 @@ app()->bind(RegionResolver::class, fn () => new class implements RegionResolver
         return new ResolvedRegion('US', 'local_us_test');
     }
 });
-if (($argv[1] ?? '') === 'seed') {
-    if (DB::table('billing_payments')->exists()) {
-        throw new LogicException('Refuse existing payment data.');
-    }
-    $p = PaymentScenario::paid();
-    $p['gateway']->refunds[$p['charge']] = [['id' => 're_restore06', 'amount_minor' => 100, 'status' => 'succeeded', 'currency' => 'USD']];
-    app(SettlementService::class)->syncRefunds($p['charge']);
-    $d = DramaRecord::create(['created_by' => Staff::firstOrFail()->id, 'title_en' => '06 overdue recovery fixture', 'title_zh' => '', 'synopsis_en' => '', 'synopsis_zh' => '', 'regions' => ['US'], 'rights_note' => 'Testing only; never publish automatically', 'state' => 'draft']);
-    Plan::create(['drama_id' => $d->id, 'state' => 'active', 'mode' => 'updating', 'version' => 1, 'launch_at' => now()->subMinutes(5)->startOfMinute(), 'next_at' => now()->subMinutes(5)->startOfMinute()]);
-}
-$account = DB::table('billing_accounts')->first();
-$membership = $account ? app(BillingEngine::class)->membership($account->viewer_id, now()->toDateTimeImmutable()) : null;
-$summary = ['orders' => DB::table('billing_orders')->count(), 'payments' => DB::table('billing_payments')->count(), 'entitlements' => DB::table('billing_entitlements')->count(), 'refunds' => DB::table('billing_refunds')->count(), 'outbox' => DB::table('billing_outbox')->count(), 'access_active' => $membership?->access_active, 'renewal_enabled' => $membership?->renewal_enabled, 'public_episodes' => DB::table('content_episodes')->whereNotNull('published_at')->count(), 'publications' => DB::table('content_publications')->count(), 'plan_states' => DB::table('content_plans')->orderBy('id')->pluck('state')->all(), 'mfa_ciphertext_decrypts' => filled(Staff::firstOrFail()->getAppAuthenticationSecret())];
-echo json_encode($summary, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR).PHP_EOL;
+$result = match ($argv[1] ?? '') {
+    'prepare-unpaid' => ['viewer_ids' => RecoveryScenario::prepareUnpaidAccounts()],
+    'seed' => RecoveryScenario::seed(),
+    'verify' => RecoveryScenario::verify(json_decode(stream_get_contents(STDIN), true, flags: JSON_THROW_ON_ERROR)),
+    default => throw new LogicException('Specify prepare-unpaid, seed, or verify with the seed manifest on stdin.'),
+};
+echo json_encode($result, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR).PHP_EOL;
