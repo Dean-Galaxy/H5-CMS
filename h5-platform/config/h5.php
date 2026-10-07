@@ -7,7 +7,7 @@ use App\Modules\Content\ContentServiceProvider;
 use App\Modules\Identity\IdentityServiceProvider;
 
 return [
-    'contract' => '1.0.2',
+    'contract' => '1.0.3',
     'workspace' => env('H5_WORKSPACE', 'unconfigured'),
     'simulation' => (bool) env('H5_SIMULATION', false),
     'local_modules' => env('H5_LOCAL_MODULES', ''),

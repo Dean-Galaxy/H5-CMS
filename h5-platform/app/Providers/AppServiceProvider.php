@@ -2,17 +2,21 @@
 
 namespace App\Providers;
 
+use App\Contracts\AcquisitionStaffDirectory;
 use App\Contracts\AttributionService;
 use App\Contracts\BillingService;
 use App\Contracts\CatalogReader;
 use App\Contracts\MembershipReader;
 use App\Contracts\PlaybackAuthorizer;
 use App\Contracts\ProgressService;
+use App\Contracts\PromotableCatalog;
 use App\Contracts\RegionResolver;
 use App\Support\DisabledAttribution;
 use App\Support\LocalModuleRegistry;
 use App\Support\ServerRegionResolver;
+use App\Support\UnavailablePromotableCatalog;
 use App\Support\UnavailableServices;
+use App\Support\UnavailableStaffDirectory;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\ServiceProvider;
@@ -25,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
             $this->app->bind($contract, UnavailableServices::class);
         }
         $this->app->bind(AttributionService::class, DisabledAttribution::class);
+        $this->app->bind(AcquisitionStaffDirectory::class, UnavailableStaffDirectory::class);
+        $this->app->bind(PromotableCatalog::class, UnavailablePromotableCatalog::class);
         $this->app->bind(RegionResolver::class, fn ($app) => new ServerRegionResolver(
             $app['request'], $app->environment(), (bool) config('h5.local_us_test_region'), $app->runningInConsole(),
         ));
