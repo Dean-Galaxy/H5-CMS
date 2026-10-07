@@ -1,0 +1,31 @@
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 5.20s
+  ✓ real nonmember and configured price remain truthful when stripe is…  1.01s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.24s
+  ✓ public content still requires a trusted region then reads its own d… 0.16s
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.03s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.03s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.02s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.10s
+  ✓ home consumer can follow a category and banner without media or ext… 0.06s
+  ✓ new ports require the real provider even when empty examples exist   0.03s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.03s
+  ✓ resume quote and submission require an audience session              0.07s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.04s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+  Tests:    18 passed (146 assertions)
+  Duration: 17.19s

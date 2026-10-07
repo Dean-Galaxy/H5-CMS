@@ -1,0 +1,47 @@
+
+   FAIL  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 4.36s
+  ⨯ real nonmember and configured price remain truthful when stripe is…  0.88s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.23s
+  ✓ public content still requires a trusted region then reads its own d… 0.34s
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.02s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.02s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.02s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.11s
+  ✓ home consumer can follow a category and banner without media or ext… 0.09s
+  ✓ new ports require the real provider even when empty examples exist   0.02s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.03s
+  ✓ resume quote and submission require an audience session              0.09s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.04s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.02s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.02s
+  ✓ explicit us fixture is limited to direct loopback http               0.02s
+  ✓ production never accepts forged country headers or local region ove… 0.02s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Contracts\AcceptedBillingTest > real nonmember and…
+  Expected response status code [503] but received 403.
+Failed asserting that 403 is identical to 503.
+
+  at tests/Feature/Contracts/AcceptedBillingTest.php:71
+     67▕         });
+     68▕         $this->postJson('/api/v1/billing/checkout', [
+     69▕             'offer_id' => $offer['offer_id'], 'price_version' => $offer['price_version'], 'return_to' => '/membership',
+     70▕         ], ['Idempotency-Key' => 'reception-unconfigured-checkout'])
+  ➜  71▕             ->assertStatus(503)->assertJsonPath('error.code', 'DEPENDENCY_NOT_READY');
+     72▕         foreach (['billing_orders', 'billing_subscriptions', 'billing_payments', 'billing_entitlements', 'billing_outbox'] as $table) {
+     73▕             $this->assertDatabaseCount($table, 0);
+     74▕         }
+     75▕     }
+
+
+  Tests:    1 failed, 17 passed (139 assertions)
+  Duration: 9.65s

@@ -1,0 +1,13 @@
+
+   INFO  Configuration cache cleared successfully.
+
+PHPUnit 12.5.38 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/phpunit.xml
+
+..                                                                  2 / 2 (100%)
+
+Time: 00:10.133, Memory: 71.00 MB
+
+OK (2 tests, 29 assertions)

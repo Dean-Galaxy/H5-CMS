@@ -1,0 +1,10 @@
+{
+  "modules": {
+    "identity": "ready",
+    "content": "ready",
+    "billing": "ready",
+    "audience": "not_ready",
+    "acquisition": "not_ready"
+  },
+  "unknown_region": "403 REGION_BLOCKED"
+}

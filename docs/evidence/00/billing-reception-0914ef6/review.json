@@ -1,0 +1,118 @@
+{
+  "reviewed_at_utc": "2026-10-07T06:22:29.869983+00:00",
+  "reviewer": "00",
+  "contract": "1.0.2",
+  "commits": {
+    "before_reception": "4ae63c043a5f3043640881b9b13b541efe59ca9d",
+    "billing_source": "ac52cdc4d8c70aa99de62a04ec2f027ce2a5e498",
+    "billing_delivery": "0914ef686e1ef0c16af2e34e68e8fc213161937a",
+    "content_test_adaptation": "7305eb6d1cf8832104d1620cdb4e7249a4af5f20",
+    "identity_test_adaptation": "5e2b1f97969576a6eaf00f568a394bb087bfc880",
+    "integrated_tested": "da19235fd81eb9af81ad7343d6aeb85f8a98d271",
+    "main_merge": "eec4e1125644e9c1b35dfbca8ea6c0b229270909"
+  },
+  "new_baseline_tag": "h5-billing-v1",
+  "baseline_note": "Created after reception documentation commit. Resolve h5-billing-v1^{commit}; application and shared HTTP source match integrated_tested.",
+  "outcome": "accepted_local_only",
+  "defects_closed": [
+    "F05"
+  ],
+  "review_workspace": {
+    "path": "/Volumes/KESU/H5/.runtime/reviews/02-a787700",
+    "port": 8300,
+    "postgres_port": 5630,
+    "database": "h5_979f222b25",
+    "test_database": "h5_979f222b25_test",
+    "stopped_after_review": true,
+    "data_retained": true
+  },
+  "main_workspace": {
+    "path": "/Volumes/KESU/H5",
+    "port": 8101,
+    "postgres_port": 5541,
+    "database": "h5_5c78d05e4e",
+    "running_after_reception": true,
+    "existing_data_retained": true,
+    "module_status": {
+      "identity": "ready",
+      "content": "ready",
+      "billing": "ready",
+      "audience": "not_ready",
+      "acquisition": "not_ready"
+    },
+    "unknown_region": "403 REGION_BLOCKED"
+  },
+  "verification": {
+    "candidate": {
+      "tests_passed": 169,
+      "assertions": 1527,
+      "evidence": "candidate-tests.txt"
+    },
+    "f05_and_billing_content_probes": {
+      "tests_passed": 2,
+      "assertions": 29,
+      "stripe_called": false,
+      "evidence": "f05-probes.txt"
+    },
+    "integrated": {
+      "tests_passed": 173,
+      "assertions": 1596,
+      "duration_seconds": 70.89,
+      "evidence": "integrated-tests.txt"
+    },
+    "contracts": {
+      "version": "1.0.2",
+      "positive_negative_examples": 47,
+      "evidence": "contracts.txt"
+    },
+    "http": {
+      "review_shared_groups": 5,
+      "review_billing_groups": 6,
+      "main_shared_groups": 5,
+      "mail": "local preview only",
+      "evidence": [
+        "shared-http.json",
+        "billing-http.json",
+        "main-http.json",
+        "main-health.json"
+      ]
+    },
+    "billing_migrations": 4,
+    "locked_dependency_audit": {
+      "advisories": 0,
+      "abandoned": 0,
+      "evidence": "dependency-audit.json"
+    },
+    "source": {
+      "billing_files_verified": 32,
+      "changed_source_files_hashed": 42,
+      "main_equals_tested": true,
+      "evidence": "source-manifest.json"
+    }
+  },
+  "initial_failures_retained": [
+    {
+      "evidence": "initial-acceptance-test.txt",
+      "cause": "00 test viewer email_verified_at was guarded; corrected fixture to forceCreate plus assertion, not application validation"
+    },
+    {
+      "evidence": "initial-integration-tests.txt",
+      "cause": "Identity test assumed missing Billing implicitly; 01 explicitly bound unavailable dependency and retained original assertions. Final full suite passed."
+    }
+  ],
+  "readiness": {
+    "04": "Module development allowed with accepted Identity/Content/Billing; official payment testing remains pending.",
+    "05": "Independent pixel/link administration, permissions, payment-event receipt/deduplication and local delivery adapters allowed. D05 and 04 website hooks require 00 agreement before dependent implementation.",
+    "06": "Existing 01-03 combination/security/isolation/migration/restore checks and deployment preparation allowed. Full-site and external acceptance await module and provider prerequisites."
+  },
+  "not_claimed": [
+    "official Stripe test payment",
+    "real external email delivery",
+    "full Audience website or real-device video acceptance",
+    "Meta/TikTok external delivery",
+    "public deployment",
+    "production charging",
+    "D03 or D05 business decision"
+  ],
+  "new_04_05_06_threads_created_or_started": false
+}

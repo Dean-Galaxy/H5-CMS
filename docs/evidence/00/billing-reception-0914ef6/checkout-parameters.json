@@ -1,0 +1,6 @@
+{
+    "scope": "SDK intercepted HTTP fixture, no Stripe request",
+    "coupon_attached": true,
+    "allow_promotion_codes_present": false,
+    "allow_promotion_codes_serialized": null
+}

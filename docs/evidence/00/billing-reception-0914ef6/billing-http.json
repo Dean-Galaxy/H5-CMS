@@ -1,0 +1,13 @@
+{
+  "result": "passed",
+  "checks": [
+    "health + OpenAPI response",
+    "real CSRF mismatch blocked",
+    "registration + independent viewer/staff cookies",
+    "Billing runtime binding + membership + cancellation CSRF + stale resume + order scope + unconfigured Stripe",
+    "unverified gate + signed email preview + replay refusal + honest unconfigured Stripe",
+    "logout + login + controlled return"
+  ],
+  "mail": "local preview only",
+  "database": "h5_979f222b25"
+}
