@@ -19,11 +19,11 @@ final class AcquisitionDesk extends Page
 
     public ?string $pixelId = null;
 
-    public array $pixel = ['name' => '', 'platform' => 'meta', 'external_id' => '', 'environment' => 'test', 'active' => true, 'version' => 0];
+    public array $pixel = ['name' => '', 'platform' => 'meta', 'external_id' => '', 'environment' => 'test', 'active' => 1, 'version' => 0];
 
     public ?string $linkId = null;
 
-    public array $link = ['name' => '', 'platform' => 'meta', 'drama_id' => '', 'pixel_id' => '', 'active' => true, 'version' => 0];
+    public array $link = ['name' => '', 'platform' => 'meta', 'drama_id' => '', 'pixel_id' => '', 'active' => 1, 'version' => 0];
 
     public ?string $summaryId = null;
 
@@ -66,6 +66,9 @@ final class AcquisitionDesk extends Page
             $data = app(AssetManager::class)->pixel($id);
             $this->pixelId = $id;
             $this->pixel = array_intersect_key($data, $this->pixel);
+            // Native select options are 0/1. A boolean false serializes as "false"
+            // and would show the first option after a Livewire re-render.
+            $this->pixel['active'] = (int) (bool) $data['active'];
         });
     }
 
@@ -114,6 +117,7 @@ final class AcquisitionDesk extends Page
             $data = app(AssetManager::class)->link($id);
             $this->linkId = $id;
             $this->link = array_intersect_key($data, $this->link);
+            $this->link['active'] = (int) (bool) $data['active'];
             if (! in_array($data['drama_id'], array_column($this->catalog, 'id'), true)) {
                 $this->catalog[] = ['id' => $data['drama_id'], 'title' => $data['drama_title'].'（已保存，提交时复核）'];
             }

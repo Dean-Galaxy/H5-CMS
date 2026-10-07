@@ -51,7 +51,11 @@ final class DeskTest extends AcquisitionTestCase
         $this->assertNotNull($linkId);
         $page = Livewire::test(AcquisitionDesk::class)->call('selectLink', $linkId)->assertSet('link.name', 'Test link')
             ->set('link.name', 'Renamed link')->set('link.active', false)->call('saveLink')->assertHasNoErrors()->assertSet('link.version', 2)
+            ->assertSet('link.active', 0)
             ->call('showSummary', $linkId)->assertSee('暂无对应付款事实')->assertSee('落地待 D05');
+        Livewire::test(AcquisitionDesk::class)->call('selectLink', $linkId)->assertSet('link.active', 0);
+        Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixelId)->set('pixel.active', '0')->call('savePixel');
+        Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixelId)->assertSet('pixel.active', 0);
         $this->assertDatabaseHas('acquisition_links', ['id' => $linkId, 'name' => 'Renamed link', 'active' => false]);
         $this->assertDatabaseCount('acquisition_receipts', 0);
     }
