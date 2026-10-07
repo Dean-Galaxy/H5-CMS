@@ -1,12 +1,16 @@
-# 内部接口 v1（1.0.2）
+# 内部接口 v1（1.0.3）
 
 全部 PHP 接口位于 `h5-platform/app/Contracts`；值对象位于 `app/Data`，状态枚举位于 `app/Enums`。签名是代码约定，JSON 字段及可空规则以 openapi.yaml 为准。返回 DTO 可 `toArray()` / JSON 序列化；`fromArray()` 是类型装配入口，不替代业务输入校验和 JSON Schema 校验。
+
+1.0.3 新增 [投流只读依赖](acquisition-read-ports-v1.0.3.md)：AcquisitionStaffDirectory 由01提供最小员工分配名单，PromotableCatalog 由02提供美国可投放库存。05为消费者。定义已发布不等于提供方实现接收，缺提供方必须503；D05及外部测试站不在本补丁放行。
 
 | 接口 / 方法 | 参数与返回 | 失败与约束 |
 |---|---|---|
 | IdentityContext.viewer / staff | 无参数；返回当前 ViewerIdentity / StaffIdentity 或 null | 区分 web / staff guard；停用身份为空，不接收请求自报身份 |
 | requireViewer | verified=false；返回 ViewerIdentity | 未登录 401 AUTHENTICATION_REQUIRED；verified=true 且未验证 403 EMAIL_UNVERIFIED |
 | requireStaff | Permission；可空 ResourceScope；返回 StaffIdentity | 401 未登录；403 MFA_REQUIRED / NOT_AUTHORIZED；ResourceScope 只接受业务提供方从数据库建立的范围 |
+| AcquisitionStaffDirectory.candidates / candidate | cursor=null、limit=50 → AssignableStaffPage；staffId → AssignableStaff | 01每次要求负责人及MFA；只返回启用投流员工id/name/role/active；未知或不符合条件404；新增提供方未接入503 |
+| PromotableCatalog.promotable / promotableDrama | cursor=null、limit=20、locale=en → PromotableDramaPage；dramaId、locale=en → PromotableDrama | 02每次核验PublishedCatalogRead及MFA；按真实美国授权/发布/可用分集筛选，不假定员工观众地区；不授予播放；新增提供方未接入503 |
 | AuditRecorder.record | action、subjectType、可空 subjectId、result、changes=[]；void | 01 自动补 actor、UTC 时间和 request_id；禁止传请求体、邮箱、令牌、媒体链接；changes 白名单见实现 |
 | CatalogReader.catalog | cursor=null，limit=20（1–50），locale=en（en/zh_CN），categoryId=null；CatalogPage | 02 未接入503；公开目录可按分类筛选；cursor 绑定筛选、语言和排序版本，失效422；无效/停用分类404 |
 | CatalogReader.homepage | locale=en；HomePage | Content 已接入；分类、Banner、推荐摘要；排序、语言回退和下架过滤见 shared-v1.md；可信地区及公开范围仍检查 |

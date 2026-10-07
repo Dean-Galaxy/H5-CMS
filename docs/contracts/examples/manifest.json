@@ -233,5 +233,55 @@
     "file": "invalid-health-state.json",
     "schema": "Health",
     "valid": false
+  },
+  {
+    "file": "assignable-staff-page.json",
+    "schema": "AssignableStaffPage",
+    "valid": true
+  },
+  {
+    "file": "assignable-staff-empty.json",
+    "schema": "AssignableStaffPage",
+    "valid": true
+  },
+  {
+    "file": "promotable-drama-page.json",
+    "schema": "PromotableDramaPage",
+    "valid": true
+  },
+  {
+    "file": "promotable-drama-empty.json",
+    "schema": "PromotableDramaPage",
+    "valid": true
+  },
+  {
+    "file": "invalid-assignable-staff-inactive.json",
+    "schema": "AssignableStaff",
+    "valid": false
+  },
+  {
+    "file": "invalid-assignable-staff-role.json",
+    "schema": "AssignableStaff",
+    "valid": false
+  },
+  {
+    "file": "invalid-assignable-staff-contact.json",
+    "schema": "AssignableStaff",
+    "valid": false
+  },
+  {
+    "file": "invalid-promotable-drama-unpublished.json",
+    "schema": "PromotableDrama",
+    "valid": false
+  },
+  {
+    "file": "invalid-promotable-drama-country.json",
+    "schema": "PromotableDrama",
+    "valid": false
+  },
+  {
+    "file": "invalid-promotable-drama-media.json",
+    "schema": "PromotableDrama",
+    "valid": false
   }
 ]
