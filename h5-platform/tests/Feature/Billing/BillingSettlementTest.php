@@ -3,8 +3,11 @@
 namespace Tests\Feature\Billing;
 
 use App\Data\PaymentSettled;
+use App\Data\ResumeInput;
+use App\Data\ViewerIdentity;
 use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Services\BillingEngine;
 use App\Modules\Billing\Services\BillingStore;
 use App\Modules\Billing\Services\OutboxService;
 use App\Modules\Billing\Services\SettlementService;
@@ -58,6 +61,11 @@ final class BillingSettlementTest extends TestCase
 
             public function assertAvailable(): void {}
 
+            public function prepareCheckout(object $order, object $subscription): array
+            {
+                throw new RuntimeException('Not used');
+            }
+
             public function createCheckout(object $order, object $subscription): array
             {
                 throw new RuntimeException('Not used');
@@ -74,7 +82,7 @@ final class BillingSettlementTest extends TestCase
                     throw new RuntimeException('Provider unavailable');
                 }
 
-return $this->subscription;
+                return $this->subscription;
             }
 
             public function setRenewal(object $subscription, bool $enabled, string $idempotencyKey): array
@@ -94,7 +102,7 @@ return $this->subscription;
                     throw new RuntimeException('Provider unavailable');
                 }
 
-return $this->invoice;
+                return $this->invoice;
             }
 
             public function refunds(string $chargeId): array
@@ -108,7 +116,7 @@ return $this->invoice;
                     throw new RuntimeException('Signature rejected');
                 }
 
-return $this->event;
+                return $this->event;
             }
 
             public function invoices(string $subscriptionId): array
@@ -264,16 +272,16 @@ return $this->event;
         }
     }
 
-    public function test_partial_refund_records_review_without_revoking_access_or_resetting_discount(): void
+    public function test_partial_refund_keeps_access_and_stops_renewal_without_resetting_discount(): void
     {
         $this->settlement->settleInvoice('in_test');
         $this->gateway->refundList = [['id' => 're_test', 'amount_minor' => 100, 'currency' => 'USD', 'status' => 'succeeded']];
         $this->settlement->syncRefunds('ch_test');
         $this->assertNull(DB::table('billing_entitlements')->first()->revoked_at);
         $this->assertDatabaseHas('billing_payments', ['refunded_amount_minor' => 100]);
-        $this->assertDatabaseHas('billing_orders', ['state' => 'review_required', 'payment_state' => 'partially_refunded']);
+        $this->assertDatabaseHas('billing_orders', ['state' => 'paid', 'payment_state' => 'partially_refunded']);
         $this->settlement->syncSubscription('sub_test');
-        $this->assertDatabaseHas('billing_subscriptions', ['resolution_required' => true]);
+        $this->assertDatabaseHas('billing_subscriptions', ['resolution_required' => false, 'renewal_enabled' => false]);
         $this->assertNotNull(DB::table('billing_accounts')->first()->first_offer_used_at);
     }
 
@@ -406,7 +414,7 @@ return $this->event;
         $this->assertDatabaseHas('billing_subscriptions', ['refund_stopped' => true, 'renewal_enabled' => true, 'resolution_required' => true]);
         $this->assertDatabaseHas('billing_operations', ['kind' => 'cancel', 'state' => 'pending']);
         $this->gateway->failRenewal = false;
-        $this->settlement->syncRefunds('ch_test');
+        app(BillingEngine::class)->retryPendingOperations();
         $this->assertDatabaseHas('billing_subscriptions', ['refund_stopped' => true, 'renewal_enabled' => false, 'resolution_required' => false]);
         $version = DB::table('billing_subscriptions')->first()->confirmation_version;
         $this->settlement->syncRefunds('ch_test');
@@ -424,6 +432,105 @@ return $this->event;
         $this->assertDatabaseHas('billing_subscriptions', ['confirmation_version' => 1, 'resolution_required' => true]);
         $this->assertDatabaseHas('billing_operations', ['kind' => 'cancel', 'expected_version' => 1, 'state' => 'pending']);
         $this->assertDatabaseCount('billing_payments', 1);
+    }
+
+    public function test_multiple_partial_refunds_accumulate_once_and_full_refund_correction_restores_original_interval(): void
+    {
+        $this->settlement->settleInvoice('in_test');
+        $original = DB::table('billing_entitlements')->first();
+        $this->gateway->refundList = [
+            ['id' => 're_one', 'amount_minor' => 100, 'currency' => 'USD', 'status' => 'succeeded'],
+            ['id' => 're_two', 'amount_minor' => 200, 'currency' => 'USD', 'status' => 'pending'],
+        ];
+        $this->settlement->syncRefunds('ch_test');
+        $this->assertDatabaseHas('billing_payments', ['refunded_amount_minor' => 100]);
+        $this->assertNull(DB::table('billing_entitlements')->first()->revoked_at);
+        $this->gateway->refundList[1]['status'] = 'succeeded';
+        $this->settlement->syncRefunds('ch_test');
+        $this->settlement->syncRefunds('ch_test');
+        $this->assertDatabaseHas('billing_payments', ['refunded_amount_minor' => 300]);
+        $this->assertNotNull(DB::table('billing_entitlements')->first()->revoked_at);
+        $this->gateway->refundList[1]['status'] = 'failed';
+        $this->settlement->syncRefunds('ch_test');
+        $this->assertDatabaseHas('billing_payments', ['refunded_amount_minor' => 100]);
+        $this->assertDatabaseHas('billing_orders', ['state' => 'paid', 'payment_state' => 'partially_refunded']);
+        $restored = DB::table('billing_entitlements')->first();
+        $this->assertNull($restored->revoked_at);
+        $this->assertSame($original->access_from, $restored->access_from);
+        $this->assertSame($original->access_until, $restored->access_until);
+        $this->assertDatabaseHas('billing_subscriptions', ['renewal_enabled' => false]);
+        $this->assertNotNull(DB::table('billing_accounts')->first()->first_offer_used_at);
+        $this->gateway->refundList[0]['status'] = 'canceled';
+        $this->settlement->syncRefunds('ch_test');
+        $this->assertDatabaseHas('billing_payments', ['refunded_amount_minor' => 0]);
+        $this->assertDatabaseHas('billing_orders', ['payment_state' => 'succeeded']);
+        $this->assertDatabaseHas('billing_subscriptions', ['renewal_enabled' => false]);
+    }
+
+    public function test_old_refund_replay_cannot_cancel_explicit_later_resume_but_new_success_can(): void
+    {
+        $this->settlement->settleInvoice('in_test');
+        $this->gateway->refundList = [['id' => 're_old', 'amount_minor' => 100, 'currency' => 'USD', 'status' => 'succeeded']];
+        $this->settlement->syncRefunds('ch_test');
+        $engine = app(BillingEngine::class);
+        $viewer = new ViewerIdentity($this->viewerId, 'settlement-test@example.test', true);
+        $quote = $engine->resumeQuote($viewer);
+        $engine->resume($viewer, new ResumeInput($quote->quote_id, $quote->confirmation_version,
+            $quote->next_renewal_at, $quote->next_renewal_amount_minor, $quote->currency));
+        $version = DB::table('billing_subscriptions')->first()->confirmation_version;
+        $calls = $this->gateway->renewalCalls;
+        $this->settlement->syncRefunds('ch_test');
+        $engine->retryPendingOperations();
+        $this->assertSame($calls, $this->gateway->renewalCalls);
+        $this->assertDatabaseHas('billing_subscriptions', ['renewal_enabled' => true, 'refund_stopped' => false, 'confirmation_version' => $version]);
+        $this->gateway->refundList[] = ['id' => 're_new', 'amount_minor' => 100, 'currency' => 'USD', 'status' => 'succeeded'];
+        $this->settlement->syncRefunds('ch_test');
+        $this->assertDatabaseHas('billing_subscriptions', ['renewal_enabled' => false, 'refund_stopped' => true]);
+        $this->assertSame($calls + 1, $this->gateway->renewalCalls);
+        $this->assertNull(DB::table('billing_entitlements')->first()->revoked_at);
+    }
+
+    public function test_refund_correction_after_original_expiry_does_not_create_current_access(): void
+    {
+        $this->settlement->settleInvoice('in_test');
+        $this->gateway->refundList = [['id' => 're_test', 'amount_minor' => 300, 'currency' => 'USD', 'status' => 'succeeded']];
+        $this->settlement->syncRefunds('ch_test');
+        $this->travelTo(CarbonImmutable::parse('2026-10-14T12:00:00Z'));
+        $this->gateway->refundList[0]['status'] = 'failed';
+        $this->settlement->syncRefunds('ch_test');
+        $member = app(BillingEngine::class)->membership($this->viewerId, now()->toDateTimeImmutable());
+        $this->assertFalse($member->access_active);
+        $this->assertSame('2026-10-13T12:00:00Z', BillingStore::iso(DB::table('billing_entitlements')->first()->access_until));
+        $this->assertDatabaseHas('billing_subscriptions', ['renewal_enabled' => false]);
+    }
+
+    public function test_refund_for_ended_old_subscription_does_not_cancel_new_subscription(): void
+    {
+        $this->settlement->settleInvoice('in_test');
+        $this->travelTo(CarbonImmutable::parse('2026-10-14T12:00:00Z'));
+        DB::table('billing_subscriptions')->where('id', $this->subscriptionId)->update([
+            'state' => 'ended', 'provider_status' => 'canceled', 'renewal_enabled' => false,
+        ]);
+        $next = (array) DB::table('billing_subscriptions')->where('id', $this->subscriptionId)->first();
+        $next = [...$next, 'id' => BillingStore::id(), 'first_order_id' => BillingStore::id(),
+            'provider_id' => 'sub_next', 'state' => 'active', 'provider_status' => 'active', 'renewal_enabled' => true];
+        DB::table('billing_subscriptions')->insert($next);
+        $this->gateway->refundList = [['id' => 're_old_subscription', 'amount_minor' => 300, 'currency' => 'USD', 'status' => 'succeeded']];
+        $this->settlement->syncRefunds('ch_test');
+        $this->assertSame(0, $this->gateway->renewalCalls);
+        $this->assertDatabaseHas('billing_subscriptions', ['id' => $next['id'], 'state' => 'active', 'renewal_enabled' => true, 'refund_stopped' => false]);
+        $this->assertDatabaseHas('billing_subscriptions', ['id' => $this->subscriptionId, 'state' => 'ended', 'resolution_required' => false]);
+    }
+
+    public function test_refund_total_above_payment_is_quarantined_without_revoking_verified_access(): void
+    {
+        $this->settlement->settleInvoice('in_test');
+        $this->gateway->refundList = [['id' => 're_invalid', 'amount_minor' => 301, 'currency' => 'USD', 'status' => 'succeeded']];
+        $this->reject(fn () => $this->settlement->syncRefunds('ch_test'));
+        $this->assertDatabaseCount('billing_refunds', 0);
+        $this->assertDatabaseHas('billing_payments', ['refunded_amount_minor' => 0]);
+        $this->assertNull(DB::table('billing_entitlements')->first()->revoked_at);
+        $this->assertDatabaseHas('billing_orders', ['state' => 'review_required']);
     }
 
     private function renewal(): void

@@ -11,6 +11,11 @@ final class UnconfiguredGateway implements PaymentGateway
         throw new DependencyNotReady('Billing / Stripe 未配置');
     }
 
+    public function prepareCheckout(object $order, object $subscription): array
+    {
+        $this->assertAvailable();
+    }
+
     public function createCheckout(object $order, object $subscription): array
     {
         $this->assertAvailable();

@@ -25,6 +25,7 @@ final class StripeGatewayTest extends TestCase
             'billing.driver' => 'stripe_test', 'billing.api_version' => StripeGateway::API_VERSION,
             'billing.stripe_secret' => 'sk_test_local_fixture_not_a_credential',
             'billing.stripe_webhook_secret' => 'whsec_local_fixture_not_a_credential',
+            'billing.test_clock_id' => null,
             'app.url' => 'http://localhost:8203',
         ]);
         $this->gateway = new StripeGateway;
@@ -148,36 +149,179 @@ final class StripeGatewayTest extends TestCase
         (new UnconfiguredGateway)->createCheckout((object) [], (object) []);
     }
 
-    public function test_checkout_uses_server_weekly_snapshot_and_once_coupon_and_pinned_api(): void
+    private function preparedCheckout(int $ageSeconds = 0, bool $attempted = false, ?string $customerClock = null): array
     {
         $this->reply('customers', ['id' => 'cus_fixture', 'object' => 'customer', 'livemode' => false,
-            'metadata' => ['viewer_id' => 'viewer_fixture']], 'POST');
+            'metadata' => ['viewer_id' => 'viewer_fixture'], 'test_clock' => $customerClock], 'POST');
         $this->reply('coupons', ['id' => 'coupon_fixture', 'object' => 'coupon', 'livemode' => false,
             'duration' => 'once', 'currency' => 'usd', 'amount_off' => 900], 'POST');
-        $created = time() - 20;
-        $expires = $created + 1860;
-        $this->reply('checkout/sessions', ['id' => 'cs_fixture', 'object' => 'checkout.session', 'livemode' => false,
-            'mode' => 'subscription', 'status' => 'open', 'customer' => 'cus_fixture', 'client_reference_id' => 'order_fixture',
-            'amount_total' => 300, 'currency' => 'usd', 'url' => 'https://checkout.stripe.com/c/pay/fixture',
-            'expires_at' => $expires, 'subscription' => null], 'POST');
         $order = (object) ['id' => 'order_fixture', 'viewer_id' => 'viewer_fixture', 'subscription_id' => 'local_sub',
             'is_test' => true, 'currency' => 'USD', 'regular_amount_minor' => 1200, 'amount_minor' => 300,
-            'discount_applied' => true, 'price_version' => 3, 'created_at' => gmdate('Y-m-d\TH:i:s\Z', $created)];
+            'discount_applied' => true, 'price_version' => 3, 'created_at' => now()->subMinutes(20)->toIso8601String(),
+            'return_to' => '/membership?from=drama&order_id=untrusted#plans'];
         $sub = (object) ['id' => 'local_sub', 'viewer_id' => 'viewer_fixture', 'is_test' => true, 'currency' => 'USD',
             'regular_amount_minor' => 1200, 'customer_id' => null];
+        $request = $this->gateway->prepareCheckout($order, $sub);
+        if ($ageSeconds > 0) {
+            $prepared = strtotime($request['prepared_at']) - $ageSeconds;
+            $request['prepared_at'] = gmdate('Y-m-d\TH:i:s\Z', $prepared);
+            $request['expires_at'] = gmdate('Y-m-d\TH:i:s\Z', $prepared + 1860);
+            $request['params']['expires_at'] = $prepared + 1860;
+        }
+        $order->checkout_request = json_encode($request, JSON_THROW_ON_ERROR);
+        $order->checkout_prepared_at = $request['prepared_at'];
+        $order->checkout_attempted_at = $attempted ? $request['prepared_at'] : null;
+
+        return [$order, $sub, $request];
+    }
+
+    private function sessionFixture(array $request, string $status = 'open'): array
+    {
+        return ['id' => 'cs_fixture', 'object' => 'checkout.session', 'livemode' => false,
+            'mode' => 'subscription', 'status' => $status, 'customer' => 'cus_fixture',
+            'client_reference_id' => 'order_fixture', 'metadata' => ['order_id' => 'order_fixture'],
+            'amount_total' => 300, 'currency' => 'usd', 'url' => $status === 'open' ? 'https://checkout.stripe.com/c/pay/fixture' : null,
+            'expires_at' => $request['params']['expires_at'], 'subscription' => $status === 'complete' ? 'sub_fixture' : null,
+            'payment_status' => $status === 'complete' ? 'paid' : 'unpaid'];
+    }
+
+    public function test_checkout_persists_new_preparation_deadline_weekly_snapshot_and_controlled_return(): void
+    {
+        $started = time();
+        [$order, $sub, $request] = $this->preparedCheckout();
+        $this->assertCount(2, $this->http->requests, 'Preparation never creates a payable Session.');
+        $this->assertGreaterThanOrEqual($started, strtotime($request['prepared_at']));
+        $this->assertSame(1860, strtotime($request['expires_at']) - strtotime($request['prepared_at']));
+        $this->assertGreaterThan(strtotime($order->created_at) + 1860, $request['params']['expires_at']);
+        $this->assertSame($request, $this->gateway->prepareCheckout($order, $sub), 'Persisted preparation must not reset the deadline.');
+        $this->assertCount(2, $this->http->requests);
+        $this->reply('checkout/sessions', $this->sessionFixture($request), 'POST');
         $result = $this->gateway->createCheckout($order, $sub);
         $this->assertSame('cs_fixture', $result['session_id']);
-        $this->assertSame(gmdate('Y-m-d\TH:i:s\Z', $expires), $result['expires_at']);
-        $request = $this->http->requests[2];
-        $this->assertSame(1200, $request['params']['line_items'][0]['price_data']['unit_amount']);
-        $this->assertSame('week', $request['params']['line_items'][0]['price_data']['recurring']['interval']);
-        $this->assertSame('coupon_fixture', $request['params']['discounts'][0]['coupon']);
-        $this->assertSame('false', $request['params']['allow_promotion_codes']);
-        $this->assertSame(['card'], $request['params']['payment_method_types']);
-        $this->assertSame($request['params']['metadata'], $request['params']['subscription_data']['metadata']);
-        $this->assertSame($created + 1860, $request['params']['expires_at']);
-        $this->assertStringContainsString('Stripe-Version: '.StripeGateway::API_VERSION, implode("\n", $request['headers']));
-        $this->assertStringContainsString('Idempotency-Key: h5-checkout-order_fixture', implode("\n", $request['headers']));
+        $this->assertSame($request['expires_at'], $result['expires_at']);
+        $posted = $this->http->requests[2];
+        $this->assertSame(1200, $posted['params']['line_items'][0]['price_data']['unit_amount']);
+        $this->assertSame('week', $posted['params']['line_items'][0]['price_data']['recurring']['interval']);
+        $this->assertSame('coupon_fixture', $posted['params']['discounts'][0]['coupon']);
+        $this->assertSame('false', $posted['params']['allow_promotion_codes']);
+        $this->assertSame(['card'], $posted['params']['payment_method_types']);
+        $this->assertSame($request['params']['expires_at'], $posted['params']['expires_at']);
+        $this->assertSame('http://localhost:8203/membership?from=drama&order_id=order_fixture#plans', $posted['params']['success_url']);
+        $this->assertSame($posted['params']['success_url'], $posted['params']['cancel_url']);
+        $this->assertSame($posted['params']['metadata'], $posted['params']['subscription_data']['metadata']);
+        $this->assertStringContainsString('Stripe-Version: '.StripeGateway::API_VERSION, implode("\n", $posted['headers']));
+        $this->assertStringContainsString('Idempotency-Key: '.$request['idempotency_key'], implode("\n", $posted['headers']));
+    }
+
+    public function test_preparation_attaches_controlled_test_clock_and_accepts_same_clock_customer(): void
+    {
+        config()->set('billing.test_clock_id', 'clock_fixture');
+        [$order, $sub, $request] = $this->preparedCheckout(customerClock: 'clock_fixture');
+        $this->assertSame('clock_fixture', $this->http->requests[0]['params']['test_clock']);
+        $this->assertSame('cus_fixture', $request['params']['customer']);
+
+        unset($order->checkout_request);
+        $sub->customer_id = 'cus_fixture';
+        $this->http->requests = [];
+        $this->reply('customers/cus_fixture', ['id' => 'cus_fixture', 'object' => 'customer', 'livemode' => false,
+            'metadata' => ['viewer_id' => 'viewer_fixture'], 'test_clock' => ['id' => 'clock_fixture']]);
+        $this->reply('coupons', ['id' => 'coupon_fixture', 'object' => 'coupon', 'livemode' => false,
+            'duration' => 'once', 'currency' => 'usd', 'amount_off' => 900], 'POST');
+        $this->gateway->prepareCheckout($order, $sub);
+        $this->assertSame(['GET /v1/customers/cus_fixture', 'POST /v1/coupons'], array_column($this->http->requests, 'key'));
+    }
+
+    public function test_preparation_refuses_existing_customer_on_another_clock_without_rebinding(): void
+    {
+        [$order, $sub] = $this->preparedCheckout();
+        unset($order->checkout_request);
+        $sub->customer_id = 'cus_fixture';
+        config()->set('billing.test_clock_id', 'clock_fixture');
+        $this->http->requests = [];
+        $this->reply('customers/cus_fixture', ['id' => 'cus_fixture', 'object' => 'customer', 'livemode' => false,
+            'metadata' => ['viewer_id' => 'viewer_fixture'], 'test_clock' => 'clock_other']);
+        try {
+            $this->gateway->prepareCheckout($order, $sub);
+            $this->fail('A Customer from another test clock was accepted.');
+        } catch (ApiProblem $error) {
+            $this->assertSame('BILLING_PENDING', $error->errorCode);
+        }
+        $this->assertSame(['GET /v1/customers/cus_fixture'], array_column($this->http->requests, 'key'));
+    }
+
+    public function test_preparation_refuses_customer_response_omitting_requested_clock(): void
+    {
+        config()->set('billing.test_clock_id', 'clock_fixture');
+        try {
+            $this->preparedCheckout();
+            $this->fail('Missing requested test clock was accepted.');
+        } catch (ApiProblem $error) {
+            $this->assertSame('BILLING_PENDING', $error->errorCode);
+        }
+        $this->assertSame(['POST /v1/customers'], array_column($this->http->requests, 'key'));
+        $this->assertSame('clock_fixture', $this->http->requests[0]['params']['test_clock']);
+    }
+
+    public function test_unknown_create_finds_original_session_without_recreating_customer_coupon_or_session(): void
+    {
+        foreach (['open', 'complete', 'expired'] as $status) {
+            [$order, $sub, $request] = $this->preparedCheckout(120, true);
+            $this->http->requests = [];
+            $session = $this->sessionFixture($request, $status);
+            $this->reply('checkout/sessions', ['object' => 'list', 'has_more' => false, 'data' => [$session]]);
+            $this->reply('checkout/sessions/cs_fixture', $session);
+            $result = $this->gateway->createCheckout($order, $sub);
+            $this->assertSame('cs_fixture', $result['session_id']);
+            $this->assertSame($status, $result['status']);
+            $this->assertSame($request['expires_at'], $result['expires_at']);
+            $this->assertSame($status === 'open' ? $session['url'] : null, $result['url']);
+            $this->assertSame(['GET /v1/checkout/sessions', 'GET /v1/checkout/sessions/cs_fixture'], array_column($this->http->requests, 'key'));
+            $this->assertSame('cus_fixture', $this->http->requests[0]['params']['customer']);
+        }
+    }
+
+    public function test_unknown_or_too_late_create_with_no_match_remains_pending_without_new_post(): void
+    {
+        foreach ([[0, true], [61, false]] as [$age, $attempted]) {
+            [$order, $sub] = $this->preparedCheckout($age, $attempted);
+            $this->http->requests = [];
+            $this->reply('checkout/sessions', ['object' => 'list', 'has_more' => false, 'data' => []]);
+            try {
+                $this->gateway->createCheckout($order, $sub);
+                $this->fail('Unknown creation was reopened.');
+            } catch (ApiProblem $error) {
+                $this->assertSame('BILLING_PENDING', $error->errorCode);
+            }
+            $this->assertSame(['GET /v1/checkout/sessions'], array_column($this->http->requests, 'key'));
+        }
+    }
+
+    public function test_reconciliation_paginates_and_refuses_multiple_matching_sessions(): void
+    {
+        [$order, $sub, $request] = $this->preparedCheckout(0, true);
+        $this->http->requests = [];
+        $one = $this->sessionFixture($request);
+        $two = [...$one, 'id' => 'cs_duplicate'];
+        $this->reply('checkout/sessions', ['object' => 'list', 'has_more' => true, 'data' => [$one]]);
+        $this->reply('checkout/sessions', ['object' => 'list', 'has_more' => false, 'data' => [$two]]);
+        try {
+            $this->gateway->createCheckout($order, $sub);
+            $this->fail('Ambiguous Sessions were accepted.');
+        } catch (ApiProblem $error) {
+            $this->assertSame('BILLING_PENDING', $error->errorCode);
+        }
+        $this->assertSame('cs_fixture', $this->http->requests[1]['params']['starting_after']);
+        $this->assertSame(['GET /v1/checkout/sessions', 'GET /v1/checkout/sessions'], array_column($this->http->requests, 'key'));
+    }
+
+    public function test_provider_deadline_must_exactly_match_the_persisted_request(): void
+    {
+        [$order, $sub, $request] = $this->preparedCheckout();
+        $session = $this->sessionFixture($request);
+        $session['expires_at'] += 86400;
+        $this->reply('checkout/sessions', $session, 'POST');
+        $this->expectException(ApiProblem::class);
+        $this->gateway->createCheckout($order, $sub);
     }
 
     public function test_paid_invoice_requires_actual_payment_and_uses_line_service_interval(): void

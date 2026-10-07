@@ -6,6 +6,8 @@ interface PaymentGateway
 {
     public function assertAvailable(): void;
 
+    public function prepareCheckout(object $order, object $subscription): array;
+
     public function createCheckout(object $order, object $subscription): array;
 
     public function checkout(string $sessionId): array;

@@ -92,6 +92,8 @@ final class BillingDesk extends Page
 
     public function cancelForCustomer(): void
     {
+        $this->identityVerified = false;
+        $this->cancelRequested = false;
         $this->attempt(function () {
             $membership = app(BillingAdministration::class)->cancelForCase($this->caseId ?? '');
             if ($membership->payment_resolution_required || $membership->renewal_enabled) {
@@ -106,6 +108,7 @@ final class BillingDesk extends Page
     {
         $data = app(BillingAdministration::class)->dashboard();
         unset($data['price']);
+        $data['stripe_configured'] = config('billing.driver') === 'stripe_test';
         $data['selected'] = $this->caseId ? app(BillingAdministration::class)->caseDetail($this->caseId) : null;
 
         return $data;

@@ -37,6 +37,15 @@ final class FakeGateway implements PaymentGateway
         }
     }
 
+    public function prepareCheckout(object $order, object $subscription): array
+    {
+        $this->assertAvailable();
+
+        return ['params' => ['metadata' => ['order_id' => $order->id]], 'idempotency_key' => 'checkout-'.$order->id,
+            'customer_id' => 'cus_'.$order->viewer_id, 'prepared_at' => now()->startOfSecond()->toIso8601ZuluString(),
+            'expires_at' => now()->startOfSecond()->addSeconds(1860)->toIso8601ZuluString()];
+    }
+
     public function createCheckout(object $order, object $subscription): array
     {
         $this->assertAvailable();

@@ -17,16 +17,16 @@ final class BillingEngineTest extends BillingTestCase
         $v = $this->viewer(false);
         $offer = $this->engine->offer($v);
         $in = new CheckoutInput($offer->offer_id, 1, '/membership');
-        $this->assertProblem('EMAIL_UNVERIFIED', fn () => $this->engine->checkout($v, $in, 'checkout-1', null));
+        $this->assertProblem('EMAIL_UNVERIFIED', fn () => $this->engine->checkout($v, $in, 'checkout-test-001', null));
         $v = $this->viewer();
         $offer = $this->engine->offer($v);
         $in = new CheckoutInput($offer->offer_id, 1, '/membership');
-        $one = $this->engine->checkout($v, $in, 'checkout-1', null);
-        $two = $this->engine->checkout($v, $in, 'checkout-1', null);
+        $one = $this->engine->checkout($v, $in, 'checkout-test-001', null);
+        $two = $this->engine->checkout($v, $in, 'checkout-test-001', null);
         $this->assertSame($one->order_id, $two->order_id);
         $this->assertSame(1, $this->gateway->createCalls);
-        $this->assertProblem('BILLING_PENDING', fn () => $this->engine->checkout($v, $in, 'checkout-2', null));
-        $this->assertProblem('STALE_VERSION', fn () => $this->engine->checkout($v, new CheckoutInput($offer->offer_id, 1, '/identity/account'), 'checkout-1', null));
+        $this->assertProblem('BILLING_PENDING', fn () => $this->engine->checkout($v, $in, 'checkout-test-002', null));
+        $this->assertProblem('STALE_VERSION', fn () => $this->engine->checkout($v, new CheckoutInput($offer->offer_id, 1, '/identity/account'), 'checkout-test-001', null));
         $this->assertProblem('NOT_FOUND', fn () => $this->engine->order($this->viewer(), $one->order_id));
         $this->assertDatabaseCount('billing_subscriptions', 1);
     }
@@ -37,11 +37,11 @@ final class BillingEngineTest extends BillingTestCase
         $offer = $this->engine->offer($v);
         $in = new CheckoutInput($offer->offer_id, 1, '/membership');
         $this->gateway->failCreate = true;
-        $this->assertProblem('BILLING_PENDING', fn () => $this->engine->checkout($v, $in, 'checkout-1', null));
+        $this->assertProblem('BILLING_PENDING', fn () => $this->engine->checkout($v, $in, 'checkout-test-001', null));
         $this->assertDatabaseCount('billing_orders', 1);
         $this->assertNull(DB::table('billing_accounts')->first()->first_paid_at);
         $this->gateway->failCreate = false;
-        $this->engine->checkout($v, $in, 'checkout-1', null);
+        $this->engine->checkout($v, $in, 'checkout-test-001', null);
         $this->assertDatabaseCount('billing_orders', 1);
     }
 
@@ -50,9 +50,9 @@ final class BillingEngineTest extends BillingTestCase
         $v = $this->viewer();
         $offer = $this->engine->offer($v);
         $in = new CheckoutInput($offer->offer_id, 1, '/membership');
-        $this->assertProblem('STALE_VERSION', fn () => $this->engine->checkout($this->viewer(), $in, 'checkout-1', null));
+        $this->assertProblem('STALE_VERSION', fn () => $this->engine->checkout($this->viewer(), $in, 'checkout-test-001', null));
         $this->travel(30)->minutes();
-        $this->assertProblem('STALE_VERSION', fn () => $this->engine->checkout($v, $in, 'checkout-1', null));
+        $this->assertProblem('STALE_VERSION', fn () => $this->engine->checkout($v, $in, 'checkout-test-001', null));
         $this->assertDatabaseCount('billing_orders', 0);
     }
 
@@ -105,7 +105,7 @@ final class BillingEngineTest extends BillingTestCase
         $this->assertFalse($m->access_active);
         $this->assertNotContains(SubscriptionAction::Checkout, $m->allowed_actions);
         $offer = $this->engine->offer($v);
-        $this->assertProblem('SUBSCRIPTION_EXISTS', fn () => $this->engine->checkout($v, new CheckoutInput($offer->offer_id, 1, '/membership'), 'checkout-2', null));
+        $this->assertProblem('SUBSCRIPTION_EXISTS', fn () => $this->engine->checkout($v, new CheckoutInput($offer->offer_id, 1, '/membership'), 'checkout-test-002', null));
     }
 
     public function test_http_rejects_client_money_and_preserves_order_ownership(): void
@@ -113,7 +113,57 @@ final class BillingEngineTest extends BillingTestCase
         $v = $this->viewer();
         $this->actingAs(Viewer::find($v->id), 'web')->withSession(['identity.version.web' => 1]);
         $o = $this->engine->offer($v);
-        $this->postJson('/api/v1/billing/checkout',['offer_id' => $o->offer_id, 'price_version' => 1, 'return_to' => '/membership', 'amount_minor' => 1],['Idempotency-Key' => 'checkout-1'])->assertStatus(422);
-        $this->getJson('/api/v1/me/membership')->assertOk()->assertJsonPath('access_active',false);
+        $this->postJson('/api/v1/billing/checkout', ['offer_id' => $o->offer_id, 'price_version' => 1, 'return_to' => '/membership', 'amount_minor' => 1], ['Idempotency-Key' => 'checkout-test-001'])->assertStatus(422);
+        $this->getJson('/api/v1/me/membership')->assertOk()->assertJsonPath('access_active', false);
+    }
+
+    public function test_http_enforces_frozen_idempotency_key_bounds_before_creating_orders(): void
+    {
+        $viewer = $this->viewer();
+        $this->actingAs(Viewer::find($viewer->id), 'web')->withSession(['identity.version.web' => 1]);
+        $offer = $this->engine->offer($viewer);
+        $input = ['offer_id' => $offer->offer_id, 'price_version' => 1, 'return_to' => '/membership'];
+        foreach ([str_repeat('a', 15), str_repeat('a', 129)] as $key) {
+            $this->postJson('/api/v1/billing/checkout', $input, ['Idempotency-Key' => $key])->assertStatus(422);
+        }
+        $this->assertDatabaseCount('billing_orders', 0);
+        $this->postJson('/api/v1/billing/checkout', $input, ['Idempotency-Key' => str_repeat('a', 128)])->assertSuccessful();
+        $this->assertDatabaseCount('billing_orders', 1);
+    }
+
+    public function test_guest_offer_requires_new_personal_offer_and_changed_eligibility_requires_confirmation(): void
+    {
+        $viewer = $this->viewer();
+        $guest = $this->engine->offer(null);
+        $this->assertNull($guest->eligible_for_first_offer);
+        $this->assertProblem('STALE_VERSION', fn () => $this->engine->checkout($viewer, new CheckoutInput($guest->offer_id, 1, '/membership'), 'guest-offer-test-1', null));
+        $offer = $this->engine->offer($viewer);
+        DB::table('billing_accounts')->insert(['viewer_id' => $viewer->id, 'first_paid_at' => now(), 'first_offer_used_at' => now()]);
+        $this->assertProblem('STALE_VERSION', fn () => $this->engine->checkout($viewer, new CheckoutInput($offer->offer_id, 1, '/membership'), 'changed-eligibility-1', null));
+        $fresh = $this->engine->offer($viewer);
+        $checkout = $this->engine->checkout($viewer, new CheckoutInput($fresh->offer_id, 1, '/membership'), 'confirmed-current-1', null);
+        $order = DB::table('billing_orders')->find($checkout->order_id);
+        $this->assertSame(1200, $order->amount_minor);
+        $this->assertSame('resubscription', $order->transaction_kind);
+        $this->assertFalse($order->discount_applied);
+    }
+
+    public function test_checkout_creation_intent_survives_unknown_result_with_fixed_parameters(): void
+    {
+        $viewer = $this->viewer();
+        $offer = $this->engine->offer($viewer);
+        $this->gateway->failCreate = true;
+        $this->assertProblem('BILLING_PENDING', fn () => $this->engine->checkout($viewer, new CheckoutInput($offer->offer_id, 1, '/membership'), 'durable-intent-test-1', null));
+        $order = DB::table('billing_orders')->first();
+        $intent = BillingStore::json($order->checkout_request);
+        $this->assertNotNull($order->checkout_attempted_at);
+        $this->assertSame(1860, CarbonImmutable::parse($intent['expires_at'])->timestamp - CarbonImmutable::parse($intent['prepared_at'])->timestamp);
+        $this->travel(10)->minutes();
+        $this->engine->retryPendingOperations();
+        $again = DB::table('billing_orders')->find($order->id);
+        $this->assertSame($order->checkout_request, $again->checkout_request);
+        $this->assertSame($order->expires_at, $again->expires_at);
+        $this->assertDatabaseCount('billing_orders',1);
+        $this->assertDatabaseCount('billing_subscriptions',1);
     }
 }

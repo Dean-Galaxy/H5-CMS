@@ -61,7 +61,7 @@ final class SettlementService
                     'updated_at' => now(),
                 ]);
                 $this->applySubscription($sub, $provider,
-                    ($provider['latest_invoice_id'] ?? null) === $invoiceId && in_array($invoice['status'] ?? '', ['void', 'uncollectible'], true));
+                    ($provider['latest_invoice_id'] ?? null) === $invoiceId && ($invoice['status'] ?? null) === 'void');
 
                 return;
             }
@@ -181,9 +181,10 @@ final class SettlementService
         if (! $payment) {
             throw new RuntimeException('BILLING_PAYMENT_NOT_FOUND');
         }
-        $fullyRefunded = $this->guarded($payment->subscription_id, function () use ($payment, $chargeId) {
+        $cancellationVersion = $this->guarded($payment->subscription_id, function () use ($payment, $chargeId) {
             BillingStore::lock($payment->viewer_id);
             $payment = DB::table('billing_payments')->where('id', $payment->id)->first();
+            $newSuccessfulRefund = false;
             $refunds = $this->gateway->refunds($chargeId);
             foreach ($refunds as $refund) {
                 $this->requireFact(is_string($refund['id'] ?? null) && ($refund['currency'] ?? null) === $payment->currency
@@ -191,41 +192,49 @@ final class SettlementService
                     && in_array($refund['status'] ?? '', ['pending', 'requires_action', 'succeeded', 'failed', 'canceled'], true));
                 $existing = DB::table('billing_refunds')->where('provider_refund_id', $refund['id'])->first();
                 $this->requireFact(! $existing || ($existing->payment_id === $payment->id && $existing->amount_minor === $refund['amount_minor']));
+                if ($refund['status'] === 'succeeded' && (! $existing || $existing->status !== 'succeeded')) {
+                    $newSuccessfulRefund = true;
+                }
                 DB::table('billing_refunds')->updateOrInsert(['provider_refund_id' => $refund['id']], [
                     'payment_id' => $payment->id, 'amount_minor' => $refund['amount_minor'],
                     'status' => $refund['status'], 'created_at' => $existing->created_at ?? now(),
                 ]);
             }
+            // D04: corrections can lower the total; event payloads never determine a refund's current state.
             $total = (int) DB::table('billing_refunds')->where('payment_id', $payment->id)->where('status', 'succeeded')->sum('amount_minor');
-            $this->requireFact($total <= $payment->amount_minor && $total >= $payment->refunded_amount_minor);
+            $this->requireFact($total <= $payment->amount_minor);
             DB::table('billing_payments')->where('id', $payment->id)->update(['refunded_amount_minor' => $total]);
             if ($total === $payment->amount_minor) {
                 DB::table('billing_entitlements')->where('payment_id', $payment->id)->whereNull('revoked_at')->update(['revoked_at' => now()]);
-                DB::table('billing_orders')->where('id', $payment->order_id)->update(['payment_state' => 'refunded', 'last_error' => null, 'updated_at' => now()]);
+            } elseif ($payment->refunded_amount_minor === $payment->amount_minor) {
+                // Restore only this payment's original [from, until); no dates, discount or renewal are changed.
+                DB::table('billing_entitlements')->where('payment_id', $payment->id)->update(['revoked_at' => null]);
+            }
+            $order = DB::table('billing_orders')->where('id', $payment->order_id)->first();
+            $review = $order->state === 'review_required' && $order->last_error !== 'PARTIAL_REFUND_REVIEW';
+            DB::table('billing_orders')->where('id', $payment->order_id)->update([
+                'state' => $review ? 'review_required' : 'paid',
+                'payment_state' => $total === $payment->amount_minor ? 'refunded' : ($total > 0 ? 'partially_refunded' : 'succeeded'),
+                'last_error' => $review ? $order->last_error : null, 'updated_at' => now(),
+            ]);
+            if ($newSuccessfulRefund) {
                 $sub = DB::table('billing_subscriptions')->where('id', $payment->subscription_id)->first();
-                $changes = ['refund_stopped' => true, 'updated_at' => now()];
-                if (! $sub->refund_stopped) {
-                    $changes['confirmation_version'] = DB::raw('confirmation_version + 1');
-                }
-                if (! $sub->refund_stopped || $sub->renewal_enabled) {
+                // Persist the cancellation intent atomically with the new refund fact. A later user resume
+                // clears this intent; replaying the same already-succeeded refund must never recreate it.
+                $changes = ['refund_stopped' => true, 'desired_renewal' => false,
+                    'confirmation_version' => DB::raw('confirmation_version + 1'), 'updated_at' => now()];
+                if ($sub->state !== 'ended') {
                     $changes['resolution_required'] = true;
                 }
                 DB::table('billing_subscriptions')->where('id', $payment->subscription_id)->update($changes);
-
-                return true;
-            }
-            if ($total > 0) {
-                DB::table('billing_orders')->where('id', $payment->order_id)->update([
-                    'state' => 'review_required', 'payment_state' => 'partially_refunded', 'last_error' => 'PARTIAL_REFUND_REVIEW', 'updated_at' => now(),
-                ]);
-                DB::table('billing_subscriptions')->where('id', $payment->subscription_id)->update(['resolution_required' => true, 'updated_at' => now()]);
             }
 
-            return false;
+            return $newSuccessfulRefund ? $sub->confirmation_version + 1 : null;
         });
-        // The refund is already committed. A platform failure leaves the durable cancellation operation retryable.
-        if ($fullyRefunded) {
-            app(BillingEngine::class)->cancelSubscriptionForRefund($payment->subscription_id);
+        // A crash or timeout cannot lose the saved intent. The engine rechecks this version while
+        // reserving its durable operation, before any platform call; older callbacks cannot cancel a later resume.
+        if ($cancellationVersion !== null) {
+            app(BillingEngine::class)->cancelSubscriptionForRefund($payment->subscription_id, $cancellationVersion);
         }
     }
 

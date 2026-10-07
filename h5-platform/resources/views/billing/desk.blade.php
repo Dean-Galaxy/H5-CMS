@@ -3,6 +3,7 @@
         .billing-desk {display:grid;gap:1.5rem}.billing-desk section {border:1px solid #94a3b8;border-radius:10px;padding:1rem;overflow:auto}.billing-desk h2{font-weight:700;font-size:1.1rem;margin-bottom:.75rem}.billing-desk p{margin:.5rem 0}.billing-desk form{display:flex;flex-wrap:wrap;align-items:end;gap:1rem;margin:.75rem 0}.billing-desk label{display:grid;gap:.3rem}.billing-desk input:not([type=checkbox]),.billing-desk textarea{border:1px solid #94a3b8;border-radius:5px;padding:.5rem;color:inherit;background:transparent}.billing-desk input[type=checkbox]{margin-right:.4rem}.billing-desk button{background:#1d4ed8;color:white;border-radius:5px;padding:.55rem .8rem}.billing-desk button:disabled{opacity:.45}.billing-desk table{width:100%;border-collapse:collapse;font-size:.9rem}.billing-desk th,.billing-desk td{text-align:left;padding:.5rem;border-bottom:1px solid #cbd5e1;vertical-align:top}.billing-desk .notice{border-left:4px solid #d97706;padding-left:.75rem}.billing-desk .mono{font-family:monospace;word-break:break-all}.billing-desk .check{display:block}.billing-desk .errors{color:#b91c1c}.billing-desk time{white-space:nowrap}
     </style>
     <div class="billing-desk">
+        <p class="notice">{{ $stripe_configured ? 'Stripe 测试环境已配置；官方测试仍待核验' : 'Stripe 未配置；官方测试未验证' }}。</p>
         <p class="notice">美国 / USD / 全站周订阅测试工作台。当前支付账号未完成官方验收，不开放真实收费。金额、付款结果与会员权限由服务器核实。所有时间显示为北京时间。</p>
         @if ($errors->any())
             <div role="alert" class="errors">@foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>
@@ -57,7 +58,7 @@
             </section>
             <section>
                 <h2>核实请求后的代取消</h2>
-                <p>用户可直接在会员中心自助取消。需要代办时，先核实请求人身份及明确停止未来续费的意愿，再保存核实记录。</p>
+                <p>用户可直接在会员中心自助取消。需要代办时，先核实请求人身份及明确停止未来续费的意愿，再保存核实记录。核实记录仅供一次代取消使用，请求受理后即失效；平台处理中由系统核对原操作。再次代办须重新核实用户当前意愿，不能沿用旧请求取消用户后来主动恢复的续费。</p>
                 <form wire:submit="saveVerification">
                     <label class="check"><input wire:model="identityVerified" type="checkbox">已核实是该订单所属账号的用户</label>
                     <label class="check"><input wire:model="cancelRequested" type="checkbox">已收到该用户明确取消自动续费的请求</label>

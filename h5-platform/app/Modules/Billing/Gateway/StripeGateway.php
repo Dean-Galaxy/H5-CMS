@@ -2,6 +2,7 @@
 
 namespace App\Modules\Billing\Gateway;
 
+use App\Modules\Identity\Services\SafeReturn;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
 use Carbon\CarbonImmutable;
@@ -94,7 +95,7 @@ final class StripeGateway implements PaymentGateway
         return $price['unit_amount'];
     }
 
-    public function createCheckout(object $order, object $subscription): array
+    private function assertCheckoutOrder(object $order, object $subscription): void
     {
         $this->assertAvailable();
         $this->require((bool) $order->is_test && (bool) $subscription->is_test
@@ -105,27 +106,50 @@ final class StripeGateway implements PaymentGateway
             && (int) $order->amount_minor > 0
             && (int) $order->amount_minor <= (int) $order->regular_amount_minor
             && ((bool) $order->discount_applied || (int) $order->amount_minor === (int) $order->regular_amount_minor));
+    }
+
+    public function prepareCheckout(object $order, object $subscription): array
+    {
+        $this->assertCheckoutOrder($order, $subscription);
+        if (! empty($order->checkout_request)) {
+            return $this->preparedRequest($order, $subscription);
+        }
         $metadata = [
             'order_id' => (string) $order->id,
             'viewer_id' => (string) $order->viewer_id,
             'subscription_id' => (string) $subscription->id,
             'price_version' => (string) $order->price_version,
         ];
+        $testClock = config('billing.test_clock_id');
+        $this->require($testClock === null || (is_string($testClock) && preg_match('/^clock_[A-Za-z0-9]+$/D', $testClock) === 1));
         $customerId = $subscription->customer_id ?? null;
         if (! $customerId) {
-            $customer = $this->data($this->call(fn ($stripe) => $stripe->customers->create([
-                'metadata' => ['viewer_id' => (string) $order->viewer_id],
-            ], ['idempotency_key' => 'h5-customer-'.$order->id])));
+            $customerParams = ['metadata' => ['viewer_id' => (string) $order->viewer_id]];
+            if ($testClock !== null) {
+                $customerParams['test_clock'] = $testClock;
+            }
+            $customer = $this->data($this->call(fn ($stripe) => $stripe->customers->create(
+                $customerParams, ['idempotency_key' => 'h5-customer-'.$order->id]
+            )));
             $this->testObject($customer);
             $customerId = $this->id($customer);
         } else {
             $customer = $this->data($this->call(fn ($stripe) => $stripe->customers->retrieve($customerId)));
             $this->testObject($customer);
         }
-        $this->require($customerId !== null && ($customer['metadata']['viewer_id'] ?? null) === (string) $order->viewer_id);
+        // A clock belongs to this controlled test scenario. Never attach or
+        // rebind an existing Customer to another clock as a side effect.
+        $this->require($customerId !== null
+            && $this->id($customer['test_clock'] ?? null) === $testClock
+            && ($customer['metadata']['viewer_id'] ?? null) === (string) $order->viewer_id);
         $appUrl = rtrim((string) config('app.url'), '/');
         $this->require(filter_var($appUrl, FILTER_VALIDATE_URL) !== false
             && in_array(parse_url($appUrl, PHP_URL_SCHEME), ['http', 'https'], true));
+        $return = parse_url(app(SafeReturn::class)->path($order->return_to));
+        parse_str($return['query'] ?? '', $query);
+        $query['order_id'] = (string) $order->id;
+        $returnUrl = $appUrl.$return['path'].'?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986)
+            .(isset($return['fragment']) ? '#'.$return['fragment'] : '');
         $params = [
             'mode' => 'subscription',
             'customer' => $customerId,
@@ -145,12 +169,8 @@ final class StripeGateway implements PaymentGateway
             'allow_promotion_codes' => false,
             'adaptive_pricing' => ['enabled' => false],
             'automatic_tax' => ['enabled' => false],
-            'success_url' => $appUrl.'/api/v1/billing/orders/'.rawurlencode($order->id),
-            'cancel_url' => $appUrl.'/api/v1/billing/orders/'.rawurlencode($order->id),
-            // This value is immutable across retries of the same idempotency key.
-            // Stripe's 30-minute minimum leaves a 60-second creation margin.
-            // Late/unknown creation stays pending rather than changing the key.
-            'expires_at' => CarbonImmutable::parse($order->created_at)->timestamp + 1860,
+            'success_url' => $returnUrl,
+            'cancel_url' => $returnUrl,
         ];
         $discount = (int) $order->regular_amount_minor - (int) $order->amount_minor;
         if ($discount > 0) {
@@ -163,23 +183,113 @@ final class StripeGateway implements PaymentGateway
                 && ($coupon['currency'] ?? null) === 'usd' && ($coupon['amount_off'] ?? null) === $discount);
             $params['discounts'] = [['coupon' => $coupon['id']]];
         }
-        $session = $this->data($this->call(fn ($stripe) => $stripe->checkout->sessions->create(
-            $params, ['idempotency_key' => 'h5-checkout-'.$order->id],
-        )));
-        $this->testObject($session);
-        $this->require(($session['mode'] ?? null) === 'subscription'
-            && ($session['status'] ?? null) === 'open'
-            && $this->id($session['customer'] ?? null) === $customerId
-            && ($session['client_reference_id'] ?? null) === (string) $order->id
-            && ($session['amount_total'] ?? null) === (int) $order->amount_minor
-            && ($session['currency'] ?? null) === 'usd'
-            && parse_url($session['url'] ?? '', PHP_URL_HOST) === 'checkout.stripe.com'
-            && parse_url($session['url'] ?? '', PHP_URL_SCHEME) === 'https');
+        // Customer/coupon work is complete. Persist this whole intent before the
+        // Session POST; retries must not derive new parameters or a new deadline.
+        $preparedAt = CarbonImmutable::now('UTC')->startOfSecond();
+        $params['expires_at'] = $preparedAt->timestamp + 1860;
 
         return [
-            'session_id' => $session['id'], 'url' => $session['url'],
-            'expires_at' => $this->iso($session['expires_at'] ?? null),
-            'customer_id' => $customerId, 'subscription_id' => $this->id($session['subscription'] ?? null),
+            'params' => $params, 'idempotency_key' => 'h5-checkout-'.$order->id,
+            'customer_id' => $customerId, 'prepared_at' => $this->iso($preparedAt->timestamp),
+            'expires_at' => $this->iso($params['expires_at']),
+        ];
+    }
+
+    private function preparedRequest(object $order, object $subscription): array
+    {
+        $this->assertCheckoutOrder($order, $subscription);
+        $request = $order->checkout_request ?? null;
+        if (is_string($request)) {
+            try {
+                $request = json_decode($request, true, flags: JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                throw $this->pending();
+            }
+        }
+        $this->require(is_array($request));
+        $params = $request['params'] ?? [];
+        $this->require(is_array($params)
+            && ($request['idempotency_key'] ?? null) === 'h5-checkout-'.$order->id
+            && is_string($request['customer_id'] ?? null) && $request['customer_id'] !== ''
+            && ($params['customer'] ?? null) === $request['customer_id']
+            && ($subscription->customer_id === null || $subscription->customer_id === $request['customer_id'])
+            && ($params['mode'] ?? null) === 'subscription'
+            && count($params['line_items'] ?? []) === 1
+            && ($params['line_items'][0]['quantity'] ?? null) === 1
+            && ($params['line_items'][0]['price_data']['unit_amount'] ?? null) === (int) $order->regular_amount_minor
+            && ($params['line_items'][0]['price_data']['currency'] ?? null) === 'usd'
+            && ($params['line_items'][0]['price_data']['recurring'] ?? null) === ['interval' => 'week', 'interval_count' => 1]
+            && ($params['allow_promotion_codes'] ?? null) === false
+            && ($params['client_reference_id'] ?? null) === (string) $order->id
+            && ($params['metadata']['order_id'] ?? null) === (string) $order->id
+            && ($params['metadata']['viewer_id'] ?? null) === (string) $order->viewer_id
+            && ($params['metadata']['subscription_id'] ?? null) === (string) $subscription->id
+            && ($params['subscription_data']['metadata'] ?? null) === ($params['metadata'] ?? null)
+            && is_int($params['expires_at'] ?? null)
+            && is_string($request['prepared_at'] ?? null) && is_string($request['expires_at'] ?? null));
+        try {
+            $prepared = CarbonImmutable::parse($request['prepared_at'])->timestamp;
+            $expires = CarbonImmutable::parse($request['expires_at'])->timestamp;
+            $storedPrepared = empty($order->checkout_prepared_at) ? $prepared : CarbonImmutable::parse($order->checkout_prepared_at)->timestamp;
+        } catch (\Throwable) {
+            throw $this->pending();
+        }
+        $this->require($storedPrepared === $prepared && $expires === $prepared + 1860 && $params['expires_at'] === $expires);
+
+        return $request;
+    }
+
+    public function createCheckout(object $order, object $subscription): array
+    {
+        $request = $this->preparedRequest($order, $subscription);
+        $params = $request['params'];
+        $unknown = ! empty($order->checkout_attempted_at);
+        $late = $params['expires_at'] - CarbonImmutable::now('UTC')->timestamp <= 1800;
+        if ($unknown || $late) {
+            // List by the persisted Customer, not by a newly minted Customer.
+            // This also finds Sessions omitted by a lost create response.
+            $sessions = $this->all(fn ($stripe, $args) => $stripe->checkout->sessions->all([
+                'customer' => $request['customer_id'], ...$args,
+            ]));
+            $matches = [];
+            foreach ($sessions as $session) {
+                $this->testObject($session);
+                if (($session['metadata']['order_id'] ?? null) === (string) $order->id) {
+                    $matches[] = $session;
+                }
+            }
+            $this->require(count($matches) === 1);
+            $id = $matches[0]['id'];
+            $session = $this->data($this->call(fn ($stripe) => $stripe->checkout->sessions->retrieve($id)));
+            $this->require(($session['id'] ?? null) === $id);
+        } else {
+            $session = $this->data($this->call(fn ($stripe) => $stripe->checkout->sessions->create(
+                $params, ['idempotency_key' => $request['idempotency_key']],
+            )));
+        }
+        $this->testObject($session);
+        $status = $session['status'] ?? null;
+        $this->require(($session['mode'] ?? null) === 'subscription'
+            && in_array($status, ['open', 'complete', 'expired'], true)
+            && $this->id($session['customer'] ?? null) === $request['customer_id']
+            && ($session['client_reference_id'] ?? null) === (string) $order->id
+            && ($session['metadata']['order_id'] ?? null) === (string) $order->id
+            && ($session['amount_total'] ?? null) === (int) $order->amount_minor
+            && ($session['currency'] ?? null) === 'usd'
+            && ($session['expires_at'] ?? null) === $params['expires_at']);
+        $url = null;
+        if ($status === 'open' && $params['expires_at'] > CarbonImmutable::now('UTC')->timestamp) {
+            $this->require(is_string($session['url'] ?? null)
+                && parse_url($session['url'], PHP_URL_HOST) === 'checkout.stripe.com'
+                && parse_url($session['url'], PHP_URL_SCHEME) === 'https');
+            $url = $session['url'];
+        }
+
+        return [
+            'session_id' => $session['id'], 'url' => $url, 'status' => $status,
+            'payment_status' => $session['payment_status'] ?? 'unpaid',
+            'expires_at' => $this->iso($session['expires_at']),
+            'customer_id' => $request['customer_id'], 'subscription_id' => $this->id($session['subscription'] ?? null),
         ];
     }
 
