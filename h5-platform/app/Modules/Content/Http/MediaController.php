@@ -47,7 +47,7 @@ final class MediaController
         // A manifest/HEAD/failed Range does not earn the free-N continuation exception.
         if ($r->isMethod('GET') && ($file === 'media.mp4' || str_starts_with($file, 'segment-'))) {
             $response->prepare($r);
-            if ($response->getStatusCode() < 400) {
+            if (in_array($response->getStatusCode(), [200, 206], true) && (int) $response->headers->get('Content-Length') > 0) {
                 $playback->readGrant($id, $region, true);
             }
         }

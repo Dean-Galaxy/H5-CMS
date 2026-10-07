@@ -3,6 +3,7 @@
 namespace Tests\Feature\Content;
 
 use App\Enums\Role;
+use App\Modules\Content\Models\Asset;
 use App\Modules\Content\Models\DramaRecord;
 use App\Modules\Identity\Models\Viewer;
 
@@ -77,6 +78,23 @@ final class ManagementTest extends ContentTestCase
         $viewer = Viewer::create(['name' => 'Viewer', 'email' => 'viewer@example.test', 'password' => 'ViewerPass1234']);
         $this->asViewer($viewer);
         $this->postJson('/api/v1/admin/content/dramas', $this->draftInput())->assertUnauthorized();
+    }
+
+    public function test_older_bound_assets_remain_editable_after_more_than_200_uploads(): void
+    {
+        $d = $this->fixture(1);
+        $video = $d->episodes()->first()->video_asset_id;
+        for ($i = 0; $i < 205; $i++) {
+            Asset::create(['created_by' => $this->owner->id, 'kind' => 'video', 'extension' => 'mp4', 'expected_bytes' => 1]);
+        }
+        $index = $this->getJson('/api/v1/admin/content')->assertOk()->json();
+        $this->assertNotContains($video, array_column($index['assets'], 'id'));
+        $detail = $this->getJson('/api/v1/admin/content/dramas/'.$d->id)->assertOk()->json();
+        $this->assertContains($video, array_column($detail['assets'], 'id'));
+        $older = $this->getJson('/api/v1/admin/content/assets?before='.$index['asset_cursor'])->assertOk()->json();
+        $this->assertContains($video, array_column($older['assets'], 'id'));
+        $this->assertNull($older['next_cursor']);
+        $this->assertArrayNotHasKey('source_key', $older['assets'][0]);
     }
 
     public function test_versions_and_episode_object_scope_prevent_overwrite(): void

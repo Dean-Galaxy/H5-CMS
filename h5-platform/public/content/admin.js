@@ -35,20 +35,28 @@
     $('drama-list').replaceChildren();
     d.dramas.forEach(x=>row($('drama-list'),`${title(x)} · ${statuses[x.state]} · 已公开 ${x.published_count}/${x.total_episodes??'总数未定'} · N=${x.free_count}`,[['编辑',()=>selectDrama(x.id)]]));
     if(!d.dramas.length)row($('drama-list'),'还没有剧目，先保存一部草稿。');
-    const assetLabel=x=>`${x.id.slice(-8)} · ${statuses[x.state]}${x.metadata?.width?' · '+x.metadata.width+'×'+x.metadata.height:''}`;
-    for(const [el,kind] of [['cover-assets','cover'],['banner-assets','banner'],['video-assets','video'],['subtitle-assets','subtitle']])optionList(el,d.assets.filter(a=>a.kind===kind),assetLabel);
+    renderAssetOptions(d);
     optionList('drama-categories',d.categories,x=>x.name_zh||x.name_en,false);
     optionList('banner-dramas',d.dramas,title);
-    $('asset-list').replaceChildren();
-    d.assets.forEach(a=>row($('asset-list'),`${a.id} · ${a.kind} · ${statuses[a.state]} · ${a.received_bytes}/${a.expected_bytes}${a.error_code?' · '+a.error_code:''}`,a.state==='uploading'?[['取消上传',async()=>{await api('/uploads/'+a.id+'/cancel','POST',{});await reload();}]]:a.state==='failed'?[['重试处理',async()=>{await api('/uploads/'+a.id+'/retry','POST',{});await reload();}]]:[]));
+    renderAssets(d);
     $('category-list').replaceChildren();d.categories.forEach(c=>row($('category-list'),`${c.name_zh||c.name_en} · 排序 ${c.sort_order} · ${c.active?'启用':'停用'}`,[['编辑',()=>{state.category=c;fill('category-form',c);}]]));
     $('banner-list').replaceChildren();d.banners.forEach(b=>row($('banner-list'),`${b.title_zh||b.title_en} · 排序 ${b.sort_order} · ${b.active?'启用':'停用'}`,[['编辑',()=>{state.banner=b;fill('banner-form',b);}]]));
     if($('default-form')&&!state.defaultPreview)form('default-form').elements.free_count.value=d.default_free_count;
     if(selected)await selectDrama(selected); else newDrama();
   }
+  function renderAssetOptions(d) {
+    const assetLabel=x=>`${x.metadata?.original_filename||x.id.slice(-8)} · ${statuses[x.state]}${x.metadata?.width?' · '+x.metadata.width+'×'+x.metadata.height:''}`;
+    for(const [el,kind] of [['cover-assets','cover'],['banner-assets','banner'],['video-assets','video'],['subtitle-assets','subtitle']])optionList(el,d.assets.filter(a=>a.kind===kind),assetLabel);
+  }
+  function renderAssets(d) {
+    $('asset-list').replaceChildren();
+    d.assets.forEach(a=>row($('asset-list'),`${a.metadata?.original_filename||a.id} · ${a.kind} · ${statuses[a.state]} · ${a.received_bytes}/${a.expected_bytes}${a.error_code?' · '+a.error_code:''}`,a.state==='uploading'?[['取消上传',async()=>{await api('/uploads/'+a.id+'/cancel','POST',{});await reload();}]]:a.state==='failed'?[['重试处理',async()=>{await api('/uploads/'+a.id+'/retry','POST',{});await reload();}]]:[]));
+    $('more-assets').disabled=!d.asset_cursor;
+  }
   function newDrama() {state.drama=null;$('selected-tools').hidden=true;fill('drama-form',{sort_order:0});$('drama-heading').textContent='新剧草稿';}
   async function selectDrama(id) {
     const result=await api('/dramas/'+id),d=state.drama=result.drama;
+    const merged=new Map(state.data.assets.map(a=>[a.id,a]));for(const a of result.assets)merged.set(a.id,a);state.data.assets=[...merged.values()];renderAssetOptions(state.data);renderAssets(state.data);
     fill('drama-form',{...d,regions:d.regions.join(','),license_from:local(d.license_from),license_until:local(d.license_until),category_ids:d.categories.map(c=>c.id)});
     $('drama-heading').textContent=title(d)+' · '+statuses[d.state];$('selected-tools').hidden=false;
     fill('free-form',{free_count:d.free_count});$('free-status').textContent=d.free_overridden?'已单独设置，全局同步保留此值。':'沿用创建时默认值，可参加未覆盖剧同步。';
@@ -59,6 +67,7 @@
     $('publication-history').textContent=result.publications.map(p=>`${p.executed_at} UTC | 计划 ${p.scheduled_at||'手动'} | ${p.result} | 第 ${p.episode_numbers.join(',')} 集 | ${p.error_code||''}`).join('\n')||'暂无发布记录';
   }
   function dramaInput() {const d=values('drama-form');return {...d,total_episodes:integer(d.total_episodes),cover_asset_id:d.cover_asset_id||null,regions:d.regions.split(',').map(x=>x.trim().toUpperCase()).filter(Boolean),license_from:utc(d.license_from),license_until:utc(d.license_until),category_ids:[...form('drama-form').elements.category_ids.selectedOptions].map(x=>x.value),sort_order:Number(d.sort_order),...(state.drama?{version:state.drama.version}:{})};}
+  $('more-assets').addEventListener('click',run(async()=>{if(!state.data.asset_cursor)return;const page=await api('/assets?before='+encodeURIComponent(state.data.asset_cursor));const merged=new Map(state.data.assets.map(a=>[a.id,a]));for(const a of page.assets)merged.set(a.id,a);state.data.assets=[...merged.values()];state.data.asset_cursor=page.next_cursor;renderAssetOptions(state.data);renderAssets(state.data);message('已读取更早的素材。');}));
   $('reload').addEventListener('click',run(async()=>{await reload();message('已刷新处理、公开和计划状态。');}));$('new-drama').addEventListener('click',newDrama);
   form('drama-form').addEventListener('submit',run(async()=>{const d=await api('/dramas'+(state.drama?'/'+state.drama.id:''),state.drama?'PATCH':'POST',dramaInput());await reload(d.id);message('剧目已保存。保存和上传不会自动公开。');}));
   form('episode-form').addEventListener('submit',run(async()=>{const d=values('episode-form');d.number=Number(d.number);d.video_asset_id||=null;d.subtitle_asset_id||=null;if(!d.subtitle_asset_id)d.subtitle_language=null;const current=state.drama.episodes.find(x=>x.number===d.number);if(current)d.version=current.version;await api('/dramas/'+state.drama.id+'/episodes'+(current?'/'+current.id:''),current?'PATCH':'POST',d);await reload();message('分集已保存。');}));

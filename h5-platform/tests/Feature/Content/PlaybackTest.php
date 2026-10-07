@@ -9,6 +9,7 @@ use App\Data\ResolvedRegion;
 use App\Enums\SubscriptionState;
 use App\Modules\Content\Models\Grant;
 use App\Modules\Content\Models\PlaySession;
+use App\Modules\Content\Services\MediaStore;
 use App\Modules\Content\Services\PlaybackService;
 use App\Modules\Identity\Models\Viewer;
 
@@ -84,6 +85,22 @@ final class PlaybackTest extends ContentTestCase
         $this->get('/api/v1/content/playback/'.$g['grant_id'].'/subtitles.vtt')->assertForbidden();
         $this->viewer();
         $this->get($this->signed($g['grant_id'], 'captions.m3u8'))->assertNotFound();
+    }
+
+    public function test_head_and_invalid_range_do_not_start_a_session_and_missing_hls_blocks_grants(): void
+    {
+        $d = $this->fixture(1, 1, true);
+        $ep = $d->episodes[0];
+        $g = $this->grant($ep->id)->assertOk()->json();
+        $url = $this->signed($g['grant_id'], 'media.mp4');
+        $this->head($url)->assertOk();
+        $this->get($url, ['Range' => 'bytes=10000-11000'])->assertStatus(416);
+        $this->assertNull(PlaySession::find($g['play_session_id'])->started_at);
+        $this->get($url, ['Range' => 'bytes=0-0'])->assertStatus(206);
+        $this->assertNotNull(PlaySession::find($g['play_session_id'])->started_at);
+        unlink(app(MediaStore::class)->path($ep->video->output_key.'/segment-00000.ts'));
+        $this->grant($ep->id)->assertOk()->assertJsonPath('reason', 'MEDIA_NOT_READY')->assertJsonPath('allowed', false);
+        $this->get($g['short_lived_url'])->assertForbidden()->assertJsonPath('error.code', 'MEDIA_NOT_READY');
     }
 
     public function test_n_change_only_protects_started_same_episode_with_finite_window(): void

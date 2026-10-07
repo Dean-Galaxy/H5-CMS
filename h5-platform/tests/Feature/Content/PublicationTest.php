@@ -4,6 +4,7 @@ namespace Tests\Feature\Content;
 
 use App\Modules\Content\Models\EpisodeRecord;
 use App\Modules\Content\Models\Publication;
+use App\Modules\Content\Services\MediaStore;
 use App\Modules\Content\Services\PublicationService;
 
 final class PublicationTest extends ContentTestCase
@@ -50,6 +51,17 @@ final class PublicationTest extends ContentTestCase
         $processing->episodes()->first()->video->update(['state' => 'processing']);
         $this->assertSame('blocked', $s->execute($processing->plan->id, 1, $processing->plan->next_at));
         $this->assertSame(0, $processing->episodes()->whereNotNull('published_at')->count());
+    }
+
+    public function test_missing_packaged_segment_blocks_the_entire_scheduled_batch(): void
+    {
+        $d = $this->fixture(10);
+        $video = $d->episodes()->first()->video;
+        unlink(app(MediaStore::class)->path($video->output_key.'/segment-00000.ts'));
+        $p = $d->plan;
+        $this->assertSame('blocked', app(PublicationService::class)->execute($p->id, $p->version, $p->next_at));
+        $this->assertSame('MEDIA_FILE_MISSING', $p->fresh()->last_error);
+        $this->assertSame(0, $d->episodes()->whereNotNull('published_at')->count());
     }
 
     public function test_manual_pause_resume_edit_and_withdraw_make_old_executions_obsolete(): void

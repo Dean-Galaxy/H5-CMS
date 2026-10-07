@@ -321,10 +321,13 @@ final class PublicationService
             if ($ep->subtitle_asset_id && (! $ep->subtitle || $ep->subtitle->state !== 'ready')) {
                 return 'SUBTITLE_NOT_READY';
             }
+            if ($ep->subtitle && ! is_file(app(MediaStore::class)->path($ep->subtitle->output_key.'/subtitles.vtt'))) {
+                return 'SUBTITLE_NOT_READY';
+            }
             if ($ep->subtitle && ($ep->subtitle->metadata['last_end'] ?? INF) > ($ep->video->metadata['duration'] ?? 0) + 0.5) {
                 return 'SUBTITLE_OUT_OF_RANGE';
             }
-            if (! is_file(app(MediaStore::class)->path($ep->video->output_key.'/media.mp4'))) {
+            if (! app(MediaStore::class)->playable($ep->video)) {
                 return 'MEDIA_FILE_MISSING';
             }
         }

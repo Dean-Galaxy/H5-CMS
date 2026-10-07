@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 from jsonschema import Draft202012Validator, FormatChecker
 
-p=argparse.ArgumentParser();p.add_argument('--base',required=True);p.add_argument('--drama',required=True);p.add_argument('--output',required=True);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--base',required=True);p.add_argument('--drama',required=True);p.add_argument('--output',required=True);p.add_argument('--category');a=p.parse_args()
 assert re.fullmatch(r'http://127\.0\.0\.1:\d+',a.base), 'Loopback verification only'
 root=Path(__file__).resolve().parents[5];spec=json.loads((root/'docs/contracts/openapi.yaml').read_text())
 client=urllib.request.build_opener(urllib.request.ProxyHandler({}),urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
@@ -24,17 +24,24 @@ def expect(name,response,status,schema=None):
         value=json.loads(response[2]); Draft202012Validator({'$ref':'#/components/schemas/'+schema,'components':spec['components']},format_checker=FormatChecker()).validate(value)
     checks.append({'check':name,'status':status,'schema':schema,'passed':True})
     return json.loads(response[2]) if schema else response[2]
-expect('homepage frozen contract',request('/api/v1/home?locale=zh_CN'),200,'HomePage')
+home=expect('homepage frozen contract',request('/api/v1/home?locale=zh_CN'),200,'HomePage')
 expect('categories frozen contract',request('/api/v1/categories'),200,'CategoryList')
 expect('catalog frozen contract',request('/api/v1/catalog'),200,'CatalogPage')
 d=expect('drama frozen contract',request('/api/v1/dramas/'+a.drama),200,'Drama')
 assert d['episodes'] and d['published_episode_count']==len(d['episodes'])
+if a.category:
+    page=expect('category filter frozen contract',request('/api/v1/catalog?category_id='+a.category),200,'CatalogPage');assert a.drama in [x['id'] for x in page['items']]
+for banner in home['banners']:
+    if banner['target_drama_id']==a.drama:expect('published internal Banner image',request(banner['image_url']),200)
 expect('cover is served after publication',request(d['cover_url']),200)
 expect('invalid cursor',request('/api/v1/catalog?cursor=forged'),422,'Error')
 expect('staff API rejects anonymous viewer',request('/api/v1/admin/content'),401,'Error')
 ep=d['episodes'][0]['id']
 expect('real HTTP CSRF rejects mutation without token',request('/api/v1/episodes/'+ep+'/playback-grants',{'play_session_id':None}),419,'Error')
 csrf=json.loads(request('/api/v1/auth/csrf')[2])['csrf_token']; headers={'X-CSRF-TOKEN':csrf}
+for item in d['episodes']:
+    if item['number']==5:
+        fifth=expect('fifth episode free boundary',request('/api/v1/episodes/'+item['id']+'/playback-grants',{'play_session_id':None},headers),200,'PlaybackGrant');assert fifth['allowed'] and fifth['reason']=='allowed_free'
 g=expect('free episode grant',request('/api/v1/episodes/'+ep+'/playback-grants',{'play_session_id':None},headers),200,'PlaybackGrant');assert g['allowed']
 master=expect('protected HLS master',request(g['short_lived_url']),200).decode()
 assert '/assets/' not in master and 'source.mp4' not in master

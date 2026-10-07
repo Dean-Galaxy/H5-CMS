@@ -1,0 +1,71 @@
+{
+  "source": "/Volumes/KESU/A Star Between Us",
+  "source_read_only": true,
+  "used_folders": [
+    "纯净版",
+    "字幕",
+    "封面"
+  ],
+  "excluded_folder": "成片",
+  "videos": 62,
+  "subtitles": 62,
+  "covers": [
+    {
+      "file": "横版 无字.png",
+      "width": 2752,
+      "height": 1536,
+      "sha256": "b049366cb7bec13683359d767bd6e744e77b8bfa8f284f76c320b48044670b7b"
+    },
+    {
+      "file": "横版.png",
+      "width": 2752,
+      "height": 1536,
+      "sha256": "12b03184683c23be298cccbea2b2d544b497f81c132145d9daf7323fcb67b075"
+    },
+    {
+      "file": "竖版 无字.png",
+      "width": 1536,
+      "height": 2752,
+      "sha256": "1b03603ed63504c5ac80eda38a4983f115ee8dd05bb059f0f65be4f5ed5a1b4e"
+    },
+    {
+      "file": "竖版.png",
+      "width": 1440,
+      "height": 1920,
+      "sha256": "d5cefae5791e281f3d04165b1016aa51d703dab8519c80a649c1231363dbb015"
+    }
+  ],
+  "selected_cover": "竖版 无字.png",
+  "selected_banner": "横版 无字.png",
+  "initial_full_decode": {
+    "checked_count": 62,
+    "passed_count": 62,
+    "report_sha256": "4c489cbc14ea8ca025e20834a4755112ff4ca6291dd7e8592f0e5dca54ee17b5",
+    "original_report_modified_at": "2026-10-06T16:38:47.062432+00:00"
+  },
+  "timing_recheck": {
+    "count": 62,
+    "out_of_bounds_count": 0,
+    "out_of_order_episodes": [
+      1,
+      11,
+      12,
+      13,
+      20,
+      21,
+      22,
+      24,
+      36,
+      39,
+      40,
+      58
+    ]
+  },
+  "normalization": "Stable sort by start time; preserve original cue text and timestamps; source files unchanged",
+  "language_observation": "Sampled the first and middle cue from each of 62 supplied SRT files; all observed samples are English. No translation generated.",
+  "full_semantic_and_audio_sync_verified": false,
+  "sample_browser_playback": "Episode 1 real MP4 video and English VTT visible around 00:29 of 01:23",
+  "real_copyright_verified": false,
+  "language_sampled_files": 62,
+  "language_sampled_cues_per_file": 2
+}

@@ -20,11 +20,30 @@ final class AdminController
     {
         ContentGuard::staff();
 
-        return ['dramas' => DramaRecord::with(['plan', 'categories'])->withCount(['episodes as published_count' => fn ($q) => $q->whereNotNull('published_at')])->orderBy('sort_order')->orderBy('id')->get(),
-            'assets' => Asset::orderByDesc('created_at')->limit(200)->get()->map(fn ($a) => $this->asset($a)),
-            'categories' => CategoryRecord::orderBy('sort_order')->orderBy('id')->get(),
-            'banners' => Banner::orderBy('sort_order')->orderBy('id')->get(),
-            'default_free_count' => DB::table('content_settings')->where('id', 1)->value('default_free_count')];
+        $dramas = DramaRecord::with(['plan', 'categories'])->withCount(['episodes as published_count' => fn ($q) => $q->whereNotNull('published_at')])->orderBy('sort_order')->orderBy('id')->get();
+        $banners = Banner::orderBy('sort_order')->orderBy('id')->get();
+        $page = $this->assetPage();
+        $references = Asset::whereIn('id', $dramas->pluck('cover_asset_id')->merge($banners->pluck('image_asset_id'))->filter())->get()->map(fn ($a) => $this->asset($a));
+
+        return ['dramas' => $dramas, 'assets' => collect($page['assets'])->merge($references)->unique('id')->values(),
+            'asset_cursor' => $page['next_cursor'], 'categories' => CategoryRecord::orderBy('sort_order')->orderBy('id')->get(),
+            'banners' => $banners, 'default_free_count' => DB::table('content_settings')->where('id', 1)->value('default_free_count')];
+    }
+
+    public function assets(Request $request): array
+    {
+        ContentGuard::staff();
+        $data = ContentGuard::validate($request->query(), ['before' => 'nullable|uuid']);
+
+        return $this->assetPage($data['before'] ?? null);
+    }
+
+    private function assetPage(?string $before = null): array
+    {
+        $rows = Asset::when($before, fn ($q) => $q->where('id', '<', $before))->orderByDesc('id')->limit(201)->get();
+        $page = $rows->take(200);
+
+        return ['assets' => $page->map(fn ($a) => $this->asset($a))->values(), 'next_cursor' => $rows->count() > 200 ? $page->last()->id : null];
     }
 
     public function drama(string $id): array
@@ -32,8 +51,11 @@ final class AdminController
         ContentGuard::staff();
         $drama = DramaRecord::with(['plan', 'categories', 'episodes'])->findOrFail($id);
         ContentGuard::staff($drama);
+        // Always include this drama's bindings, even when they are older than the latest upload page.
+        $ids = $drama->episodes->pluck('video_asset_id')->merge($drama->episodes->pluck('subtitle_asset_id'))->push($drama->cover_asset_id)->filter();
 
-        return ['drama' => $drama, 'publications' => Publication::where('drama_id', $id)->orderByDesc('executed_at')->limit(50)->get()];
+        return ['drama' => $drama, 'assets' => Asset::whereIn('id', $ids)->get()->map(fn ($a) => $this->asset($a)),
+            'publications' => Publication::where('drama_id', $id)->orderByDesc('executed_at')->limit(50)->get()];
     }
 
     public function saveDrama(Request $r, ContentManager $m, ?string $id = null)

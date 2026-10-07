@@ -1,0 +1,36 @@
+{
+    "configured": {
+        "drama_id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "plan_id": "01a11226-14fc-71da-bff5-e8a466868c9a",
+        "expected_numbers": [
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        "scheduled_at": "2026-10-07T02:25:00+00:00",
+        "before_published": 1,
+        "configured_by": "isolated local service harness using real staff permission; not a fabricated clock"
+    },
+    "observed_at": "2026-10-07T02:34:18+00:00",
+    "occurrence": {
+        "plan_version": 5,
+        "scheduled_at": "2026-10-07T02:25:00.000000Z",
+        "executed_at": "2026-10-07T02:25:01.000000Z",
+        "source": "scheduled",
+        "result": "published",
+        "episode_numbers": [
+            2,
+            3,
+            4,
+            5,
+            6
+        ]
+    },
+    "after_published": 6,
+    "final_plan_state": "paused",
+    "next_at": null,
+    "pause_verified_in_real_browser": true,
+    "occurrence_count": 1
+}

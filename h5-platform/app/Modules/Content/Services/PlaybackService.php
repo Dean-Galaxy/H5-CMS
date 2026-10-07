@@ -110,10 +110,10 @@ final class PlaybackService implements PlaybackAuthorizer
         if (! $this->availability->licensed($ep->drama, $region)) {
             return PlaybackReason::RegionBlocked;
         }
-        if (! $ep->video || $ep->video->state !== 'ready' || ! $ep->video->output_key || ! is_file($this->media->path($ep->video->output_key.'/media.mp4'))) {
+        if (! $ep->video || ! $this->media->playable($ep->video)) {
             return PlaybackReason::MediaNotReady;
         }
-        if ($ep->subtitle_asset_id && (! $ep->subtitle || $ep->subtitle->state !== 'ready')) {
+        if ($ep->subtitle_asset_id && (! $ep->subtitle || $ep->subtitle->state !== 'ready' || ! is_file($this->media->path($ep->subtitle->output_key.'/subtitles.vtt')))) {
             return PlaybackReason::MediaNotReady;
         }
 

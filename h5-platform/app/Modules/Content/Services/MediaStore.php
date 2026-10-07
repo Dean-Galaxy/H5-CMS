@@ -37,6 +37,39 @@ final class MediaStore
         return $path;
     }
 
+    public function playable(Asset $asset): bool
+    {
+        if ($asset->state !== 'ready' || ! $asset->output_key) {
+            return false;
+        }
+        $root = $this->path($asset->output_key);
+        foreach (['media.mp4', 'index.m3u8'] as $file) {
+            if (! is_file($root.'/'.$file) || filesize($root.'/'.$file) === 0) {
+                return false;
+            }
+        }
+        $manifest = file_get_contents($root.'/index.m3u8');
+        if (! str_contains($manifest, '#EXT-X-ENDLIST')) {
+            return false;
+        }
+        $count = 0;
+        foreach (explode("\n", $manifest) as $line) {
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+            if (! preg_match('/^segment-\d{5}\.ts$/D', $line)) {
+                return false;
+            }
+            $path = $this->path($asset->output_key.'/'.$line);
+            if (! is_file($path) || filesize($path) === 0) {
+                return false;
+            }
+            $count++;
+        }
+
+        return $count > 0;
+    }
+
     private function directory(string $key): string
     {
         $path = $this->path($key);
@@ -81,7 +114,7 @@ final class MediaStore
             chmod($path, 0600);
 
             return Asset::create(['id' => $id, 'created_by' => $staff->id, 'kind' => $data['kind'], 'extension' => $extension,
-                'expected_bytes' => $data['bytes'], 'source_key' => 'assets/'.$id.'/source.'.$extension])->fresh();
+                'metadata' => ['original_filename' => $data['filename']], 'expected_bytes' => $data['bytes'], 'source_key' => 'assets/'.$id.'/source.'.$extension])->fresh();
         });
     }
 
@@ -232,7 +265,7 @@ final class MediaStore
                 default => $this->image($source, $out),
             };
             Asset::whereKey($id)->where('processing_token', $asset->processing_token)->update([
-                'state' => 'ready', 'output_key' => $outKey, 'metadata' => json_encode($meta, JSON_THROW_ON_ERROR), 'error_code' => null, 'processing_until' => null,
+                'state' => 'ready', 'output_key' => $outKey, 'metadata' => json_encode([...($asset->metadata ?? []), ...$meta], JSON_THROW_ON_ERROR), 'error_code' => null, 'processing_until' => null,
             ]);
         } catch (\Throwable $e) {
             $allowed = ['UNSUPPORTED_VIDEO', 'VIDEO_DECODE_FAILED', 'INVALID_SUBTITLE', 'INVALID_IMAGE', 'MEDIA_TOOL_UNAVAILABLE', 'MEDIA_PROCESS_FAILED'];
