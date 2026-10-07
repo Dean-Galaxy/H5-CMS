@@ -1,0 +1,60 @@
+{
+  "candidate": "a47cf0faee13ecf795eebfadc6b04b48a95af17c",
+  "mode": "00 isolated local Audience opt-in; US test region; empty development content database",
+  "checks": [
+    {
+      "path": "/health",
+      "status": 200,
+      "cache_control": "no-cache, private",
+      "modules": {
+        "identity": "ready",
+        "content": "ready",
+        "billing": "ready",
+        "audience": "ready",
+        "acquisition": "not_ready"
+      }
+    },
+    {
+      "path": "/?lang=en",
+      "status": 200,
+      "cache_control": "no-store, private"
+    },
+    {
+      "path": "/catalog?lang=zh_CN",
+      "status": 200,
+      "cache_control": "no-store, private"
+    },
+    {
+      "path": "/dramas/019a2b3c-1234-7000-8000-000000000001",
+      "status": 404,
+      "cache_control": "no-store, private"
+    },
+    {
+      "path": "/membership",
+      "status": 404,
+      "cache_control": "no-store, private"
+    },
+    {
+      "path": "/audience/player.js",
+      "status": 200,
+      "cache_control": null,
+      "fixed_source_matches": true
+    },
+    {
+      "path": "/vendor/hls.js/1.7.3/hls.min.js",
+      "status": 200,
+      "cache_control": null
+    }
+  ],
+  "membership_404": "Expected missing second-stage UI; not accepted as complete membership flow",
+  "browser": {
+    "engine": "IAB",
+    "viewport_width": 1280,
+    "document_width": 1280,
+    "lang": "zh-CN",
+    "empty_catalog": true,
+    "local_region_label": true,
+    "console_errors": []
+  },
+  "actual_media_playback_independently_repeated": false
+}
