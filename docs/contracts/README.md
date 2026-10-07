@@ -1,6 +1,6 @@
 # 共同契约 v1
 
-当前版本：`1.0.1`，在已冻结的 1.0.0 上补齐 [Content 公共接入约定](content-context-v1.0.1.md)，保留现有公开字段。最初共同起点 `h5-foundation-v1` 不移动；补丁交接和实际进展见 [总台账](../多任务开发规划/03-进度与交接台账.md)。`openapi.yaml` 使用 YAML 1.2 兼容的 JSON 表达，精确约束字段、可空值、枚举及参数。金额样例仅供契约测试，不是已确认售价。
+当前版本：`1.0.2`。在 1.0.1 的地区和播放会话约定上，补齐 Content 正式接入与健康状态；详见 [00-002 接入修正](../contract-requests/00-002-Content正式接入与健康状态.md)。目录、播放、账务 DTO 及 PHP 方法签名未变，Health 校验器需同步新版本以允许真实的 ready 状态。新共同起点为 `h5-content-v1`，旧基础标签保留。OpenAPI 使用 YAML 1.2 兼容的 JSON 表达，金额样例仅供测试。
 
 [恢复续费、首页与分类的完整约定](shared-v1.md) 定义 F01 的先读确认信息再提交，以及 F02 的语言、排序、分类筛选和下架过滤。PHP 类型、HTTP、样例和消费测试一起发布。
 
@@ -9,7 +9,7 @@
 | 提供方 | 本次交付 | 后续负责 |
 |---|---|---|
 | 01 | IdentityContext、AuditRecorder、观众身份、独立后台及员工权限 | 继续维护 Identity |
-| 02 | CatalogReader、PlaybackAuthorizer 的类型和未就绪骨架 | 真实内容、媒体、发布及播放授权 |
+| 02 | 真实 CatalogReader、PlaybackAuthorizer、内容后台、私有媒体与正常发布已接入 | D03 故障漏排期、03 真实会员、04 真机与外部媒体组合验收 |
 | 03 | MembershipReader、BillingService、PaymentSettled.v1 类型和未就绪骨架 | 真实报价、订单、支付、订阅、权益及付款事件 |
 | 04 | ProgressService 类型和未就绪骨架；网站布局插槽 | 网站、播放器、进度及两种语言完整体验 |
 | 05 | AttributionService 类型；关闭时明确无来源 | 推广链接、像素、来源及事件发送 |

@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H5 common contracts",
-    "version": "1.0.1",
-    "description": "00 共同契约 1.0.1；兼容 1.0.0 HTTP 字段，补齐开发期装载、可信地区和播放会话语义。01 身份已实现，02–05 尚未集成；普通环境仍明确未就绪。"
+    "version": "1.0.2",
+    "description": "00 共同契约 1.0.2；接收 Identity 与 Content，健康状态允许 ready/not_ready 并按实际装载返回；账务、观众网站及投流尚未集成。保留 1.0.1 的业务字段、地区和播放会话语义。"
   },
   "servers": [
     {
@@ -3502,7 +3502,7 @@
         ],
         "summary": "catalog",
         "x-provider": "02",
-        "x-implementation-status": "not_ready",
+        "x-implementation-status": "integrated",
         "security": [],
         "responses": {
           "200": {
@@ -3778,7 +3778,7 @@
         ],
         "summary": "drama",
         "x-provider": "02",
-        "x-implementation-status": "not_ready",
+        "x-implementation-status": "integrated",
         "security": [],
         "responses": {
           "200": {
@@ -4035,7 +4035,7 @@
         ],
         "summary": "playback_grant",
         "x-provider": "02",
-        "x-implementation-status": "not_ready",
+        "x-implementation-status": "integrated",
         "security": [],
         "responses": {
           "200": {
@@ -6843,7 +6843,7 @@
         ],
         "summary": "读取首页分类、Banner 和推荐剧目",
         "x-provider": "02",
-        "x-implementation-status": "not_ready",
+        "x-implementation-status": "integrated",
         "security": [],
         "responses": {
           "200": {
@@ -7127,7 +7127,7 @@
         ],
         "summary": "读取已启用分类",
         "x-provider": "02",
-        "x-implementation-status": "not_ready",
+        "x-implementation-status": "integrated",
         "security": [],
         "responses": {
           "200": {
@@ -8980,30 +8980,35 @@
               "identity": {
                 "type": "string",
                 "enum": [
-                  "ready"
+                  "ready",
+                  "not_ready"
                 ]
               },
               "content": {
                 "type": "string",
                 "enum": [
+                  "ready",
                   "not_ready"
                 ]
               },
               "billing": {
                 "type": "string",
                 "enum": [
+                  "ready",
                   "not_ready"
                 ]
               },
               "audience": {
                 "type": "string",
                 "enum": [
+                  "ready",
                   "not_ready"
                 ]
               },
               "acquisition": {
                 "type": "string",
                 "enum": [
+                  "ready",
                   "not_ready"
                 ]
               }
@@ -9015,7 +9020,8 @@
               "audience",
               "acquisition"
             ],
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "各模块实际装载状态，ready 不表示官方支付、外部媒体或组合验收已通过。未接入的提供方仍返回 DEPENDENCY_NOT_READY。"
           }
         },
         "required": [

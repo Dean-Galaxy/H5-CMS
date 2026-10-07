@@ -1,0 +1,747 @@
+{
+  "scope": "02 own worktree and isolated test database only; 00 external-disk failure was not reproduced here. A 12-second delay and two startup failures are intentional fault injection, not measured disk latency.",
+  "races": [
+    {
+      "actions": [
+        "scheduled",
+        "scheduled"
+      ],
+      "budgets_seconds": {
+        "startup": 60,
+        "contention": 10,
+        "execution": 20
+      },
+      "workers": [
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 4.291e-06,
+              "pid": 27478
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.025476208
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.141329375
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.141482291,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 0.163357166,
+              "pg_pid": 27481
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 0.196819708,
+              "result": "duplicate"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27481,
+          "ready_after_seconds": 0.231610625,
+          "result": "duplicate"
+        },
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 6.959e-06,
+              "pid": 27479
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.025494792
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.141367459
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.141476125,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 0.163377792,
+              "pg_pid": 27480
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 0.194593959,
+              "result": "published"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27480,
+          "ready_after_seconds": 0.231627417,
+          "result": "published"
+        }
+      ],
+      "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+      "database": "h5_2e3d6828b8_test",
+      "lock_observed": true,
+      "parent_pg_pid": 27477,
+      "startup_seconds": 0.231630292,
+      "locks": [
+        {
+          "pid": 27480,
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "blockers": "{27477}"
+        },
+        {
+          "pid": 27481,
+          "wait_event_type": "Lock",
+          "wait_event": "tuple",
+          "blockers": "{27480}"
+        }
+      ],
+      "execution_seconds": 0.025200333,
+      "results": [
+        "duplicate",
+        "published"
+      ],
+      "outcome": "completed",
+      "children_stopped": true,
+      "parent_transaction_level": 0,
+      "total_seconds": 0.262490792
+    },
+    {
+      "actions": [
+        "scheduled",
+        "manual"
+      ],
+      "budgets_seconds": {
+        "startup": 60,
+        "contention": 10,
+        "execution": 20
+      },
+      "workers": [
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 6.792e-06,
+              "pid": 27484
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.0245105
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.136396708
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.136509792,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 0.161335875,
+              "pg_pid": 27486
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 0.193333292,
+              "result": "published"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27486,
+          "ready_after_seconds": 0.223182708,
+          "result": "published"
+        },
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 6.792e-06,
+              "pid": 27485
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.024495667
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.136388042
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.13650325,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 0.161319459,
+              "pg_pid": 27487
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 0.195969667,
+              "result": "STALE_VERSION"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27487,
+          "ready_after_seconds": 0.223200291,
+          "result": "STALE_VERSION"
+        }
+      ],
+      "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+      "database": "h5_2e3d6828b8_test",
+      "lock_observed": true,
+      "parent_pg_pid": 27483,
+      "startup_seconds": 0.223204416,
+      "locks": [
+        {
+          "pid": 27487,
+          "wait_event_type": "Lock",
+          "wait_event": "tuple",
+          "blockers": "{27486}"
+        },
+        {
+          "pid": 27486,
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "blockers": "{27483}"
+        }
+      ],
+      "execution_seconds": 0.033919291,
+      "results": [
+        "published",
+        "STALE_VERSION"
+      ],
+      "outcome": "completed",
+      "children_stopped": true,
+      "parent_transaction_level": 0,
+      "total_seconds": 0.259167333
+    },
+    {
+      "actions": [
+        "scheduled",
+        "edit"
+      ],
+      "budgets_seconds": {
+        "startup": 60,
+        "contention": 10,
+        "execution": 20
+      },
+      "workers": [
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 6.125e-06,
+              "pid": 27488
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.021623625
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.125108042
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.125194125,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 0.147246958,
+              "pg_pid": 27490
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 0.175595083,
+              "result": "published"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27490,
+          "ready_after_seconds": 0.210819791,
+          "result": "published"
+        },
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 3.833e-06,
+              "pid": 27489
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.021653208
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.12509025
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.12517075,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 0.147199208,
+              "pg_pid": 27491
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 0.178688375,
+              "result": "RANGE_CHANGED"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27491,
+          "ready_after_seconds": 0.210838791,
+          "result": "RANGE_CHANGED"
+        }
+      ],
+      "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+      "database": "h5_2e3d6828b8_test",
+      "lock_observed": true,
+      "parent_pg_pid": 27483,
+      "startup_seconds": 0.210842583,
+      "locks": [
+        {
+          "pid": 27491,
+          "wait_event_type": "Lock",
+          "wait_event": "tuple",
+          "blockers": "{27490}"
+        },
+        {
+          "pid": 27490,
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "blockers": "{27483}"
+        }
+      ],
+      "execution_seconds": 0.036466667,
+      "results": [
+        "published",
+        "RANGE_CHANGED"
+      ],
+      "outcome": "completed",
+      "children_stopped": true,
+      "parent_transaction_level": 0,
+      "total_seconds": 0.248290875
+    },
+    {
+      "actions": [
+        "scheduled",
+        "withdraw"
+      ],
+      "budgets_seconds": {
+        "startup": 60,
+        "contention": 10,
+        "execution": 20
+      },
+      "workers": [
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 6.625e-06,
+              "pid": 27492
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.021546834
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.123507
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.123588417,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 0.143672417,
+              "pg_pid": 27495
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 0.168450709,
+              "result": "published"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27495,
+          "ready_after_seconds": 0.200556875,
+          "result": "published"
+        },
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 5.458e-06,
+              "pid": 27493
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.021545792
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.123487333
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.123573417,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 0.144152667,
+              "pg_pid": 27494
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 0.170424417,
+              "result": "STALE_VERSION"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27494,
+          "ready_after_seconds": 0.200573167,
+          "result": "STALE_VERSION"
+        }
+      ],
+      "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+      "database": "h5_2e3d6828b8_test",
+      "lock_observed": true,
+      "parent_pg_pid": 27483,
+      "startup_seconds": 0.200576,
+      "locks": [
+        {
+          "pid": 27494,
+          "wait_event_type": "Lock",
+          "wait_event": "tuple",
+          "blockers": "{27495}"
+        },
+        {
+          "pid": 27495,
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "blockers": "{27483}"
+        }
+      ],
+      "execution_seconds": 0.025173125,
+      "results": [
+        "published",
+        "STALE_VERSION"
+      ],
+      "outcome": "completed",
+      "children_stopped": true,
+      "parent_transaction_level": 0,
+      "total_seconds": 0.228561334
+    },
+    {
+      "actions": [
+        "scheduled",
+        "scheduled"
+      ],
+      "budgets_seconds": {
+        "startup": 60,
+        "contention": 10,
+        "execution": 20
+      },
+      "workers": [
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 6.125e-06,
+              "pid": 27498
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.024143042
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.132922167
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.133027209,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "startup_delay",
+              "elapsed_seconds": 0.133036,
+              "milliseconds": 12000
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 12.196384792,
+              "pg_pid": 27504
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 12.25572425,
+              "result": "duplicate"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27504,
+          "ready_after_seconds": 12.26147175,
+          "result": "duplicate"
+        },
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 6.667e-06,
+              "pid": 27499
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.024133
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.132922959
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.133026125,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "startup_delay",
+              "elapsed_seconds": 0.133035792,
+              "milliseconds": 12000
+            },
+            {
+              "phase": "ready",
+              "elapsed_seconds": 12.19641125,
+              "pg_pid": 27505
+            },
+            {
+              "phase": "result",
+              "elapsed_seconds": 12.251944167,
+              "result": "published"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 0,
+          "pg_pid": 27505,
+          "ready_after_seconds": 12.261496459,
+          "result": "published"
+        }
+      ],
+      "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+      "database": "h5_2e3d6828b8_test",
+      "lock_observed": true,
+      "parent_pg_pid": 27497,
+      "startup_seconds": 12.261507584,
+      "locks": [
+        {
+          "pid": 27505,
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "blockers": "{27497}"
+        },
+        {
+          "pid": 27504,
+          "wait_event_type": "Lock",
+          "wait_event": "tuple",
+          "blockers": "{27505}"
+        }
+      ],
+      "execution_seconds": 0.059330333,
+      "results": [
+        "duplicate",
+        "published"
+      ],
+      "outcome": "completed",
+      "children_stopped": true,
+      "parent_transaction_level": 0,
+      "total_seconds": 12.323822459
+    },
+    {
+      "actions": [
+        "scheduled",
+        "scheduled"
+      ],
+      "budgets_seconds": {
+        "startup": 0.4,
+        "contention": 10,
+        "execution": 20
+      },
+      "workers": [
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 8.875e-06,
+              "pid": 27508
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.102713125
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 143
+        },
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 4.375e-06,
+              "pid": 27509
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.102740208
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 143
+        }
+      ],
+      "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+      "database": "h5_2e3d6828b8_test",
+      "lock_observed": false,
+      "parent_pg_pid": 27507,
+      "outcome": "failed",
+      "failure_stage": "startup",
+      "failure": "Deadline exceeded after 0.4 seconds",
+      "children_stopped": true,
+      "parent_transaction_level": 0,
+      "total_seconds": 0.412236417
+    },
+    {
+      "actions": [
+        "scheduled",
+        "scheduled"
+      ],
+      "budgets_seconds": {
+        "startup": 60,
+        "contention": 10,
+        "execution": 20
+      },
+      "workers": [
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 4.791e-06,
+              "pid": 27533
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.030250875
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.200369666
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.200573916,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            },
+            {
+              "phase": "error",
+              "elapsed_seconds": 0.200594541,
+              "class": "RuntimeException",
+              "message": "Injected startup failure"
+            }
+          ],
+          "stderr": "RuntimeException: Injected startup failure\n",
+          "running": false,
+          "exit_code": 143,
+          "error": "Injected startup failure"
+        },
+        {
+          "events": [
+            {
+              "phase": "entered",
+              "elapsed_seconds": 8.584e-06,
+              "pid": 27534
+            },
+            {
+              "phase": "autoloaded",
+              "elapsed_seconds": 0.031454417
+            },
+            {
+              "phase": "bootstrapped",
+              "elapsed_seconds": 0.197636584
+            },
+            {
+              "phase": "guarded",
+              "elapsed_seconds": 0.197752542,
+              "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+              "provider_path": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform/app/Modules/Content/ContentServiceProvider.php"
+            }
+          ],
+          "stderr": "",
+          "running": false,
+          "exit_code": 143
+        }
+      ],
+      "app_base": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/h5-platform",
+      "database": "h5_2e3d6828b8_test",
+      "lock_observed": false,
+      "parent_pg_pid": 27507,
+      "outcome": "failed",
+      "failure_stage": "startup",
+      "failure": "Worker exited or failed before a valid result: Injected startup failure",
+      "children_stopped": true,
+      "parent_transaction_level": 0,
+      "total_seconds": 0.283068584
+    }
+  ]
+}

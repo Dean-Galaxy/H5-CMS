@@ -7,6 +7,7 @@ use App\Contracts\BillingService;
 use App\Contracts\CatalogReader;
 use App\Modules\Identity\Services\SafeReturn;
 use App\Support\DependencyNotReady;
+use App\Support\UnavailableServices;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -29,6 +30,8 @@ class ContractsTest extends TestCase
 
     public function test_missing_provider_never_fabricates_business_success(): void
     {
+        // This foundation contract check models absence, not the accepted Content binding.
+        $this->app->bind(CatalogReader::class, UnavailableServices::class);
         $this->assertFalse(app(AttributionService::class)->enabled());
         $this->assertNull(app(AttributionService::class)->snapshot('forged-marker'));
         foreach ([fn () => app(BillingService::class)->offer(null), fn () => app(CatalogReader::class)->catalog()] as $call) {

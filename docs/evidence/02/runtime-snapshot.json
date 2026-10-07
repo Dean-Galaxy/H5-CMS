@@ -1,0 +1,52 @@
+{
+  "workspace": "h5_2e3d6828b8",
+  "http_port": 8202,
+  "db_port": 5602,
+  "database": "h5_2e3d6828b8",
+  "test_database": "h5_2e3d6828b8_test",
+  "service_checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "actual_media_root": "/Volumes/KESU/H5-02-runtime-2e3d6828b8/media",
+  "registered_episode_count": 62,
+  "published_episode_count": 6,
+  "asset_state_snapshot": [
+    {
+      "kind": "banner",
+      "state": "ready",
+      "count": 1
+    },
+    {
+      "kind": "subtitle",
+      "state": "ready",
+      "count": 62
+    },
+    {
+      "kind": "video",
+      "state": "processing",
+      "count": 3
+    },
+    {
+      "kind": "cover",
+      "state": "ready",
+      "count": 1
+    },
+    {
+      "kind": "video",
+      "state": "pending",
+      "count": 34
+    },
+    {
+      "kind": "video",
+      "state": "ready",
+      "count": 25
+    }
+  ],
+  "plan_state": "paused",
+  "full_62_transcode_completion_verified": false,
+  "production_acceptance": false
+}

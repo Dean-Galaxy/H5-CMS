@@ -15,7 +15,7 @@ class SharedInfrastructureTest extends TestCase
     {
         $spec = json_decode(file_get_contents(base_path('../docs/contracts/openapi.yaml')), true);
         $this->assertSame($spec['info']['version'], config('h5.contract'));
-        $this->assertSame('1.0.1', config('h5.contract'));
+        $this->assertSame('1.0.2', config('h5.contract'));
     }
 
     public function test_absent_local_opt_in_preserves_the_missing_provider_and_unresolved_region(): void
@@ -29,6 +29,7 @@ class SharedInfrastructureTest extends TestCase
     public function test_allowlisted_local_provider_can_load_without_a_root_config_edit(): void
     {
         $modules = config('h5.modules');
+        $modules['content'] = ['provider' => null, 'ready' => false];
         $result = (new LocalModuleRegistry)->resolve($modules, ' content,content ', 'testing', ['content' => ContractFixtureProvider::class]);
         $this->assertSame(['provider' => ContractFixtureProvider::class, 'ready' => true], $result['content']);
         $this->assertSame($modules['identity'], $result['identity']);
@@ -47,6 +48,8 @@ class SharedInfrastructureTest extends TestCase
             ['App\\UntrustedProvider', 'local', ['content' => ContractFixtureProvider::class]],
             ['content', 'local', ['content' => 'MissingContentProvider']],
             ['content', 'local', ['content' => \stdClass::class]],
+            // An accepted provider cannot be replaced by a local test provider.
+            ['content', 'local', ['content' => ContractFixtureProvider::class]],
         ] as [$requested, $environment, $allowlist]) {
             try {
                 $registry->resolve($modules, $requested, $environment, $allowlist);

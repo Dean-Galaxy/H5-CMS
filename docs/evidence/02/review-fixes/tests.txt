@@ -1,0 +1,104 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Content\CatalogTest
+  ✓ real home category banner language and actual published counts       0.48s
+  ✓ visibility expiry drafts unknown region and empty category           0.08s
+  ✓ cursor is stable signed and bound to filter locale region sort vers… 0.10s
+
+   PASS  Tests\Feature\Content\ConcurrencyTest
+  ✓ separate processes cannot publish an occurrence twice                0.38s
+  ✓ manual publish edit and withdraw serialize with scheduler            0.91s
+  ✓ slow startup has its own budget and still contends on real locks    12.45s
+  ✓ failed startup reports the phase and cleans children before unlocki… 0.92s
+
+   PASS  Tests\Feature\Content\ManagementTest
+  ✓ new drama snapshots defaults and fixed beijing tomorrow              0.19s
+  ✓ license offsets round trip without beijing drift                     0.10s
+  ✓ manual same value is override and sync requires current impact       0.21s
+  ✓ content permissions mfa and viewer staff separation                  0.15s
+  ✓ older bound assets remain editable after more than 200 uploads       0.21s
+  ✓ edit keeps original identity and rejects conflict without changing…  0.10s
+  ✓ versions and episode object scope prevent overwrite                  0.09s
+
+   PASS  Tests\Feature\Content\MediaTest
+  ✓ upload is private sequential owned and rejects traversal type size   0.72s
+  ✓ cancel is owned and a canceled partial upload cannot finish          0.09s
+  ✓ subtitles reorder without retiming and reject markup bad utf8 or ti… 0.08s
+  ✓ actual small h264 aac is decoded and packaged privately              1.12s
+  ✓ real image is reencoded and subtitle out of duration blocks publish  0.17s
+  ✓ draft preview and private range require mfa and content permission   0.19s
+
+   PASS  Tests\Feature\Content\PlaybackTest
+  ✓ free fifth paid sixth and no raw media or forged grant access        0.44s
+  ✓ hls subtitle map and every caption request are protected             0.27s
+  ✓ head and invalid range do not start a session and missing hls block… 0.37s
+  ✓ n change only protects started same episode with finite window       0.23s
+  ✓ refund membership loss is checked on every manifest segment range a… 0.29s
+  ✓ expiry region withdrawal and other identity cannot reuse grants      0.14s
+
+   PASS  Tests\Feature\Content\PublicationTest
+  ✓ 35 episodes publish 10 10 10 5 and each occurrence is idempotent     0.12s
+  ✓ completed requires all and missing or processing blocks whole batch  0.13s
+  ✓ missing packaged segment blocks the entire scheduled batch           0.06s
+  ✓ manual pause resume edit and withdraw make old executions obsolete   0.14s
+  ✓ saving plan invalidates old job and activation requires preview and… 0.14s
+  ✓ unapproved missed schedule is held and not silently caught up        0.08s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.03s
+  ✓ home consumer can follow a category and banner without media or ext… 0.03s
+  ✓ new ports require the real provider even when empty examples exist   0.02s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.03s
+  ✓ resume quote and submission require an audience session              0.03s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.02s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.02s
+  ✓ allowlisted local provider can load without a root config edit       0.02s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+   PASS  Tests\Feature\Identity\AuthorizationTest
+  ✓ fixed roles and resource scopes match business rules                 0.02s
+  ✓ staff api rejects non owner direct requests and audits denial        0.04s
+  ✓ owner can create change and disable staff with version control       0.05s
+  ✓ missing mfa proof does not unlock staff api                          0.03s
+  ✓ disabled account and old version session are revoked                 0.03s
+  ✓ audit uses allowlisted changes and request ids                       0.02s
+
+   PASS  Tests\Feature\Identity\ContractsTest
+  ✓ business samples roundtrip through typed php consumers               0.02s
+  ✓ missing provider never fabricates business success                   0.03s
+  ✓ controlled return rejects open redirect encodings                    0.03s
+  ✓ openapi routes and enums match runtime                               0.03s
+
+   PASS  Tests\Feature\Identity\MfaTest
+  ✓ password alone and empty recovery code cannot bypass mfa             0.57s
+  ✓ real totp challenge authenticates and sets session proof             0.49s
+  ✓ totp and recovery codes cannot be replayed                           0.04s
+  ✓ mfa secrets are encrypted and hidden                                 0.02s
+  ✓ disabled employee cannot reach challenge or login                    0.25s
+  ✓ first staff login requires enrollment before dashboard               0.04s
+  ✓ configured staff without challenge proof cannot open any panel page  0.03s
+  ✓ generic staff login event does not grant mfa proof                   0.03s
+  ✓ staff password change invalidates old session version                0.03s
+
+   PASS  Tests\Feature\Identity\ViewerTest
+  ✓ password reset email origin does not trust request host              0.24s
+  ✓ guest entry and missing business are truthful                        0.03s
+  ✓ registration uses fortify and cannot create staff                    0.04s
+  ✓ verification checkout gate and link replay                           0.06s
+  ✓ expired and tampered verification are rejected                       0.04s
+  ✓ correct email invalidates old link and cannot alter verified accoun… 0.06s
+  ✓ email resend is limited with retry after                             0.04s
+  ✓ reset link is single use and revokes old session                     0.05s
+  ✓ expired reset does not change password                               0.25s
+  ✓ password recovery does not enumerate accounts                        0.49s
+  ✓ login rate limit and controlled return                               1.34s
+  ✓ guest verification continues after login                             0.05s
+
+  Tests:    74 passed (715 assertions)
+  Duration: 26.23s

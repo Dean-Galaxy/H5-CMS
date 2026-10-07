@@ -1,0 +1,140 @@
+{
+  "checked_at": "2026-10-07T02:35:28.631099+00:00",
+  "contract": "1.0.1",
+  "published_episode_count": 6,
+  "checks": [
+    {
+      "check": "homepage frozen contract",
+      "status": 200,
+      "schema": "HomePage",
+      "passed": true
+    },
+    {
+      "check": "categories frozen contract",
+      "status": 200,
+      "schema": "CategoryList",
+      "passed": true
+    },
+    {
+      "check": "catalog frozen contract",
+      "status": 200,
+      "schema": "CatalogPage",
+      "passed": true
+    },
+    {
+      "check": "drama frozen contract",
+      "status": 200,
+      "schema": "Drama",
+      "passed": true
+    },
+    {
+      "check": "category filter frozen contract",
+      "status": 200,
+      "schema": "CatalogPage",
+      "passed": true
+    },
+    {
+      "check": "published internal Banner image",
+      "status": 200,
+      "schema": null,
+      "passed": true
+    },
+    {
+      "check": "cover is served after publication",
+      "status": 200,
+      "schema": null,
+      "passed": true
+    },
+    {
+      "check": "invalid cursor",
+      "status": 422,
+      "schema": "Error",
+      "passed": true
+    },
+    {
+      "check": "staff API rejects anonymous viewer",
+      "status": 401,
+      "schema": "Error",
+      "passed": true
+    },
+    {
+      "check": "real HTTP CSRF rejects mutation without token",
+      "status": 419,
+      "schema": "Error",
+      "passed": true
+    },
+    {
+      "check": "fifth episode free boundary",
+      "status": 200,
+      "schema": "PlaybackGrant",
+      "passed": true
+    },
+    {
+      "check": "free episode grant",
+      "status": 200,
+      "schema": "PlaybackGrant",
+      "passed": true
+    },
+    {
+      "check": "protected HLS master",
+      "status": 200,
+      "schema": null,
+      "passed": true
+    },
+    {
+      "check": "protected HLS playlist",
+      "status": 200,
+      "schema": null,
+      "passed": true
+    },
+    {
+      "check": "authorized segment Range",
+      "status": 206,
+      "schema": null,
+      "passed": true
+    },
+    {
+      "check": "copied grant in another browser",
+      "status": 404,
+      "schema": "Error",
+      "passed": true
+    },
+    {
+      "check": "unsigned segment",
+      "status": 403,
+      "schema": "Error",
+      "passed": true
+    },
+    {
+      "check": "tampered signature",
+      "status": 403,
+      "schema": "Error",
+      "passed": true
+    },
+    {
+      "check": "protected captions playlist",
+      "status": 200,
+      "schema": null,
+      "passed": true
+    },
+    {
+      "check": "protected VTT timestamp map",
+      "status": 200,
+      "schema": null,
+      "passed": true
+    },
+    {
+      "check": "unsigned VTT",
+      "status": 403,
+      "schema": "Error",
+      "passed": true
+    },
+    {
+      "check": "paid episode refuses anonymous access",
+      "status": 200,
+      "schema": "PlaybackGrant",
+      "passed": true
+    }
+  ],
+  "paid_billing_integration_verified": false
+}
