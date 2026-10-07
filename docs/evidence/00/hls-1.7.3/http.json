@@ -1,0 +1,21 @@
+{
+  "checks": [
+    {
+      "path": "http://127.0.0.1:8101/vendor/hls.js/1.7.3/hls.min.js",
+      "status": 200,
+      "content_type": "application/javascript",
+      "bytes": 619692,
+      "sha256_matches": true
+    },
+    {
+      "path": "http://127.0.0.1:8101/vendor/hls.js/1.7.3/LICENSE",
+      "status": 200,
+      "content_type": null,
+      "bytes": 1338,
+      "sha256_matches": true
+    }
+  ],
+  "playback": "not tested",
+  "transport": "direct loopback, proxy disabled",
+  "initial_default_urllib_request": "HTTP 502; retried direct loopback"
+}

@@ -1,0 +1,10 @@
+{
+  "baseline": "b160fb49b8ca8e8fdc36c01ff4118c0c5648ed24",
+  "captured_at_utc": "2026-10-07T06:39:32.138215+00:00",
+  "files_sha256": {
+    "scripts/browser-assets.lock.json": "0a3d9002eb5c18ffde65b587b9b85b36e2a659c653c0f2a6dd04069bfe115b75",
+    "scripts/install_browser_assets.py": "7cea5ea770947e46628d251698a17078ce6945c05749189ed3a815225f48ac37",
+    "scripts/bootstrap.py": "19fddd91d51d2667ad0cb3764cf058f7662e8e516fab237fe87d3388f22698c7",
+    "scripts/tests/test_browser_assets.py": "5ef476fdafea21ab0d9be55d7dffbd925d9e5fe0e63b515bc483129a7f8c51e3"
+  }
+}

@@ -62,6 +62,7 @@ def main():
     call([sys.executable, ROOT / 'scripts/dev.py', 'setup'])
     call([PHP, APP / 'artisan', 'package:discover'], cwd=APP)
     call([PHP, APP / 'artisan', 'filament:assets'], cwd=APP)
+    call([sys.executable, ROOT / 'scripts/install_browser_assets.py'])
     venv = RUN / 'contracts'
     if not (venv / 'bin/python').exists():
         call(['/usr/bin/python3', '-m', 'venv', venv])

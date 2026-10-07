@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "name": "hls.js",
+  "version": "1.7.3",
+  "license": "Apache-2.0",
+  "tarball": "https://registry.npmjs.org/hls.js/-/hls.js-1.7.3.tgz",
+  "integrity": "sha512-MsPlx6yVW4Qv4C7mEVou4/gk/5cN2dVxOTnrNjPSmyH2f0Ln+/UkG10Ax1PE6OvrmTVPKgQYozTtBaPOuCzq7A==",
+  "output_directory": "h5-platform/public/vendor/hls.js/1.7.3",
+  "files": [
+    {
+      "archive_path": "package/dist/hls.min.js",
+      "output": "hls.min.js",
+      "sha256": "a12e7ee1cd64a69dcdb314157e45dafcba705bfb0b1440b7935cb265d374423e",
+      "bytes": 619692
+    },
+    {
+      "archive_path": "package/LICENSE",
+      "output": "LICENSE",
+      "sha256": "ca8773cf798c7ed997d4dd7c8e23c348699f8d5b7462636694cc14de6cda12db",
+      "bytes": 1338
+    }
+  ]
+}
