@@ -12,6 +12,7 @@ use App\Modules\Content\Models\PlaySession;
 use App\Modules\Content\Services\MediaStore;
 use App\Modules\Content\Services\PlaybackService;
 use App\Modules\Identity\Models\Viewer;
+use App\Support\UnavailableServices;
 
 final class PlaybackTest extends ContentTestCase
 {
@@ -67,6 +68,8 @@ final class PlaybackTest extends ContentTestCase
             $this->assertContains($this->get($path)->status(), [403, 404]);
         }
         $this->viewer();
+        // Explicitly test a missing provider, regardless of Billing's default registration.
+        $this->app->instance(MembershipReader::class, new UnavailableServices);
         $this->grant($eps[5]->id)->assertStatus(503)->assertJsonPath('error.code', 'DEPENDENCY_NOT_READY');
     }
 
