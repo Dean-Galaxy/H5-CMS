@@ -1,0 +1,46 @@
+[
+  {
+    "path": "/health",
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "request_id": "01a1158f-9e8d-739a-b968-a89341383d51",
+      "modules": {
+        "identity": "ready",
+        "content": "ready",
+        "billing": "ready",
+        "audience": "ready",
+        "acquisition": "not_ready"
+      }
+    }
+  },
+  {
+    "path": "/api/v1/catalog",
+    "status": 403,
+    "body": {
+      "error": {
+        "code": "REGION_BLOCKED",
+        "message": "无法核实地区，当前内容不可用",
+        "request_id": "01a1158f-9f12-72d1-ad32-a18217cbdd9a",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "path": "/identity/login",
+    "status": 200,
+    "body": {
+      "kind": "html",
+      "bytes": 2120
+    }
+  },
+  {
+    "path": "/membership",
+    "status": 503,
+    "body": {
+      "kind": "html",
+      "bytes": 3002
+    }
+  }
+]

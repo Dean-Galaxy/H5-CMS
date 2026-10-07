@@ -15,7 +15,7 @@ class SharedInfrastructureTest extends TestCase
     {
         $spec = json_decode(file_get_contents(base_path('../docs/contracts/openapi.yaml')), true);
         $this->assertSame($spec['info']['version'], config('h5.contract'));
-        $this->assertSame('1.0.2', config('h5.contract'));
+        $this->assertSame('1.0.3', config('h5.contract'));
     }
 
     public function test_absent_local_opt_in_preserves_the_missing_provider_and_unresolved_region(): void
