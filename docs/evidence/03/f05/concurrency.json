@@ -1,0 +1,119 @@
+{
+  "source_commit": "ac52cdc4d8c70aa99de62a04ec2f027ce2a5e498",
+  "real_postgresql_workers": true,
+  "payment_provider": "testing FakeGateway; no Stripe calls",
+  "races": [
+    {
+      "actions": [
+        "resume",
+        "resume"
+      ],
+      "database": "h5_785df0be15_test",
+      "lock_observed": true,
+      "outcome": "completed",
+      "parent_pg_pid": 27973,
+      "blocked_waiters": [
+        {
+          "pid": 27976,
+          "wait_event_type": "Lock",
+          "wait_event": "tuple",
+          "blockers": "{27977}"
+        },
+        {
+          "pid": 27977,
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "blockers": "{27973}"
+        }
+      ],
+      "children_stopped": true,
+      "results": [
+        {
+          "code": "OK",
+          "renewal_enabled": true,
+          "create_calls": 0,
+          "renewal_calls": 1
+        },
+        {
+          "code": "BILLING_PENDING",
+          "create_calls": 0,
+          "renewal_calls": 0
+        }
+      ]
+    },
+    {
+      "actions": [
+        "settle",
+        "settle"
+      ],
+      "database": "h5_785df0be15_test",
+      "lock_observed": true,
+      "outcome": "completed",
+      "parent_pg_pid": 27965,
+      "blocked_waiters": [
+        {
+          "pid": 27970,
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "blockers": "{27965}"
+        },
+        {
+          "pid": 27971,
+          "wait_event_type": "Lock",
+          "wait_event": "tuple",
+          "blockers": "{27970}"
+        }
+      ],
+      "children_stopped": true,
+      "results": [
+        {
+          "code": "OK",
+          "create_calls": 0,
+          "renewal_calls": 0
+        },
+        {
+          "code": "OK",
+          "create_calls": 0,
+          "renewal_calls": 0
+        }
+      ]
+    },
+    {
+      "actions": [
+        "checkout",
+        "checkout"
+      ],
+      "database": "h5_785df0be15_test",
+      "lock_observed": true,
+      "outcome": "completed",
+      "parent_pg_pid": 27959,
+      "blocked_waiters": [
+        {
+          "pid": 27962,
+          "wait_event_type": "Lock",
+          "wait_event": "transactionid",
+          "blockers": "{27959}"
+        },
+        {
+          "pid": 27963,
+          "wait_event_type": "Lock",
+          "wait_event": "tuple",
+          "blockers": "{27962}"
+        }
+      ],
+      "children_stopped": true,
+      "results": [
+        {
+          "code": "OK",
+          "create_calls": 1,
+          "renewal_calls": 0
+        },
+        {
+          "code": "BILLING_PENDING",
+          "create_calls": 0,
+          "renewal_calls": 0
+        }
+      ]
+    }
+  ]
+}

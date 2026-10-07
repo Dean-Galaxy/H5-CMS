@@ -61,6 +61,30 @@ class SharedInfrastructureTest extends TestCase
         $this->assertSame($modules, $registry->resolve($modules, '', 'production', []));
     }
 
+    public function test_audience_and_acquisition_can_opt_in_without_replacing_other_modules(): void
+    {
+        foreach (['audience' => 'Audience', 'acquisition' => 'Acquisition'] as $name => $module) {
+            $this->assertSame('App\\Modules\\'.$module.'\\'.$module.'ServiceProvider', config('h5.local_module_providers.'.$name));
+            $modules = config('h5.modules');
+            $modules[$name] = ['provider' => null, 'ready' => false];
+            $registry = new LocalModuleRegistry;
+            $this->assertSame($modules, $registry->resolve($modules, '', 'local', config('h5.local_module_providers')));
+            foreach (['local', 'testing'] as $environment) {
+                $result = $registry->resolve($modules, $name, $environment, [$name => ContractFixtureProvider::class]);
+                $this->assertSame(['provider' => ContractFixtureProvider::class, 'ready' => true], $result[$name]);
+                $this->assertSame(array_diff_key($modules, [$name => true]), array_diff_key($result, [$name => true]));
+            }
+            foreach ([['local', 'MissingFutureProvider'], ['production', ContractFixtureProvider::class], ['staging', ContractFixtureProvider::class]] as [$environment, $provider]) {
+                try {
+                    $registry->resolve($modules, $name, $environment, [$name => $provider]);
+                    $this->fail('Future modules must not bypass missing-provider or environment checks.');
+                } catch (\LogicException $error) {
+                    $this->assertNotSame('', $error->getMessage());
+                }
+            }
+        }
+    }
+
     private function region(string $peer, string $environment, bool $enabled, bool $console = false): array
     {
         $request = Request::create('/api/v1/catalog?region=US', 'GET', ['country_code' => 'US'], [], [], [

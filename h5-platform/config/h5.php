@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\Acquisition\AcquisitionServiceProvider;
+use App\Modules\Audience\AudienceServiceProvider;
 use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Content\ContentServiceProvider;
 use App\Modules\Identity\IdentityServiceProvider;
@@ -12,6 +14,8 @@ return [
     'local_module_providers' => [
         'content' => ContentServiceProvider::class,
         'billing' => BillingServiceProvider::class,
+        'audience' => AudienceServiceProvider::class,
+        'acquisition' => AcquisitionServiceProvider::class,
     ],
     'local_us_test_region' => (bool) env('H5_LOCAL_US_TEST_REGION', false),
     'media_root' => env('H5_MEDIA_ROOT', storage_path('app/private/media')),
@@ -19,7 +23,7 @@ return [
     'modules' => [
         'identity' => ['provider' => IdentityServiceProvider::class, 'ready' => true],
         'content' => ['provider' => ContentServiceProvider::class, 'ready' => true],
-        'billing' => ['provider' => null, 'ready' => false],
+        'billing' => ['provider' => BillingServiceProvider::class, 'ready' => true],
         'audience' => ['provider' => null, 'ready' => false],
         'acquisition' => ['provider' => null, 'ready' => false],
     ],
