@@ -1,0 +1,49 @@
+{
+    "checked_at": "2026-10-07T09:10:21+00:00",
+    "contract": "1.0.3",
+    "workspace": "h5_2e3d6828b8",
+    "provider": "App\\Modules\\Content\\Services\\ContentPromotableCatalog",
+    "identity_harness": "Existing active owner; in-memory CLI staff session and MFA marker. No browser login or TOTP re-verification in this check.",
+    "mfa_missing": "MFA_REQUIRED / 403",
+    "region_before": "ZZ",
+    "region_after": "ZZ",
+    "public_catalog_from_ZZ": "REGION_BLOCKED / 403",
+    "inventory": {
+        "items": [
+            {
+                "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+                "title": "A Star Between Us",
+                "locale": "en",
+                "country_code": "US",
+                "published_episode_count": 6
+            }
+        ],
+        "next_cursor": null
+    },
+    "single": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "title": "A Star Between Us",
+        "locale": "en",
+        "country_code": "US",
+        "published_episode_count": 6
+    },
+    "single_zh_CN": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "title": "A Star Between Us",
+        "locale": "zh_CN",
+        "country_code": "US",
+        "published_episode_count": 6
+    },
+    "facts": {
+        "total_episodes": 62,
+        "published_episodes": 6,
+        "playable_video_files": 62,
+        "nonempty_ready_subtitles": 62,
+        "plan_state": "paused"
+    },
+    "playback_grants_created": 0,
+    "playback_sessions_created": 0,
+    "membership_replaced": false,
+    "copyright_verified": false,
+    "acquisition_ui_verified": false
+}

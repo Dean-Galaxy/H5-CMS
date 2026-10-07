@@ -1,0 +1,26 @@
+本工作区的网站、队列、定时进程与数据库已停止；保留全部数据。
+
+   INFO  Running migrations.
+
+  2026_10_07_040001_create_audience_progress_tables ............. 29.54ms DONE
+  2026_10_07_200000_create_billing_tables ....................... 87.91ms DONE
+  2026_10_07_200100_add_billing_reconciliation_cursor ............ 2.76ms DONE
+  2026_10_07_200200_add_billing_retry_rotation ................... 7.44ms DONE
+  2026_10_07_200300_add_billing_checkout_intents ................. 2.79ms DONE
+
+{
+  "workspace": "h5_2e3d6828b8",
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "website": "http://127.0.0.1:8202",
+  "admin": "http://127.0.0.1:8202/admin",
+  "database": "h5_2e3d6828b8",
+  "db_port": 5602,
+  "mail": "仅本地预览，未验证真实送达",
+  "media": "/Users/hejunxiang/.codex/worktrees/h5-02-content/H5/.runtime/media"
+}
