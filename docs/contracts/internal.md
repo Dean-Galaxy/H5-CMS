@@ -2,7 +2,7 @@
 
 全部 PHP 接口位于 `h5-platform/app/Contracts`；值对象位于 `app/Data`，状态枚举位于 `app/Enums`。签名是代码约定，JSON 字段及可空规则以 openapi.yaml 为准。返回 DTO 可 `toArray()` / JSON 序列化；`fromArray()` 是类型装配入口，不替代业务输入校验和 JSON Schema 校验。
 
-1.0.3 新增 [投流只读依赖](acquisition-read-ports-v1.0.3.md)：AcquisitionStaffDirectory 由01提供最小员工分配名单，PromotableCatalog 由02提供美国可投放库存。05为消费者。01/02真实提供方现已由00-14接收，缺提供方情形仍必须503；05消费者尚待F07修复接收，D05及外部测试站未放行。
+1.0.3 新增 [投流只读依赖](acquisition-read-ports-v1.0.3.md)：AcquisitionStaffDirectory 由01提供最小员工分配名单，PromotableCatalog 由02提供美国可投放库存。05为消费者。01/02真实提供方现已由00-14接收，缺提供方情形仍必须503；05真实消费者及F07修复已由00-15接收，D05及外部测试站未放行。
 
 | 接口 / 方法 | 参数与返回 | 失败与约束 |
 |---|---|---|

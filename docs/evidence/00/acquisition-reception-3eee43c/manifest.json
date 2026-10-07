@@ -1,0 +1,18 @@
+{
+  "candidate": "d60ccb054344087db4d62c32186246d2207475fa",
+  "delivery": "3eee43c8490bff46229e5f39a13fb19114e87877",
+  "contract": "1.0.3",
+  "files": {
+    "README.md": "2e0fad6fbc10291c6964e391b230d136adc207a73f7bb8e9c98e065d9d5facd7",
+    "full-tests.txt": "12861cce6dbab2c1e10f4ed17360943c64266a668419ddabf5217c5497b21977",
+    "http.json": "193b460a25236fb3d24b83656ea15ef55486a27720a55b9ba4a2c087c9be44cb",
+    "migrations.txt": "05ebfd1ed249ef2e187ab162b932f2b593403ddd247a97299960e1713b98a88c",
+    "original-f07-probes.txt": "0392801c7bc7e71b6ec91caf93cc86e2c903aed32e3603e655546858e6bd5a7d",
+    "runtime-default.json": "d237e4b3b8280df20b536ed332eaf6876bc6f2d0e76d09454ad9d4e15dbd8b72",
+    "runtime-enabled.json": "85d079b9655970ee2607df6c3dd3d44ccdb2b516b3d2fee965efe1ffddf3a027",
+    "schema.txt": "f7523cac121ca2a6f55647666b359efcc73f6925ed6bb8046f8fb1023484c940",
+    "start.txt": "bd5ddcd2d385a6852ea0c01abf6edc824c879fc8d595bab55be82b96893b9279",
+    "test_real_process_takeover_leaves_resumed_old_preparer_without_transport_or_writes.json": "e67e8c7c6a81584ace2339de22478f8a822f6e6898a178615d3717900ac8995d",
+    "test_six_sigkills_inside_http_do_not_lose_reservations_or_allow_a_seventh_call.json": "fb513ebe4a55e4738c09ccbc15e87a38176b660edfb079a35cf019043508a543"
+  }
+}
