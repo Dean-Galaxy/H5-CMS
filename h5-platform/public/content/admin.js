@@ -27,6 +27,7 @@
   const integer=v=>v===''||v===null?null:Number(v);
   const utc=value=>value?value+':00+08:00':null;
   const local=value=>value?new Date(new Date(value).getTime()+8*3600000).toISOString().slice(0,16):'';
+  const beijing=value=>new Date(new Date(value).getTime()+8*3600000).toISOString().slice(0,19).replace('T',' ')+' 北京时间';
   const title=d=>d.title_zh||d.title_en||'未命名草稿';
   function optionList(id, items, label, allowBlank=true) { const s=$(id),old=s.value; s.replaceChildren(); if(allowBlank)s.add(new Option('未选择','')); for(const item of items)s.add(new Option(label(item),item.id)); if([...s.options].some(o=>o.value===old))s.value=old; }
   function row(container,text,actions=[]) { const div=document.createElement('div'); div.className='row'; const label=document.createElement('span');label.textContent=text;div.append(label); const controls=document.createElement('div');controls.className='toolbar';for(const [caption,fn] of actions){const b=document.createElement('button');b.type='button';b.textContent=caption;b.addEventListener('click',run(fn));controls.append(b);}div.append(controls);container.append(div); }
@@ -64,7 +65,7 @@
     state.planPreview=null;state.manualPreview=null;$('activate-plan').disabled=true;$('manual-confirm').disabled=true;$('plan-preview').textContent='';$('manual-preview').textContent='';
     $('episode-list').replaceChildren();
     d.episodes.forEach(ep=>row($('episode-list'),`第 ${ep.number} 集 · ${ep.published_at?'已公开':'草稿'} · ${ep.title_zh||ep.title_en||''}`,[['编辑',()=>fill('episode-form',ep)],['草稿预览',()=>{window.open('/admin/content/episodes/'+ep.id+'/preview','_blank','noopener');}],...(!ep.published_at?[['删除草稿分集',async()=>{await api('/dramas/'+d.id+'/episodes/'+ep.id,'DELETE',{version:ep.version});await reload(d.id);}]]:[])]));
-    $('publication-history').textContent=result.publications.map(p=>`${p.executed_at} UTC | 计划 ${p.scheduled_at||'手动'} | ${p.result} | 第 ${p.episode_numbers.join(',')} 集 | ${p.error_code||''}`).join('\n')||'暂无发布记录';
+    $('publication-history').textContent=result.publications.map(p=>`${beijing(p.executed_at)} | 计划 ${p.scheduled_at?beijing(p.scheduled_at):'手动'} | ${p.result} | 第 ${p.episode_numbers.join(',')} 集 | ${p.error_code||''}`).join('\n')||'暂无发布记录';
   }
   function dramaInput() {const d=values('drama-form');return {...d,total_episodes:integer(d.total_episodes),cover_asset_id:d.cover_asset_id||null,regions:d.regions.split(',').map(x=>x.trim().toUpperCase()).filter(Boolean),license_from:utc(d.license_from),license_until:utc(d.license_until),category_ids:[...form('drama-form').elements.category_ids.selectedOptions].map(x=>x.value),sort_order:Number(d.sort_order),...(state.drama?{version:state.drama.version}:{})};}
   $('more-assets').addEventListener('click',run(async()=>{if(!state.data.asset_cursor)return;const page=await api('/assets?before='+encodeURIComponent(state.data.asset_cursor));const merged=new Map(state.data.assets.map(a=>[a.id,a]));for(const a of page.assets)merged.set(a.id,a);state.data.assets=[...merged.values()];state.data.asset_cursor=page.next_cursor;renderAssetOptions(state.data);renderAssets(state.data);message('已读取更早的素材。');}));
