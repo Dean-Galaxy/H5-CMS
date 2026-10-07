@@ -9,11 +9,11 @@
 | requireStaff | Permission；可空 ResourceScope；返回 StaffIdentity | 401 未登录；403 MFA_REQUIRED / NOT_AUTHORIZED；ResourceScope 只接受业务提供方从数据库建立的范围 |
 | AuditRecorder.record | action、subjectType、可空 subjectId、result、changes=[]；void | 01 自动补 actor、UTC 时间和 request_id；禁止传请求体、邮箱、令牌、媒体链接；changes 白名单见实现 |
 | CatalogReader.catalog | cursor=null，limit=20（1–50），locale=en（en/zh_CN），categoryId=null；CatalogPage | 02 未接入503；公开目录可按分类筛选；cursor 绑定筛选、语言和排序版本，失效422；无效/停用分类404 |
-| CatalogReader.homepage | locale=en；HomePage | 分类、Banner、推荐摘要；排序、语言回退和下架过滤见 shared-v1.md；当前503 |
+| CatalogReader.homepage | locale=en；HomePage | Content 已接入；分类、Banner、推荐摘要；排序、语言回退和下架过滤见 shared-v1.md；可信地区及公开范围仍检查 |
 | CatalogReader.categories | locale=en；CategoryList | 启用分类；与相同语言首页 categories 一致；允许真实空内容，缺提供方503 |
 | CatalogReader.drama | dramaId、locale=en；Drama | 02 未接入503；不存在或不公开404，不透露隐藏媒体 |
 | MembershipReader.membership | 可信 viewerId、DateTimeImmutable at；Membership | 03 未接入503；没有权益与依赖未就绪必须分开。状态未知时 payment_resolution_required=true |
-| BillingService.offer | 可空 ViewerIdentity；Offer | 03 未接入503；游客优惠资格为 null；报价不等于锁定结算金额 |
+| BillingService.offer | 可空 ViewerIdentity；Offer | 03 未接入503；游客优惠资格为 null；有效报价保留版本价，建单重新核验资格，改变应付金额须重新确认；见 billing-lifecycle-v1.md |
 | BillingService.checkout | ViewerIdentity、CheckoutInput、idempotencyKey、可空 AttributionSnapshot；Checkout | 必须核对已验证身份、报价、已有订阅/订单、幂等请求；EMAIL_UNVERIFIED/STALE_VERSION/BILLING_PENDING/SUBSCRIPTION_EXISTS 等按 OpenAPI；目前503 |
 | BillingService.order | ViewerIdentity、orderId；Order | 只读本人订单；他人及不存在统一404；当前503 |
 | BillingService.cancel | ViewerIdentity；Membership | 03 核对原订阅与平台结果；未知不能返回成功；当前503 |
@@ -28,6 +28,8 @@
 | PaymentSettled.v1 | PaymentSettled 值对象，无本站可写公开入口 | 03 唯一生成，05 消费；event_id 去重、付款已核实、稳定来源快照、is_test；没有可执行发布器或发送成功桩 |
 
 共同异常为 `App\Support\ApiProblem`（errorCode、status、retryable），缺提供方用 `DependencyNotReady`（503）。HTTP 映射保持统一错误结构，内部消费方不能捕获 503 然后返回无会员、已取消或已付款。业务输入校验、状态机与成功响应均由各提供方实现，01 不代写业务。
+
+Offer 30 分钟和首次支付创建意图固定 +1860 秒的两个窗口，以及部分退款/累计全退后的权益与续费规则，统一见 [账务实施约定 v1](billing-lifecycle-v1.md)。Checkout.expires_at 来自核实的支付平台结果，不能拿 Offer 的截止时间替代；F01 恢复确认的 5 分钟期限不变。开发允许列表不等于 03 已正式接入。
 
 ## 类型消费示例
 

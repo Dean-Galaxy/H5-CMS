@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Content\ContentServiceProvider;
 use App\Modules\Identity\IdentityServiceProvider;
 
@@ -10,6 +11,7 @@ return [
     'local_modules' => env('H5_LOCAL_MODULES', ''),
     'local_module_providers' => [
         'content' => ContentServiceProvider::class,
+        'billing' => BillingServiceProvider::class,
     ],
     'local_us_test_region' => (bool) env('H5_LOCAL_US_TEST_REGION', false),
     'media_root' => env('H5_MEDIA_ROOT', storage_path('app/private/media')),
