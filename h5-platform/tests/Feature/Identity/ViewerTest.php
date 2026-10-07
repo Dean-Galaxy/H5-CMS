@@ -37,9 +37,9 @@ class ViewerTest extends TestCase
         return $this->actingAs($viewer, 'web')->withSession(['identity.version.web' => $viewer->session_version]);
     }
 
-    public function test_guest_entry_and_missing_business_are_truthful(): void
+    public function test_guest_identity_entry_is_public_and_business_boundaries_are_enforced(): void
     {
-        $this->get('/')->assertOk();
+        $this->get('/identity/login')->assertOk();
         $this->getJson('/api/v1/auth/me')->assertExactJson(['viewer' => null, 'staff' => null]);
         $this->getJson('/api/v1/catalog')->assertForbidden()->assertJsonPath('error.code', 'REGION_BLOCKED');
         // Content is accepted: guests reach real authorization without forced sign-in.
