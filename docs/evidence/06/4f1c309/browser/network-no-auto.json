@@ -1,0 +1,65 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "nativeHls": "",
+  "forcedMse": true,
+  "nativeBefore": "maybe",
+  "hlsErrors": [
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": false,
+      "status": 0
+    },
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": false,
+      "status": 0
+    },
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": false,
+      "status": 0
+    },
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": false,
+      "status": 0
+    },
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": false,
+      "status": 0
+    },
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": false,
+      "status": 0
+    },
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": true,
+      "status": 0
+    }
+  ],
+  "hlsVersion": "1.7.3",
+  "mseSupported": true,
+  "currentTime": 0,
+  "duration": null,
+  "readyState": 0,
+  "paused": true,
+  "srcAttributePresent": false,
+  "networkState": 0,
+  "sourceKind": "blob",
+  "width": 0,
+  "height": 0,
+  "decodedFrames": 0,
+  "error": null,
+  "status": "视频加载失败，请重试以重新核对权限并加载。",
+  "observedAt": "2026-10-07T11:05:54.230Z"
+}

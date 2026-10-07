@@ -1,0 +1,24 @@
+✔ metadata, resume seek and buffering do not save before real playing advances (14.215166ms)
+✔ a delayed save from the old playback cannot stop the newly authorized playback (2.0795ms)
+✔ an intentional rewatch from zero saves zero rather than the former resume position (1.534375ms)
+✔ a previous guest tab cannot replace the newer valid guest viewing point (2.446ms)
+✔ offline aborts pending authorization and ignores its late allowed result (2.222916ms)
+✔ offline ignores a late authorization failure without changing the stopped UI (0.882542ms)
+✔ pagehide aborts pending authorization and ignores its late allowed result (1.082875ms)
+✔ pagehide ignores a late authorization failure without changing the stopped UI (0.884792ms)
+✔ old authorization success cannot unlock a newer permission request (1.261125ms)
+✔ old authorization failure cannot unlock a newer permission request (1.283791ms)
+✔ authorization times out within 15 seconds and only an explicit retry can restart it (1.316875ms)
+✔ a stalled bookmark read allows an explicit retry and ignores its late position (2.203625ms)
+✔ non-native HLS constructs and starts loading only after current Content authorization (0.814375ms)
+✔ a fatal non-native HLS error destroys the loader, clears the source and stops renewal (0.910417ms)
+✔ renewal denial clears non-native HLS and old callbacks cannot restore it (1.068416ms)
+✔ paused native HLS renewal preserves position and return links before metadata arrives (2.751833ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 98.140042

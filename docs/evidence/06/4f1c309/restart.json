@@ -1,0 +1,36 @@
+{
+  "result": "passed",
+  "checkout_commit": "88c2feff53b3f962ab85bc4a3799463754d54759",
+  "workspace": "h5_217e1741db",
+  "old_pids": {
+    "web": 65298,
+    "queue": 65299,
+    "scheduler": 65300
+  },
+  "new_pids": {
+    "web": 8478,
+    "queue": 8479,
+    "scheduler": 8480
+  },
+  "before": {
+    "orders": 0,
+    "payments": 0,
+    "entitlements": 0,
+    "public_episodes": 6,
+    "publications": 1,
+    "plan_states": [
+      "finished"
+    ]
+  },
+  "after": {
+    "orders": 0,
+    "payments": 0,
+    "entitlements": 0,
+    "public_episodes": 6,
+    "publications": 1,
+    "plan_states": [
+      "finished"
+    ]
+  },
+  "scope": "actual local web/queue/scheduler/PostgreSQL stop/start; no cloud OS reboot or external-service recovery claim"
+}
