@@ -1,0 +1,15 @@
+{
+    "contract": "1.0.3",
+    "environment": "local",
+    "workspace": "h5_5c78d05e4e",
+    "local_modules": "",
+    "local_us_test_region": false,
+    "acquisition_ready": false,
+    "transport": "disabled",
+    "attribution_enabled": false,
+    "snapshot_null": null,
+    "staff_directory": "App\\Modules\\Identity\\Services\\StaffDirectory",
+    "promotable_catalog": "App\\Modules\\Content\\Services\\ContentPromotableCatalog",
+    "database": "h5_5c78d05e4e",
+    "db_port": "5541"
+}
