@@ -50,7 +50,7 @@
     "scripts/ops/runtime_probe.py": "583a18da0451ac4e4936d4ac93f8a458b67681239dea6ecf9ab1749c7bc52699"
   },
   "evidence_sha256": {
-    "README.md": "9fe35e9c66282216b901d256d035fa70cd0f854886baeb6b2934e91b308c4dca",
+    "README.md": "2f3d89975f6d26d5dd04d9df67b394d153c8460ff20b23f6504d8f6765fa1767",
     "assets.txt": "69a849b4cc8e6131e39d20c02aceb80f6699fc4d6ca919a5de7480dd0c675482",
     "audience-http.json": "1332a017ac9bb50e2e9dc3c7882b417efd75d3aa9f2b9fea8ecded9093345e40",
     "backup-restore.json": "be6f6a0f42d624d5f15dfe34fa6c64cc38d0b035ea87446ba62e3ee22073be5f",
@@ -69,6 +69,7 @@
     "combined.txt": "464914a1d4d2579dd26a3b58ec7e26d36b5ff966890526f81bee9122cc79dd8e",
     "composer-audit.json": "5336f8aa9a59cd25dde3c3079ee514fff801762ab600e79073e4cc82a73ca668",
     "contracts.txt": "846fc815924f0b13ddc5d0948469c7f415d33cc8e937842467ac9d43f66f2a4e",
+    "deployment-template.json": "425342ddd49c8dbc9c5a7165c37cab852fe15b1b9ed85626353e9347b9ccae65",
     "format.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
     "initial-migrations.txt": "7038b93a0593826df2ebe7c7e30bf646874990395742aaa3f608661e470791b2",
     "known-secret-scan.json": "66355bc00e184478cca9db781c77f7284204812ce1c2fafee4cb274f2cfd30c1",
@@ -78,5 +79,7 @@
     "runtime-probe.json": "2d752d9d33cc6fd3225ae2f312ec896990a3c002ab0b74887ee75f0318ae2b49",
     "security-http.json": "36bfe749e3c62e2f221745859a1d8f6fda07ddcc26fc029d418945ed4807d05e",
     "upgrade-migrations.txt": "45f3240984a85cd625efa489d4c5ab6d8bef5586ca690bb4bd2ce6679c565900"
-  }
+  },
+  "tool_hash_scope": "tool_file_sha256 records exactly tested 88c2fef files. Later undeployed nginx template is separately versioned in deployment-template.json; do not compare its old hash with the new template.",
+  "deployment_candidate_commit": "61ff6c4dcf909cc8fc79fb6bf5f3a0fda3a3b9b7"
 }
