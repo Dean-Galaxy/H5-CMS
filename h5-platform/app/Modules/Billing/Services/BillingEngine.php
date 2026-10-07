@@ -25,6 +25,7 @@ use App\Enums\Role;
 use App\Enums\SubscriptionAction;
 use App\Enums\SubscriptionState;
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Support\CheckoutSafety;
 use App\Modules\Identity\Services\SafeReturn;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
@@ -60,7 +61,9 @@ final class BillingEngine implements BillingService, MembershipReader
         }
         Validator::make(['offer_id' => $input->offer_id, 'price_version' => $input->price_version, 'key' => $idempotencyKey, 'return_to' => $input->return_to],
             ['offer_id' => 'required|uuid', 'price_version' => 'required|integer|min:1', 'key' => 'required|string|min:16|max:128', 'return_to' => 'required|string|max:1024'])->validate();
-        if (app(RegionResolver::class)->resolve()->country_code !== 'US') {
+        $region = app(RegionResolver::class)->resolve();
+        if ($region->country_code !== 'US'
+            || (! app()->environment(['local', 'testing']) && $region->source !== 'trusted')) {
             throw new ApiProblem('REGION_BLOCKED', 403, '当前地区尚未开放购买');
         }
         if (! config('billing.quote_policy_approved')) {
@@ -171,11 +174,13 @@ final class BillingEngine implements BillingService, MembershipReader
             try {
                 $result = $this->gateway->createCheckout($attempt, $sub);
                 if (! isset($result['session_id'],$result['expires_at'],$result['customer_id'])
-                    || ($result['url'] !== null && ! str_starts_with($result['url'], 'https://checkout.stripe.com/'))
                     || BillingStore::iso($result['expires_at']) !== BillingStore::iso($order->expires_at)) {
                     $this->pending();
                 }
-                DB::table('billing_orders')->where('id', $order->id)->update(['checkout_id' => $result['session_id'], 'checkout_url' => $result['url'],
+                $safety = app(CheckoutSafety::class);
+                $url = $safety->requestIsSafe($order, $order->checkout_request) && $safety->checkoutUrlIsSafe($result['url'] ?? null)
+                    ? $result['url'] : null;
+                DB::table('billing_orders')->where('id', $order->id)->update(['checkout_id' => $result['session_id'], 'checkout_url' => $url,
                     'expires_at' => $result['expires_at'], 'state' => 'pending', 'last_error' => null, 'updated_at' => now()]);
                 DB::table('billing_subscriptions')->where('id', $sub->id)->update(['customer_id' => $result['customer_id'],
                     'provider_id' => $result['subscription_id'] ?? null, 'updated_at' => now()]);
@@ -550,7 +555,11 @@ final class BillingEngine implements BillingService, MembershipReader
 
     private function checkoutResult(object $order): Checkout
     {
-        $url = $order->state === 'pending' && $order->expires_at && now()->lt(CarbonImmutable::parse($order->expires_at)) ? $order->checkout_url : null;
+        $safety = app(CheckoutSafety::class);
+        $url = $order->state === 'pending' && $order->checkout_id && $order->expires_at
+            && now()->lt(CarbonImmutable::parse($order->expires_at))
+            && $safety->requestIsSafe($order, $order->checkout_request)
+            && $safety->checkoutUrlIsSafe($order->checkout_url) ? $order->checkout_url : null;
 
         return new Checkout($order->id, OrderState::from($order->state), $url, BillingStore::iso($order->expires_at));
     }
