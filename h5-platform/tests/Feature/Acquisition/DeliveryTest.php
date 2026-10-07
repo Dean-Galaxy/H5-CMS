@@ -206,4 +206,27 @@ final class DeliveryTest extends AcquisitionTestCase
         $this->expectException(\LogicException::class);
         (new AcquisitionServiceProvider($this->app))->boot();
     }
+
+    public function test_unknown_remote_outcome_is_not_resent_after_the_retry_window_even_if_process_crashed(): void
+    {
+        $this->signIn();
+        foreach (['meta', 'tiktok'] as $platform) {
+            Http::swap(new Factory);
+            Http::preventStrayRequests();
+            [, $link, , , $delivery] = $this->queueEvent($platform, simulation: false);
+            $this->httpCredentials($delivery);
+            Http::fake(['*' => Http::response([], 503)]);
+            app(DeliveryWorker::class)->deliver($delivery->id);
+            $row = DB::table('acquisition_deliveries')->where('id', $delivery->id)->first();
+            $this->assertNotNull($row->first_attempted_at);
+            // Model a lost acknowledgement, including a worker that never recorded its attempt count.
+            DB::table('acquisition_deliveries')->where('id', $delivery->id)->update(['attempts' => 0,
+                'state' => 'sending', 'lease_until' => now()->subMinute(), 'first_attempted_at' => now()->subDay()]);
+            app(DeliveryWorker::class)->deliver($delivery->id);
+            $this->assertDatabaseHas('acquisition_deliveries', ['id' => $delivery->id, 'state' => 'blocked', 'last_error' => 'RETRY_WINDOW_EXPIRED']);
+            app(AssetManager::class)->retry($link['id']);
+            app(DeliveryWorker::class)->deliver($delivery->id);
+            Http::assertSentCount(1);
+        }
+    }
 }

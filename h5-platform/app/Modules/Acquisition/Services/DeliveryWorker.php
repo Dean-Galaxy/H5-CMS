@@ -71,6 +71,7 @@ final class DeliveryWorker
             } elseif (config('acquisition.transport') === 'local_simulation') {
                 $adapter = $this->adapter($row->platform);
                 $payload = $this->payload($row, $adapter, $receipt, $context, 'LOCAL_SIMULATION');
+                $this->markFirstAttempt($row);
                 $attempted = true;
                 $result = app(LocalSimulator::class)->send($row, $payload);
             } else {
@@ -80,6 +81,7 @@ final class DeliveryWorker
                 } else {
                     $adapter = $this->adapter($row->platform);
                     $payload = $this->payload($row, $adapter, $receipt, $context, $row->environment === 'test' ? $credential['test_event_code'] : null);
+                    $this->markFirstAttempt($row);
                     $attempted = true;
                     $result = $adapter->send($row, $payload, $credential['token']);
                 }
@@ -105,6 +107,13 @@ final class DeliveryWorker
         return match ($platform) {
             'meta' => app(MetaAdapter::class), 'tiktok' => app(TikTokAdapter::class)
         };
+    }
+
+    private function markFirstAttempt(object $row): void
+    {
+        // Persist before I/O: a crash or timeout can leave an accepted request unacknowledged.
+        DB::table('acquisition_deliveries')->where('id', $row->id)->where('lease_token', $row->lease_token)
+            ->whereNull('first_attempted_at')->update(['first_attempted_at' => now()]);
     }
 
     private function payload(object $row, PlatformAdapter $adapter, object $receipt, array $context, ?string $testCode): array

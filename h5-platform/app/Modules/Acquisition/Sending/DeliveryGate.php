@@ -37,6 +37,12 @@ final class DeliveryGate
         if (app()->environment('production') && $delivery->environment !== 'production') {
             return 'PRODUCTION_TEST_ASSET_FORBIDDEN';
         }
+        // A conservative 24-hour retry budget stays inside TikTok's documented
+        // 48-hour event/event_id deduplication window. This is not D05 attribution.
+        if (($delivery->attempts > 0 && ! $delivery->first_attempted_at)
+            || ($delivery->first_attempted_at && CarbonImmutable::parse($delivery->first_attempted_at)->addDay()->lessThanOrEqualTo(now()))) {
+            return 'RETRY_WINDOW_EXPIRED';
+        }
         if (! $this->validContext($context)) {
             return 'MATCH_CONTEXT_REQUIRED';
         }
