@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'AUTHENTICATION_REQUIRED' => 'Your sign-in session changed. Log in again and reopen this episode.',
+    'CSRF_MISMATCH' => 'This page has expired. Refresh to continue from the current position.',
+    'refresh' => 'Refresh and continue',
     'home' => 'Discover',
     'catalog' => 'All stories',
     'membership' => 'Membership',

@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'AUTHENTICATION_REQUIRED' => '登录会话已改变，请重新登录并打开本集。',
+    'CSRF_MISMATCH' => '页面已过期，请刷新后从当前位置继续。',
+    'refresh' => '刷新并继续',
     'home' => '发现',
     'catalog' => '全部短剧',
     'membership' => '会员',
