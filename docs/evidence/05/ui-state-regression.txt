@@ -1,0 +1,13 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.58s  
+  ✓ form save reopen local probe link edit disable and summary           0.19s  
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.08s  
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.05s  
+
+  Tests:    4 passed (44 assertions)
+  Duration: 1.08s
+

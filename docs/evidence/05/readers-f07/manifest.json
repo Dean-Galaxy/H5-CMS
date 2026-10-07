@@ -1,0 +1,27 @@
+{
+  "source_commit": "5d1abeaa8ab6134b037f3e5ab67d1e7f9319f42c",
+  "readers_base": "9298b5031231b687c923f5849feebf93409be425",
+  "contract": "1.0.3",
+  "original_probe_sha256": "c33723cfab90e563cbcbd825ccbb13d20ca64d4be74f24c46f20fc87c18e1a2f",
+  "probe_unchanged": true,
+  "application_matches_source": true,
+  "dependency_files_unchanged_since_original_delivery": true,
+  "only_acquisition_changes_above_readers_base": true,
+  "files": {
+    "README.md": "34d19a351194bfb51ff9487d69ae0bfeb4c7bd6ad9d15e9ddfaf12a9d65f9783",
+    "browser-state.txt": "0de6a3f6bbe1eb19438c813b8037adee9a455ef5996144339c818002a62cc695",
+    "consumer-tests.txt": "b3d2d50c61d51636f19131e06b19e597e83d74af04ae509a955df1601b455d5c",
+    "dispatch-empty.txt": "5c04468e048f464279ced48f7f2d5a02196a0cf237997c46885aff3b0e531ce8",
+    "full-tests.txt": "9fe8f6709a59bb71ee7c94aecb74cd87d993eb5032ac410af4de597a1186e290",
+    "migrations.txt": "8f50df7aae48b71a42d1e7176a3f620add01a46d7ae7b15d1f583215df371837",
+    "module-tests.txt": "d8151befc130ded7e48f8fb3007b1a25cdfc8d18e4fff1ff76d1b4aa92e373bf",
+    "original-f07-probes.txt": "80cde6145c636be43f251ee72d7fb0b43c5f113bca880d5073342617898e7321",
+    "runtime-status.json": "a976c5aa1adbdf73789ec4541ee8cef6fa09aab2e8b4dfef52a4bd37dc8a66e8",
+    "runtime.json": "51951bdeb30717e11b36900e5aadf1e92404c581922fb50c394d48943b691412",
+    "schema.txt": "846fc815924f0b13ddc5d0948469c7f415d33cc8e937842467ac9d43f66f2a4e",
+    "test_real_process_takeover_leaves_resumed_old_preparer_without_transport_or_writes.json": "481b57e22f8cc1e250d3811cbca4f04454f21e7a2f30678467d4814321c5d172",
+    "test_six_sigkills_inside_http_do_not_lose_reservations_or_allow_a_seventh_call.json": "8216c7676c2b1099cf733f52cc124c647761127c7feddd15919d2eb495975696",
+    "verification.json": "6aadd015fd304f75f99320f2d84279fe67c4c789c9f1a1ed11fde2726957a4e9",
+    "workbench-readers.png": "574ef57f9a599febcfb0d19f94a352e34f987a41097c3fa0143ff88219751226"
+  }
+}
