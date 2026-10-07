@@ -2,6 +2,7 @@
 
 namespace App\Modules\Identity;
 
+use App\Contracts\AcquisitionStaffDirectory;
 use App\Contracts\AuditRecorder;
 use App\Contracts\IdentityContext;
 use App\Modules\Identity\Actions\CreateViewer;
@@ -12,6 +13,7 @@ use App\Modules\Identity\Mail\PreviewTransport;
 use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\CurrentIdentity;
 use App\Modules\Identity\Services\DatabaseAuditRecorder;
+use App\Modules\Identity\Services\StaffDirectory;
 use App\Modules\Identity\Services\Verification;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -36,6 +38,7 @@ final class IdentityServiceProvider extends ServiceProvider
     {
         Fortify::ignoreRoutes();
         $this->app->bind(IdentityContext::class, CurrentIdentity::class);
+        $this->app->bind(AcquisitionStaffDirectory::class, StaffDirectory::class);
         $this->app->bind(AuditRecorder::class, DatabaseAuditRecorder::class);
         $this->app->bind(LoginResponse::class, AuthResponse::class);
         $this->app->bind(RegisterResponse::class, AuthResponse::class);
