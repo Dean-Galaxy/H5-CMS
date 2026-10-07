@@ -1,0 +1,97 @@
+{
+  "scope": "00 actual HTTP; isolated empty local database; explicit loopback US test region; no real payment or email",
+  "modules": {
+    "identity": "ready",
+    "content": "ready",
+    "billing": "ready",
+    "audience": "ready",
+    "acquisition": "not_ready"
+  },
+  "checks": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/catalog",
+      "method": "GET",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/membership",
+      "method": "GET",
+      "status": 503,
+      "expected": 503
+    },
+    {
+      "path": "/dramas/00000000-0000-4000-8000-000000000001",
+      "method": "GET",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "path": "/billing/return?order_id=00000000-0000-4000-8000-000000000001",
+      "method": "GET",
+      "status": 302,
+      "expected": 302
+    },
+    {
+      "path": "/api/v1/me/progress/00000000-0000-4000-8000-000000000001",
+      "method": "GET",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "path": "/api/v1/me/progress/00000000-0000-4000-8000-000000000001",
+      "method": "PUT",
+      "status": 419,
+      "expected": 419
+    },
+    {
+      "path": "/membership/checkout",
+      "method": "POST",
+      "status": 419,
+      "expected": 419
+    },
+    {
+      "path": "/audience/dramas/00000000-0000-4000-8000-000000000001/episodes/00000000-0000-4000-8000-000000000002/playback",
+      "method": "POST",
+      "status": 419,
+      "expected": 419
+    },
+    {
+      "path": "/identity/login?lang=zh_CN",
+      "method": "GET",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/identity/login?lang=en",
+      "method": "GET",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/audience/player.js",
+      "method": "GET",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "path": "/vendor/hls.js/1.7.3/hls.min.js",
+      "method": "GET",
+      "status": 200,
+      "expected": 200
+    }
+  ],
+  "passed": 14
+}
