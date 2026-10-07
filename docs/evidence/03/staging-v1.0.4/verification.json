@@ -1,0 +1,126 @@
+{
+  "recorded_at_utc": "2026-10-07T12:03:13.763022+00:00",
+  "workspace": "03 independent worktree / codex/03-billing",
+  "source_commit": "ef170ed2f2981f5e0bf3d382322d562d215515f6",
+  "baseline_tag": "h5-shared-v1.0.4",
+  "baseline_commit": "0c88f07d2238fee6ad41ea162152e4a85325c55d",
+  "contract": "1.0.4",
+  "private_configuration_preserved": true,
+  "new_or_modified_migrations": false,
+  "dependencies_changed": false,
+  "initial_run": {
+    "command": "python3 h5-platform/tests/Feature/Acquisition/Support/run.py tests/Feature/Billing/StripeGatewayTest.php tests/Feature/Billing/BillingCheckoutCompatibilityTest.php",
+    "exit_code": 1,
+    "passed": 32,
+    "failed": 2,
+    "assertions": 300,
+    "duration_seconds": 1.47,
+    "reason": "Legacy Session fixtures omitted success_url and cancel_url; fixtures completed without weakening product checks."
+  },
+  "focused": {
+    "command": "python3 h5-platform/tests/Feature/Acquisition/Support/run.py tests/Feature/Billing/StripeGatewayTest.php tests/Feature/Billing/BillingCheckoutCompatibilityTest.php tests/Feature/Billing/BillingCheckoutSafetyTest.php tests/Feature/Billing/BillingStagingPolicyTest.php",
+    "exit_code": 0,
+    "passed": 49,
+    "assertions": 1907,
+    "duration_seconds": 15.65
+  },
+  "full": {
+    "command": "python3 h5-platform/tests/Feature/Acquisition/Support/run.py tests/Feature tests/Integration tests/Security",
+    "exit_code": 0,
+    "passed": 312,
+    "assertions": 4889,
+    "duration_seconds": 61.16,
+    "isolation": "Own h5_785df0be15_test, test-process H5_LOCAL_MODULES empty; private .env unchanged."
+  },
+  "staging_probes": {
+    "cached_and_uncached_real_boot": true,
+    "synthetic_configuration_only": true,
+    "official_transport_on_positive_checks": true,
+    "network_functions_disabled": true,
+    "fake_adapter_and_transport_calls": 0,
+    "payment_end_to_end_performed": false
+  },
+  "schema": {
+    "command": ".runtime/contracts/bin/python scripts/validate_contracts.py",
+    "exit_code": 0,
+    "version": "1.0.4",
+    "examples": 57,
+    "warning": "Existing urllib3/LibreSSL compatibility warning, not a TLS verification."
+  },
+  "audit": {
+    "command": "/opt/homebrew/opt/php@8.4/bin/php ../.runtime/tools/composer.phar audit --locked --format=json",
+    "cwd": "h5-platform",
+    "exit_code": 0,
+    "advisories": [],
+    "abandoned": []
+  },
+  "http": {
+    "command": ".runtime/contracts/bin/python h5-platform/tests/Feature/Billing/Support/http-smoke.py",
+    "exit_code": 0,
+    "check_groups": 6,
+    "mail": "local preview only"
+  },
+  "local_config_check": {
+    "command": "/opt/homebrew/opt/php@8.4/bin/php artisan billing:check-config",
+    "cwd": "h5-platform",
+    "exit_code": 1,
+    "expected": true,
+    "report": {
+      "configuration_valid": true,
+      "payment_configuration_ready": false,
+      "missing": [
+        "stripe_test_driver",
+        "stripe_secret",
+        "stripe_webhook_secret"
+      ],
+      "diagnostic_code": "BILLING_NOT_CONFIGURED",
+      "official_verification": "not_performed",
+      "network_performed": false
+    }
+  },
+  "runtime": {
+    "normal_stop_start": true,
+    "private_configuration_copied": false,
+    "checks": {
+      "web": true,
+      "queue": true,
+      "scheduler": true,
+      "database": true,
+      "http": true
+    },
+    "adopted_baseline_migrations": [
+      "2026_10_07_040001_create_audience_progress_tables",
+      "2026_10_07_050001_create_acquisition_tables",
+      "2026_10_07_050002_freeze_acquisition_delivery_payload",
+      "2026_10_07_050003_bound_acquisition_retry_window"
+    ]
+  },
+  "format": {
+    "pint": "passed",
+    "changed_php_files": 13,
+    "git_diff_check": "passed"
+  },
+  "not_performed": [
+    "Stripe account access or official payment tests",
+    "SMTP connection or real mail delivery",
+    "public HTTPS or trusted US region validation",
+    "new browser/mobile acceptance",
+    "deployment or live charging"
+  ],
+  "evidence_sha256": {
+    "README.md": "0bbbf28802b779ad82cfb803898cea66341497bd89455c0c6be9971e6660bab0",
+    "contracts.txt": "cb68480df2ea81025e9bf45d6cad6d495e32fe0e88ea54df8bcc03efa5ead550",
+    "dependency-audit.json": "3d68c4566587606c21e4bcd82b55d322ddb79158f657d9fb90bf0d24ab5bccdf",
+    "focused-tests.txt": "fec8b02429ef2828da9a9bbf0213df30a5277b676267acc1b003b91e0e85e5e4",
+    "format.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
+    "full-tests.txt": "6bb669fd65109b61328638eea012bc1748c9a1f3cb9c07ea20c02b4742045077",
+    "http.json": "5b12e54bf301d324d42051aee69fd10281b962b789b4f0aa6d59f37dc6385fea",
+    "initial-tests.txt": "1afa090f21322f3ad9c6ae8b57e828aa916e1e93d17a06fec7e4927d7ce3dad8",
+    "local-config-check.json": "c6b1e319430b7e391a54f8bb1afa364e132e3274061142a5d230ac351dd0a9e2",
+    "migrations.txt": "1681f64ee3103ea4b22a25d01d38cc13cb712ff06ac382e885b62bb373bb590d",
+    "runtime.json": "8f7d400e5c8bbdd22869b9d123b443881edc501b77e5c4e13bafc8372ab72c8b",
+    "source-manifest.json": "d272064afbdfe28b79667bca8dd4bda62300b9778f7eb6ffe7fd2b30b9aa91e9",
+    "start.txt": "5f47ede3920494d6c9734b561c563a8a16956541875e055754a3f12aced56714",
+    "stop.txt": "77d8d05cff4dbcfea8a4241d24371056d8aad9eb21590beb307c762ba6e5d314"
+  }
+}

@@ -1,6 +1,6 @@
 # 03 Stripe 官方测试与对账手册
 
-2026-10-07。本手册是待执行方案及本地验证边界，**不是 Stripe 官方测试通过报告**。公司对应账号未准备；未使用个人账号、旧密钥、正式资产或真实收费。所有官方测试结果目前均为「未执行／未验证」。
+2026-10-07。本手册记录基于公共契约 **1.0.4** 的 **03-002 消费者实现已完成、待 00 接收**状态，以及后续官方测试方案；不表示主目录或部署环境已采用候选代码，接收状态以总台账为准。**这不是 Stripe 官方测试通过报告。** 公司对应 Stripe 账号、批准 SMTP 服务及其配置仍未准备，本轮没有连接 Stripe/SMTP、进行官方验证或开启正式收费；未使用个人账号、旧密钥或正式资产。所有官方测试结果目前均为「未执行／未验证」。
 
 ## 固定实现及版本
 
@@ -9,12 +9,46 @@
 - 托管 Checkout：subscription 模式、card、USD、quantity=1、week×1、不自动加税、不放开用户折扣码；首次优惠用本订单专属一次性减免，续费以原订单常规价创建的 Price 为准。无站内保存卡号、付款凭据或持久媒体地址。
 - D02：本人 Offer 有效 30 分钟；远端客户/优惠准备好后保存完整创建参数、幂等键和准备时间，固定截止 = 准备时间 +1860 秒。平台要求创建后最短 30 分钟、最长 24 小时；本项目 60 秒是通信余量。[Checkout 创建参数](https://docs.stripe.com/api/checkout/sessions/create)。重试不重算截止、不换幂等键；未知先查原 Customer 下对应订单 Session。
 
+## 当前配置与离线检查
+
+Billing 已按公共配置默认装载，不再需要本地模块开关。支付驱动仍默认 `unconfigured`，只有显式 `stripe_test` 才可能进入官方测试调用；模块已装载、接口 ready 或框架已安装均不等于支付可用。已有私有 `.env` 可保留历史 `H5_LOCAL_MODULES=billing` 值，不要求改写用户文件；测试运行时须清空该覆盖，例如在本工作区根目录使用 `H5_LOCAL_MODULES= python3 scripts/dev.py test`。staging 的该值必须为空。
+
+在本工作区执行以下**离线**命令，只检查当前进程已加载的配置和实际 SDK 设置，不读取 Stripe 账号、不连接数据库/SMTP/Stripe，也不创建付款资产：
+
+```sh
+cd /Users/hejunxiang/.codex/worktrees/h5-03-billing/H5
+/opt/homebrew/opt/php@8.4/bin/php h5-platform/artisan billing:check-config
+```
+
+| 结果 | 含义与处理 |
+|---|---|
+| 退出码 0，`configuration_valid=true`、`payment_configuration_ready=true` | 配置与实际客户端检查通过；仍未核实凭据有效性、公司归属、真实 TLS/邮件/地区或任何官方付款 |
+| 退出码 1，`diagnostic_code=BILLING_NOT_CONFIGURED` | 安全启动允许，但尚未配置；按 `missing` 中的 driver/secret/webhook secret 类别补齐，不能据此尝试付款 |
+| 退出码 1，固定配置或客户端错误码 | 配置不安全或客户端与受控设置不符，须修正后重新检查；不输出配置值或凭据 |
+
+输出还包含 `missing`、`official_verification="not_performed"`、`network_performed=false`。这些字段明确区分配置 readiness 与官方验收；退出码 0 不是官方认证成功，也不是购买入口放行。若公共环境或非空凭据等不合格导致应用无法安全启动，命令执行前即被固定诊断码拒绝，可能没有上述 JSON；不能把缺少输出当作就绪。
+
+## local、testing 与受控 staging 的边界
+
+- local/testing 均要求 `H5_CONTROLLED_STAGING=false`。`stripe_test` 的 API secret 与 webhook secret **任一为空**时允许安全启动，但所有官方支付读取、写入及 webhook 接收均返回未就绪/503；新 checkout 不创建订单或订阅占位，webhook 不写 inbox。没有“本地只配一把密钥也能调用”的例外。非空却格式错误的值拒绝启动，不能当作缺项忽略。
+- staging 的 `stripe_test` 准入要求精确 `APP_ENV=staging`、显式 `H5_CONTROLLED_STAGING=true`；开关默认关闭，开关本身不填凭据、不证明地区或账号归属。公共条件合格且 driver 为 `unconfigured`，或测试凭据尚缺时，安全应用可启动，付款仍未就绪。关闭开关却选择 `stripe_test` 会被拒绝。
+- staging 必须遵守 [公共运行环境 1.0.4](../contracts/controlled-staging-v1.0.4.md)：配置、容器、进程的 `APP_ENV` 一致；debug、simulation、本地美国地区均为 false，`H5_LOCAL_MODULES` 为空；规范 HTTPS 域名与默认 443 端口、secure/HttpOnly/SameSite cookie、直接 TLS 入口与匹配 Host、未信任代理。Forwarded/国家头不能替代真实来源。
+- staging 邮件必须是该公共版本批准的 SMTP 配置：安全域名和端口、非空受控凭据、强制 TLS 和证书校验，不能使用 preview/log/array 或不安全回落。配置通过不等于实际送达；公司 SMTP 资源尚缺，不能拿合成测试值作为部署凭据。
+- Provider 启动及每次 Gateway 操作均重查公共条件、固定 API 与官方 `https://api.stripe.com` 端点，并核对 Cashier 返回的实际 SDK key/base/version、额外账号/context 和 TLS 配置。非 testing 不允许 FakeGateway、测试 HTTP 传输、自定义不安全 cURL 选项、关闭证书核验等替换；直接实例化 Gateway 不能绕过检查。
+- Checkout 返回地址只取通过检查的本站 origin、清洗后的站内路径及订单 ID；交给浏览器的支付链接只接受官方 `https://checkout.stripe.com`。旧订单/持久化请求的返回地址或订单关联不合格时，保留原参数、幂等键、期限和待核对占位，允许受控只读核对但不重新 POST，也不返回不安全旧链接；`checkout_url=null` 不是付款失败或取消成功。
+- staging 购买还必须取得 `US/trusted` 地区事实。当前公共地区服务在非本地仍为 `ZZ/unresolved`，可信美国来源尚未就绪，**目前不能进入 staging 购买或建单流程**；不能用本地地区开关、浏览器国家值或模拟来源绕过。公司 Stripe、SMTP、真实入口与地区验收由用户/00/06 后续落实，配置检查不是部署放行。
+- production 不允许 `stripe_test`，没有 live driver；任何 live key 均拒绝。安全 production 仅可保留 `unconfigured`，不开放正式收费。
+
+使用配置缓存时，FPM、队列及调度进程必须在进程环境中显式提供与缓存相同的 `APP_ENV`。只改 `.env` 不会刷新已加载配置；由 06 暂停入口/调度、停止旧 worker、重建缓存并重启全部常驻进程，确认旧 PID 退出后再开放。运行时检查不撤销已发出的请求；未知结果保留原订单、占位和核对路径，不能清空后重建。
+
+[03-002 申请](../contract-requests/03-002-受控测试站支付接入申请.md)保留设计阶段记录；公共 1.0.4 文档中“03 消费者尚待实现”的说明是其发布时状态。本手册描述当前 03 候选实现，最终接收与部署结果仍由 00/06 分别记录。
+
 ## 账号准备后由谁做什么
 
 1. 用户持有项目对应 Stripe 测试账号或 Sandbox，并确认可在其内测试周订阅。不要把密钥、签名秘密或密码发到聊天、交付单、源码、截图或日志。
-2. 在独立 local/testing 工作区的私有 `.env` 安全填写 `H5_BILLING_DRIVER=stripe_test`、`H5_BILLING_STRIPE_TEST_SECRET`、`H5_BILLING_STRIPE_TEST_WEBHOOK_SECRET`。保留模块配置 `H5_LOCAL_MODULES=billing` 和本机美国地区 `H5_LOCAL_US_TEST_REGION=true`。secret 只接受测试模式；默认 unconfigured，没有正式收款 driver。
+2. 账号持有人/06 确认归属后，才在独立受控环境安全注入 `H5_BILLING_DRIVER=stripe_test`、`H5_BILLING_STRIPE_TEST_SECRET`、`H5_BILLING_STRIPE_TEST_WEBHOOK_SECRET`；两类 secret 均须配置。local 演示可显式使用 `H5_LOCAL_US_TEST_REGION=true`，它只是本机演示地区，不能用于 staging。无需再新增模块开关，不复制他人 `.env`、数据库或可写素材目录。先运行上述离线检查，再按批准的官方测试步骤操作。
 3. 用官方受控测试 webhook/CLI 转发到本工作区 `/webhooks/stripe`，核对 API 版本。转发工具临时签名 secret 与 Dashboard 端点 secret 不混用。公网 HTTPS 测试站及其入口由 00/06安排，本地端口不能当公网可访问证明。
-4. 配置后停止再启动本工作区，刷新常驻 worker/scheduler。负责人在后台明确保存测试价格，不从其他工作区复制数据或配置。用全新已验证测试观众完成 Checkout；04 页面接好后从正常网站按钮进入。
+4. 配置后按前述缓存/进程流程停止再启动本工作区及常驻 worker/scheduler。负责人在后台明确保存测试价格，不从其他工作区复制数据或配置。在相应环境的邮件、地区与入口已通过所需验收后，用全新已验证测试观众从正常网站购买按钮进入 Checkout；前端成功页仍不是付款证据。
 5. 每个用例保留环境/Sandbox 标识、代码提交、UTC 时间、站内订单/付款/订阅 ID、对应 `cs_`/`in_`/`sub_`/`evt_` 测试对象引用、期望与实际金额/周期、通知投递和对账结果。去除凭据、签名、姓名邮箱与银行卡信息。测试对象引用放受控证据，不发布生产日志。
 
 ## 官方周期验证办法
@@ -25,7 +59,7 @@
 
 如该账号或流程不支持预绑定组合，按官方 Dashboard 测试订阅详情的 **Run simulation → Advance time** 路径验证已建立的测试订阅，并保存该平台测试能力实际可用的证据；若无此入口则继续保持周期官方验证未完成，不能改本地系统时间冒充。[官方模拟操作](https://docs.stripe.com/billing/testing/test-clocks/simulate-subscriptions)。
 
-每次推进不超过官方允许的两个最短周期，等待时钟回到 ready；续费发票可能先 draft，再推进约一小时完成最终化。按 Customer/Subscription/Clock 过滤取对象，避免把列表遗漏当作没有付款。官方当前限制包括每时钟最多 3 个 Customer、每客户 3 份订阅。Finish simulation 会删除相应测试对象，因此先保存脱敏证据，并由账号持有人决定是否清理。[限制和推进说明](https://docs.stripe.com/billing/testing/test-clocks/api-advanced-usage)。
+每次推进不超过官方允许的两个最短周期，等待时钟回到 ready；续费发票可能先 draft，再推进约一小时完成最终化。按 Customer/Subscription/Clock 过滤取对象，避免把列表遗漏当作没有付款。既有方案记录的限制包括每时钟最多 3 个 Customer、每客户 3 份订阅；执行前须按链接中的官方文档重新核对实际限制，本轮未联网复查。Finish simulation 会删除相应测试对象，因此先保存脱敏证据，并由账号持有人决定是否清理。[限制和推进说明](https://docs.stripe.com/billing/testing/test-clocks/api-advanced-usage)。
 
 时间推进须由 Stripe 官方 Test Clocks 产生真实测试发票和通知。本地单元测试的 `travelTo` 仅验证权益边界；真实网站时钟不被修改，不能据本地时间变化声称官方续费通过。
 
@@ -44,7 +78,7 @@
 | 延迟/重复/乱序/错签名 | 事件持久落地，当前平台事实优先；不重复付款、权益、首惠 | 未执行 |
 | 消息消费者故障/补发 | 付款已入账；outbox 待发送并可恢复，不因05故障回滚付款 | 本地通过，官方付款组合未执行 |
 
-普通成功可用官方 `4242424242424242` 测试卡；美国 3DS 测试按官方当前表格选择，例如 `4000008400000027`，始终认证卡 `4000002760003184`。仅在测试模式填写这些官方测试卡；SCA 必须从本站 Checkout/API 流程触发，Dashboard 直接建付款不能替代交互验证。拒付和 off-session 失败场景同样按官方测试说明选择，不使用真实卡。[测试卡与认证](https://docs.stripe.com/testing#regulatory-cards)。
+普通成功可用官方 `4242424242424242` 测试卡；美国 3DS 测试执行时按官方表格选择，例如 `4000008400000027`，始终认证卡 `4000002760003184`。仅在测试模式填写这些官方测试卡；SCA 必须从本站 Checkout/API 流程触发，Dashboard 直接建付款不能替代交互验证。拒付和 off-session 失败场景同样按官方测试说明选择，不使用真实卡。[测试卡与认证](https://docs.stripe.com/testing#regulatory-cards)。
 
 ## API 及事件映射
 
@@ -56,7 +90,7 @@
 | `charge.refunded`、`refund.created/updated/failed` 等 | 以 charge 查全部分页退款对象，按唯一退款对象当前状态重算 succeeded 总额，执行 D04 |
 | 其他已签名且匹配版本的事件 | 标为 ignored，不生成付款事实 |
 
-订阅周期按当前接口 `items.data[].current_period_start/end`，权益以 invoice line `period` 为准。付款链核对 InvoicePayment → PaymentIntent → Charge；手工标 paid 或信用余额不能伪装成已验证收款。[Subscription](https://docs.stripe.com/api/subscriptions/object)、[Invoice line](https://docs.stripe.com/api/invoice-line-item/object)、[InvoicePayment](https://docs.stripe.com/api/invoice-payment/object)。
+订阅周期按本项目锁定接口 `items.data[].current_period_start/end`，权益以 invoice line `period` 为准。付款链核对 InvoicePayment → PaymentIntent → Charge；手工标 paid 或信用余额不能伪装成已验证收款。[Subscription](https://docs.stripe.com/api/subscriptions/object)、[Invoice line](https://docs.stripe.com/api/invoice-line-item/object)、[InvoicePayment](https://docs.stripe.com/api/invoice-payment/object)。
 
 通知以原始 body 验签并检查 test/live/API version，inbox 仅保存必要对象引用，不保存原始付款报文。事件无顺序保证，可重复，平台重试与本站重试均需幂等。Dashboard/CLI 重发支持窗口以官方当前说明为准。[Webhook](https://docs.stripe.com/webhooks)。
 

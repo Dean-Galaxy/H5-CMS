@@ -1,0 +1,10 @@
+{
+  "candidate": "f273e2710c9965dd6f8c565bd5dd1055d13a67cf",
+  "source": "ef170ed2f2981f5e0bf3d382322d562d215515f6",
+  "evidence_files": 14,
+  "source_files": 399,
+  "changed_application_files": 13,
+  "ownership_passed": true,
+  "dependencies_or_migrations_changed": false,
+  "errors": []
+}

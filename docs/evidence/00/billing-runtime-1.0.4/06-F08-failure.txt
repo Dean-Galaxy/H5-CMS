@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/ops/backup_restore.py", line 60, in <module>
+    assert seed['payments']==seed['entitlements']==seed['refunds']==1 and seed['access_active'] and not seed['renewal_enabled']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

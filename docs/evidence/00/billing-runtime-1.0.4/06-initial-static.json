@@ -1,0 +1,9 @@
+{
+  "result": "passed",
+  "python_syntax_files": 2,
+  "php_pint_files": 3,
+  "fpm_environment_field": true,
+  "two_systemd_preflight_fields": true,
+  "safe_sample_fields": true,
+  "scope": "Offline field/parser checks; no actual systemd/FPM/nginx/TLS/container execution."
+}
