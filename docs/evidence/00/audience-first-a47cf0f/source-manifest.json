@@ -1,0 +1,24 @@
+{
+  "candidate": "a47cf0faee13ecf795eebfadc6b04b48a95af17c",
+  "main_before_review": "ac426969e643bdb573a770e98d087b80355ec3a9",
+  "files_sha256": {
+    "h5-platform/app/Modules/Audience/AudienceServiceProvider.php": "47f6509dae6280057a377bc9ee66c3dbf9b75b32f911d1f534c4570769079f1b",
+    "h5-platform/app/Modules/Audience/Http/AudienceEnabled.php": "894c55e16a00286034243d00498a5ee4f5cd2cf52c654f44f805b3c954a67b1f",
+    "h5-platform/app/Modules/Audience/Http/CatalogController.php": "2384265d8489174156d0466a1bf03dc00c90dbe8bd27f310ceec3b40fd3107be",
+    "h5-platform/app/Modules/Audience/lang/en/messages.php": "0aeb1ed9d603810a1c9157cf82b481557ccb8338252c626a64015d7cb1b0ddd0",
+    "h5-platform/app/Modules/Audience/lang/zh_CN/messages.php": "b2ac36a58244af5809f280b6edb48999aee97f118f83581783f80baa9bcd75c1",
+    "h5-platform/public/audience/player.js": "ff6c1bd009cd3546a4507ade4e400ab946fc7bfb6e2f7228cf90787522f60713",
+    "h5-platform/public/audience/site.css": "8b69a9424156452318b32e95b514e37d8d350a3eced010c17d6f948e1ff2cfaf",
+    "h5-platform/public/audience/site.js": "c854cf3dbfb18ed04919d1acbae61b8af0031e7ef293267fa4e81bd6fc88a2e5",
+    "h5-platform/resources/views/audience/catalog.blade.php": "da04ef6c794911f967f5dd84c703e514916dac85a554671ba5159e71e92e881d",
+    "h5-platform/resources/views/audience/drama.blade.php": "cf1543b2f5300d4faf321e1a02ab27c57a8a502985033d4f113779cd3d231f3e",
+    "h5-platform/resources/views/audience/home.blade.php": "b12617757e01e4faeefaf7f6d5b74f52f333c7b71d7c3a72a3f119098b4c6af1",
+    "h5-platform/resources/views/audience/partials/cards.blade.php": "d6532d9db00f84451231dc09d2e2eda45cbe2622abc00ee6c6f131fd6de422d4",
+    "h5-platform/resources/views/audience/partials/episodes.blade.php": "e046d0e40c690cc07f8bc415fd807aeb4b2e07ce1b4def43ec3f3582cdcbd3ef",
+    "h5-platform/resources/views/audience/unavailable.blade.php": "6627c00165e4bd453dc2d8cb16b0e0d5b12d10af8a9a5d5c238becc5307285fe",
+    "h5-platform/resources/views/audience/watch.blade.php": "1f9bd46b9311ee4c86d93c099983fff0d02b90ec9b46db1d10440cd4d8d7c01a",
+    "h5-platform/resources/views/components/layouts/site.blade.php": "008e76f0c635b7dab5cb076c9f1eb9a75feb8b6c17117f6ac4386997e0dfa9db",
+    "h5-platform/routes/modules/audience.php": "c0ed10bae4c669a60a62c33d626a1fee3fa7970113b85a8b1285e64aa9eadf10",
+    "h5-platform/tests/Feature/Audience/CatalogPagesTest.php": "2790ca5bf58e410bd8ea0d1264dc9e74d9ecba7feb0f77dc1f94eb4c81df8700"
+  }
+}

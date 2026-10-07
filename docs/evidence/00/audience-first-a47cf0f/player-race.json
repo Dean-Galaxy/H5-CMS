@@ -1,0 +1,34 @@
+{
+  "candidate": "a47cf0faee13ecf795eebfadc6b04b48a95af17c",
+  "type": "Node isolated lifecycle probe; mocked DOM/fetch, no network or browser playback",
+  "results": [
+    {
+      "event": "offline",
+      "afterEvent": {
+        "buttonDisabled": true,
+        "status": "Network"
+      },
+      "afterLateGrant": {
+        "assignedSources": 1,
+        "playCalls": 1,
+        "renewalTimers": 1,
+        "buttonHidden": true
+      },
+      "violation": true
+    },
+    {
+      "event": "pagehide",
+      "afterEvent": {
+        "buttonDisabled": true,
+        "status": "Loading"
+      },
+      "afterLateGrant": {
+        "assignedSources": 1,
+        "playCalls": 1,
+        "renewalTimers": 1,
+        "buttonHidden": true
+      },
+      "violation": true
+    }
+  ]
+}
