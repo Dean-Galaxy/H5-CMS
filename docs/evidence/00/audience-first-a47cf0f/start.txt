@@ -1,0 +1,19 @@
+
+   INFO  Nothing to migrate.
+
+{
+  "workspace": "h5_979f222b25",
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "website": "http://127.0.0.1:8300",
+  "admin": "http://127.0.0.1:8300/admin",
+  "database": "h5_979f222b25",
+  "db_port": 5630,
+  "mail": "仅本地预览，未验证真实送达",
+  "media": "/Volumes/KESU/H5/.runtime/reviews/02-a787700/.runtime/media"
+}

@@ -1,0 +1,53 @@
+{
+  "reviewed_at_utc": "2026-10-07T06:59:09.964779+00:00",
+  "candidate": "a47cf0faee13ecf795eebfadc6b04b48a95af17c",
+  "main_application": "ac426969e643bdb573a770e98d087b80355ec3a9",
+  "contract": "1.0.2",
+  "outcome": "changes_requested",
+  "merged": false,
+  "audience_enabled_by_default": false,
+  "defects": [
+    {
+      "id": "F06",
+      "priority": "P2",
+      "owner": "04",
+      "type": "stale pending grant restores player after offline or pagehide",
+      "reproduced_scenarios": 2,
+      "evidence": "isolated Node DOM/fetch probe; no browser playback claimed",
+      "repair_instruction_sent": true
+    }
+  ],
+  "regression": {
+    "passed": 179,
+    "assertions": 1649,
+    "duration_seconds": 80.32
+  },
+  "contracts": {
+    "version": "1.0.2",
+    "examples": 47
+  },
+  "runtime": {
+    "workspace": "/Volumes/KESU/H5/.runtime/reviews/02-a787700",
+    "http_port": 8300,
+    "postgres_port": 5630,
+    "database": "h5_979f222b25",
+    "test_database": "h5_979f222b25_test",
+    "stopped_after_review": true,
+    "data_retained": true,
+    "source_files_verified": 18
+  },
+  "not_repeated": [
+    "real video playback",
+    "real subtitles",
+    "non-native HLS",
+    "renewal failure in browser",
+    "real-device check",
+    "dependency audit with unchanged lock"
+  ],
+  "unfinished_declared_by_04": [
+    "membership UI",
+    "account progress",
+    "non-native HLS and renewal browser checks"
+  ],
+  "main_baseline_tag_unchanged": "h5-billing-v1=b160fb49b8ca8e8fdc36c01ff4118c0c5648ed24"
+}
