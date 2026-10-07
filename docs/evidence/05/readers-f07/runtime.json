@@ -1,0 +1,19 @@
+{
+    "environment": "local",
+    "acquisition_enabled_for_local": true,
+    "staff_directory": "App\\Modules\\Identity\\Services\\StaffDirectory",
+    "catalog": "App\\Modules\\Content\\Services\\ContentPromotableCatalog",
+    "region": {
+        "country_code": "ZZ",
+        "source": "unresolved"
+    },
+    "attribution_enabled": false,
+    "null_snapshot": null,
+    "transport": "disabled",
+    "external_enabled": false,
+    "platform_reviewed": false,
+    "anonymous": {
+        "App\\Contracts\\AcquisitionStaffDirectory": "AUTHENTICATION_REQUIRED",
+        "App\\Contracts\\PromotableCatalog": "AUTHENTICATION_REQUIRED"
+    }
+}

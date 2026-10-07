@@ -1,0 +1,10 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Acquisition\ReadProvidersIntegrationTest
+  ✓ real directories support both platforms sharing revocation and publ… 0.75s
+  ✓ workbench uses real cursor and repopulates saved choices before rev… 0.39s
+
+  Tests:    2 passed (76 assertions)
+  Duration: 1.32s

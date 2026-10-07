@@ -1,0 +1,10 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Contracts\AcquisitionDeliveryBoundaryProbeTest
+  ✓ lost lease before io does not call the transport                     0.36s
+  ✓ attempt is persisted before the sixth network call                   0.05s
+
+  Tests:    2 passed (3 assertions)
+  Duration: 0.59s
