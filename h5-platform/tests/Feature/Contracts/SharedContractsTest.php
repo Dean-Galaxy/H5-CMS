@@ -93,8 +93,9 @@ class SharedContractsTest extends TestCase
 
     public function test_new_ports_require_the_real_provider_even_when_empty_examples_exist(): void
     {
-        // Exercise the missing-provider boundary explicitly after Content acceptance.
+        // Exercise missing providers explicitly after Content and Billing acceptance.
         $this->app->bind(CatalogReader::class, UnavailableServices::class);
+        $this->app->bind(BillingService::class, UnavailableServices::class);
         $viewer = new ViewerIdentity('019a2b3c-1234-7000-8000-000000000001', 'contract@example.test', true);
         $catalog = app(CatalogReader::class);
         $billing = app(BillingService::class);
@@ -124,6 +125,7 @@ class SharedContractsTest extends TestCase
 
     public function test_resume_quote_and_submission_require_an_audience_session(): void
     {
+        $this->app->bind(BillingService::class, UnavailableServices::class);
         $this->getJson('/api/v1/billing/subscription/resume-quote')->assertUnauthorized()->assertJsonPath('error.code', 'AUTHENTICATION_REQUIRED');
         $this->postJson('/api/v1/billing/subscription/resume', $this->sample('resume-input'))->assertUnauthorized();
 

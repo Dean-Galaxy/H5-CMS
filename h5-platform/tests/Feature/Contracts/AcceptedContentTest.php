@@ -3,7 +3,6 @@
 namespace Tests\Feature\Contracts;
 
 use App\Contracts\CatalogReader;
-use App\Contracts\MembershipReader;
 use App\Contracts\PlaybackAuthorizer;
 use App\Contracts\RegionResolver;
 use App\Data\ResolvedRegion;
@@ -11,7 +10,6 @@ use App\Modules\Content\ContentServiceProvider;
 use App\Modules\Content\Models\CategoryRecord;
 use App\Modules\Content\Services\ContentCatalog;
 use App\Modules\Content\Services\PlaybackService;
-use App\Support\UnavailableServices;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -26,9 +24,7 @@ class AcceptedContentTest extends TestCase
         $this->assertSame(['provider' => ContentServiceProvider::class, 'ready' => true], config('h5.modules.content'));
         $this->assertInstanceOf(ContentCatalog::class, app(CatalogReader::class));
         $this->assertInstanceOf(PlaybackService::class, app(PlaybackAuthorizer::class));
-        $this->assertInstanceOf(UnavailableServices::class, app(MembershipReader::class));
-        $this->getJson('/health')->assertOk()->assertJsonPath('modules.content', 'ready')->assertJsonPath('modules.billing', 'not_ready');
-        $this->getJson('/api/v1/billing/offer')->assertStatus(503)->assertJsonPath('error.code', 'DEPENDENCY_NOT_READY');
+        $this->getJson('/health')->assertOk()->assertJsonPath('modules.content', 'ready');
         $this->getJson('/api/v1/admin/content')->assertUnauthorized();
         $commands = array_map(fn ($event) => $event->command, app(Schedule::class)->events());
         foreach (['content:publish-due', 'content:process-media'] as $command) {
