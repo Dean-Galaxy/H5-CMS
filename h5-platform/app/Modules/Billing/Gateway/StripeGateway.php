@@ -2,13 +2,18 @@
 
 namespace App\Modules\Billing\Gateway;
 
-use App\Modules\Identity\Services\SafeReturn;
+use App\Modules\Billing\Support\BillingRuntimePolicy;
+use App\Modules\Billing\Support\CheckoutSafety;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
 use Carbon\CarbonImmutable;
 use Laravel\Cashier\Cashier;
+use Stripe\ApiRequestor;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\SignatureVerificationException;
+use Stripe\HttpClient\ClientInterface;
+use Stripe\HttpClient\CurlClient;
+use Stripe\Stripe;
 use Stripe\StripeClient;
 use Stripe\StripeObject;
 use Stripe\Webhook;
@@ -20,30 +25,58 @@ final class StripeGateway implements PaymentGateway
 
     public function assertAvailable(): void
     {
-        if (! app()->environment(['local', 'testing'])
-            || config('billing.driver') !== 'stripe_test'
-            || ! str_starts_with((string) config('billing.stripe_secret'), 'sk_test_')
-            || config('billing.api_version') !== self::API_VERSION) {
-            throw new DependencyNotReady('Billing / Stripe 受控测试配置');
+        app(BillingRuntimePolicy::class)->assertAvailable();
+        $this->checkedClient();
+    }
+
+    /** Offline inspection also runs at boot; empty credentials are not an unsafe configuration. */
+    public function assertSafeClientConfiguration(): void
+    {
+        try {
+            app(BillingRuntimePolicy::class)->assertSafeConfiguration();
+            $this->checkedClient();
+        } catch (\LogicException) {
+            throw new DependencyNotReady('Billing / Stripe 客户端配置');
         }
     }
 
-    private function client(): StripeClient
+    private function checkedClient(): StripeClient
     {
-        $this->assertAvailable();
+        $secret = config('billing.stripe_secret');
+        $key = $secret === '' ? null : $secret;
+        try {
+            $client = Cashier::stripe([
+                'api_key' => $key, 'stripe_version' => self::API_VERSION,
+                'api_base' => 'https://api.stripe.com',
+                'stripe_account' => null, 'stripe_context' => null,
+            ]);
+            $http = ApiRequestor::httpClient();
+            $safeTransport = get_class($http) === CurlClient::class
+                ? in_array($http->getDefaultOptions(), [null, []], true) && $http->getRequestStatusCallback() === null
+                : ($http instanceof ClientInterface && app()->environment('testing'));
+            if (get_class($client) !== StripeClient::class || $client->getApiKey() !== $key
+                || $client->getApiBase() !== 'https://api.stripe.com'
+                || $client->getStripeVersion() !== self::API_VERSION
+                || $client->getStripeAccount() !== null || $client->getStripeContext() !== null
+                || $client->getStripeContextHeader() !== null || Stripe::$accountId !== null
+                || Stripe::getVerifySslCerts() !== true || Stripe::$caBundlePath !== null
+                || ! $safeTransport) {
+                throw new \LogicException('BILLING_CLIENT_CONFIGURATION_INVALID');
+            }
 
-        return Cashier::stripe([
-            'api_key' => config('billing.stripe_secret'),
-            'stripe_version' => self::API_VERSION,
-            'api_base' => 'https://api.stripe.com',
-        ]);
+            return $client;
+        } catch (\Throwable) {
+            // SDK binding/configuration exceptions can contain supplied credentials.
+            throw new DependencyNotReady('Billing / Stripe 客户端配置');
+        }
     }
 
     private function call(callable $operation): mixed
     {
-        $this->assertAvailable();
+        app(BillingRuntimePolicy::class)->assertAvailable();
+        $client = $this->checkedClient();
         try {
-            return $operation($this->client());
+            return $operation($client);
         } catch (ApiErrorException) {
             // Provider errors may contain credentials, URLs or personal information.
             throw $this->pending();
@@ -114,6 +147,7 @@ final class StripeGateway implements PaymentGateway
         if (! empty($order->checkout_request)) {
             return $this->preparedRequest($order, $subscription);
         }
+        $returnUrl = app(CheckoutSafety::class)->expectedReturnUrl($order);
         $metadata = [
             'order_id' => (string) $order->id,
             'viewer_id' => (string) $order->viewer_id,
@@ -142,14 +176,6 @@ final class StripeGateway implements PaymentGateway
         $this->require($customerId !== null
             && $this->id($customer['test_clock'] ?? null) === $testClock
             && ($customer['metadata']['viewer_id'] ?? null) === (string) $order->viewer_id);
-        $appUrl = rtrim((string) config('app.url'), '/');
-        $this->require(filter_var($appUrl, FILTER_VALIDATE_URL) !== false
-            && in_array(parse_url($appUrl, PHP_URL_SCHEME), ['http', 'https'], true));
-        $return = parse_url(app(SafeReturn::class)->path($order->return_to));
-        parse_str($return['query'] ?? '', $query);
-        $query['order_id'] = (string) $order->id;
-        $returnUrl = $appUrl.$return['path'].'?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986)
-            .(isset($return['fragment']) ? '#'.$return['fragment'] : '');
         $params = [
             'mode' => 'subscription',
             'customer' => $customerId,
@@ -258,7 +284,8 @@ final class StripeGateway implements PaymentGateway
         // F05: legacy coupon + false is readable for reconciliation, never sendable.
         // Even an unattempted old intent must not be edited or re-POSTed with new parameters.
         $legacyPromotionConflict = array_key_exists('discounts', $params) && array_key_exists('allow_promotion_codes', $params);
-        if ($unknown || $late || $legacyPromotionConflict) {
+        $safeReturn = app(CheckoutSafety::class)->requestIsSafe($order, $request);
+        if ($unknown || $late || $legacyPromotionConflict || ! $safeReturn) {
             // List by the persisted Customer, not by a newly minted Customer.
             // This also finds Sessions omitted by a lost create response.
             $sessions = $this->all(fn ($stripe, $args) => $stripe->checkout->sessions->all([
@@ -291,10 +318,10 @@ final class StripeGateway implements PaymentGateway
             && ($session['currency'] ?? null) === 'usd'
             && ($session['expires_at'] ?? null) === $params['expires_at']);
         $url = null;
-        if ($status === 'open' && $params['expires_at'] > CarbonImmutable::now('UTC')->timestamp) {
-            $this->require(is_string($session['url'] ?? null)
-                && parse_url($session['url'], PHP_URL_HOST) === 'checkout.stripe.com'
-                && parse_url($session['url'], PHP_URL_SCHEME) === 'https');
+        if ($status === 'open' && $params['expires_at'] > CarbonImmutable::now('UTC')->timestamp
+            && $safeReturn && app(CheckoutSafety::class)->checkoutUrlIsSafe($session['url'] ?? null)
+            && ($session['success_url'] ?? null) === $params['success_url']
+            && ($session['cancel_url'] ?? null) === $params['cancel_url']) {
             $url = $session['url'];
         }
 
