@@ -1,0 +1,22 @@
+[Unit]
+Description=H5 single staging scheduler
+After=network-online.target postgresql.service
+Wants=network-online.target
+[Service]
+Type=simple
+User=h5
+Group=h5
+WorkingDirectory=/srv/h5/current/h5-platform
+ExecStart=/usr/bin/php artisan schedule:work
+Restart=always
+RestartSec=5
+KillMode=control-group
+TimeoutStopSec=1200
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/h5/shared /srv/h5/current/h5-platform/bootstrap/cache
+[Install]
+WantedBy=multi-user.target

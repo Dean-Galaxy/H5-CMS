@@ -1,0 +1,80 @@
+# Candidate A: direct TLS only. Render DOMAIN before nginx -t. No real_ip/trusted proxy.
+# Install inside http{} context. All requests go to the fixed front controller.
+# Access logging is disabled because private paths/query contain signatures and user IDs.
+server {
+    listen 80 default_server;
+    server_name _;
+    return 444;
+}
+server {
+    listen 443 ssl default_server;
+    server_name _;
+    ssl_reject_handshake on;
+}
+server {
+    listen 80;
+    server_name __DOMAIN__;
+    location ^~ /.well-known/acme-challenge/ { root /var/lib/letsencrypt; }
+    location / { return 308 https://__DOMAIN__$request_uri; }
+}
+server {
+    listen 443 ssl;
+    server_name __DOMAIN__;
+    ssl_certificate /etc/letsencrypt/live/__DOMAIN__/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/__DOMAIN__/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    root /srv/h5/current/h5-platform/public;
+    index index.php;
+    server_tokens off;
+    access_log off;
+    # Nginx error logs may include full request URLs; retain no raw request error log.
+    # Service/process and application logs use separate, reviewed channels.
+    error_log /dev/null crit;
+    client_max_body_size 2m;
+    if ($host != __DOMAIN__) { return 444; }
+    location ~ /\. { deny all; }
+    location / { try_files $uri $uri/ /index.php?$query_string; }
+    location = /index.php {
+        fastcgi_pass unix:/run/php/h5-staging.sock;
+        fastcgi_pass_request_headers off;
+        fastcgi_param SCRIPT_FILENAME /srv/h5/current/h5-platform/public/index.php;
+        fastcgi_param QUERY_STRING $query_string;
+        fastcgi_param REQUEST_METHOD $request_method;
+        fastcgi_param CONTENT_TYPE $content_type;
+        fastcgi_param CONTENT_LENGTH $content_length;
+        fastcgi_param SCRIPT_NAME /index.php;
+        fastcgi_param REQUEST_URI $request_uri;
+        fastcgi_param DOCUMENT_URI /index.php;
+        fastcgi_param DOCUMENT_ROOT /srv/h5/current/h5-platform/public;
+        fastcgi_param SERVER_PROTOCOL $server_protocol;
+        fastcgi_param REQUEST_SCHEME https;
+        fastcgi_param HTTPS on;
+        fastcgi_param GATEWAY_INTERFACE CGI/1.1;
+        fastcgi_param SERVER_SOFTWARE nginx;
+        fastcgi_param REMOTE_ADDR $remote_addr;
+        fastcgi_param REMOTE_PORT $remote_port;
+        fastcgi_param SERVER_ADDR $server_addr;
+        fastcgi_param SERVER_PORT 443;
+        fastcgi_param SERVER_NAME __DOMAIN__;
+        fastcgi_param REDIRECT_STATUS 200;
+        # Explicit browser/webhook header allowlist; no client supplied proxy/country identity.
+        fastcgi_param HTTP_HOST __DOMAIN__;
+        fastcgi_param HTTP_ACCEPT $http_accept;
+        fastcgi_param HTTP_ACCEPT_LANGUAGE $http_accept_language;
+        fastcgi_param HTTP_COOKIE $http_cookie;
+        fastcgi_param HTTP_USER_AGENT $http_user_agent;
+        fastcgi_param HTTP_ORIGIN $http_origin;
+        fastcgi_param HTTP_REFERER $http_referer;
+        fastcgi_param HTTP_X_CSRF_TOKEN $http_x_csrf_token;
+        fastcgi_param HTTP_X_XSRF_TOKEN $http_x_xsrf_token;
+        fastcgi_param HTTP_X_REQUESTED_WITH $http_x_requested_with;
+        fastcgi_param HTTP_X_LIVEWIRE $http_x_livewire;
+        fastcgi_param HTTP_RANGE $http_range;
+        fastcgi_param HTTP_IF_RANGE $http_if_range;
+        fastcgi_param HTTP_IDEMPOTENCY_KEY $http_idempotency_key;
+        fastcgi_param HTTP_STRIPE_SIGNATURE $http_stripe_signature;
+        fastcgi_read_timeout 120s;
+    }
+    location ~ \.php$ { return 404; }
+    # Never add an alias for private media, .env, storage, backups or source directories.
+}
