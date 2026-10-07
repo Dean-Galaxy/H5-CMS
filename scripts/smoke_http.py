@@ -70,8 +70,8 @@ assert link.startswith(base + '/')
 path = link[len(base):]
 assert request(path)['identity']['viewer']['email_verified']
 request(path, expect=409)
-request('/api/v1/billing/checkout', 'POST', {}, token, expect=503)
-passed.append('unverified gate + signed email preview + replay refusal + honest missing billing')
+request('/api/v1/billing/checkout', 'POST', {}, token, expect=422)
+passed.append('unverified gate + signed email preview + replay refusal + real Billing input validation')
 request('/api/v1/auth/logout', 'POST', {}, token)
 assert request('/api/v1/auth/me')['viewer'] is None
 token = request('/api/v1/auth/csrf')['csrf_token']
