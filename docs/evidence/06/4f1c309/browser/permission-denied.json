@@ -1,0 +1,35 @@
+{
+  "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36",
+  "nativeHls": "",
+  "forcedMse": true,
+  "nativeBefore": "maybe",
+  "hlsErrors": [
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": false,
+      "status": 409
+    },
+    {
+      "type": "networkError",
+      "details": "fragLoadError",
+      "fatal": false,
+      "status": 409
+    }
+  ],
+  "hlsVersion": "1.7.3",
+  "mseSupported": true,
+  "currentTime": 0,
+  "duration": null,
+  "readyState": 0,
+  "paused": true,
+  "srcAttributePresent": false,
+  "networkState": 0,
+  "sourceKind": "blob",
+  "width": 0,
+  "height": 0,
+  "decodedFrames": 0,
+  "error": null,
+  "status": "内容已下架或暂不可用，可以返回首页发现其他短剧。",
+  "observedAt": "2026-10-07T11:10:13.979Z"
+}

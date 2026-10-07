@@ -13,6 +13,7 @@ use App\Contracts\PromotableCatalog;
 use App\Contracts\RegionResolver;
 use App\Support\DisabledAttribution;
 use App\Support\LocalModuleRegistry;
+use App\Support\RuntimeEnvironmentGuard;
 use App\Support\ServerRegionResolver;
 use App\Support\UnavailablePromotableCatalog;
 use App\Support\UnavailableServices;
@@ -25,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(RuntimeEnvironmentGuard::class);
+        $this->app->make(RuntimeEnvironmentGuard::class)->assertSafeRuntime();
         foreach ([BillingService::class, CatalogReader::class, MembershipReader::class, PlaybackAuthorizer::class, ProgressService::class] as $contract) {
             $this->app->bind($contract, UnavailableServices::class);
         }
@@ -47,12 +50,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (! app()->environment('local', 'testing') && (config('h5.simulation') || config('h5.local_us_test_region') || config('mail.default') === 'preview')) {
-            throw new \LogicException('Non-local runtime forbids simulation, local test regions and preview mail.');
-        }
-        if (app()->environment('production') && (config('app.debug') || ! str_starts_with(config('app.url'), 'https://'))) {
-            throw new \LogicException('Production requires HTTPS and disabled debug.');
-        }
+        $this->app->make(RuntimeEnvironmentGuard::class)->assertSafeRuntime();
         Date::use(CarbonImmutable::class);
     }
 }

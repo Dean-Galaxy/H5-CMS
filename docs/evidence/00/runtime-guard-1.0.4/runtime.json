@@ -1,0 +1,14 @@
+{
+  "contract": "1.0.4",
+  "environment": "local",
+  "controlled_staging": false,
+  "billing_driver": "unconfigured",
+  "mail": "preview",
+  "region": {
+    "country_code": "ZZ",
+    "source": "unresolved"
+  },
+  "attribution_enabled": false,
+  "acquisition_ready": false,
+  "candidate": "6a61dd46586b15bddb075d82cc00076c0a14a5d7"
+}

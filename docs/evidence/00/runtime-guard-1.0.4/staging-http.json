@@ -1,0 +1,71 @@
+{
+  "candidate": "6a61dd46586b15bddb075d82cc00076c0a14a5d7",
+  "checks": [
+    {
+      "case": "debug enabled",
+      "accept": "application/json",
+      "status": 500,
+      "no_config_or_stack": true,
+      "body_bytes": 239,
+      "body_sha256": "0493ecc25e66e15951f5944f5175cb96002f19c53a61d143a030d5d4e9d4beec"
+    },
+    {
+      "case": "debug enabled",
+      "accept": "text/html",
+      "status": 500,
+      "no_config_or_stack": true,
+      "body_bytes": 0,
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "debug malformed",
+      "accept": "application/json",
+      "status": 500,
+      "no_config_or_stack": true,
+      "body_bytes": 239,
+      "body_sha256": "2d4186cbdb1ab43f8b464ad07f21e13d51f3c2946b820b68a7ecb33675c4df03"
+    },
+    {
+      "case": "debug malformed",
+      "accept": "text/html",
+      "status": 500,
+      "no_config_or_stack": true,
+      "body_bytes": 0,
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "forwarded HTTPS cannot upgrade direct HTTP",
+      "accept": "application/json",
+      "status": 400,
+      "no_config_or_stack": true,
+      "body_bytes": 240,
+      "body_sha256": "e22ce34369e2ee2027790042dcb3673f3e544d858a20cc8fe390721044342052"
+    },
+    {
+      "case": "forwarded HTTPS cannot upgrade direct HTTP",
+      "accept": "text/html",
+      "status": 400,
+      "no_config_or_stack": true,
+      "body_bytes": 1496,
+      "body_sha256": "55664b337f54d5e71ee09a5465a8dad0f9dfb9fe7febbd418a50c07dddf0adc0"
+    },
+    {
+      "case": "controlled switch off still requires TLS",
+      "accept": "application/json",
+      "status": 400,
+      "no_config_or_stack": true,
+      "body_bytes": 240,
+      "body_sha256": "4923f44876854d48e1f0ce545094aa4c40aa77b3ba297635f1303eb5b6a40a00"
+    },
+    {
+      "case": "controlled switch off still requires TLS",
+      "accept": "text/html",
+      "status": 400,
+      "no_config_or_stack": true,
+      "body_bytes": 1496,
+      "body_sha256": "0ecac36632916d05ccfe469909ca771b031a0dffb8a07eaf81198ec6093975dd"
+    }
+  ],
+  "scope": "Real loopback HTTP with staging env; normal PHP display_errors; no TLS, mail or provider network.",
+  "probe_correction": "Initial harness APP cwd was wrong; final uses APP/public exactly as dev.py. Early bootstrap HTML rejection may be an empty 500."
+}
