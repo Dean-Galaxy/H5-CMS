@@ -44,8 +44,11 @@
     "format.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
     "full-tests.txt": "394bac76dbc759a7744ef4ea6673763035f96aa18a21308b27e80b4040fb7179",
     "http.json": "226d3c4819ff7598186d47eda873559faae00bb2261ea260d938823037bedf52",
+    "main-restart.txt": "72d9f6cf45ed2ca7788f6fbd053509713aed3eea59545e5fa3aaeb6f3495fd25",
+    "main-verification.json": "33e88e9ce8a373f46ff5e7e4e9b3f7b3b4cbbd1cb40dace2e70fad4b1c842a54",
     "source-audit.json": "8f5a2adb34acc265b850cbf0c0adca955d82273cf4c1501805d4db314bfd23bb",
     "start.txt": "2fde0e5e0017d9553fecb7815b87ae6112393d51aafb8d23271e30378314cdaa"
   },
-  "evidence_log_normalization": "ANSI color and trailing whitespace removed; substantive output unchanged, originals retained privately."
+  "evidence_log_normalization": "ANSI color and trailing whitespace removed; substantive output unchanged, originals retained privately.",
+  "main_merge": "b29040ac430d303007c5e78c0c8c2ea7581bda56"
 }
