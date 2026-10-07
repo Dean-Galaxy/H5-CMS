@@ -1,0 +1,37 @@
+{
+  "result": "passed",
+  "contract": "1.0.2",
+  "scope": "00 shared loader only; Billing implementation not accepted; no Stripe calls or credentials",
+  "checks": [
+    {
+      "path": "/health",
+      "status": 200,
+      "modules": {
+        "identity": "ready",
+        "content": "ready",
+        "billing": "not_ready",
+        "audience": "not_ready",
+        "acquisition": "not_ready"
+      },
+      "code": null
+    },
+    {
+      "path": "/api/v1/billing/offer",
+      "status": 503,
+      "modules": null,
+      "code": "DEPENDENCY_NOT_READY"
+    },
+    {
+      "environment": "local",
+      "requested_module": "billing",
+      "exit_code": 1,
+      "expected_rejection": "The requested local module provider is missing or invalid."
+    },
+    {
+      "environment": "production",
+      "requested_module": "billing",
+      "exit_code": 1,
+      "expected_rejection": "Local module loading is forbidden outside local/testing."
+    }
+  ]
+}
