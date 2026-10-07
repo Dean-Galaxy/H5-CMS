@@ -1,0 +1,10 @@
+PHPUnit 12.5.38 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/phpunit.xml
+
+..                                                                  2 / 2 (100%)
+
+Time: 01:54.776, Memory: 69.00 MB
+
+OK (2 tests, 18 assertions)

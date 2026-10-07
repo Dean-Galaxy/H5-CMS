@@ -1,0 +1,57 @@
+
+   FAIL  Tests\Feature\Content\ConcurrencyTest
+  ⨯ separate processes cannot publish an occurrence twice               63.49s
+  ⨯ manual publish edit and withdraw serialize with scheduler           15.25s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Content\ConcurrencyTest > separate processes cannot…
+  Exit
+Failed asserting that file "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-tests/01a1143f-bf8b-732f-81e3-d8f5d88a32b5/ready-0" exists.
+
+  at tests/Feature/Content/ConcurrencyTest.php:83
+     79▕             $deadline = microtime(true) + 10;
+     80▕             while ((! is_file($this->mediaRoot.'/ready-0') || ! is_file($this->mediaRoot.'/ready-1')) && microtime(true) < $deadline) {
+     81▕                 usleep(10000);
+     82▕             }
+  ➜  83▕             $this->assertFileExists($this->mediaRoot.'/ready-0', $processes[0]->getErrorOutput().$processes[0]->getOutput().' Exit '.$processes[0]->getExitCode());
+     84▕             $this->assertFileExists($this->mediaRoot.'/ready-1', $processes[1]->getErrorOutput().$processes[1]->getOutput().' Exit '.$processes[1]->getExitCode());
+     85▕         } finally {
+     86▕             DB::commit();
+     87▕         }
+
+  1   tests/Feature/Content/ConcurrencyTest.php:83
+  2   tests/Feature/Content/ConcurrencyTest.php:25
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Content\ConcurrencyTest > manual publish edit and w…
+  Exit
+Failed asserting that file "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-tests/01a11440-2f06-71b3-9441-e45e1fe0e3ce/ready-0" exists.
+
+  at tests/Feature/Content/ConcurrencyTest.php:83
+     79▕             $deadline = microtime(true) + 10;
+     80▕             while ((! is_file($this->mediaRoot.'/ready-0') || ! is_file($this->mediaRoot.'/ready-1')) && microtime(true) < $deadline) {
+     81▕                 usleep(10000);
+     82▕             }
+  ➜  83▕             $this->assertFileExists($this->mediaRoot.'/ready-0', $processes[0]->getErrorOutput().$processes[0]->getOutput().' Exit '.$processes[0]->getExitCode());
+     84▕             $this->assertFileExists($this->mediaRoot.'/ready-1', $processes[1]->getErrorOutput().$processes[1]->getOutput().' Exit '.$processes[1]->getExitCode());
+     85▕         } finally {
+     86▕             DB::commit();
+     87▕         }
+
+  1   tests/Feature/Content/ConcurrencyTest.php:83
+  2   tests/Feature/Content/ConcurrencyTest.php:37
+
+
+  Tests:    2 failed (8 assertions)
+  Duration: 101.92s
+
+Traceback (most recent call last):
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/.runtime/run-receipt-reproduction.py", line 13, in <module>
+    dev.call([dev.PHP,dev.APP/'artisan','test',target],cwd=dev.APP,env=env)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 26, in call
+    return subprocess.run([str(x) for x in args], check=True, **kw)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/opt/homebrew/opt/php@8.4/bin/php', '/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/artisan', 'test', '/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/tests/Feature/Content/ConcurrencyTest.php']' returned non-zero exit status 1.

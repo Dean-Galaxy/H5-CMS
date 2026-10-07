@@ -1,0 +1,36 @@
+{
+  "candidate": "fffb88f77dcf7e7aa75fae36b23eabd0e5759e63",
+  "boundary": "Real browser interactions with unchanged candidate JS; synthetic admin API replies match new candidate assets response shape. Actual backend replay is separately recorded.",
+  "admin_js_sha256": "e6e9761ceb0f950bd2e847a5ff0b85b13e267e96986b3f3ce81356631c837805",
+  "findings": [
+    {
+      "id": "F03",
+      "result": "still_reproduced",
+      "observed_request": {
+        "url": "/api/v1/admin/content/dramas/drama-one/episodes/episode-two",
+        "body": {
+          "number": 2,
+          "title_en": "Episode one",
+          "title_zh": "",
+          "video_asset_id": "video-one",
+          "subtitle_asset_id": null,
+          "subtitle_language": null,
+          "version": 1
+        }
+      }
+    },
+    {
+      "id": "F04",
+      "result": "original_case_fixed_in_candidate",
+      "observed_selected_cover": "cover-old",
+      "observed_request": {
+        "url": "/api/v1/admin/content/dramas/drama-one",
+        "body_fields": {
+          "title_en": "Only intended title change",
+          "cover_asset_id": "cover-old",
+          "version": 1
+        }
+      }
+    }
+  ]
+}

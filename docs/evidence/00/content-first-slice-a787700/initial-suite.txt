@@ -1,0 +1,154 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Content\CatalogTest
+  ✓ real home category banner language and actual published counts      59.01s
+  ✓ visibility expiry drafts unknown region and empty category           2.51s
+  ✓ cursor is stable signed and bound to filter locale region sort vers… 0.72s
+
+   FAIL  Tests\Feature\Content\ConcurrencyTest
+  ⨯ separate processes cannot publish an occurrence twice               11.98s
+  ⨯ manual publish edit and withdraw serialize with scheduler           19.27s
+
+   PASS  Tests\Feature\Content\ManagementTest
+  ✓ new drama snapshots defaults and fixed beijing tomorrow             12.97s
+  ✓ license offsets round trip without beijing drift                     1.91s
+  ✓ manual same value is override and sync requires current impact       0.43s
+  ✓ content permissions mfa and viewer staff separation                  0.37s
+  ✓ versions and episode object scope prevent overwrite                  0.64s
+
+   PASS  Tests\Feature\Content\MediaTest
+  ✓ upload is private sequential owned and rejects traversal type size   0.58s
+  ✓ cancel is owned and a canceled partial upload cannot finish          0.07s
+  ✓ subtitles reorder without retiming and reject markup bad utf8 or ti… 0.27s
+  ✓ actual small h264 aac is decoded and packaged privately              0.49s
+  ✓ real image is reencoded and subtitle out of duration blocks publish  0.36s
+  ✓ draft preview and private range require mfa and content permission   0.78s
+
+   PASS  Tests\Feature\Content\PlaybackTest
+  ✓ free fifth paid sixth and no raw media or forged grant access        1.90s
+  ✓ hls subtitle map and every caption request are protected             0.10s
+  ✓ n change only protects started same episode with finite window       0.13s
+  ✓ refund membership loss is checked on every manifest segment range a… 0.23s
+  ✓ expiry region withdrawal and other identity cannot reuse grants      0.13s
+
+   PASS  Tests\Feature\Content\PublicationTest
+  ✓ 35 episodes publish 10 10 10 5 and each occurrence is idempotent     0.18s
+  ✓ completed requires all and missing or processing blocks whole batch  0.24s
+  ✓ manual pause resume edit and withdraw make old executions obsolete   1.17s
+  ✓ saving plan invalidates old job and activation requires preview and… 0.11s
+  ✓ unapproved missed schedule is held and not silently caught up        0.09s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.72s
+  ✓ home consumer can follow a category and banner without media or ext… 0.80s
+  ✓ new ports require the real provider even when empty examples exist   0.02s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.19s
+  ✓ resume quote and submission require an audience session              0.03s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.07s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.04s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.02s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+   PASS  Tests\Feature\Identity\AuthorizationTest
+  ✓ fixed roles and resource scopes match business rules                 0.02s
+  ✓ staff api rejects non owner direct requests and audits denial        0.17s
+  ✓ owner can create change and disable staff with version control       2.39s
+  ✓ missing mfa proof does not unlock staff api                          0.03s
+  ✓ disabled account and old version session are revoked                 0.03s
+  ✓ audit uses allowlisted changes and request ids                       0.02s
+
+   PASS  Tests\Feature\Identity\ContractsTest
+  ✓ business samples roundtrip through typed php consumers               0.41s
+  ✓ missing provider never fabricates business success                   0.17s
+  ✓ controlled return rejects open redirect encodings                    0.08s
+  ✓ openapi routes and enums match runtime                               0.35s
+
+   PASS  Tests\Feature\Identity\MfaTest
+  ✓ password alone and empty recovery code cannot bypass mfa            18.98s
+  ✓ real totp challenge authenticates and sets session proof             4.79s
+  ✓ totp and recovery codes cannot be replayed                           0.04s
+  ✓ mfa secrets are encrypted and hidden                                 0.02s
+  ✓ disabled employee cannot reach challenge or login                    0.24s
+  ✓ first staff login requires enrollment before dashboard               0.44s
+  ✓ configured staff without challenge proof cannot open any panel page  0.03s
+  ✓ generic staff login event does not grant mfa proof                   0.03s
+  ✓ staff password change invalidates old session version                0.10s
+
+   PASS  Tests\Feature\Identity\ViewerTest
+  ✓ password reset email origin does not trust request host              1.05s
+  ✓ guest entry and missing business are truthful                        0.31s
+  ✓ registration uses fortify and cannot create staff                    1.35s
+  ✓ verification checkout gate and link replay                           0.11s
+  ✓ expired and tampered verification are rejected                       0.04s
+  ✓ correct email invalidates old link and cannot alter verified accoun… 0.06s
+  ✓ email resend is limited with retry after                             0.31s
+  ✓ reset link is single use and revokes old session                     0.25s
+  ✓ expired reset does not change password                               0.25s
+  ✓ password recovery does not enumerate accounts                        0.44s
+  ✓ login rate limit and controlled return                               1.97s
+  ✓ guest verification continues after login                             0.05s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Content\ConcurrencyTest > separate processes cannot…
+  Exit
+Failed asserting that file "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-tests/01a1143c-3948-7396-81df-6f4eed41a932/ready-0" exists.
+
+  at tests/Feature/Content/ConcurrencyTest.php:83
+     79▕             $deadline = microtime(true) + 10;
+     80▕             while ((! is_file($this->mediaRoot.'/ready-0') || ! is_file($this->mediaRoot.'/ready-1')) && microtime(true) < $deadline) {
+     81▕                 usleep(10000);
+     82▕             }
+  ➜  83▕             $this->assertFileExists($this->mediaRoot.'/ready-0', $processes[0]->getErrorOutput().$processes[0]->getOutput().' Exit '.$processes[0]->getExitCode());
+     84▕             $this->assertFileExists($this->mediaRoot.'/ready-1', $processes[1]->getErrorOutput().$processes[1]->getOutput().' Exit '.$processes[1]->getExitCode());
+     85▕         } finally {
+     86▕             DB::commit();
+     87▕         }
+
+  1   tests/Feature/Content/ConcurrencyTest.php:83
+  2   tests/Feature/Content/ConcurrencyTest.php:25
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Content\ConcurrencyTest > manual publish edit and w…
+  Exit
+Failed asserting that file "/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/../.runtime/content-tests/01a1143c-8494-71af-adf9-813be8d970bc/ready-0" exists.
+
+  at tests/Feature/Content/ConcurrencyTest.php:83
+     79▕             $deadline = microtime(true) + 10;
+     80▕             while ((! is_file($this->mediaRoot.'/ready-0') || ! is_file($this->mediaRoot.'/ready-1')) && microtime(true) < $deadline) {
+     81▕                 usleep(10000);
+     82▕             }
+  ➜  83▕             $this->assertFileExists($this->mediaRoot.'/ready-0', $processes[0]->getErrorOutput().$processes[0]->getOutput().' Exit '.$processes[0]->getExitCode());
+     84▕             $this->assertFileExists($this->mediaRoot.'/ready-1', $processes[1]->getErrorOutput().$processes[1]->getOutput().' Exit '.$processes[1]->getExitCode());
+     85▕         } finally {
+     86▕             DB::commit();
+     87▕         }
+
+  1   tests/Feature/Content/ConcurrencyTest.php:83
+  2   tests/Feature/Content/ConcurrencyTest.php:37
+
+
+  Tests:    2 failed, 66 passed (601 assertions)
+  Duration: 192.46s
+
+Traceback (most recent call last):
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 245, in <module>
+    main()
+    ~~~~^^
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 231, in main
+    test()
+    ~~~~^^
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 212, in test
+    call([PHP, APP / 'artisan', 'test'], cwd=APP, env=env)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Volumes/KESU/H5/.runtime/reviews/02-a787700/scripts/dev.py", line 26, in call
+    return subprocess.run([str(x) for x in args], check=True, **kw)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/opt/homebrew/opt/php@8.4/bin/php', '/Volumes/KESU/H5/.runtime/reviews/02-a787700/h5-platform/artisan', 'test']' returned non-zero exit status 1.

@@ -1,0 +1,49 @@
+{
+  "candidate": "a78770028752a57258c574a7588e61f2b7adff4f",
+  "review_workspace": "/Volumes/KESU/H5/.runtime/reviews/02-a787700",
+  "browser": "Codex in-app browser, local isolated HTML fixture",
+  "boundary": "Candidate admin.js unchanged; controls generated from candidate Blade view; fetch replies synthetic. This proves UI request construction only; separate PHP reproductions exercise the actual candidate backend against the isolated test database.",
+  "admin_js_sha256": "f0fca3cc7a6e0979a005cac89ac8a6deacf03c27d39c613f7807d3ed1635fd18",
+  "cases": [
+    {
+      "finding": "F03",
+      "steps": [
+        "Edit episode one (video-one).",
+        "Change episode number from 1 to 2.",
+        "Save episode."
+      ],
+      "expected": "Keep original episode ID; reject duplicate number without changing either record.",
+      "observed_request": {
+        "url": "/api/v1/admin/content/dramas/drama-one/episodes/episode-two",
+        "body": {
+          "number": 2,
+          "title_en": "Episode one",
+          "title_zh": "",
+          "video_asset_id": "video-one",
+          "subtitle_asset_id": null,
+          "subtitle_language": null,
+          "version": 1
+        }
+      },
+      "observed_ui": "Episode 2 row now displays Episode one; save success shown."
+    },
+    {
+      "finding": "F04",
+      "steps": [
+        "Index reply contains latest 200 video assets, omitting cover-old.",
+        "Edit drama whose cover_asset_id is cover-old.",
+        "Only change the English title and save."
+      ],
+      "expected": "Retain cover-old on unrelated edits, even outside the first asset page.",
+      "observed_request": {
+        "url": "/api/v1/admin/content/dramas/drama-one",
+        "body_fields": {
+          "title_en": "Only intended title change",
+          "cover_asset_id": null,
+          "version": 1
+        }
+      },
+      "observed_ui": "Cover selector has no selected old cover before save."
+    }
+  ]
+}

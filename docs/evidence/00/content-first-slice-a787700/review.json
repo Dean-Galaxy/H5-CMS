@@ -1,0 +1,43 @@
+{
+  "checked_at": "2026-10-07T02:50:56.731869+00:00",
+  "shared_start": {
+    "tag": "h5-shared-v1.0.1",
+    "commit": "6c2651fbde3a502fceb711a61422020a35039f2f",
+    "contract": "1.0.1"
+  },
+  "candidate_initial": "a78770028752a57258c574a7588e61f2b7adff4f",
+  "candidate_latest": "fffb88f77dcf7e7aa75fae36b23eabd0e5759e63",
+  "merged": false,
+  "application_source_modified_by_00": false,
+  "initial_suite": {
+    "passed": 66,
+    "failed": 2,
+    "assertions": 601,
+    "failure": "ConcurrencyTest child ready-file startup deadline at line 83; business race assertions not reached"
+  },
+  "initial_concurrency_retry": {
+    "failed": 2,
+    "assertions": 8,
+    "timeout_or_business_assertions_modified": false
+  },
+  "schema_examples": 44,
+  "latest_targeted_database_checks": {
+    "tests": 2,
+    "assertions": 18,
+    "result": "confirmed F03 wrong-episode overwrite; confirmed F04 old-cover binding preserved"
+  },
+  "latest_full_suite_rerun_by_00": false,
+  "source_reported_latest_suite": {
+    "tests": 71,
+    "assertions": 660,
+    "independently_repeated_here": false
+  },
+  "findings": {
+    "F03": "still reproduced in latest candidate; blocks merge",
+    "F04": "original reproduction fixed by b85c322; latest browser and actual isolated database regression passed; not yet integrated"
+  },
+  "official_payment_verified": false,
+  "external_deployment_verified": false,
+  "full_media_packaging_verified": false,
+  "original_source_media_modified": false
+}
