@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-07",
+  "tested_candidate": "f273e2710c9965dd6f8c565bd5dd1055d13a67cf",
+  "accepted_03_delivery": "a2ca46903a456bc97282316cf3c3d0179d4fd25f",
+  "billing_source": "ef170ed2f2981f5e0bf3d382322d562d215515f6",
+  "baseline": "5b936ad446ffe839cc95c31f363daf512412dfbd",
+  "shared_tag": "h5-shared-v1.0.4",
+  "contract": "1.0.4",
+  "full_tests": {
+    "passed": 312,
+    "assertions": 4889,
+    "seconds": 228.17
+  },
+  "http_check_groups": 6,
+  "contract_examples": 57,
+  "changed_php_format_files": 13,
+  "no_migration_or_dependency_changes": true,
+  "audit": "Lock unchanged; 03 fixed-package audit has zero advisories/abandoned, hashes verified. 00 current shared-lock audit in runtime-guard-1.0.4 is reused.",
+  "06_initial_review": {
+    "candidate": "f37b64d9653838c2ec990ad3375613939de72c3d",
+    "delivery": "7fcf16b676bc595ec45b6e3511328864646213ad",
+    "affected_tests": 39,
+    "assertions": 622,
+    "seconds": 31.3,
+    "runtime_cases": 41,
+    "restore": "failed_before_target_restore_due_to_F08",
+    "accepted": false
+  },
+  "limitations": [
+    "No official Stripe, SMTP, public HTTPS or trusted-US request tested",
+    "No new real-device/browser run",
+    "06 F08 recovery object selection still pending fixed delivery",
+    "Acquisition remains local explicit-only; D03/D05 not decided; public deploy/live charging not allowed"
+  ],
+  "evidence_sha256": {
+    "06-F08-diagnosis.json": "cfd97a4dd5cd774cfa3f9f9079b0743892a8362a45a158d44f2348328b4bfc42",
+    "06-F08-failure.txt": "7cbf1831f256c43fcfc2a9535bcbbe90e944ef69002bff3119fdd9d7a225e6fb",
+    "06-initial-affected.txt": "cd03e769b20e8b81bec72d91ab54dc2c4f01111c7ead2a6f7637743789c555f9",
+    "06-initial-runtime.json": "6c6b7270f6185f0322f598c5e8c6ba3fab64ff94a9691774dd714ca8b2f16f7d",
+    "06-initial-source-audit.json": "6701083c7ab3bccc9ab9bb73a18be606d590a039ae21707e3157784ade71999b",
+    "06-initial-static.json": "175c99115e7d20d67905ee453d12bc5bdfa251719f46ec8350be75e9c9a33cf3",
+    "config-check.json": "c6b1e319430b7e391a54f8bb1afa364e132e3274061142a5d230ac351dd0a9e2",
+    "contracts.txt": "95d160eb17e79150d63608f49da9f994a64eec99172a86c77a64e09250bbcad3",
+    "format.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
+    "full-tests.txt": "394bac76dbc759a7744ef4ea6673763035f96aa18a21308b27e80b4040fb7179",
+    "http.json": "226d3c4819ff7598186d47eda873559faae00bb2261ea260d938823037bedf52",
+    "main-restart.txt": "72d9f6cf45ed2ca7788f6fbd053509713aed3eea59545e5fa3aaeb6f3495fd25",
+    "main-verification.json": "33e88e9ce8a373f46ff5e7e4e9b3f7b3b4cbbd1cb40dace2e70fad4b1c842a54",
+    "source-audit.json": "8f5a2adb34acc265b850cbf0c0adca955d82273cf4c1501805d4db314bfd23bb",
+    "start.txt": "2fde0e5e0017d9553fecb7815b87ae6112393d51aafb8d23271e30378314cdaa"
+  },
+  "evidence_log_normalization": "ANSI color and trailing whitespace removed; substantive output unchanged, originals retained privately.",
+  "main_merge": "b29040ac430d303007c5e78c0c8c2ea7581bda56"
+}
