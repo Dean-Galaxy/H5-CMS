@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-08",
+  "main_baseline": "8405f40d6dec372db3ce49b267559ed190da558a",
+  "workspace_commit": "88a799ce095d0de81fab06de94f4d4061454761b",
+  "url": "http://127.0.0.1:8204",
+  "workspace": "h5_743b4f0f33",
+  "region_display": "Local US test scenario / 本地美国测试场景",
+  "checks": [
+    "Chinese and English homepage and catalog",
+    "category filter retains the Content supplied catalog result",
+    "drama detail and six episode list",
+    "episode 1 actual HLS playback readyState 4 with advancing currentTime and supplied English subtitle showing",
+    "episode 5 remains playable as free preview",
+    "episode 6 returns membership-required denial after explicit Play",
+    "login page preserves the current episode and position 37 in controlled return_to",
+    "existing browser guest Continue watching entry remains visible on drama detail",
+    "membership page reads current Offer USD 3.00 first week and USD 12.00 regular week",
+    "unconfigured Stripe is described as unavailable; no payment or membership success is shown"
+  ],
+  "cancel_entry": {
+    "observed": false,
+    "reason": "local account has no active paid subscription; no synthetic entitlement was created",
+    "required_follow_up": "repeat with a real or explicitly controlled paid subscription before claiming browser cancellation verification"
+  },
+  "external_pending": [
+    "official Stripe sandbox and webhook",
+    "real email delivery",
+    "trusted region and external staging site",
+    "physical mobile device",
+    "natural browser non-native HLS and real network failure"
+  ],
+  "result": "passed for local Audience composition; external release gates remain open"
+}
