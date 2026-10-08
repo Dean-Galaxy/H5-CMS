@@ -1,0 +1,51 @@
+{
+  "result": "passed",
+  "checkout_commit": "6dcf6038e964678a8261379736482a6200631f07",
+  "runtime": {
+    "ok": true,
+    "contract": "1.0.4",
+    "config_environment": "local",
+    "container_environment": "local",
+    "process_environment": "local",
+    "cached": false,
+    "controlled_staging": false,
+    "origin": null,
+    "region": {
+      "country_code": "ZZ",
+      "source": "unresolved"
+    },
+    "billing_driver": "unconfigured",
+    "acquisition_ready": false
+  },
+  "old_pids": {
+    "web": 8478,
+    "queue": 8479,
+    "scheduler": 8480
+  },
+  "new_pids": {
+    "web": 71909,
+    "queue": 71910,
+    "scheduler": 71911
+  },
+  "before": {
+    "orders": 0,
+    "payments": 0,
+    "entitlements": 0,
+    "public_episodes": 6,
+    "publications": 1,
+    "plan_states": [
+      "finished"
+    ]
+  },
+  "after": {
+    "orders": 0,
+    "payments": 0,
+    "entitlements": 0,
+    "public_episodes": 6,
+    "publications": 1,
+    "plan_states": [
+      "finished"
+    ]
+  },
+  "scope": "real local web/queue/scheduler/PostgreSQL stop/start; CLI preflight reads runtime; not FPM/systemd/container or public deployment"
+}

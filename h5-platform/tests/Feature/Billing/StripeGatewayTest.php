@@ -11,6 +11,7 @@ use Stripe\Exception\ApiConnectionException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\HttpClient\ClientInterface;
 use Stripe\HttpClient\CurlClient;
+use Stripe\Stripe;
 use Stripe\StripeClient;
 use Tests\TestCase;
 
@@ -37,6 +38,8 @@ final class StripeGatewayTest extends TestCase
 
             public array $requests = [];
 
+            public ?\Closure $afterRequest = null;
+
             public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1', $maxNetworkRetries = null)
             {
                 $path = parse_url($absUrl, PHP_URL_PATH);
@@ -59,6 +62,8 @@ final class StripeGatewayTest extends TestCase
                 if ($reply instanceof \Throwable) {
                     throw $reply;
                 }
+
+                ($this->afterRequest ?? static function (): void {})();
 
                 return [json_encode($reply, JSON_THROW_ON_ERROR), 200, ['Request-Id' => 'req_local_fixture']];
             }
@@ -155,6 +160,81 @@ final class StripeGatewayTest extends TestCase
         $this->assertSame([], $this->http->requests);
     }
 
+    public function test_actual_client_options_and_global_tls_are_checked_before_http(): void
+    {
+        foreach ([
+            ['api_key' => 'sk_test_wrong_fixture'], ['api_base' => 'https://other.example.test'],
+            ['stripe_version' => '2025-01-01.invalid'], ['stripe_account' => 'acct_other'],
+            ['stripe_context' => 'acct_other'],
+        ] as $change) {
+            $this->app->bind(StripeClient::class, fn ($app, $parameters) => new StripeClient([
+                ...$parameters['config'], ...$change,
+            ]));
+            try {
+                $this->gateway->assertAvailable();
+                $this->fail('Different actual SDK configuration was accepted.');
+            } catch (DependencyNotReady $error) {
+                $this->assertSame('DEPENDENCY_NOT_READY', $error->errorCode);
+            } finally {
+                $this->app->offsetUnset(StripeClient::class);
+            }
+        }
+        foreach (['verifySslCerts' => false, 'accountId' => 'acct_other', 'caBundlePath' => '/synthetic/other-ca.pem'] as $property => $bad) {
+            $before = Stripe::${$property};
+            Stripe::${$property} = $bad;
+            try {
+                $this->gateway->assertAvailable();
+                $this->fail('Unsafe global Stripe settings were accepted.');
+            } catch (DependencyNotReady $error) {
+                $this->assertSame('DEPENDENCY_NOT_READY', $error->errorCode);
+            } finally {
+                Stripe::${$property} = $before;
+            }
+        }
+        foreach ([[CURLOPT_SSL_VERIFYPEER => false], [CURLOPT_SSL_VERIFYHOST => 0], [CURLOPT_FOLLOWLOCATION => true]] as $options) {
+            ApiRequestor::setHttpClient(new CurlClient($options));
+            try {
+                $this->gateway->assertAvailable();
+                $this->fail('Unsafe curl options were accepted.');
+            } catch (DependencyNotReady $error) {
+                $this->assertSame('DEPENDENCY_NOT_READY', $error->errorCode);
+            } finally {
+                ApiRequestor::setHttpClient($this->http);
+            }
+        }
+        ApiRequestor::setHttpClient(new \stdClass);
+        try {
+            $this->gateway->assertAvailable();
+            $this->fail('An invalid test transport was accepted.');
+        } catch (DependencyNotReady $error) {
+            $this->assertSame('DEPENDENCY_NOT_READY', $error->errorCode);
+        } finally {
+            ApiRequestor::setHttpClient($this->http);
+        }
+        $this->assertSame([], $this->http->requests);
+    }
+
+    public function test_each_network_step_rechecks_mutated_configuration(): void
+    {
+        $this->reply('customers', ['id' => 'cus_fixture', 'object' => 'customer', 'livemode' => false,
+            'metadata' => ['viewer_id' => 'viewer_fixture'], 'test_clock' => null], 'POST');
+        $this->http->afterRequest = function (): void {
+            config(['billing.api_version' => '2025-01-01.invalid']);
+        };
+        $order = (object) ['id' => 'order_fixture', 'viewer_id' => 'viewer_fixture', 'subscription_id' => 'local_sub',
+            'is_test' => true, 'currency' => 'USD', 'regular_amount_minor' => 1200, 'amount_minor' => 300,
+            'discount_applied' => true, 'price_version' => 3, 'return_to' => '/membership'];
+        $sub = (object) ['id' => 'local_sub', 'viewer_id' => 'viewer_fixture', 'is_test' => true,
+            'currency' => 'USD', 'regular_amount_minor' => 1200, 'customer_id' => null];
+        try {
+            $this->gateway->prepareCheckout($order, $sub);
+            $this->fail('A second API call proceeded with changed configuration.');
+        } catch (DependencyNotReady $error) {
+            $this->assertSame('DEPENDENCY_NOT_READY', $error->errorCode);
+        }
+        $this->assertSame(['POST /v1/customers'], array_column($this->http->requests, 'key'));
+    }
+
     public function test_unconfigured_gateway_never_fabricates_checkout_success(): void
     {
         $this->expectException(DependencyNotReady::class);
@@ -194,6 +274,7 @@ final class StripeGatewayTest extends TestCase
         return ['id' => 'cs_fixture', 'object' => 'checkout.session', 'livemode' => false,
             'mode' => 'subscription', 'status' => $status, 'customer' => 'cus_fixture',
             'client_reference_id' => 'order_fixture', 'metadata' => ['order_id' => 'order_fixture'],
+            'success_url' => $request['params']['success_url'], 'cancel_url' => $request['params']['cancel_url'],
             'amount_total' => $amount, 'currency' => 'usd', 'url' => $status === 'open' ? 'https://checkout.stripe.com/c/pay/fixture' : null,
             'expires_at' => $request['params']['expires_at'], 'subscription' => $status === 'complete' ? 'sub_fixture' : null,
             'payment_status' => $status === 'complete' ? 'paid' : 'unpaid'];
@@ -226,6 +307,50 @@ final class StripeGatewayTest extends TestCase
         $this->assertSame($posted['params']['metadata'], $posted['params']['subscription_data']['metadata']);
         $this->assertStringContainsString('Stripe-Version: '.StripeGateway::API_VERSION, implode("\n", $posted['headers']));
         $this->assertStringContainsString('Idempotency-Key: '.$request['idempotency_key'], implode("\n", $posted['headers']));
+    }
+
+    public function test_old_return_origins_and_order_ids_are_read_only_and_never_exposed(): void
+    {
+        foreach (['http://old.example.test/membership?order_id=order_fixture',
+            'https://other.example.test/membership?order_id=order_fixture',
+            'http://localhost:8203/membership?order_id=another_order'] as $bad) {
+            [$order, $sub, $request] = $this->preparedCheckout();
+            $request['params']['success_url'] = $bad;
+            $order->checkout_request = json_encode($request, JSON_THROW_ON_ERROR);
+            $original = clone $order;
+            $this->http->requests = [];
+            $session = $this->sessionFixture($request);
+            $this->reply('checkout/sessions', ['object' => 'list', 'has_more' => false, 'data' => [$session]]);
+            $this->reply('checkout/sessions/cs_fixture', $session);
+            $result = $this->gateway->createCheckout($order, $sub);
+            $this->assertNull($result['url']);
+            $this->assertSame('cs_fixture', $result['session_id']);
+            $this->assertSame(['GET /v1/checkout/sessions', 'GET /v1/checkout/sessions/cs_fixture'], array_column($this->http->requests, 'key'));
+            $this->assertEquals($original, $order);
+        }
+    }
+
+    public function test_untrusted_checkout_urls_and_remote_return_mismatch_are_not_returned(): void
+    {
+        foreach (['https://user@checkout.stripe.com/c/pay/fixture',
+            'https://checkout.stripe.com:444/c/pay/fixture', 'https://checkout.stripe.com.evil.test/c/pay/fixture',
+            'http://checkout.stripe.com/c/pay/fixture'] as $bad) {
+            [$order, $sub, $request] = $this->preparedCheckout();
+            $session = $this->sessionFixture($request);
+            $session['url'] = $bad;
+            $this->reply('checkout/sessions', $session, 'POST');
+            $this->assertNull($this->gateway->createCheckout($order, $sub)['url']);
+        }
+        [$order, $sub, $request] = $this->preparedCheckout();
+        $session = $this->sessionFixture($request);
+        $session['cancel_url'] = 'https://another.example.test/membership';
+        $this->reply('checkout/sessions', $session, 'POST');
+        $this->assertNull($this->gateway->createCheckout($order, $sub)['url']);
+        [$order, $sub, $request] = $this->preparedCheckout();
+        $session = $this->sessionFixture($request);
+        $session['url'] .= '#fidkdWxOYHwnPyd1blpxYHZxWjA0JykneA==';
+        $this->reply('checkout/sessions', $session, 'POST');
+        $this->assertSame($session['url'], $this->gateway->createCheckout($order, $sub)['url']);
     }
 
     public function test_regular_price_checkout_omits_discounts_and_promotion_code_input(): void

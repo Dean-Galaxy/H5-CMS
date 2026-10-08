@@ -1,0 +1,1 @@
+{"configuration_valid":true,"payment_configuration_ready":false,"missing":["stripe_test_driver","stripe_secret","stripe_webhook_secret"],"diagnostic_code":"BILLING_NOT_CONFIGURED","official_verification":"not_performed","network_performed":false}

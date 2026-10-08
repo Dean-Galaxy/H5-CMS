@@ -1,0 +1,84 @@
+{
+  "result": "passed",
+  "checks": [
+    {
+      "name": "default modules reflect accepted stage",
+      "passed": true
+    },
+    {
+      "name": "private file denied /.env",
+      "passed": true
+    },
+    {
+      "name": "private file denied /.git/config",
+      "passed": true
+    },
+    {
+      "name": "private file denied /storage/logs/laravel.log",
+      "passed": true
+    },
+    {
+      "name": "private file denied /vendor/autoload.php",
+      "passed": true
+    },
+    {
+      "name": "untrusted Host in local runtime",
+      "observed_status": 200,
+      "external_status": "not_verified; local TrustHosts bypass must not be deployed"
+    },
+    {
+      "name": "server request id replaces client value",
+      "passed": true
+    },
+    {
+      "name": "security response headers",
+      "passed": true
+    },
+    {
+      "name": "local viewer cookie httponly samesite",
+      "passed": true
+    },
+    {
+      "name": "real csrf rejects api POST",
+      "passed": true
+    },
+    {
+      "name": "real csrf rejects membership POST",
+      "passed": true
+    },
+    {
+      "name": "real csrf rejects audience POST",
+      "passed": true
+    },
+    {
+      "name": "real csrf rejects api PUT",
+      "passed": true
+    },
+    {
+      "name": "free grant real provider",
+      "passed": true
+    },
+    {
+      "name": "copied signed media denied in different cookie jar",
+      "passed": true
+    },
+    {
+      "name": "media without signature denied",
+      "passed": true
+    },
+    {
+      "name": "member denial leaks no media grant",
+      "passed": true
+    },
+    {
+      "name": "unconfigured stripe webhook cannot accept false payment",
+      "passed": true
+    },
+    {
+      "name": "error no debug stack",
+      "passed": true
+    }
+  ],
+  "scope": "real loopback HTTP; no TLS or external mail/Stripe claims",
+  "checkout_commit": "6dcf6038e964678a8261379736482a6200631f07"
+}

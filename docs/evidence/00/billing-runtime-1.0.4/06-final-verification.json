@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-07",
+  "tested_checkout": "74f95c75853fc846488874ad799b6d8a051a73d5",
+  "approved_application_baseline": "f273e2710c9965dd6f8c565bd5dd1055d13a67cf",
+  "06_source": "7c24392154bb5738c91fe6e561ba52e4bd30a2fd",
+  "targeted_tests": {
+    "passed": 92,
+    "assertions": 2568,
+    "seconds": 41.30,
+    "command": "python3 scripts/ops/run_acceptance.py tests/Feature/Contracts tests/Integration tests/Security tests/Feature/Billing/BillingStagingPolicyTest.php tests/Feature/Billing/BillingCheckoutSafetyTest.php tests/Feature/Billing/BillingCheckoutCompatibilityTest.php tests/Feature/Billing/StripeGatewayTest.php"
+  },
+  "runtime_probe": {
+    "passed": 44,
+    "network": "native curl/socket functions disabled; no Stripe or SMTP request",
+    "database_identity_checked": true
+  },
+  "recovery": {
+    "result": "passed",
+    "tables": 47,
+    "media_files": 42,
+    "same_target_ids_after_restore": true,
+    "unrelated_accounts_unchanged": true,
+    "added_unpaid_accounts": 3,
+    "total_unrelated_accounts_in_00_fixture": 6,
+    "access_active": true,
+    "renewal_enabled": false,
+    "orders": 1,
+    "payments": 1,
+    "entitlements": 1,
+    "refunds": 1,
+    "outbox": 1,
+    "official_payment": false,
+    "external_recovery": false
+  },
+  "scope": "00 reran the fixed 06 tools in its own isolated database and a new PostgreSQL recovery instance; private credentials, media and databases remain outside Git."
+}

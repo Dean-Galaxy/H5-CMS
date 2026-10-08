@@ -7,9 +7,10 @@ use App\Modules\Content\ContentServiceProvider;
 use App\Modules\Identity\IdentityServiceProvider;
 
 return [
-    'contract' => '1.0.3',
+    'contract' => '1.0.4',
     'workspace' => env('H5_WORKSPACE', 'unconfigured'),
-    'simulation' => (bool) env('H5_SIMULATION', false),
+    'controlled_staging' => env('H5_CONTROLLED_STAGING', false),
+    'simulation' => env('H5_SIMULATION', false),
     'local_modules' => env('H5_LOCAL_MODULES', ''),
     'local_module_providers' => [
         'content' => ContentServiceProvider::class,
@@ -17,7 +18,7 @@ return [
         'audience' => AudienceServiceProvider::class,
         'acquisition' => AcquisitionServiceProvider::class,
     ],
-    'local_us_test_region' => (bool) env('H5_LOCAL_US_TEST_REGION', false),
+    'local_us_test_region' => env('H5_LOCAL_US_TEST_REGION', false),
     'media_root' => env('H5_MEDIA_ROOT', storage_path('app/private/media')),
     'mail_preview_root' => base_path('../.runtime/mail'),
     'modules' => [
