@@ -1,0 +1,15 @@
+{
+  "health": {
+    "status": 200,
+    "url": "http://127.0.0.1:8205/health"
+  },
+  "admin_acquisition": {
+    "status": 200,
+    "url": "http://127.0.0.1:8205/admin/login"
+  },
+  "landing": {
+    "status": 503,
+    "location": null,
+    "body_prefix": "<!doctype html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><meta name=\"csrf-token\" content=\"DV7dIe6qMyUEURjxXrL"
+  }
+}

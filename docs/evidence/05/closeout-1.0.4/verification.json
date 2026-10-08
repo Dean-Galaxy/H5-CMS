@@ -1,0 +1,20 @@
+{
+  "main_baseline": "8405f40d6dec372db3ce49b267559ed190da558a",
+  "merge_commit": "3902cfab7bda0d9f186cd0bca906e53437a5767d",
+  "contract": "1.0.4",
+  "acquisition_tests": "40 passed / 501 assertions",
+  "default_tests": "308 passed / 4844 assertions",
+  "contract_examples": "57 passed",
+  "runtime_checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "external_delivery": "disabled",
+  "attribution": "false/null",
+  "real_platform_requests": false,
+  "d05_frozen": false,
+  "scope_check": "only docs/handoffs/05.md and docs/evidence/05/closeout-1.0.4"
+}
