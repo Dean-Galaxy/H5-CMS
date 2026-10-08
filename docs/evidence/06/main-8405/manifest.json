@@ -1,0 +1,41 @@
+{
+  "main_document_baseline": "8405f40",
+  "main_application_acceptance": "a25dd8f",
+  "tested_worktree_commit": "fc75b1144f93efccf8a1a28daa6adfbee0e23d96",
+  "contract": "1.0.4",
+  "local_light_combo": {
+    "command": "python3 scripts/ops/run_acceptance.py tests/Feature/Contracts tests/Integration tests/Security",
+    "result": "passed",
+    "tests": 43,
+    "assertions": 661
+  },
+  "controller_recheck": {
+    "targeted_tests": 92,
+    "assertions": 2568,
+    "runtime_probe": 44,
+    "source": "docs/evidence/00/billing-runtime-1.0.4/06-final-verification.json"
+  },
+  "recovery": {
+    "result": "passed",
+    "tables": 47,
+    "media_files": 42,
+    "added_unpaid_accounts": 3,
+    "same_target_ids_after_restore": true,
+    "unrelated_accounts_unchanged": true,
+    "official_payment": false,
+    "external_recovery": false
+  },
+  "external_network": {
+    "runtime_probe_network_functions_disabled": true,
+    "stripe_or_smtp_requests": false
+  },
+  "first_failure": "none in this light run; historical F08 is closed and retained in docs/evidence/06/f08",
+  "not_executed": [
+    "public HTTPS/FPM/systemd/nginx/TLS",
+    "official Stripe",
+    "real SMTP",
+    "real device",
+    "offsite recovery",
+    "Meta/TikTok external accounts"
+  ]
+}

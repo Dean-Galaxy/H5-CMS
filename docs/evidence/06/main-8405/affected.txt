@@ -1,0 +1,73 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcceptedAudienceTest[39m
+  [32;1m✓[39;22m[90m [39m[90mdefault website and progress use the accepted provider without loca[39m[90m…[39m [90m2.44s[39m
+  [32;1m✓[39;22m[90m [39m[90mfresh local content and unconfigured prices are not replaced by sam[39m[90m…[39m [90m0.05s[39m
+  [32;1m✓[39;22m[90m [39m[90mfresh progress is empty and a guest cannot write account progress[39m[90m   [39m [90m0.05s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcceptedBillingPlaybackTest[39m
+  [32;1m✓[39;22m[90m [39m[90mreal billing controls content after cancel partial and full refund[39m[90m  [39m [90m0.26s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcceptedBillingTest[39m
+  [32;1m✓[39;22m[90m [39m[90mreal billing loads without opt in and does not enable external paym[39m[90m…[39m [90m0.04s[39m
+  [32;1m✓[39;22m[90m [39m[90mreal nonmember and configured price remain truthful when stripe is[39m[90m… [39m [90m0.06s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcceptedContentTest[39m
+  [32;1m✓[39;22m[90m [39m[90mcontent loads without local opt in and registers each job once[39m[90m      [39m [90m0.04s[39m
+  [32;1m✓[39;22m[90m [39m[90mpublic content still requires a trusted region then reads its own d[39m[90m…[39m [90m0.05s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcquisitionReadPortsTest[39m
+  [32;1m✓[39;22m[90m [39m[90mconsumers read typed minimal pages without private staff or media f[39m[90m…[39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mabsent read providers do not turn into successful empty lists or sa[39m[90m…[39m [90m0.02s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\BillingLocalLoadingTest[39m
+  [32;1m✓[39;22m[90m [39m[90mbilling allowlist does not enable an unaccepted module[39m[90m              [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mexplicit local loading only changes billing and never grants fixtur[39m[90m…[39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mbilling opt in rejects nonlocal missing invalid and replacement pro[39m[90m…[39m [90m0.03s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\RuntimeEnvironmentGuardTest[39m
+  [32;1m✓[39;22m[90m [39m[90mdefault off does not release an origin and every call rechecks[39m[90m      [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mboolean environment and nonlocal overrides fail closed[39m[90m              [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mopt in never enables production or local and local mail remains ava[39m[90m…[39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90morigin cannot contain unsafe components or non domain hosts[39m[90m         [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mmail checks follow real nested paths and refuse downgrade or url ov[39m[90m…[39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mapproved smtp configuration builds real tls transport without conne[39m[90m…[39m [90m0.03s[39m
+  [32;1m✓[39;22m[90m [39m[90mdirect connection discards previous proxy trust and hosting auto de[39m[90m…[39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mnonlocal http requires direct tls canonical host and default port[39m[90m   [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mreal staging boot and cached configuration are checked without netw[39m[90m…[39m [90m1.70s[39m
+  [32;1m✓[39;22m[90m [39m[90mreal uncached environment loading preserves invalid booleans[39m[90m        [39m [90m2.47s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\SharedContractsTest[39m
+  [32;1m✓[39;22m[90m [39m[90mconsumer can confirm original terms after the public price changes[39m[90m  [39m [90m0.04s[39m
+  [32;1m✓[39;22m[90m [39m[90mhome consumer can follow a category and banner without media or ext[39m[90m…[39m [90m0.03s[39m
+  [32;1m✓[39;22m[90m [39m[90mnew ports require the real provider even when empty examples exist[39m[90m  [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mpublic home and categories remain accessible to guests but unavaila[39m[90m…[39m [90m0.03s[39m
+  [32;1m✓[39;22m[90m [39m[90mresume quote and submission require an audience session[39m[90m             [39m [90m0.04s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\SharedInfrastructureTest[39m
+  [32;1m✓[39;22m[90m [39m[90mruntime contract version matches the published openapi[39m[90m              [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mabsent local opt in preserves the missing provider and unresolved r[39m[90m…[39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mallowlisted local provider can load without a root config edit[39m[90m      [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mlocal loading rejects unknown missing invalid and nonlocal provider[39m[90m…[39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90maudience and acquisition can opt in without replacing other modules[39m[90m [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mexplicit us fixture is limited to direct loopback http[39m[90m              [39m [90m0.02s[39m
+  [32;1m✓[39;22m[90m [39m[90mproduction never accepts forged country headers or local region ove[39m[90m…[39m [90m0.02s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Integration\EntitlementPlaybackTest[39m
+  [32;1m✓[39;22m[90m [39m[90maudience progress survives refund but media and renewal are revoked[39m[90m [39m [90m0.33s[39m
+  [32;1m✓[39;22m[90m [39m[90moriginal price resume and unpaid expiry reach audience authorizatio[39m[90m…[39m [90m0.14s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Integration\RecoveryScenarioTest[39m
+  [32;1m✓[39;22m[90m [39m[90mpreexisting unpaid accounts do not select the recovery subject[39m[90m      [39m [90m0.15s[39m
+  [32;1m✓[39;22m[90m [39m[90mmanifest cannot switch to an existing unpaid viewer[39m[90m                 [39m [90m0.07s[39m
+  [32;1m✓[39;22m[90m [39m[90ma payment for another viewer is rejected even when that payment exi[39m[90m…[39m [90m0.08s[39m
+  [32;1m✓[39;22m[90m [39m[90mchanges to preexisting unpaid accounts fail verification[39m[90m            [39m [90m0.07s[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Security\CrossModuleBoundaryTest[39m
+  [32;1m✓[39;22m[90m [39m[90mviewer cannot use another order or bypass media after signout[39m[90m       [39m [90m0.21s[39m
+  [32;1m✓[39;22m[90m [39m[90mcontent staff has no billing authority even with mfa[39m[90m                [39m [90m0.08s[39m
+
+  [90mTests:[39m    [32;1m43 passed[39;22m[90m (661 assertions)[39m
+  [90mDuration:[39m [39m9.15s[39m
