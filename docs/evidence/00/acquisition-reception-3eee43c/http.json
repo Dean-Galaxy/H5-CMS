@@ -1,0 +1,52 @@
+[
+  {
+    "path": "/health",
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "request_id": "01a115de-c819-7061-a5ca-39b2c8440792",
+      "modules": {
+        "identity": "ready",
+        "content": "ready",
+        "billing": "ready",
+        "audience": "ready",
+        "acquisition": "ready"
+      }
+    }
+  },
+  {
+    "path": "/api/v1/catalog",
+    "status": 403,
+    "body": {
+      "error": {
+        "code": "REGION_BLOCKED",
+        "message": "无法核实地区，当前内容不可用",
+        "request_id": "01a115de-c9b8-72cb-ae29-e65a9a62838b",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "path": "/r/f07-review-not-ready",
+    "status": 503,
+    "body": {
+      "error": {
+        "code": "DEPENDENCY_NOT_READY",
+        "message": "Acquisition：D05 来源规则与落地插槽 模块未就绪",
+        "request_id": "01a115de-cf29-70d4-a179-a007b63d2527",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "path": "/admin/acquisition-desk",
+    "status": 302,
+    "location": "http://127.0.0.1:8300/admin/login",
+    "body": {
+      "kind": "html",
+      "bytes": 378
+    }
+  }
+]

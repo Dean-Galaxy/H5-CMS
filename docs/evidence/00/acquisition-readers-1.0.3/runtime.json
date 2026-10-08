@@ -1,0 +1,29 @@
+{
+    "contract": "1.0.3",
+    "modules": {
+        "identity": "ready",
+        "content": "ready",
+        "billing": "ready",
+        "audience": "ready",
+        "acquisition": "not_ready"
+    },
+    "region": {
+        "country_code": "ZZ",
+        "source": "unresolved"
+    },
+    "attribution_enabled": false,
+    "ports": [
+        {
+            "contract": "App\\Contracts\\AcquisitionStaffDirectory",
+            "implementation": "App\\Modules\\Identity\\Services\\StaffDirectory",
+            "anonymous_status": 401,
+            "anonymous_code": "AUTHENTICATION_REQUIRED"
+        },
+        {
+            "contract": "App\\Contracts\\PromotableCatalog",
+            "implementation": "App\\Modules\\Content\\Services\\ContentPromotableCatalog",
+            "anonymous_status": 401,
+            "anonymous_code": "AUTHENTICATION_REQUIRED"
+        }
+    ]
+}

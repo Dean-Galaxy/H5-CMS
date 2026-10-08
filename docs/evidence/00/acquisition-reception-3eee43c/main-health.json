@@ -1,0 +1,14 @@
+{
+  "http_status": 200,
+  "body": {
+    "status": "ok",
+    "request_id": "01a115e3-a051-72d0-90dc-3963d0685d19",
+    "modules": {
+      "identity": "ready",
+      "content": "ready",
+      "billing": "ready",
+      "audience": "ready",
+      "acquisition": "not_ready"
+    }
+  }
+}

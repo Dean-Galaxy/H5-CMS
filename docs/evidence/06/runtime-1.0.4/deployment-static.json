@@ -1,0 +1,10 @@
+{
+  "checkout_commit": "6dcf6038e964678a8261379736482a6200631f07",
+  "result": "passed",
+  "checks": [
+    "FPM keeps clear_env and supplies APP_ENV",
+    "queue and scheduler supply APP_ENV and require cached preflight",
+    "staging opt-in remains false; SMTP TLS/timeout explicit; local region off; payment unconfigured"
+  ],
+  "scope": "offline parser/value checks only; no actual FPM/systemd/nginx/TLS or container execution"
+}

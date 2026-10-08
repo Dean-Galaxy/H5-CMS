@@ -1,0 +1,57 @@
+{
+  "main_merge": "b29040ac430d303007c5e78c0c8c2ea7581bda56",
+  "tested_candidate": "f273e2710c9965dd6f8c565bd5dd1055d13a67cf",
+  "app_tests_ops_deploy_contracts_identical": true,
+  "runtime": {
+    "contract": "1.0.4",
+    "environment": "local",
+    "controlled_staging": false,
+    "billing_driver": "unconfigured",
+    "mail": "preview",
+    "region": {
+      "country_code": "ZZ",
+      "source": "unresolved"
+    },
+    "acquisition_ready": false
+  },
+  "http_checks": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200,
+      "health": {
+        "status": "ok",
+        "request_id": "01a1164f-bfd2-71af-b49d-d2b1e12d1c5d",
+        "modules": {
+          "identity": "ready",
+          "content": "ready",
+          "billing": "ready",
+          "audience": "ready",
+          "acquisition": "not_ready"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/identity/login",
+      "status": 200,
+      "viewer_cookie_http_only_lax": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 419
+    }
+  ],
+  "scope": "Main local restart and HTTP only; private original configuration unchanged; no imported test data or external provider calls."
+}

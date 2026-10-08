@@ -1,0 +1,36 @@
+{
+    "meta": {
+        "paused": {
+            "pid": 48787,
+            "transaction_level": 0
+        },
+        "new_holder_io": {
+            "pid": 48789,
+            "transaction_level": 0,
+            "attempts": 1,
+            "first_attempted_at": "2026-10-07 10:15:48+00",
+            "event_key": "h5_40195bbb20ee75722729e0ffe0e69d70deace6a2d04941ec894860541da5e86d",
+            "request_sha256": "56ad9508667bf780dad4fbd8ddbcfbd10e7f1a0d7cfe2ab6c3c57af372a8daad",
+            "frozen_sha256": "56ad9508667bf780dad4fbd8ddbcfbd10e7f1a0d7cfe2ab6c3c57af372a8daad"
+        },
+        "old_transport_calls": 0,
+        "old_changed_new_state": false
+    },
+    "tiktok": {
+        "paused": {
+            "pid": 48791,
+            "transaction_level": 0
+        },
+        "new_holder_io": {
+            "pid": 48793,
+            "transaction_level": 0,
+            "attempts": 1,
+            "first_attempted_at": "2026-10-07 10:15:49+00",
+            "event_key": "h5_9dce1adc169f3911e3f5f71ee12d864fd601cd51194f4970257083f8b9d8536d",
+            "request_sha256": "9175d848e326ead109895529d7078d85d84f3429b312ffec8bb124c1338ea9dc",
+            "frozen_sha256": "9175d848e326ead109895529d7078d85d84f3429b312ffec8bb124c1338ea9dc"
+        },
+        "old_transport_calls": 0,
+        "old_changed_new_state": false
+    }
+}

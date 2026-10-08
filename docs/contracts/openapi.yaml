@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H5 common contracts",
-    "version": "1.0.3",
-    "description": "00兼容契约1.0.3：保留1.0.2公开字段和方法；新增投流所需的内部员工名单、美国可投放片单只读约定。01–04已接收；新增提供方未接入时明确503。D05、投流与受控外部测试站未因本补丁自动放行。"
+    "version": "1.0.4",
+    "description": "00兼容契约1.0.4：保留1.0.3的公开字段、DTO与业务方法；增加公共RuntimeEnvironmentGuard、严格非本地配置检查和直连入口约定。开关默认关闭；Billing受控staging接入、可信地区、D05及外部部署仍须独立接收。"
   },
   "servers": [
     {

@@ -1,0 +1,20 @@
+本工作区的网站、队列、定时进程与数据库已停止；保留全部数据。
+
+   INFO  Nothing to migrate.  
+
+{
+  "workspace": "h5_5c78d05e4e",
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "website": "http://127.0.0.1:8101",
+  "admin": "http://127.0.0.1:8101/admin",
+  "database": "h5_5c78d05e4e",
+  "db_port": 5541,
+  "mail": "仅本地预览，未验证真实送达",
+  "media": "/Volumes/KESU/H5/.runtime/media"
+}

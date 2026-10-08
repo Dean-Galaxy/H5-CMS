@@ -1,0 +1,99 @@
+{
+  "checkout_commit": "88c2feff53b3f962ab85bc4a3799463754d54759",
+  "checks": [
+    {
+      "name": "production debug blocked",
+      "passed": true,
+      "observed": {
+        "boot": false,
+        "exception_type": "LogicException"
+      }
+    },
+    {
+      "name": "production http blocked",
+      "passed": true,
+      "observed": {
+        "boot": false,
+        "exception_type": "LogicException"
+      }
+    },
+    {
+      "name": "staging local region blocked",
+      "passed": true,
+      "observed": {
+        "boot": false,
+        "exception_type": "LogicException"
+      }
+    },
+    {
+      "name": "staging preview mail blocked",
+      "passed": true,
+      "observed": {
+        "boot": false,
+        "exception_type": "LogicException"
+      }
+    },
+    {
+      "name": "staging stripe_test blocked",
+      "passed": true,
+      "observed": {
+        "boot": false,
+        "exception_type": "LogicException"
+      }
+    },
+    {
+      "name": "production local module blocked",
+      "passed": true,
+      "observed": {
+        "boot": false,
+        "exception_type": "LogicException"
+      }
+    },
+    {
+      "name": "local default modules",
+      "passed": true,
+      "observed": {
+        "boot": true,
+        "environment": "local",
+        "contract": "1.0.3",
+        "region_class": "App\\Support\\ServerRegionResolver",
+        "acquisition": false,
+        "billing_driver": "unconfigured",
+        "ad_transport": "disabled",
+        "attribution": false
+      }
+    },
+    {
+      "name": "local explicit acquisition",
+      "passed": true,
+      "observed": {
+        "boot": true,
+        "environment": "local",
+        "contract": "1.0.3",
+        "region_class": "App\\Support\\ServerRegionResolver",
+        "acquisition": true,
+        "billing_driver": "unconfigured",
+        "ad_transport": "disabled",
+        "attribution": false
+      }
+    }
+  ],
+  "workspace_binding": true,
+  "database_identity": "h5_217e1741db|5606|h5_app_217e1741db|f|f",
+  "private_env_mode": "0600",
+  "runtime_realpath": "/Volumes/KESU/H5-06-runtime-217e1741db",
+  "staging_debug_gap": {
+    "observed": {
+      "boot": true,
+      "environment": "staging",
+      "contract": "1.0.3",
+      "region_class": "App\\Support\\ServerRegionResolver",
+      "acquisition": false,
+      "billing_driver": "unconfigured",
+      "ad_transport": "disabled",
+      "attribution": false
+    },
+    "status": "deployment_blocker already in 03-002/06-001; not an accepted staging runtime"
+  },
+  "scope": "real independent PHP boot and local database role inspection; no external API calls"
+}

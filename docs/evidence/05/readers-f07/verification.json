@@ -1,0 +1,10 @@
+{
+  "source_commit": "5d1abeaa8ab6134b037f3e5ab67d1e7f9319f42c",
+  "readers_base": "9298b5031231b687c923f5849feebf93409be425",
+  "contract": "1.0.3",
+  "original_probe_sha256": "c33723cfab90e563cbcbd825ccbb13d20ca64d4be74f24c46f20fc87c18e1a2f",
+  "probe_unchanged": true,
+  "application_matches_source": true,
+  "dependency_files_unchanged_since_original_delivery": true,
+  "only_acquisition_changes_above_readers_base": true
+}

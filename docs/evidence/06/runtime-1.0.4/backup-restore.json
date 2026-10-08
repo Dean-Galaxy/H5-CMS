@@ -1,0 +1,258 @@
+{
+  "result": "passed",
+  "code_commit": "6dcf6038e964678a8261379736482a6200631f07",
+  "contract": "1.0.4",
+  "source_port": 5606,
+  "source_database": "h5_217e1741db_recovery_e89a7c50_test",
+  "restore_port": 6506,
+  "restore_database": "h5_217e1741db_recovery_e89a7c50_test",
+  "independent_pg_instance": true,
+  "tables": {
+    "acquisition_assignments": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_deliveries": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_event_ids": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_links": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_pixel_versions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_pixels": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_receipts": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_simulations": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_sources": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "audience_playback_sessions": {
+      "rows": 2,
+      "sha256": "e2a2b5726b90bf0b211cd7783b651718af7e79681741e7f11095e74f04ce3fd9"
+    },
+    "audience_progress": {
+      "rows": 1,
+      "sha256": "3f0818d95f3260d2930cb41a58414c0a2e80e6030f3d542b303a0090dcbf6c72"
+    },
+    "billing_accounts": {
+      "rows": 1,
+      "sha256": "64e8c5626e320acf251e07469d60d9f0ce0cc8c7fdc389f5e1db48e987744c84"
+    },
+    "billing_cases": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_entitlements": {
+      "rows": 1,
+      "sha256": "3f1c1f47eb4c52367f6da5b9df34a400505f3cb41dc6eb1d479ef96aa1d82bab"
+    },
+    "billing_inbox": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_notes": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_offers": {
+      "rows": 3,
+      "sha256": "9314184147093783d8a400332f6ba4991270c87555b4e4e49560590ac32527cc"
+    },
+    "billing_operations": {
+      "rows": 1,
+      "sha256": "e90d1edf8c5c118a4e0368e8fdbec5263a4b76821ddeac376329896f85267e5c"
+    },
+    "billing_orders": {
+      "rows": 1,
+      "sha256": "863dc39943357f7b7d7e076f46be247e9c6f867b4a56e4ad24a9287df5c1cfcc"
+    },
+    "billing_outbox": {
+      "rows": 1,
+      "sha256": "ee080b791f29066b7a900503682309973e6384c0c4a0a152483d01bf800a9977"
+    },
+    "billing_payments": {
+      "rows": 1,
+      "sha256": "39e34dc180d1060f802991a32bf04a7a42d74a8a926adb6483a93416b2b99ea3"
+    },
+    "billing_prices": {
+      "rows": 1,
+      "sha256": "7a74818e2805254b46b13339dee0924a2f6ee3de9e84e7c980692ae2e4f87bcb"
+    },
+    "billing_refunds": {
+      "rows": 1,
+      "sha256": "27687a30fed5c89484e18689a145dd8cf5e3561477f02994165019e6aaa5813b"
+    },
+    "billing_resume_quotes": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_subscriptions": {
+      "rows": 1,
+      "sha256": "0d5550a3c2da5916795cd4f0c107c2c1d56060d272e4cc469220d75a7e12a844"
+    },
+    "cache": {
+      "rows": 12,
+      "sha256": "4ec4cbd7bd5d8355ed30e125ccc99764e51f4c63e4dde071f6a8e36adabba6af"
+    },
+    "cache_locks": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_assets": {
+      "rows": 3,
+      "sha256": "5eb2ca3d5a5c1cf4ba32435530c5c32b31c45a7f12f6604bbdeecc35f6403097"
+    },
+    "content_banners": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_categories": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_drama_categories": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_dramas": {
+      "rows": 2,
+      "sha256": "ca970ab261f3131bfc6188a46571a29fddf1f88b5e203c81272ee9194ff7ce26"
+    },
+    "content_episodes": {
+      "rows": 6,
+      "sha256": "2d085c95bc57a70e0d92561ee641bdbead275a31c099fdaa4038c44b12d36a80"
+    },
+    "content_grants": {
+      "rows": 19,
+      "sha256": "66cbade37e69b297841bd9bab5a1f9c0ecaec6a3c9976c4513196659e636b8c5"
+    },
+    "content_plans": {
+      "rows": 2,
+      "sha256": "88c4fb4958af910107bbfd212b83a0e618dfe18d760a393b4153680f22935d91"
+    },
+    "content_play_sessions": {
+      "rows": 16,
+      "sha256": "4d3b0b5448fe693dcc912222417f3062f62585f33f73a6824298b290280d1a35"
+    },
+    "content_publications": {
+      "rows": 1,
+      "sha256": "fa2f67a610db192fdef8802359fd9e81f32c9450ece68ab39015e07e65437672"
+    },
+    "content_settings": {
+      "rows": 1,
+      "sha256": "714c027bb0b6c962854d60baf6236ffbdada2f6d9ef55b83bc23c83dd8941c03"
+    },
+    "failed_jobs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity_audit_events": {
+      "rows": 34,
+      "sha256": "22da692de7437ed221becebb3e465eb3e0abe3df4b52da63d9771f169fb2ae5a"
+    },
+    "identity_password_reset_tokens": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity_staff": {
+      "rows": 1,
+      "sha256": "2e7c7cd31aba7b0d1a62d3abcbadb340405be73f867aced011fff4054299b17b"
+    },
+    "identity_viewers": {
+      "rows": 2,
+      "sha256": "060b35e7968a384989392a474142adfcce55ad50baf4b69eb7ebf0b00f5c3823"
+    },
+    "job_batches": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "jobs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "migrations": {
+      "rows": 12,
+      "sha256": "2c26f81e8bcef11fc5182cc35ce10006bd1de811559efbe60c07c8e67a30c04f"
+    },
+    "sessions": {
+      "rows": 16,
+      "sha256": "ff0d1d231848dc725380900f0c0896430ad7ee6270cfdd51c26152099c7c95e7"
+    }
+  },
+  "media_files": 42,
+  "media_sha256_match": true,
+  "dump_sha256": "be01e6556d077247d66da81a1927119df7a4b46dc201595b27463b354c1113be",
+  "seed": {
+    "contract": "1.0.4",
+    "orders": 1,
+    "payments": 1,
+    "entitlements": 1,
+    "refunds": 1,
+    "outbox": 1,
+    "access_active": true,
+    "renewal_enabled": false,
+    "public_episodes": 6,
+    "publications": 1,
+    "plan_states": [
+      "finished",
+      "active"
+    ],
+    "mfa_ciphertext_decrypts": true
+  },
+  "after_restart": {
+    "contract": "1.0.4",
+    "orders": 1,
+    "payments": 1,
+    "entitlements": 1,
+    "refunds": 1,
+    "outbox": 1,
+    "access_active": true,
+    "renewal_enabled": false,
+    "public_episodes": 6,
+    "publications": 1,
+    "plan_states": [
+      "finished",
+      "active"
+    ],
+    "mfa_ciphertext_decrypts": true
+  },
+  "after_two_publish_runs": {
+    "contract": "1.0.4",
+    "orders": 1,
+    "payments": 1,
+    "entitlements": 1,
+    "refunds": 1,
+    "outbox": 1,
+    "access_active": true,
+    "renewal_enabled": false,
+    "public_episodes": 6,
+    "publications": 2,
+    "plan_states": [
+      "finished",
+      "missed_pending_policy"
+    ],
+    "mfa_ciphertext_decrypts": true
+  },
+  "seconds": 68.3,
+  "payment_evidence": "testing-only FakeGateway; not official Stripe",
+  "scope": "local independent recovery, no cloud reboot or offsite retrieval; no worker/web/SMTP/ad/payment network started",
+  "application_key": "same checkout key loaded to verify MFA decrypt; not printed or exported"
+}

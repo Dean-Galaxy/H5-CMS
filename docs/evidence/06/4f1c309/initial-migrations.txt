@@ -1,0 +1,32 @@
+INFO  Preparing database.
+
+  Creating migration table ...................................... 17.38ms DONE
+
+   INFO  Running migrations.
+
+  0001_01_01_000001_create_cache_table .......................... 11.68ms DONE
+  0001_01_01_000002_create_jobs_table ........................... 35.73ms DONE
+  2026_10_06_000001_identity_foundation ......................... 83.21ms DONE
+  2026_10_07_020001_create_content_tables ...................... 118.17ms DONE
+  2026_10_07_040001_create_audience_progress_tables ............. 47.26ms DONE
+  2026_10_07_200000_create_billing_tables ....................... 70.16ms DONE
+  2026_10_07_200100_add_billing_reconciliation_cursor ........... 12.17ms DONE
+  2026_10_07_200200_add_billing_retry_rotation .................. 14.05ms DONE
+  2026_10_07_200300_add_billing_checkout_intents ................. 9.56ms DONE
+
+{
+  "workspace": "h5_217e1741db",
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "website": "http://127.0.0.1:8206",
+  "admin": "http://127.0.0.1:8206/admin",
+  "database": "h5_217e1741db",
+  "db_port": 5606,
+  "mail": "仅本地预览，未验证真实送达",
+  "media": "/Users/hejunxiang/.codex/worktrees/h5-06-acceptance/H5/.runtime/media"
+}

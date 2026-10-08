@@ -1,0 +1,37 @@
+{
+  "source_commit": "72c1235bae361c8f5e5eb1a261163fe70d8abb5f",
+  "baseline_tag": "h5-audience-v1",
+  "baseline_commit": "501dc2584b8973239669e346fd12dcca19e6ce47",
+  "shared_commit": "6fe17f126b3e1d21e3b3a925973281f31d3945b6",
+  "contract": "1.0.3",
+  "full_suite": {
+    "tests": 246,
+    "assertions": 2221,
+    "profile": "H5_LOCAL_MODULES=; testing cases explicitly register their module"
+  },
+  "module_suite": {
+    "tests": 32,
+    "assertions": 253
+  },
+  "files": {
+    "README.md": "e92e8b5660ce718f47814dcd625229013fa8e235059e96ffe6aa28afdf0f0a27",
+    "composer-audit.json": "3d68c4566587606c21e4bcd82b55d322ddb79158f657d9fb90bf0d24ab5bccdf",
+    "full-regression.txt": "34c48907bc03603dfed22a39c6ccd2a735ba0e1d92cbe3f83edf542aae00afcf",
+    "http-initial-wrong-route.json": "f7115744475f33c2fcd137060b81396ee2e43009d2a99c12be96ab791aebe228",
+    "http.json": "b502f41f9f72e46c12276f26cc03097d00764e553a3acb47b060e23655b40aef",
+    "initial-failed-retry-test.txt": "8c706cec1dd18ea2195392796720f9cf287755fc44167ca00c35f074dafef7a6",
+    "migrate.txt": "2683d225b8f35bbc3238fdcaab657d5324b348542175107e8546ebc4a57cd903",
+    "migrations.txt": "41cc5476a7807f8d1f4b9e612704446424d59952564188d29ef4d058d0bdedaf",
+    "module-before-ui-fix.txt": "8c2327a8213de498ba3baec3c285ae9678129d7363d687340712c52261fd8818",
+    "module-tests.txt": "2e98872b1143fed4cf1ee7fa1d61dc4a374cc8c6bbf24a4e3748e74c7206293c",
+    "official-platform-notes.md": "3661cce0242ca9a1996d4df7febd129c99bfbfc65a54c8fd121a145b5c39c666",
+    "retry-regression.txt": "19d75692ed646120412141b9db125c89dbffce02f1741aa84ecc6c05beb91225",
+    "runtime-default.json": "fe017dda058a16a27c21b3d645b2881f155e22928543e2357b1910a0daed9614",
+    "runtime-enabled.json": "db03b878ea0cb6fd02cae714a6217b029816c23ebbc54cb129c7c2dbf603bd7d",
+    "runtime-status.json": "a976c5aa1adbdf73789ec4541ee8cef6fa09aab2e8b4dfef52a4bd37dc8a66e8",
+    "schemas.txt": "c3b414482aba46ff938afb2f1b438d5bc37226852fa8754b65978ea5b5572947",
+    "start.txt": "c3ac3e45e4bf772518c778f2fbf1bcb7e15a1a28239d11a4ec23374512a770ce",
+    "ui-state-regression.txt": "e7a0b62dd3ecf0fdfa940121e020b839ce4df2fdda046510e906958ba08e1039",
+    "workbench.jpg": "3d463353e5d76fcfd2f5f48d4dafd8b3b65bfa9609b75baa3982e9871a54eb09"
+  }
+}

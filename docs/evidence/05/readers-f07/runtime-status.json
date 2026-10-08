@@ -1,0 +1,16 @@
+{
+  "workspace": "h5_d2a32071a6",
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "website": "http://127.0.0.1:8205",
+  "admin": "http://127.0.0.1:8205/admin",
+  "database": "h5_d2a32071a6",
+  "db_port": 5605,
+  "mail": "仅本地预览，未验证真实送达",
+  "media": "/Users/hejunxiang/.codex/worktrees/h5-05-acquisition/H5/.runtime/media"
+}

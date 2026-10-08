@@ -213,12 +213,15 @@ final class BillingCheckoutCompatibilityTest extends BillingTestCase
 
     private function checkoutSessionFixture(object $order): array
     {
+        $request = BillingStore::json($order->checkout_request);
+
         return [
             'id' => 'cs_legacy_compatibility', 'object' => 'checkout.session', 'livemode' => false,
             'mode' => 'subscription', 'status' => 'open', 'customer' => 'cus_legacy_compatibility',
             'client_reference_id' => $order->id, 'metadata' => ['order_id' => $order->id],
             'amount_total' => 300, 'currency' => 'usd', 'payment_status' => 'unpaid', 'subscription' => null,
             'url' => 'https://checkout.stripe.com/c/pay/legacy_compatibility',
+            'success_url' => $request['params']['success_url'], 'cancel_url' => $request['params']['cancel_url'],
             'expires_at' => CarbonImmutable::parse($order->expires_at)->timestamp,
         ];
     }
