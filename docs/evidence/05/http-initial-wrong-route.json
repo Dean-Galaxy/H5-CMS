@@ -1,0 +1,96 @@
+[
+  {
+    "method": "GET",
+    "path": "/health",
+    "status": 200,
+    "expected": 200,
+    "pass": true,
+    "body": {
+      "status": "ok",
+      "request_id": "01a115a5-9f13-7037-bf97-826a37e91ee6",
+      "modules": {
+        "identity": "ready",
+        "content": "ready",
+        "billing": "ready",
+        "audience": "ready",
+        "acquisition": "ready"
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/admin/acquisition-desk",
+    "status": 302,
+    "expected": 302,
+    "pass": true,
+    "body": {
+      "kind": "html",
+      "bytes": 378
+    },
+    "location": "http://127.0.0.1:8205/admin/login"
+  },
+  {
+    "method": "GET",
+    "path": "/r/explicit-local-test-only",
+    "status": 503,
+    "expected": 503,
+    "pass": true,
+    "body": {
+      "error": {
+        "code": "DEPENDENCY_NOT_READY",
+        "message": "Acquisition：D05 来源规则与落地插槽 模块未就绪",
+        "request_id": "01a115a5-9f58-7000-ad20-55a5d64b7648",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/livewire/update",
+    "status": 404,
+    "expected": 419,
+    "pass": false,
+    "body": {
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "资源不存在",
+        "request_id": "01a115a5-9f74-7192-b015-dce45d5b2237",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/acquisition/payment-settled",
+    "status": 404,
+    "expected": 404,
+    "pass": true,
+    "body": {
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "资源不存在",
+        "request_id": "01a115a5-9f85-7119-937c-902fb9f0f3ca",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/catalog",
+    "status": 403,
+    "expected": 403,
+    "pass": true,
+    "body": {
+      "error": {
+        "code": "REGION_BLOCKED",
+        "message": "无法核实地区，当前内容不可用",
+        "request_id": "01a115a5-9f93-7130-bd89-1c030a3ec531",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  }
+]

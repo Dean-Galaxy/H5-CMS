@@ -1,0 +1,64 @@
+{
+  "created_utc": "2026-10-07T11:54:03.109718+00:00",
+  "baseline_tag": "h5-shared-v1.0.4",
+  "baseline_commit": "0c88f07d2238fee6ad41ea162152e4a85325c55d",
+  "tested_commit": "6dcf6038e964678a8261379736482a6200631f07",
+  "contract_observed": "1.0.4",
+  "affected_tests": {
+    "passed": 39,
+    "assertions": 622,
+    "seconds": 16.76
+  },
+  "runtime_cases_passed": 41,
+  "http": {
+    "security": 18,
+    "audience": 8
+  },
+  "recovery": {
+    "tables": 47,
+    "media": 42,
+    "seconds": 68.3,
+    "official_payment": false
+  },
+  "not_executed": [
+    "new-version MSE/browser/device replay",
+    "full 293-case suite by 06",
+    "real FPM/systemd/container/nginx/TLS",
+    "official payment or SMTP connection",
+    "external deployment/offsite recovery"
+  ],
+  "commands": [
+    "python3 scripts/ops/runtime_probe.py",
+    "python3 scripts/ops/run_acceptance.py tests/Feature/Contracts tests/Integration tests/Security",
+    "python3 scripts/ops/backup_restore.py",
+    ".runtime/contracts/bin/python scripts/validate_contracts.py",
+    "python3 scripts/dev.py stop; python3 scripts/dev.py start (sequential; owned old/new PID and DB checks)",
+    "php scripts/ops/check_runtime.php --expect-env=local",
+    "python3 h5-platform/tests/Security/live_probe.py",
+    "python3 h5-platform/tests/Feature/Audience/http_smoke.py"
+  ],
+  "source_sha256": {
+    "deploy/h5-queue.service": "7673071aa06ccee9a5a7a576334b924bf3e4d0a99930bd69c85954a0ce086617",
+    "deploy/h5-scheduler.service": "b015b8c6880d2cb67454c15f7f67b62b11c2bae9ab2a2d68bc14536b2f6e47a6",
+    "deploy/php-fpm-staging.conf": "18fd548a8de9073d7b471cfa7771db310516cae02e9588d568529e3dc3411953",
+    "deploy/staging.env.example": "a30a2615f1c59e2c13aafafcd946535b75de07e7da096e43c8411b5e370f8b6d",
+    "h5-platform/tests/Integration/Support/recovery_fixture.php": "bffd3d52221d9463aedbfd75fe930f513caf5b932a5954e95e9a96d8f1537665",
+    "h5-platform/tests/Security/Support/runtime-probe.php": "67397020b56a3bb4bd675d617708e7ecbbcd2871d0ebe7f3337e1042ad307c3d",
+    "scripts/ops/backup_restore.py": "ee272e0c43c020ab251443216407c925b3358573d9697c9649a2f31f3a16754a",
+    "scripts/ops/check_runtime.php": "aec18c9cafd22f77083697890ff499f8635f3f64e3f80d4ec13b54f2508a0aeb",
+    "scripts/ops/runtime_probe.py": "387338a304f7cec076ff1c862b2ee24ff3f9cbd79c0c5eeec7c95aff74a2a040"
+  },
+  "evidence_sha256": {
+    "README.md": "01cc45a6c67822ae19cf6c45ca7be47e72035ba899cd89f90016f816953c4c38",
+    "affected.txt": "61693a6fe842c59e80a67404fe3a670387ef2bd8797867e397ba3597cc8eed9f",
+    "audience-http.json": "1332a017ac9bb50e2e9dc3c7882b417efd75d3aa9f2b9fea8ecded9093345e40",
+    "backup-restore.json": "4461498d1143ff7ff885d26434d65f90d5dbec30dcb721b7ac4c809a87f85a1c",
+    "contracts.txt": "3cbec9b6784d7d1f1ea533f7b98cb58c88f46c05dcee440a8380b6ad94bbc0e0",
+    "deployment-static.json": "4a6f618343df65b370d93c04c47162f3645d318f11722986baf2eda39b1e7c9d",
+    "format.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
+    "restart.json": "a599a114635d3fcc4f438bd785be274b61cf34c3e183d68f3290b30617412462",
+    "restart.txt": "2b2b1e13ee23f91b7714c16d3e2523d6eb27b020e599fc428f051f79dc658331",
+    "runtime.json": "00d8b261ce17cb9f37190e338d6f3804ed734d7657b919e56c682b2438b1ba85",
+    "security-http.json": "21e65d7931020c719a1d0255e4c6897ecd10ad95eb5949302dbd062c400d7519"
+  }
+}

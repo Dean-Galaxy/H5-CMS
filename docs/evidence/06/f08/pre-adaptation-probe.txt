@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/hejunxiang/.codex/worktrees/h5-06-acceptance/H5/scripts/ops/runtime_probe.py", line 83, in <module>
+    observed = run({**base, field: value}, expected=reason)
+  File "/Users/hejunxiang/.codex/worktrees/h5-06-acceptance/H5/scripts/ops/runtime_probe.py", line 34, in run
+    assert observed['reason'] == expected, (expected, observed)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('Billing only supports an explicitly configured isolated Stripe test environment.', {'ok': False, 'reason': 'BILLING_STAGING_NOT_ENABLED'})

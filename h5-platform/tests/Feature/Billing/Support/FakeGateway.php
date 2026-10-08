@@ -3,6 +3,7 @@
 namespace Tests\Feature\Billing\Support;
 
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Support\CheckoutSafety;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
 
@@ -41,14 +42,30 @@ final class FakeGateway implements PaymentGateway
     {
         $this->assertAvailable();
 
-        $params = ['metadata' => ['order_id' => $order->id]];
+        $metadata = ['order_id' => (string) $order->id, 'viewer_id' => (string) $order->viewer_id,
+            'subscription_id' => (string) $subscription->id, 'price_version' => (string) $order->price_version];
+        $returnUrl = app(CheckoutSafety::class)->expectedReturnUrl($order);
+        $prepared = now()->startOfSecond();
+        $expires = $prepared->copy()->addSeconds(1860);
+        $params = [
+            'mode' => 'subscription', 'customer' => 'cus_'.$order->viewer_id, 'client_reference_id' => (string) $order->id,
+            'metadata' => $metadata, 'subscription_data' => ['metadata' => $metadata],
+            'line_items' => [[
+                'price_data' => ['currency' => 'usd', 'unit_amount' => (int) $order->regular_amount_minor,
+                    'recurring' => ['interval' => 'week', 'interval_count' => 1],
+                    'product_data' => ['name' => 'TEST — H5 weekly membership', 'metadata' => ['price_version' => (string) $order->price_version]]],
+                'quantity' => 1,
+            ]],
+            'payment_method_types' => ['card'], 'adaptive_pricing' => ['enabled' => false], 'automatic_tax' => ['enabled' => false],
+            'success_url' => $returnUrl, 'cancel_url' => $returnUrl, 'expires_at' => $expires->timestamp,
+        ];
         if ($order->amount_minor < $order->regular_amount_minor) {
             $params['discounts'] = [['coupon' => 'coupon_test_'.$order->id]];
         }
 
-        return ['params' => $params, 'idempotency_key' => 'checkout-'.$order->id,
-            'customer_id' => 'cus_'.$order->viewer_id, 'prepared_at' => now()->startOfSecond()->toIso8601ZuluString(),
-            'expires_at' => now()->startOfSecond()->addSeconds(1860)->toIso8601ZuluString()];
+        return ['params' => $params, 'idempotency_key' => 'h5-checkout-'.$order->id,
+            'customer_id' => 'cus_'.$order->viewer_id, 'prepared_at' => $prepared->toIso8601ZuluString(),
+            'expires_at' => $expires->toIso8601ZuluString()];
     }
 
     public function createCheckout(object $order, object $subscription): array

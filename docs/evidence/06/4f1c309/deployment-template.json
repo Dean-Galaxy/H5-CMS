@@ -1,0 +1,9 @@
+{
+  "candidate_commit": "61ff6c4dcf909cc8fc79fb6bf5f3a0fda3a3b9b7",
+  "file": "deploy/nginx-staging.conf.template",
+  "sha256": "33ea3e3a9468f1e1885192c540f9b7af1eafa0dcbcb0bf94b81725e2f0dde446",
+  "offline_render_and_all_four_entry_logging_check": "passed",
+  "nginx_config_test": "not_executed; no local nginx runtime",
+  "tls_or_external_request_checks": "not_executed",
+  "application_and_tests_unchanged_from": "88c2feff53b3f962ab85bc4a3799463754d54759"
+}

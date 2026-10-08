@@ -1,0 +1,5 @@
+{
+  "code_commit": "1e2d5ef2b3754a18f6a50dd9d4f424b05daa1220",
+  "exit_code": 1,
+  "expected_failure": "old 06 expectation differs from BILLING_STAGING_NOT_ENABLED"
+}

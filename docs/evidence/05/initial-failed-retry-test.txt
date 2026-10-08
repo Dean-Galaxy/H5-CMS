@@ -1,0 +1,80 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Acquisition\AssetTest
+  ✓ owner and assigned scope is enforced for reads writes probe summary… 0.45s  
+  ✓ mfa disabled staff and wrong roles cannot read assets                0.03s  
+  ✓ registration does not enable external delivery or accept script or…  0.04s  
+  ✓ pixel versions and link versions reject stale updates and unfrozen…  0.04s  
+  ✓ link requires accessible matching pixel and current content          0.04s  
+  ✓ unfrozen attribution is explicitly unavailable and does not trust m… 0.05s  
+
+   PASS  Tests\Feature\Acquisition\BillingBridgeTest
+  ✓ real billing outbox reaches consumer once and unattributed does not… 0.07s  
+
+   PASS  Tests\Feature\Acquisition\ConcurrencyTest
+  ✓ two postgresql connections contend and record one payment even with… 0.43s  
+
+   FAIL  Tests\Feature\Acquisition\DeliveryTest
+  ✓ both platforms have explicit local sending and no external requests  0.15s  
+  ✓ disabled sender and unknown or revoked consent block real attempts   0.05s  
+  ✓ test payments can never be sent to production assets                 0.05s  
+  ✓ http adapters map integer usd stable ids and do not send contact or… 0.08s  
+  ⨯ failed retry uses frozen payload and stable event id then stops aft… 0.07s  
+  ✓ http 200 errors and redirects are not marked accepted                0.06s  
+  ✓ simulated context missing credentials and disabled pixel are blocke… 0.05s  
+  ✓ active lease prevents duplicate sending and expired lease can recov… 0.04s  
+  ✓ retry limit and production simulation boot guard                     0.04s  
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ form save reopen local probe link edit disable and summary           0.18s  
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.08s  
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.04s  
+
+   PASS  Tests\Feature\Acquisition\PaymentTest
+  ✓ event and payment deduplication preserve one receipt and one conver… 0.04s  
+  ✓ same payment with changed facts is rejected without overwriting his… 0.06s  
+  ✓ unknown source is not reinterpreted as current pixel and no source…  0.06s  
+  ✓ first resubscription renewal and test real are separate but same ki… 0.07s  
+  ✓ pixel and link edits do not rewrite already received attribution or… 0.06s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Acquisition\DeliveryTest > failed retry uses frozen…   
+  Failed asserting that two arrays are identical.
+               'event' => 'Purchase',
+               'event_time' => 1791363085,
+               'event_id' => 'h5_2576f6fc75c097a09dcd508b254fbe44dd97738b6c7622de90e95ff8d402a6ea',
+  -            'user' => stdClass Object #839 (
+  +            'user' => Array &3 [
+                   'ip' => '8.8.8.8',
+                   'user_agent' => 'Explicit PHPUnit simulated browser',
+  -            ),
+  -            'page' => Array &3 [
+  +            ],
+  +            'page' => Array &4 [
+                   'url' => 'https://localhost/dramas/01a1158f-7446-7047-bebf-05a5822915d3',
+               ],
+  -            'properties' => Array &4 [
+  +            'properties' => Array &5 [
+                   'currency' => 'USD',
+                   'value' => 3,
+                   'transaction_kind' => 'first_subscription',
+  
+
+  at tests/Feature/Acquisition/DeliveryTest.php:113
+    109▕             $this->assertSame('api_accepted', $row->state);
+    110▕             $this->assertSame(2, $row->attempts);
+    111▕             $this->assertSame($frozen, Crypt::decryptString($row->payload_encrypted));
+    112▕             $requests = Http::recorded();
+  ➜ 113▕             $this->assertSame($requests[0][0]->data(), $requests[1][0]->data());
+    114▕             $this->assertSame(0, app(AssetManager::class)->retry($link['id']));
+    115▕             Http::assertSentCount(2);
+    116▕         }
+    117▕     }
+
+  1   tests/Feature/Acquisition/DeliveryTest.php:113
+
+
+  Tests:    1 failed, 24 passed (185 assertions)
+  Duration: 2.53s
+

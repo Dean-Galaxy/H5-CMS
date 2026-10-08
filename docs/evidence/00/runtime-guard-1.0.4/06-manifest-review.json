@@ -1,0 +1,12 @@
+{
+  "delivery": "9748a1eea31698995553b69fdf617285dce36e06",
+  "runtime_tested": "88c2feff53b3f962ab85bc4a3799463754d54759",
+  "business_baseline": "4f1c3097a38309e88c9bea5dcb1b6992f9f007d3",
+  "evidence_digests": 29,
+  "tool_digests": 20,
+  "application_matches_4f1": true,
+  "tests_ops_unchanged_after_tested": true,
+  "ownership_paths": 54,
+  "deployment_template_separately_verified": true,
+  "limits": "Digests and source inspection, not repeated browser/recovery/TLS execution."
+}

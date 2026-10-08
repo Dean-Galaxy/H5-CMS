@@ -2,16 +2,19 @@
 
 use App\Modules\Identity\Http\RequestContext;
 use App\Modules\Identity\Http\SessionProtection;
+use App\Support\DirectConnectionContext;
 use App\Support\ProblemRenderer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(web: __DIR__.'/../routes/web.php', commands: __DIR__.'/../routes/console.php')
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->replace(TrustProxies::class, DirectConnectionContext::class);
         $middleware->trustHosts(at: fn () => ['^'.preg_quote(parse_url(config('app.url'), PHP_URL_HOST), '/').'$'], subdomains: false);
         $middleware->prepend(RequestContext::class);
         $middleware->web(append: [SessionProtection::class]);

@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H5 common contracts",
-    "version": "1.0.2",
-    "description": "00 共同契约 1.0.2；接收 Identity 与 Content，健康状态允许 ready/not_ready 并按实际装载返回；账务、观众网站及投流尚未集成。保留 1.0.1 的业务字段、地区和播放会话语义。"
+    "version": "1.0.4",
+    "description": "00兼容契约1.0.4：保留1.0.3的公开字段、DTO与业务方法；增加公共RuntimeEnvironmentGuard、严格非本地配置检查和直连入口约定。开关默认关闭；Billing受控staging接入、可信地区、D05及外部部署仍须独立接收。"
   },
   "servers": [
     {
@@ -9356,6 +9356,131 @@
           }
         ],
         "description": "内部 RegionResolver 的返回结构，不是公开地区选择接口。首版默认 unresolved/ZZ；只有显式启用的 local/testing 直接 loopback HTTP 返回 local_us_test/US。尚无真实地区服务实现。"
+      },
+      "AssignableStaff": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "const": "acquisition"
+          },
+          "active": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "role",
+          "active"
+        ],
+        "additionalProperties": false,
+        "description": "内部员工分配候选：仅启用的投流员工；负责人和后台MFA校验由01执行。不含邮箱、联系方式或认证信息。"
+      },
+      "PromotableDrama": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "zh_CN"
+            ]
+          },
+          "country_code": {
+            "type": "string",
+            "const": "US"
+          },
+          "published_episode_count": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "locale",
+          "country_code",
+          "published_episode_count"
+        ],
+        "additionalProperties": false,
+        "description": "内部美国投放片单：02已核对当前发布、美国授权和至少一集实际可用公开内容。不是观众地区判定或播放许可；不含媒体地址。"
+      },
+      "AssignableStaffPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/AssignableStaff"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
+      },
+      "PromotableDramaPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/PromotableDrama"
+            }
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "additionalProperties": false
       }
     }
   }

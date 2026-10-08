@@ -1,0 +1,48 @@
+{
+  "candidate": "6a61dd46586b15bddb075d82cc00076c0a14a5d7",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200,
+      "expected": 200,
+      "health": {
+        "status": "ok",
+        "request_id": "01a11626-c601-713e-9d9e-a418b464b31f",
+        "modules": {
+          "identity": "ready",
+          "content": "ready",
+          "billing": "ready",
+          "audience": "ready",
+          "acquisition": "not_ready"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/identity/login",
+      "status": 200,
+      "expected": 200,
+      "viewer_cookie_http_only_lax": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 419,
+      "expected": 419
+    }
+  ],
+  "scope": "00 local HTTP start; unknown region homepage/catalog 403 expected; no fixture or key import."
+}

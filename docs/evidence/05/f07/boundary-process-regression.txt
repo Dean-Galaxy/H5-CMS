@@ -1,0 +1,17 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Acquisition\DeliveryBoundaryTest
+  ✓ lost or expired lease during preparation never sends or changes the… 0.39s  
+  ✓ sixth attempt is reserved with frozen payload and original first ti… 0.08s  
+  ✓ late response cannot overwrite expired or replaced lease             0.05s  
+  ✓ consent revoked during payload preparation blocks reservation and s… 0.04s  
+
+   PASS  Tests\Feature\Acquisition\DeliveryProcessTest
+  ✓ real process takeover leaves resumed old preparer without transport… 1.12s  
+  ✓ six sigkills inside http do not lose reservations or allow a sevent… 3.14s  
+
+  Tests:    6 passed (172 assertions)
+  Duration: 5.00s
+

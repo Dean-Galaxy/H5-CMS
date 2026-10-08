@@ -1,0 +1,34 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Acquisition\DeliveryBoundaryTest
+  ✓ lost or expired lease during preparation never sends or changes the… 0.43s  
+  ✓ sixth attempt is reserved with frozen payload and original first ti… 0.10s  
+  ✓ late response cannot overwrite expired or replaced lease             0.06s  
+  ✓ consent revoked during payload preparation blocks reservation and s… 0.05s  
+
+   FAIL  Tests\Feature\Acquisition\DeliveryProcessTest
+  ✓ real process takeover leaves resumed old preparer without transport… 1.14s  
+  ⨯ six sigkills inside http do not lose reservations or allow a sevent… 0.40s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Acquisition\DeliveryProcessTest > six sigkil…  Error   
+  Call to undefined method Symfony\Component\Process\Process::isSignaled()
+
+  at tests/Feature/Acquisition/DeliveryProcessTest.php:153
+    149▕                 $this->assertSame($frozen, $stored->payload_encrypted);
+    150▕                 $this->assertSame($delivery->event_key, $stored->event_key);
+    151▕                 $worker->signal(9);
+    152▕                 $worker->wait();
+  ➜ 153▕                 $this->assertTrue($worker->isSignaled());
+    154▕                 $this->assertSame(9, $worker->getTermSignal());
+    155▕                 DB::table('acquisition_deliveries')->where('id', $delivery->id)->update(['lease_until' => now()->subSecond()]);
+    156▕                 $this->proof[$platform]['killed_attempts'][] = $io + ['signal' => 9];
+    157▕             }
+
+  1   tests/Feature/Acquisition/DeliveryProcessTest.php:153
+
+
+  Tests:    1 failed, 5 passed (65 assertions)
+  Duration: 2.36s
+

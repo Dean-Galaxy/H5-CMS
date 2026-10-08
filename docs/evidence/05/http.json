@@ -1,0 +1,96 @@
+[
+  {
+    "method": "GET",
+    "path": "/health",
+    "status": 200,
+    "expected": 200,
+    "pass": true,
+    "body": {
+      "status": "ok",
+      "request_id": "01a115a6-7541-7367-a1c0-ee35d843cc70",
+      "modules": {
+        "identity": "ready",
+        "content": "ready",
+        "billing": "ready",
+        "audience": "ready",
+        "acquisition": "ready"
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/admin/acquisition-desk",
+    "status": 302,
+    "expected": 302,
+    "pass": true,
+    "body": {
+      "kind": "html",
+      "bytes": 378
+    },
+    "location": "http://127.0.0.1:8205/admin/login"
+  },
+  {
+    "method": "GET",
+    "path": "/r/explicit-local-test-only",
+    "status": 503,
+    "expected": 503,
+    "pass": true,
+    "body": {
+      "error": {
+        "code": "DEPENDENCY_NOT_READY",
+        "message": "Acquisition：D05 来源规则与落地插槽 模块未就绪",
+        "request_id": "01a115a6-757f-7392-bbd0-191c0fe84358",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/admin/livewire/update",
+    "status": 419,
+    "expected": 419,
+    "pass": true,
+    "body": {
+      "error": {
+        "code": "CSRF_MISMATCH",
+        "message": "页面已过期，请刷新后重试",
+        "request_id": "01a115a6-7594-70bc-8564-7cfe37bf1936",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/acquisition/payment-settled",
+    "status": 404,
+    "expected": 404,
+    "pass": true,
+    "body": {
+      "error": {
+        "code": "NOT_FOUND",
+        "message": "资源不存在",
+        "request_id": "01a115a6-75b0-7346-8535-ebba1a162cc2",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/catalog",
+    "status": 403,
+    "expected": 403,
+    "pass": true,
+    "body": {
+      "error": {
+        "code": "REGION_BLOCKED",
+        "message": "无法核实地区，当前内容不可用",
+        "request_id": "01a115a6-75bd-725d-8177-d6383836632d",
+        "fields": null,
+        "retryable": false
+      }
+    }
+  }
+]
