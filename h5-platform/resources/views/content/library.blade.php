@@ -22,5 +22,6 @@
         <x-slot:actions><div id="content-dialog-actions" class="h5-toolbar"></div></x-slot:actions>
     </x-admin.dialog>
 </x-admin.workspace>
+<script src="{{ asset('content/errors.js') }}?v={{ substr(hash_file('sha256', public_path('content/errors.js')), 0, 12) }}" defer></script>
 <script src="{{ asset('content/admin.js') }}?v={{ substr(hash_file('sha256', public_path('content/admin.js')), 0, 12) }}" defer></script>
 </x-filament-panels::page>

@@ -1,6 +1,6 @@
 <x-filament-panels::page>
 <x-admin.workspace id="content-settings" title="全局设置" description="设置新剧默认试看规则；单剧覆盖由内容管理维护。" wire:ignore>
-    <link rel="stylesheet" href="{{ asset('content/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('content/admin.css') }}?v={{ substr(hash_file('sha256', public_path('content/admin.css')), 0, 12) }}">
     <form id="content-default-form" class="h5-card">
         <h3>默认免费集数</h3>
         <label class="h5-field ct-default-count">新剧默认前多少集免费<input class="h5-input" name="free_count" type="number" min="0" max="10000" required></label>
@@ -16,5 +16,6 @@
         <x-slot:actions><button class="h5-button" type="button" data-admin-close>取消</button><button id="content-default-confirm" class="h5-button h5-primary" type="button">确认修改</button></x-slot:actions>
     </x-admin.dialog>
 </x-admin.workspace>
+<script src="{{ asset('content/errors.js') }}?v={{ substr(hash_file('sha256', public_path('content/errors.js')), 0, 12) }}" defer></script>
 <script src="{{ asset('content/settings.js') }}?v={{ substr(hash_file('sha256', public_path('content/settings.js')), 0, 12) }}" defer></script>
 </x-filament-panels::page>
