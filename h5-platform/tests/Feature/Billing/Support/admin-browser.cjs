@@ -98,6 +98,7 @@ async function login(ctx, role) {
             check('shared patch discard restores original price without new version', await amount.inputValue() === '12.34');
             await snapshot(page, 'shared-owner-prices');
             await page.setViewportSize({ width: 375, height: 812 });
+            await page.locator('.fi-sidebar-close-overlay').waitFor({ state: 'hidden' });
             check('shared patch mobile has no document horizontal overflow', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
             await snapshot(page, 'shared-mobile-prices');
             check('shared patch has no external avatar or other external requests', external.size === 0 && externalFinished.size === 0);
