@@ -5,7 +5,7 @@
 - Git 根目录是 `/Volumes/KESU/H5`；应用统一在 `h5-platform/`。独立工作区可有不同绝对路径，不得回历史目录建立第二套主工程。
 - `原版/` 永久只读、不跟踪、不导入旧业务数据，不复用其中密钥、认证或支付逻辑。真实密钥、素材、依赖、缓存、数据库、邮件预览不进入 Git。
 - 先读 `docs/H5首版业务规则确认稿.md` 和 `docs/多任务开发规划/00-总计划.md` 至 `03-进度与交接台账.md`。保留已有变更。已确认业务规则优先，未确认事项不得冒充事实。
-- 01–04、05本地独立阶段及06本地验收包已由00接收；03受控测试环境适配和06 F08恢复修复均已通过00复核，当前main为 `5044b27`（应用接收提交 `a25dd8f`）、契约1.0.4，见00-18和总台账。h5-shared-v1.0.4旧标签不移动。真实地区、官方支付及外部测试站未放行。05仍仅local/testing显式启用，D03/D05/网站衔接/外发未放行；接口放行不等于新任务启动授权。
+- 01–04、05本地独立阶段及06本地验收包已由00接收；03受控测试环境适配和06 F08恢复修复均已通过00复核，既有应用接收提交 `a25dd8f`、10-08文档基线 `15bd8fa`、契约1.0.4，见00-18和总台账。2026-10-21用户在08批准员工后台UI v2并授权对应模块实施，归档`bc5a24d`、派发回执`321c860`已接收；当前共享组件接入点见00-19和`docs/contracts/admin-ui-v1.md`，本轮真实模块改版尚待交付和组合验收。h5-shared-v1.0.4旧标签不移动。真实地区、官方支付及外部测试站未放行。05仍仅local/testing显式启用，D03/D05/网站衔接/外发未放行。
 
 ## 文件及事实归属
 
@@ -13,7 +13,7 @@
 
 | 任务 | 归属 |
 |---|---|
-| 00 | 根配置、依赖及锁文件、bootstrap、公共路由装载、app/Contracts、app/Data、app/Enums、公共 app/Support、tests/Feature/Contracts、docs/contracts、根 AGENTS.md；总台账与串行合并 |
+| 00 | 根配置、依赖及锁文件、bootstrap、公共路由装载、app/Contracts、app/Data、app/Enums、公共 app/Support、tests/Feature/Contracts、docs/contracts、根 AGENTS.md；总台账与串行合并；共享员工后台 app/Providers/Filament/AdminPanelProvider.php、resources/views/components/admin、public/admin-ui、app/Support/Admin |
 | 01 | app/Modules/Identity、身份配置、routes/modules/identity.php、resources/views/identity、tests/Feature/Identity；观众、员工、认证、权限与审计基础 |
 | 02 | app/Modules/Content、routes/modules/content.php、内容资源/视图/迁移及 tests/Feature/Content |
 | 03 | app/Modules/Billing、routes/modules/billing.php、账务资源/迁移及 tests/Feature/Billing；唯一付款、订阅、权益事实 |
@@ -22,6 +22,8 @@
 | 06 | tests/Integration、tests/Security、tests/Browser、deploy、scripts/ops、部署验收文档 |
 
 01 首次创建共享骨架；00 接收后转交共同文件所有权。模块可增加自己命名的迁移，禁止改已采用的迁移。跨模块查询与写入经过契约，不复制会员或付款判断。
+
+08本轮公共UI使用`admin-ui-v1`，业务契约仍1.0.4。员工最低8位仅由01在员工作用域实现，不顺带放宽观众密码。员工界面美元输入/显示通过公共`UsdAmount`转换，账本/DTO/SDK/事件仍是最小单位整数。模块只用公共组件，不复制另一套壳或修改观众布局。保存未知/失败不清除未保存状态；原型数据、日期和成功定时器不进入真实业务。
 
 ## 契约变更
 
