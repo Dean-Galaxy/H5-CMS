@@ -39,11 +39,11 @@ async function login(page, identity) {
    const startGap=rect(first).top-rect(header).bottom;
    body.scrollTop=body.scrollHeight;
    const reachedBottom=Math.abs(body.scrollHeight-body.clientHeight-body.scrollTop)<=1;
-   const result={label, startGap, titleLineHeight:getComputedStyle(header.querySelector('h2')).lineHeight, closeWidth:rect(close).width,closeHeight:rect(close).height,iconWidth:rect(close.querySelector('svg')).width,bodyClientHeight:body.clientHeight,bodyScrollHeight:body.scrollHeight,reachedBottom,actionsBottom:rect(actions).bottom,viewportHeight:innerHeight,bodyFits:body.scrollWidth<=body.clientWidth};
+   const result={label, startGap, titleBottom:rect(header.querySelector('h2')).bottom,firstContentTop:rect(first).top+body.scrollTop,bodyTop:rect(body).top,closeBottom:rect(close).bottom, titleLineHeight:getComputedStyle(header.querySelector('h2')).lineHeight, closeWidth:rect(close).width,closeHeight:rect(close).height,iconWidth:rect(close.querySelector('svg')).width,bodyClientHeight:body.clientHeight,bodyScrollHeight:body.scrollHeight,reachedBottom,actionsBottom:rect(actions).bottom,viewportHeight:innerHeight,bodyFits:body.scrollWidth<=body.clientWidth};
    body.scrollTop=0;return result;
   },label);
   geometry.push(metrics);
-  check(label+' shared dialog spacing and mobile scroll/actions',Math.abs(metrics.startGap-5)<1&&metrics.titleLineHeight==='25.2px'&&metrics.closeWidth===44&&metrics.iconWidth===16&&metrics.reachedBottom&&metrics.actionsBottom<=metrics.viewportHeight&&metrics.bodyFits);
+  check(label+' shared dialog safe start and mobile scroll/actions',metrics.firstContentTop>=metrics.closeBottom-1&&metrics.bodyTop>=metrics.closeBottom-1&&Math.abs(metrics.firstContentTop-metrics.titleBottom-Math.max(5,metrics.closeBottom-metrics.titleBottom))<1&&metrics.titleLineHeight==='25.2px'&&metrics.closeWidth===44&&metrics.iconWidth===16&&metrics.reachedBottom&&metrics.actionsBottom<=metrics.viewportHeight&&metrics.bodyFits);
  };
  const measurePage=async label=>{
   const metrics=await page.locator('#acquisition-workspace').evaluate(w=>{
