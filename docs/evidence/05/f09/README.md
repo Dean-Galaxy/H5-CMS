@@ -2,7 +2,16 @@
 
 2026-10-21。模块交付候选，**待 00/08/06 复核，不是 F09 关闭或 07 恢复通知**。旧 3/11 人工结果及其他工作区数据未修改。
 
-## 固定版本与条件
+## 本轮增量：公共 2e6dd1b（最新候选）
+
+- 正常合并公共 `2e6dd1b4b7473a9ad542bb950e31ecc37e53a3c1`，最终源码/浏览器脚本 `89b3330823609413a8c9be8f7d343843ec53bf84`。三个弹窗均用公共默认5px起距；移除首项原有margin，不把原稿未画的内部空间写成18/20px设计要求。链接表单内位于说明和读取按钮之后的20px是内部字段间距，不是首项起距。
+- 仅重拍受影响弹窗：`dialogs-89b3330/` 共22张，20个原有扩展状态加2个375×500短手机真实长表单滚到底状态。旧32张页面配对保留原文件名；旧20张弹窗仅作历史，不能当本轮证据。当前索引54张，仓库历史共74张。
+- `browser-dialogs-89b3330.json`：50项实际浏览器检查通过。标题→tabs、tabs→panel四条件实测22px；弹窗首项5px、标题行高25.2px，X图标16px，按钮桌面44×37/手机44×42。关闭X、Esc、未保存确认、拒绝保存保留和焦点恢复已验；375×500实际表单body可视341px/内容532px，可滚到底，操作区底部464px。
+- **仍有视觉问题，已交00：** 手机长说明首行右端被绝对定位X遮挡，短屏滚动后的正文也可进入X下方。参见mobile-assignment与mobile-short-dark-scrolled-link图。公共标题25.2px+默认5px小于手机X高42px；05未自行提高起距或改共享组件。上述50项检查不覆盖正文与X遮挡，不能据此称视觉完成。待00统一处理，再更新受影响证据；F09和07暂停状态不变。
+- 基础页面可保留的源码证据：Blade首个dialog前片段与8d3b444逐字一致，SHA256 `98f102b17154da9f01cdac473b42328f5d0ca7db2ca7ae9d874f9ac572389443`；公共45785d8→2e6dd1b CSS仅dialog选择器变更，workspace/tabs/panel及AcquisitionDesk与DeskTest无变化。旧测试和图片不改名冒充重跑；清单分别保留旧manifest与最新manifest。
+- 一次短屏测量因上一轮滚动位置未复位而失败，已修正测试起点；一次登录跳转超时没有生成截图，随后经正常MFA重新运行通过，未绕过身份保护。最终截图已人工查看桌面新增、手机分配、失败保存和短屏暗色滚动状态，以上遮挡如实保留。
+
+## 先前固定版本与条件（基础页面证据）
 
 - 应用起点：`be7bb4f7c5585418883b777ce2e6f2676690f5ff`；正常同步 00 退回记录 `ca07803`，随后正常合入公共 `0311ed67d651665edb2fd22fdf65bb56ca16ae4e`、`b2f2f0042d9a5b6830a7ef8c1c313b3c6cb41881`、最终精确补丁 `45785d827a49dbf0f6793369ebceb5a02908a12e`，未复制公共实现。
 - 最终应用与测试源码：`8d3b444d338a5b76ec2a6f0af0737f6421f92101`；主要修复 `47c580c8bcf26468bf5bc9f1ac9b1aff69bb24ce`。契约仍 1.0.5 / admin-ui-v1。交付文档提交不改变该应用源码。
@@ -50,8 +59,9 @@ php h5-platform/tests/Feature/Acquisition/Support/f09-fixture.php
 H5_ACQUISITION_PREVIEW_URL=http://127.0.0.1:8205 \
 H5_ACQUISITION_PREVIEW_ACCOUNT=.runtime/acquisition-preview-account.json \
 H5_ACQUISITION_OPERATOR_ACCOUNT=.runtime/acquisition-operator-preview-account.json \
-H5_ACQUISITION_CAPTURE_PREFIX=8d3b444- \
-H5_ACQUISITION_SCREENSHOTS=docs/evidence/05/f09/screenshots \
+H5_ACQUISITION_DIALOGS_ONLY=1 \
+H5_ACQUISITION_CAPTURE_PREFIX=89b3330- \
+H5_ACQUISITION_SCREENSHOTS=docs/evidence/05/f09/dialogs-89b3330 \
 H5_PLAYWRIGHT_MODULE=/path/to/existing/playwright \
 node h5-platform/tests/Feature/Acquisition/Support/admin-ui-smoke.cjs
 ```
