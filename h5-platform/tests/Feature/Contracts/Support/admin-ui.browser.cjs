@@ -60,6 +60,30 @@ assert(['127.0.0.1', 'localhost'].includes(new URL(url).hostname), 'Fixture must
         check('confirmed discard closes original dialog', !(await page.locator('#test-dialog').isVisible()));
         check('focus returns to opener', await page.getByRole('button', { name: '打开编辑弹窗' }).evaluate(el => el === document.activeElement));
 
+        // Regression: a tall X must never cover the first line or scrolling text.
+        await page.evaluate(() => {
+            const dialog = document.createElement('dialog');
+            dialog.id = 'safe-header-dialog'; dialog.className = 'h5-admin-dialog'; dialog.dataset.adminDialog = '';
+            dialog.innerHTML = '<div class="h5-dialog-header"><h2>负责人分配</h2><button type="button" class="h5-button h5-dialog-close" data-admin-close aria-label="关闭弹窗"><svg viewBox="0 0 24 24"></svg></button></div><div class="h5-dialog-body"><p>这是一段需要换行的真实说明文字，用于核对关闭按钮不会遮挡正文或滚动内容。</p><div style="height:900px">长表单</div><input aria-label="末尾字段"></div><div class="h5-dialog-actions"><button class="h5-button">保存</button></div>';
+            document.body.append(dialog); H5Admin.openDialog(dialog);
+        });
+        const safe = page.locator('#safe-header-dialog');
+        await safe.evaluate(d => d.style.setProperty('--h5-dialog-content-start-gap', '20px'));
+        check('desktop declared 20px field start is preserved', await safe.evaluate(d => Math.abs(d.querySelector('.h5-dialog-body p').getBoundingClientRect().y - d.querySelector('h2').getBoundingClientRect().bottom - 20) < .1));
+        await page.setViewportSize({ width: 375, height: 500 });
+        await safe.evaluate(d => d.style.setProperty('--h5-dialog-content-start-gap', '5px'));
+        await page.waitForFunction(() => { const d = document.getElementById('safe-header-dialog'); return d.querySelector('.h5-dialog-body').getBoundingClientRect().top >= d.querySelector('.h5-dialog-close').getBoundingClientRect().bottom; });
+        check('short-screen first line clears the close button', await safe.evaluate(d => d.querySelector('p').getBoundingClientRect().top >= d.querySelector('.h5-dialog-close').getBoundingClientRect().bottom));
+        await safe.evaluate(d => d.querySelector('.h5-dialog-body').scrollTop = 500);
+        check('scroll viewport stays below the close button', await safe.evaluate(d => d.querySelector('.h5-dialog-body').getBoundingClientRect().top >= d.querySelector('.h5-dialog-close').getBoundingClientRect().bottom));
+        await safe.evaluate(d => { d.querySelector('.h5-dialog-body').scrollTop = 0; d.style.setProperty('--h5-dialog-content-start-gap', '18px'); });
+        check('mobile declared 18px field start is preserved', await safe.evaluate(d => Math.abs(d.querySelector('p').getBoundingClientRect().top - d.querySelector('h2').getBoundingClientRect().bottom - 18) < .1));
+        await safe.evaluate(d => d.querySelector('h2').textContent = '很长的真实员工姓名和对应资产名称需要多行显示时也不能覆盖关闭按钮与正文');
+        await page.waitForFunction(() => document.getElementById('safe-header-dialog').style.getPropertyValue('--h5-dialog-header-extra') === '0.0000px');
+        check('wrapped title keeps its declared content gap', await safe.evaluate(d => Math.abs(d.querySelector('p').getBoundingClientRect().top - d.querySelector('h2').getBoundingClientRect().bottom - 18) < .1));
+        await page.keyboard.press('Escape');
+        await safe.evaluate(d => d.remove());
+
         await page.setViewportSize({ width: 375, height: 667 });
         await page.getByRole('button', { name: '打开编辑弹窗' }).click();
         const buttonBox = await page.getByRole('button', { name: '保存弹窗' }).boundingBox();
