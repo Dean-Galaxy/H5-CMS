@@ -1,5 +1,6 @@
 /* Shared staff UI only. Audience/identity.css and audience/site.css remain independent. */
 .fi-body,.h5-admin-workspace,.h5-admin-dialog {
+    --h5-heading-font:-apple-system-body,ui-sans-serif,-apple-system,system-ui,"Segoe UI",Helvetica,"Apple Color Emoji",Arial,sans-serif,"Segoe UI Emoji","Segoe UI Symbol";
     --h5-bg:#f6f7f9;--h5-paper:#fff;--h5-text:#202733;--h5-muted:#647082;--h5-line:#e6e9ee;
     --h5-ink:#263547;--h5-inktext:#fff;--h5-soft:#eef2f7;--h5-orange:#985200;--h5-orangebg:#fff4e4;
     --h5-green:#17734c;--h5-greenbg:#eaf7f0;--h5-red:#b13434;--h5-redbg:#fff0ef;
@@ -17,12 +18,12 @@
 /* P:24/32: the title and tab rows each leave 22px before their next row. */
 .h5-admin-workspace>.h5-heading,.h5-admin-workspace>.h5-tabs{margin-bottom:2px}
 :is(.h5-admin-workspace,.h5-admin-dialog) :is(h1,h2,h3,p){margin:0}
-:is(.h5-admin-workspace,.h5-admin-dialog) h2{font-size:18px;font-weight:600}
-:is(.h5-admin-workspace,.h5-admin-dialog) h3{font-size:15px;font-weight:600}
+:is(.h5-admin-workspace,.h5-admin-dialog) h2{font-size:18px;font-weight:600;line-height:1.4}
+:is(.h5-admin-workspace,.h5-admin-dialog) h3{font-size:15px;font-weight:600;line-height:1.5555555556}
 :is(.h5-admin-workspace,.h5-admin-dialog) :is(button,input,select,textarea){font:inherit;max-width:100%}
 :is(.h5-admin-workspace,.h5-admin-dialog) :focus-visible{outline:3px solid #4883ba;outline-offset:3px}
 :is(.h5-admin-workspace,.h5-admin-dialog) button{cursor:pointer}
-:is(.h5-admin-workspace,.h5-admin-dialog) button:disabled{opacity:.5;cursor:not-allowed}
+:is(.h5-admin-workspace,.h5-admin-dialog) button:disabled{opacity:.45;cursor:not-allowed}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-muted{color:var(--h5-muted)}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -46,7 +47,7 @@
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-table{border-collapse:collapse;width:100%;text-align:left}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-table :is(th,td){padding:15px 12px;border-bottom:1px solid var(--h5-line);vertical-align:middle}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-table th{font-size:12px;font-weight:500;color:var(--h5-muted);background:var(--h5-bg);white-space:nowrap}
-:is(.h5-admin-workspace,.h5-admin-dialog) .h5-badge{display:inline-block;padding:3px 7px;border-radius:5px;font-size:12px;background:var(--h5-soft)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-badge{display:inline-block;white-space:nowrap;padding:3px 7px;border-radius:5px;font-size:12px;background:var(--h5-soft)}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-alert{padding:12px 14px;border-radius:8px;background:var(--h5-orangebg);color:var(--h5-orange);overflow-wrap:anywhere}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-error{background:var(--h5-redbg);color:var(--h5-red);padding:12px;border-radius:8px}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-success{background:var(--h5-greenbg);color:var(--h5-green);padding:12px;border-radius:8px}
@@ -57,13 +58,13 @@
 .h5-admin-dialog::backdrop{background:#26354766}
 .dark .h5-admin-dialog{box-shadow:0 16px 64px #0005}
 .dark .h5-admin-dialog::backdrop{background:#0009}
-.h5-admin-dialog .h5-dialog-header{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:0;border:0;flex:none}
+.h5-admin-dialog .h5-dialog-header{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:0;border:0;flex:none;min-height:var(--h5-dialog-close-height,37px)}
 .h5-admin-dialog .h5-dialog-header h2{padding-right:48px;line-height:1.4}
 .h5-admin-dialog .h5-dialog-close{position:absolute;right:0;top:0}
-.h5-dialog-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
-.h5-admin-dialog .h5-dialog-body{padding:max(5px,var(--h5-dialog-content-start-gap,5px)) 0 0;overflow-y:auto;min-height:0}
+.h5-dialog-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6}
+.h5-admin-dialog .h5-dialog-body{padding:max(0px,calc(max(5px,var(--h5-dialog-content-start-gap,5px)) - var(--h5-dialog-header-extra,11.8px))) 0 0;overflow-y:auto;min-height:0}
 .h5-admin-dialog .h5-dialog-actions{flex:none;border:0;padding:0;margin-top:20px;display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
-:is(.h5-admin-workspace,.h5-admin-dialog) h1{font-size:23px;font-weight:600;letter-spacing:-.5px}
+:is(.h5-admin-workspace,.h5-admin-dialog) h1{font-size:23px;font-weight:600;letter-spacing:-.5px;line-height:1.3333333333}
 .h5-heading p{margin-top:5px!important;font-size:13px}
 /* Approved P:65–68: contextual checkbox/radio choice and short note. */
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-choice{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--h5-line);border-radius:8px;margin-top:10px;background:var(--h5-paper)}
@@ -94,7 +95,7 @@
 .fi-body .fi-sidebar-group-items{gap:7px}
 .fi-body .fi-sidebar-item-btn{padding:12px;border-radius:7px;gap:10px;color:var(--h5-text)}
 .fi-body .fi-sidebar-item-btn>.fi-sidebar-item-label{color:var(--h5-text);font-size:14px;font-weight:500;line-height:1.55;white-space:normal;overflow:visible}
-.fi-body .fi-sidebar-item-btn>.fi-icon{width:17px;height:17px;color:var(--h5-text)}
+.fi-body .fi-sidebar-item-btn>.fi-icon{width:16px;height:16px;color:var(--h5-text);stroke-width:1.6}
 .fi-body .fi-sidebar-item.fi-active>.fi-sidebar-item-btn{background:var(--h5-soft)}
 .h5-side-foot{margin-top:auto;padding:36px 12px 6px;font-size:12px;color:var(--h5-muted)}
 .h5-side-foot p{margin:12px 0 0}
@@ -103,7 +104,7 @@
 .fi-body .fi-main{max-width:none;padding:25px 26px 20px}
 .fi-body .fi-page-header-main-ctn{padding:0;gap:22px}
 .fi-body .fi-page-content{gap:20px}
-.fi-body .fi-header-heading{font-size:23px;font-weight:600;letter-spacing:-.5px;color:var(--h5-text)}
+.fi-body .fi-header-heading{font-size:23px;font-weight:600;letter-spacing:-.5px;color:var(--h5-text);line-height:1.3333333333}
 .fi-page:has(.h5-workspace-title)>.fi-page-header-main-ctn>.fi-header{display:none}
 @media(max-width:800px){
  .fi-body .fi-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;align-content:start}
@@ -122,10 +123,20 @@
  :is(.h5-admin-workspace,.h5-admin-dialog) .h5-button{min-height:42px}
  :is(.h5-admin-workspace,.h5-admin-dialog) .h5-tabs{gap:16px 18px}
  :is(.h5-admin-workspace,.h5-admin-dialog) h1,.fi-body .fi-header-heading{font-size:21px}
- .h5-admin-dialog{padding:17px;max-width:calc(100% - 20px);margin-top:18px;max-height:calc(100dvh - 36px)}
+ .h5-admin-dialog{--h5-dialog-close-height:42px;--h5-dialog-header-extra:16.8px;padding:17px;max-width:calc(100% - 20px);margin-top:18px;max-height:calc(100dvh - 36px)}
  .fi-body .fi-main{padding:18px 12px}
  .fi-body .fi-topbar{gap:6px;padding-right:12px;flex-wrap:wrap}
  :is(.h5-admin-workspace,.h5-admin-dialog) .h5-table{min-width:580px}
  .fi-body .fi-sidebar-item-btn{min-height:42px}
  .h5-environment{font-size:11px}
 }
+
+/* Fixed export typography dependencies, scoped to the staff workspace. */
+:is(.h5-admin-workspace,.h5-admin-dialog) :is(h1,h2,h3,p,li),.fi-body .fi-header-heading{font-family:var(--h5-heading-font)}
+:is(.h5-admin-workspace,.h5-admin-dialog) small{font-size:12px;line-height:18px}
+:is(.h5-admin-workspace,.h5-admin-dialog) :is(b,strong){font-weight:600}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-choice input[type=checkbox]{margin:4px 3px 3px 4px}
+/* Group a table and its 9px note, rather than adding the panel's 18px row gap. */
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table-with-note{display:block;min-width:0}
+
+:is(.h5-admin-workspace,.h5-admin-dialog) :is(.h5-button,.h5-link)>svg{width:16px;height:16px;flex:none;stroke-width:1.6}

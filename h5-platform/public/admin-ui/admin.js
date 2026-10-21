@@ -4,15 +4,49 @@
     if (window.H5Admin) return;
     const acceptedTabs = new WeakSet();
     const protections = new WeakMap();
+    const dialogLayouts = new WeakMap();
     let asking = false;
     let promptId = 0;
     const element = value => typeof value === 'string' ? document.getElementById(value) : value;
     const unavailable = button => button.disabled || button.getAttribute('aria-disabled') === 'true';
 
+    function watchDialogLayout(dialog) {
+        dialogLayouts.get(dialog)?.();
+        const header = dialog.querySelector('.h5-dialog-header');
+        const close = header?.querySelector('.h5-dialog-close');
+        if (!header || !close) return;
+        const measure = () => {
+            const title = header.querySelector('h2');
+            if (!dialog.open || !title) return;
+            const closeHeight = close.getBoundingClientRect().height;
+            const extra = Math.max(0, closeHeight - title.getBoundingClientRect().height);
+            for (const [name, value] of [['--h5-dialog-close-height', closeHeight], ['--h5-dialog-header-extra', extra]]) {
+                const pixels = value.toFixed(4) + 'px';
+                if (dialog.style.getPropertyValue(name) !== pixels) dialog.style.setProperty(name, pixels);
+            }
+        };
+        // Reserve the close button's entire box outside the scrolling body. The declared
+        // gap is measured from the natural title bottom, so 18/20px layouts stay unchanged.
+        const resize = new ResizeObserver(measure);
+        resize.observe(header);
+        resize.observe(close);
+        const mutation = new MutationObserver(measure);
+        mutation.observe(header, { childList: true, subtree: true, characterData: true });
+        const dispose = () => {
+            resize.disconnect(); mutation.disconnect();
+            dialog.removeEventListener('close', dispose);
+            dialogLayouts.delete(dialog);
+        };
+        dialogLayouts.set(dialog, dispose);
+        dialog.addEventListener('close', dispose, { once: true });
+        measure();
+    }
+
     function openDialog(value) {
         const dialog = element(value);
         if (!(dialog instanceof HTMLDialogElement)) return false;
         if (!dialog.open) dialog.showModal();
+        watchDialogLayout(dialog);
         return true;
     }
 
@@ -146,7 +180,7 @@
                 dialog.querySelector('[data-choice=stay][autofocus]').focus();
             });
             document.body.append(dialog);
-            dialog.showModal();
+            openDialog(dialog);
         });
     }
 
