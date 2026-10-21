@@ -123,7 +123,7 @@ async function login(ctx, role) {
         await page.getByRole('button', { name: '进入此订单的客服处理' }).waitFor();
         const orderText = await page.locator('[data-billing-workspace]').innerText();
         check('paid order, original renewal and zero refund show exact USD', orderText.includes('$3.00 USD') && orderText.includes('$12.00 USD') && orderText.includes('$0.00 USD'));
-        check('unconfigured official boundary visible', orderText.includes('Stripe 未配置；官方测试未验证'));
+        check('unconfigured official boundary visible', await page.locator('#billing-workspace').getByRole('status').filter({ hasText: 'Stripe 未配置；官方测试未验证' }).isVisible());
         await snapshot(page, 'owner-orders');
         await page.locator(`[data-billing-order="${credentials.samples.partial_refund.order_id}"]`).click();
         await page.getByText('$1.25 USD', { exact: true }).waitFor();

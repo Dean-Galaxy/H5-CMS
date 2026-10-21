@@ -33,6 +33,12 @@ module.exports = async ({ page, browser, root, out, base, credentials, check, ma
     const regular = page.locator('#billing-regular-usd'), first = page.locator('#billing-first-week-usd');
     const preview = page.locator('[data-billing-price-preview]');
     check('B01 one visible module title', await page.locator('h1:visible').count() === 1 && (await page.locator('h1:visible').innerText()) === '订单与会员');
+    const gap = await page.evaluate(() => {
+        const tabs = document.querySelector('#billing-tabs');
+        const panel = document.querySelector('.billing-workspace > .h5-tab-panel');
+        return panel.getBoundingClientRect().top - tabs.getBoundingClientRect().bottom;
+    });
+    check('B01 nested tab-to-panel spacing is the approved 22px', Math.abs(gap - 22) < 0.1);
     check('B01 recurring badge and two internal dollar prefixes', await page.getByText('每周自动续费', { exact: true }).isVisible() && await page.locator('.billing-money>span').count() === 2);
     const savedRegular = await regular.inputValue(), savedFirst = await first.inputValue();
     await regular.fill('13.34'); await first.fill('4.21');
