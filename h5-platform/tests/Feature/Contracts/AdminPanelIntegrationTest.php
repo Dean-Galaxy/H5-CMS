@@ -49,6 +49,35 @@ class AdminPanelIntegrationTest extends TestCase
         $this->assertFileExists(public_path('admin-ui/staff-avatar.svg'));
     }
 
+    public function test_design_navigation_keeps_role_permissions_and_optional_module_gate(): void
+    {
+        $panel = Filament::getPanel('admin');
+        Filament::setCurrentPanel($panel);
+        $this->assertSame('164px', $panel->getSidebarWidth());
+        foreach ([Role::Owner, Role::ContentOperator, Role::Support, Role::Acquisition] as $role) {
+            $staff = Staff::create(['name' => 'Navigation fixture', 'email' => 'nav-'.$role->value.'@example.test', 'password' => 'FixturePassword123', 'role' => $role]);
+            $this->actingAs($staff, 'staff');
+            config(['h5.modules.acquisition.ready' => false]);
+            $labels = collect($panel->getNavigation())->flatMap(fn ($group) => $group->getItems())->map(fn ($item) => $item->getLabel())->all();
+            $expected = match ($role) {
+                Role::Owner => ['内容管理', '订单与会员', '员工与权限'],
+                Role::ContentOperator => ['内容管理'],
+                Role::Support => ['订单与会员'],
+                Role::Acquisition => [],
+            };
+            // Content owns this separately gated page; it can arrive after the shell.
+            if ($role === Role::Owner && in_array('App\\Modules\\Content\\Filament\\Pages\\ContentSettings', $panel->getPages(), true)) {
+                $expected[] = '全局设置';
+            }
+            $this->assertSame($expected, $labels);
+            config(['h5.modules.acquisition.ready' => true]);
+            $labels = collect($panel->getNavigation())->flatMap(fn ($group) => $group->getItems())->map(fn ($item) => $item->getLabel())->all();
+            $this->assertSame(in_array($role, [Role::Owner, Role::Acquisition], true), in_array('投流管理', $labels, true));
+            $staff->active = false;
+            $this->assertSame([], collect($panel->getNavigation())->flatMap(fn ($group) => $group->getItems())->all());
+        }
+    }
+
     public function test_guest_cannot_open_staff_profile_and_fixture_is_not_a_production_route(): void
     {
         $this->get('/admin/profile')->assertRedirect('/admin/login');

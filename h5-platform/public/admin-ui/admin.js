@@ -108,7 +108,7 @@
             dialog.className = 'h5-admin-dialog h5-confirm-leave';
             dialog.setAttribute('aria-labelledby', titleId);
             // Static text only; form values and server messages are never interpolated.
-            dialog.innerHTML = '<div class="h5-dialog-header"><h2>修改尚未保存</h2></div><div class="h5-dialog-body"><p>保存成功后再继续，或放弃本次修改。</p><p class="h5-error" role="alert" hidden></p></div><div class="h5-dialog-actions"><button type="button" class="h5-button" data-choice="stay" autofocus>继续编辑</button><button type="button" class="h5-button h5-danger" data-choice="discard">放弃修改</button><button type="button" class="h5-button h5-primary" data-choice="save">保存并继续</button></div>';
+            dialog.innerHTML = '<div class="h5-dialog-header"><h2>修改尚未保存</h2><button type="button" class="h5-button h5-dialog-close" data-choice="stay" aria-label="关闭弹窗"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="h5-dialog-body"><p>保存成功后再继续，或放弃本次修改。</p><p class="h5-error" role="alert" hidden></p></div><div class="h5-dialog-actions"><button type="button" class="h5-button" data-choice="stay" autofocus>继续编辑</button><button type="button" class="h5-button h5-danger" data-choice="discard">放弃修改</button><button type="button" class="h5-button h5-primary" data-choice="save">保存并继续</button></div>';
             dialog.querySelector('h2').id = titleId;
             const buttons = [...dialog.querySelectorAll('button')];
             const error = dialog.querySelector('[role=alert]');
@@ -143,7 +143,7 @@
                 error.textContent = choice === 'save' ? '未确认保存成功，请继续编辑并检查表单或网络。' : '未能还原修改，请继续编辑。';
                 error.hidden = false;
                 for (const item of buttons) item.disabled = item.dataset.choice !== 'stay' && typeof callbacks[item.dataset.choice] !== 'function';
-                dialog.querySelector('[data-choice=stay]').focus();
+                dialog.querySelector('[data-choice=stay][autofocus]').focus();
             });
             document.body.append(dialog);
             dialog.showModal();
