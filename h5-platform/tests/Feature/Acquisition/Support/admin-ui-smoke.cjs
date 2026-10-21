@@ -25,12 +25,32 @@ async function login(page, identity) {
 (async () => {
  const browser = await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
  const page = await browser.newPage({viewport:{width:1280,height:900}});
- const passed=[], errors=[];
+ const passed=[], errors=[], geometry=[];
  page.on('pageerror', error => errors.push(error.message));
  const check=(name,condition)=>{if(!condition)throw new Error(name);passed.push(name)};
  const tab=async id=>{await page.locator(`[data-admin-tab="${id}"]`).click();await page.waitForFunction(id=>document.querySelector(`[data-admin-tab="${id}"]`)?.getAttribute('aria-selected')==='true',id)};
  const close=async editor=>{await editor.getByRole('button',{name:'取消',exact:true}).click();await editor.waitFor({state:'hidden'})};
  const prompt=()=>page.locator('dialog.h5-confirm-leave');
+ const measureDialog=async (editor,label)=>{
+  const metrics=await editor.evaluate((d,label)=>{
+   const header=d.querySelector('.h5-dialog-header'), body=d.querySelector('.h5-dialog-body'), first=body.firstElementChild, actions=d.querySelector('.h5-dialog-actions'), close=d.querySelector('.h5-dialog-close');
+   const rect=e=>e.getBoundingClientRect();
+   const startGap=rect(first).top-rect(header).bottom;
+   body.scrollTop=body.scrollHeight;
+   const reachedBottom=Math.abs(body.scrollHeight-body.clientHeight-body.scrollTop)<=1;
+   const result={label, startGap, titleLineHeight:getComputedStyle(header.querySelector('h2')).lineHeight, closeWidth:rect(close).width,closeHeight:rect(close).height,iconWidth:rect(close.querySelector('svg')).width,bodyClientHeight:body.clientHeight,bodyScrollHeight:body.scrollHeight,reachedBottom,actionsBottom:rect(actions).bottom,viewportHeight:innerHeight,bodyFits:body.scrollWidth<=body.clientWidth};
+   body.scrollTop=0;return result;
+  },label);
+  geometry.push(metrics);
+  check(label+' shared dialog spacing and mobile scroll/actions',Math.abs(metrics.startGap-5)<1&&metrics.titleLineHeight==='25.2px'&&metrics.closeWidth===44&&metrics.iconWidth===16&&metrics.reachedBottom&&metrics.actionsBottom<=metrics.viewportHeight&&metrics.bodyFits);
+ };
+ const measurePage=async label=>{
+  const metrics=await page.locator('#acquisition-workspace').evaluate(w=>{
+   const heading=w.querySelector(':scope > .h5-heading'),tabs=w.querySelector(':scope > .h5-tabs'),panel=w.querySelector(':scope > [role=tabpanel]:not([hidden])');
+   return {headingToTabs:tabs.getBoundingClientRect().top-heading.getBoundingClientRect().bottom,tabsToPanel:panel.getBoundingClientRect().top-tabs.getBoundingClientRect().bottom};
+  });
+  geometry.push({label,...metrics});check(label+' heading and tabs 22px gaps',Math.abs(metrics.headingToTabs-22)<1&&Math.abs(metrics.tabsToPanel-22)<1);
+ };
  try {
   await login(page,account);
   const response=await page.goto(base + '/admin/acquisition-desk');
@@ -118,7 +138,8 @@ async function login(page, identity) {
      await page.evaluate(()=>window.scrollTo(0,0));await prototype.evaluate(()=>window.scrollTo(0,0));
      await page.screenshot({path:out+'/'+capturePrefix+label+'-'+real+'-actual.png'});await prototype.screenshot({path:out+'/'+capturePrefix+label+'-'+real+'-approved.png'});
     }
-    await tab('links');await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+    await tab('links');await measurePage(label);await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+    await measureDialog(link,label+'-new-link');
     await page.screenshot({path:out+'/'+capturePrefix+label+'-new-link-actual-only.png'});
     await link.getByLabel('推广名称').fill('F09 未保存');await link.getByRole('button',{name:'取消',exact:true}).click();
     await prompt().getByRole('button',{name:'保存并继续'}).click();await prompt().getByRole('alert').waitFor({state:'visible'});
@@ -129,14 +150,19 @@ async function login(page, identity) {
      await page.locator(`[data-editor-action="selectLink"][data-editor-id="${f.link_id}"]`).click();await link.waitFor({state:'visible'});
      await page.screenshot({path:out+'/'+capturePrefix+label+'-edit-link-actual-only.png'});await close(link);
     }
-    await tab('pixels');await edit.click();await pixel.waitFor({state:'visible'});await page.screenshot({path:out+'/'+capturePrefix+label+'-pixel-editor-actual-only.png'});await close(pixel);
-    await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();await assignment.getByRole('checkbox').first().waitFor({state:'visible'});await page.screenshot({path:out+'/'+capturePrefix+label+'-assignment-actual-only.png'});await close(assignment);
+    await tab('pixels');await edit.click();await pixel.waitFor({state:'visible'});await measureDialog(pixel,label+'-pixel');await page.screenshot({path:out+'/'+capturePrefix+label+'-pixel-editor-actual-only.png'});await close(pixel);
+    await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();await assignment.getByRole('checkbox').first().waitFor({state:'visible'});await measureDialog(assignment,label+'-assignment');await page.screenshot({path:out+'/'+capturePrefix+label+'-assignment-actual-only.png'});await close(assignment);
    }
    await prototype.close();
+   await tab('links');await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+   await link.getByRole('button',{name:'关闭弹窗',exact:true}).click();await link.waitFor({state:'hidden'});
+   await page.waitForFunction(()=>document.activeElement?.dataset.editorAction==='newLink');passed.push('clean close X restores opener focus');
+   await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});await page.keyboard.press('Escape');await link.waitFor({state:'hidden'});
+   await page.waitForFunction(()=>document.activeElement?.dataset.editorAction==='newLink');passed.push('clean Escape closes and restores opener focus');
   }
   await page.setViewportSize({width:375,height:812});
   check('mobile page has no horizontal overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth));
   check('no browser JavaScript errors',errors.length===0);
-  console.log(JSON.stringify({passed,browser:browser.version(),platform:process.platform,devicePixelRatio:await page.evaluate(()=>devicePixelRatio),zoom:1,base:new URL(base).origin,externalSending:'disabled',screenshots:process.env.H5_ACQUISITION_SCREENSHOTS||null,dialogsOnly:!!process.env.H5_ACQUISITION_DIALOGS_ONLY}));
+  console.log(JSON.stringify({passed,geometry,browser:browser.version(),platform:process.platform,devicePixelRatio:await page.evaluate(()=>devicePixelRatio),zoom:1,base:new URL(base).origin,externalSending:'disabled',screenshots:process.env.H5_ACQUISITION_SCREENSHOTS||null,dialogsOnly:!!process.env.H5_ACQUISITION_DIALOGS_ONLY}));
  } finally {await browser.close()}
 })().catch(error=>{console.error(error.message);process.exit(1)});

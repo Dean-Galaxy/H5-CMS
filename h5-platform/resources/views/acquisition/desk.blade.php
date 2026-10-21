@@ -68,7 +68,7 @@
             <p class="h5-error" data-editor-error role="alert" hidden></p>
             <x-slot:actions><button type="button" class="h5-button" data-admin-close>取消</button><button type="submit" form="acquisition-link-form" class="h5-button h5-primary">保存链接</button></x-slot:actions>
         </x-admin.dialog>
-        <x-admin.dialog id="acquisition-pixel-editor" content-start-gap="20" :title="$pixelId ? '编辑像素' : '登记像素'" wire:ignore.self data-editor-dialog="pixel">
+        <x-admin.dialog id="acquisition-pixel-editor" :title="$pixelId ? '编辑像素' : '登记像素'" wire:ignore.self data-editor-dialog="pixel">
                 <form id="acquisition-pixel-form" data-editor="pixel" data-save="savePixel"><div class="h5-form-grid">
                     <label class="h5-field">名称<input class="h5-input" wire:model="pixel.name" maxlength="100" required></label>
                     <label class="h5-field">平台<select class="h5-input" wire:model="pixel.platform"><option value="meta">Meta</option><option value="tiktok">TikTok</option></select></label>
