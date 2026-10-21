@@ -1,0 +1,31 @@
+{
+  "candidate": "be7bb4f7c5585418883b777ce2e6f2676690f5ff",
+  "passed": 4,
+  "cases": [
+    {
+      "page": "02-content",
+      "width": 320,
+      "bodyOverflow": false,
+      "primaryActionTrial": "operable"
+    },
+    {
+      "page": "02-content",
+      "width": 736,
+      "bodyOverflow": false,
+      "primaryActionTrial": "operable"
+    },
+    {
+      "page": "05-acquisition",
+      "width": 320,
+      "bodyOverflow": false,
+      "primaryActionTrial": "operable"
+    },
+    {
+      "page": "05-acquisition",
+      "width": 736,
+      "bodyOverflow": false,
+      "primaryActionTrial": "operable"
+    }
+  ],
+  "boundary": "Real Chrome loopback, representative admin pages; no form submission"
+}

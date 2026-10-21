@@ -1,0 +1,57 @@
+{
+  "candidate": "be7bb4f7c5585418883b777ce2e6f2676690f5ff",
+  "publicCatalogTitleVisible": true,
+  "publicEpisodeCount": 35,
+  "freeEpisodeCount": 5,
+  "freeGrant": {
+    "http": 200,
+    "allowed": true,
+    "reason": "allowed_free"
+  },
+  "signedMasterManifest": {
+    "http": 200,
+    "validExtm3u": true
+  },
+  "unsignedMediaBypass": {
+    "http": 403,
+    "denied": true
+  },
+  "chromeHls": {
+    "hlsJsSupported": true,
+    "readyState": 4,
+    "currentTime": 0.564239,
+    "duration": 2,
+    "ended": false,
+    "error": null,
+    "sourceAttached": true
+  },
+  "protectedMediaResponses": [
+    {
+      "file": "master.m3u8",
+      "status": 200,
+      "type": "application/vnd.apple.mpegurl"
+    },
+    {
+      "file": "master.m3u8",
+      "status": 200,
+      "type": "application/vnd.apple.mpegurl"
+    },
+    {
+      "file": "index.m3u8",
+      "status": 200,
+      "type": "application/vnd.apple.mpegurl"
+    },
+    {
+      "file": "segment-00000.ts",
+      "status": 206,
+      "type": "video/mp2t"
+    }
+  ],
+  "sixthGate": {
+    "http": 200,
+    "allowed": false,
+    "reason": "MEMBERSHIP_REQUIRED",
+    "mediaRequests": 0
+  },
+  "boundary": "loopback only; local US demo flag; generated two-second blue test video; real device, external region and provider not tested"
+}
