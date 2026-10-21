@@ -102,6 +102,26 @@ class StaffPasswordTest extends TestCase
         }
     }
 
+    public function test_admin_profile_route_uses_staff_policy_and_keeps_mfa_gate(): void
+    {
+        $staff = $this->staff(Role::Support);
+        $this->signIn($staff);
+        $session = app('session.store');
+        $cookie = config('h5.workspace').'_admin';
+        config(['session.cookie' => $cookie, 'session.encrypt' => true]);
+        $session->setName($cookie);
+        auth('staff')->login($staff);
+        $session->put('identity.version.staff', $staff->session_version);
+        $session->put('identity.mfa_staff', $staff->id);
+        $session->save();
+        $this->withCookie($cookie, $session->getId());
+        $this->assertSame(StaffProfile::class, Filament::getPanel('admin')->getProfilePage());
+        $this->get('/admin/profile')->assertOk()->assertSee(StaffPassword::HELP);
+        session()->forget('identity.mfa_staff');
+        session()->save();
+        $this->get('/admin/profile')->assertRedirect('/admin/login');
+    }
+
     public function test_staff_password_change_still_requires_current_password_and_confirmation(): void
     {
         $staff = $this->staff(Role::Owner);
