@@ -283,5 +283,15 @@
     "file": "invalid-promotable-drama-media.json",
     "schema": "PromotableDrama",
     "valid": false
+  },
+  {
+    "file": "staff-create-eight.json",
+    "schema": "StaffCreate",
+    "valid": true
+  },
+  {
+    "file": "invalid-staff-create-seven.json",
+    "schema": "StaffCreate",
+    "valid": false
   }
 ]
