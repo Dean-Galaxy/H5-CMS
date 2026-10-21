@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Modules\Acquisition\Filament\Pages\AcquisitionDesk;
 use App\Modules\Acquisition\Services\AcquisitionStore;
 use App\Modules\Acquisition\Services\AssetManager;
+use App\Support\Admin\UsdAmount;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
@@ -43,16 +44,19 @@ final class DeskTest extends AcquisitionTestCase
         $pixelId = $page->get('pixelId');
         $this->assertNotNull($pixelId);
         $page = Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixelId)->assertSet('pixel.version', 1)
-            ->assertSet('pixel.platform', 'tiktok')->call('simulatePixel', $pixelId)->assertSee('模拟通过')
+            ->assertSet('pixel.platform', 'tiktok')->call('simulatePixel', $pixelId)->assertSee('本站模拟：通过')
             ->call('loadCatalog')->assertSee('testing 片单样例')
             ->set('link.name', 'Test link')->set('link.platform', 'tiktok')->set('link.pixel_id', $pixelId)
             ->set('link.drama_id', array_key_first($this->dramas))->call('saveLink')->assertHasNoErrors();
         $linkId = $page->get('linkId');
         $this->assertNotNull($linkId);
+        Livewire::test(AcquisitionDesk::class)->call('selectLink', $linkId)->set('link.name', 'Unsaved change')
+            ->call('restoreEditor', 'link')->assertSet('link.name', 'Test link');
         $page = Livewire::test(AcquisitionDesk::class)->call('selectLink', $linkId)->assertSet('link.name', 'Test link')
             ->set('link.name', 'Renamed link')->set('link.active', false)->call('saveLink')->assertHasNoErrors()->assertSet('link.version', 2)
             ->assertSet('link.active', 0)
-            ->call('showSummary', $linkId)->assertSee('暂无对应付款事实')->assertSee('落地待 D05');
+            ->call('showSummary', $linkId)->assertSet('tab', 'payments')
+            ->assertSee('暂无对应付款事实')->call('selectTab', 'deliveries')->assertSee('暂无对应发送记录');
         Livewire::test(AcquisitionDesk::class)->call('selectLink', $linkId)->assertSet('link.active', 0);
         Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixelId)->set('pixel.active', '0')->call('savePixel');
         Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixelId)->assertSet('pixel.active', 0);
@@ -84,5 +88,34 @@ final class DeskTest extends AcquisitionTestCase
         request()->session()->save();
         $this->get('/admin/acquisition-desk')->assertRedirect('/admin/login');
         $this->assertDatabaseCount('acquisition_pixels', 0);
+    }
+
+    public function test_workspace_tabs_are_allowlisted_and_assignment_tab_is_owner_only(): void
+    {
+        $this->signIn();
+        Livewire::test(AcquisitionDesk::class)->assertOk()->assertSee('推广链接')->assertSee('像素资产')->assertSee('本站付款汇总')->assertSee('发送状态')
+            ->assertSet('tab', 'links')
+            ->call('selectTab', 'pixels')->assertSet('tab', 'pixels')
+            ->call('selectTab', 'deliveries')->assertSet('tab', 'deliveries')
+            ->call('selectTab', 'payments')->assertSet('tab', 'payments')
+            ->call('selectTab', 'assignments')->assertSet('tab', 'assignments')
+            ->call('selectTab', 'unknown')->assertSet('tab', 'assignments');
+
+        $this->signIn($this->staff(Role::Acquisition));
+        $this->get('/admin/acquisition-desk')->assertOk()->assertDontSee('负责人分配');
+    }
+
+    public function test_payment_display_uses_shared_exact_usd_format_without_float_conversion(): void
+    {
+        $this->signIn();
+        [$pixel, $link] = $this->assets();
+        DB::table('acquisition_receipts')->insert(['event_id' => AcquisitionStore::id(), 'payment_id' => AcquisitionStore::id(),
+            'fingerprint' => hash('sha256', 'receipt_format_test'), 'link_id' => $link['id'], 'source_id' => null,
+            'transaction_kind' => 'first_subscription', 'discount_applied' => false, 'amount_minor' => 1200, 'currency' => 'USD',
+            'is_test' => true, 'occurred_at' => now(), 'attribution_snapshot' => null, 'source_status' => 'unattributed', 'received_at' => now()]);
+        Livewire::test(AcquisitionDesk::class)->call('showSummary', $link['id'])->call('selectTab', 'payments')
+            ->assertSee('$12.00 USD')->assertDontSee('USD 12.00');
+        $this->assertSame(1200, UsdAmount::fromDecimal('12.00'));
+        $this->assertSame('12.00', UsdAmount::toDecimal(1200));
     }
 }
