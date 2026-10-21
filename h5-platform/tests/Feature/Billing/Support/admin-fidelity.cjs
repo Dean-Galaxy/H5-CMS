@@ -17,6 +17,8 @@ module.exports = async ({ page, browser, root, out, base, credentials, check, ma
     const referenceDocument = await prototype.evaluate(html => new DOMParser().parseFromString(html, 'text/html').querySelector('#codex-visualization').getAttribute('data-srcdoc'), exported);
     assert(referenceDocument.includes(fragment), 'export contains the exact approved fragment');
     const pairs = [];
+    const typography = [];
+    const dialogs = [];
     await page.emulateMedia({ colorScheme: 'light' });
     const openReference = async name => {
         await prototype.setContent(referenceDocument);
@@ -49,6 +51,12 @@ module.exports = async ({ page, browser, root, out, base, credentials, check, ma
     mark('B01 preview updates without saving or quoting');
     await openReference('会员价格');
     await prototype.locator('[name=price]').fill('13.34'); await prototype.locator('[name=promo]').fill('4.21');
+    for (const [name, actualSelector, referenceSelector] of [['h1', '.h5-workspace-title', '#h5-screen h1'], ['h2', '[data-billing-pricing] h2', '#h5-pricing h2'], ['h3', '[data-billing-pricing] h3', '#h5-pricing h3']]) {
+        const metrics = el => { const s = getComputedStyle(el); return { size: s.fontSize, line_height: s.lineHeight, family: s.fontFamily, weight: s.fontWeight }; };
+        const actual = await page.locator(actualSelector).evaluate(metrics), reference = await prototype.locator(referenceSelector).evaluate(metrics);
+        typography.push({ name, actual, reference });
+        check('stable public ' + name + ' matches approved size and line height', actual.size === reference.size && Math.abs(parseFloat(actual.line_height) - parseFloat(reference.line_height)) < .05 && actual.family === reference.family);
+    }
     await pair('prices-desktop', 'Owner; prices tab; unsaved 13.34 / 4.21 USD', true);
     await regular.fill('12.345');
     await page.waitForFunction(() => document.querySelector('[data-billing-price-preview]').textContent.startsWith('请输入有效'));
@@ -71,6 +79,26 @@ module.exports = async ({ page, browser, root, out, base, credentials, check, ma
     // Explicit discard clears the server validation error before the paired valid state.
     await tab(page, '订单查询').click();
     const leave = page.locator('dialog.h5-confirm-leave');
+    await leave.waitFor();
+    await leave.getByRole('button', { name: '保存并继续', exact: true }).click();
+    await leave.getByRole('alert').waitFor({ state: 'visible' });
+    check('stable dialog failed save retains invalid amount and price tab', await regular.inputValue() === '' && await tab(page, '会员价格').getAttribute('aria-selected') === 'true');
+    for (const [name, viewport] of [['unsaved-error-desktop', { width: 1280, height: 900 }], ['unsaved-error-short', { width: 375, height: 320 }]]) {
+        await page.setViewportSize(viewport);
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        const layout = await leave.evaluate(el => {
+            const rect = selector => { const r = el.querySelector(selector).getBoundingClientRect(); return { top: r.top, bottom: r.bottom, width: r.width, height: r.height }; };
+            return { close: rect('.h5-dialog-close'), body: rect('.h5-dialog-body'), actions: rect('.h5-dialog-actions'), dialog_width: el.getBoundingClientRect().width, viewport: [innerWidth, innerHeight] };
+        });
+        check('stable ' + name + ' keeps text and scrolling below X, actions in viewport', layout.body.top >= layout.close.bottom - .1 && layout.actions.bottom <= viewport.height && layout.close.width === 44);
+        dialogs.push({ name, ...layout });
+        await snapshot(page, name + '-unpaired');
+    }
+    await leave.getByRole('button', { name: '关闭弹窗', exact: true }).click();
+    await leave.waitFor({ state: 'detached' });
+    check('stable X close preserves unsaved input', await regular.inputValue() === '' && await tab(page, '会员价格').getAttribute('aria-selected') === 'true');
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await tab(page, '订单查询').click(); await leave.waitFor();
     await leave.getByRole('button', { name: '放弃修改', exact: true }).click();
     await leave.waitFor({ state: 'detached' }); await selected(page, '订单查询');
     await tab(page, '会员价格').click(); await selected(page, '会员价格');
@@ -103,6 +131,6 @@ module.exports = async ({ page, browser, root, out, base, credentials, check, ma
     await page.getByRole('button', { name: '进入此订单的客服处理', exact: true }).click(); await selected(page, '客服记录');
     await snapshot(page, 'support-selected-extension');
     check('B03 support actions stay inside selected order and require verification', await page.getByRole('button', { name: '代用户停止未来续费', exact: true }).isDisabled());
-    fs.writeFileSync(path.join(out, 'pairs.json'), JSON.stringify({ reference_commit: referenceCommit, reference_index_sha256: crypto.createHash('sha256').update(exported).digest('hex'), reference_document_sha256: crypto.createHash('sha256').update(referenceDocument).digest('hex'), reference_fragment_sha256: crypto.createHash('sha256').update(fragment).digest('hex'), browser: browser.version(), operating_system: os.platform() + ' ' + os.release(), source_files: Object.fromEntries(['h5-platform/resources/views/billing/desk.blade.php', 'h5-platform/public/admin-ui/admin.css', 'h5-platform/public/admin-ui/admin.js', 'h5-platform/resources/views/components/admin/workspace.blade.php'].map(file => [file, crypto.createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')])), worktree_status: cp.execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim(), application_head: cp.execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(), pairs, prototype_external_blocked: [...prototypeExternal], unmatched: ['invalid-price state: real validation differs intentionally from prototype sample', 'selected-order/payment/entitlement and support-action details: original did not fully draw these real extensions', 'dark mode, browser zoom changes, empty database and unconfigured-price screenshot not paired in this run'], scope: 'Price fields/preview paired with equal data. Orders/support common entry hierarchy paired; actual recent-order/case tables have no prototype equivalent and are not a same-data visual pass.', successful_price_writes: 0, official_payment_verified: false }, null, 2));
+    fs.writeFileSync(path.join(out, 'pairs.json'), JSON.stringify({ reference_commit: referenceCommit, reference_index_sha256: crypto.createHash('sha256').update(exported).digest('hex'), reference_document_sha256: crypto.createHash('sha256').update(referenceDocument).digest('hex'), reference_fragment_sha256: crypto.createHash('sha256').update(fragment).digest('hex'), browser: browser.version(), operating_system: os.platform() + ' ' + os.release(), source_files: Object.fromEntries(['h5-platform/resources/views/billing/desk.blade.php', 'h5-platform/public/admin-ui/admin.css', 'h5-platform/public/admin-ui/admin.js', 'h5-platform/resources/views/components/admin/workspace.blade.php'].map(file => [file, crypto.createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')])), worktree_status: cp.execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim(), application_head: cp.execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(), pairs, typography, dialogs, prototype_external_blocked: [...prototypeExternal], unmatched: ['invalid-price state: real validation differs intentionally from prototype sample', 'selected-order/payment/entitlement and support-action details: original did not fully draw these real extensions', 'Billing unsaved/error dialog is a real protection extension not drawn for the prototype prices tab; actual desktop/short-screen screenshots retained', 'dark mode, browser zoom changes, empty database and unconfigured-price screenshot not paired in this run'], scope: 'Price fields/preview paired with equal data. Orders/support common entry hierarchy paired; actual recent-order/case tables have no prototype equivalent and are not a same-data visual pass.', successful_price_writes: 0, official_payment_verified: false }, null, 2));
     await prototypeContext.close();
 };
