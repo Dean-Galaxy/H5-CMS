@@ -133,6 +133,46 @@ final class PublicationService
         });
     }
 
+    /** Preview proposed values on a detached relation: no save, audit or version change. */
+    public function previewSchedule(string $dramaId, array $input): array
+    {
+        ContentGuard::staff();
+        $data = ContentGuard::validate($input, ['version' => 'required|integer|min:1', 'mode' => 'required|in:completed,updating',
+            'interval_days' => 'required|integer|in:1,2,7', 'batch_size' => 'required|integer|in:1,2,5,10,20',
+            'launch_at' => 'required|date_format:Y-m-d\\TH:i:sP']);
+
+        return ContentGuard::mutate(function () use ($dramaId, $data) {
+            $drama = DramaRecord::findOrFail($dramaId);
+            ContentGuard::staff($drama);
+            ContentGuard::version($drama->plan, $data['version']);
+            $plan = clone $drama->plan;
+            $plan->fill($data);
+            $plan->launch_at = $this->future($data['launch_at']);
+            $plan->start_number = $this->nextNumber($drama);
+            $drama->setRelation('plan', $plan);
+
+            return $this->previewData($drama);
+        });
+    }
+
+    /** The final confirmation atomically saves and activates the previewed values. */
+    public function schedule(string $dramaId, array $input): Plan
+    {
+        ContentGuard::staff();
+        $confirmation = ContentGuard::validate($input, ['confirmation' => 'required|string|size:64'])['confirmation'];
+
+        return ContentGuard::mutate(function () use ($dramaId, $input, $confirmation) {
+            $preview = $this->previewSchedule($dramaId, $input);
+            if (! hash_equals($preview['confirmation'], $confirmation)) {
+                throw new ApiProblem('STALE_VERSION', 409, '安排或内容已变化，请重新预览');
+            }
+            $this->savePlan($dramaId, [...$input, 'start_number' => $preview['from']]);
+            $saved = $this->preview($dramaId);
+
+            return $this->activate($dramaId, ['version' => $saved['plan_version'], 'confirmation' => $saved['confirmation']]);
+        });
+    }
+
     public function savePlan(string $dramaId, array $input): Plan
     {
         ContentGuard::staff();
@@ -149,6 +189,9 @@ final class PublicationService
             ContentGuard::staff($drama);
             $plan = $drama->plan;
             ContentGuard::version($plan, $data['version']);
+            if ($plan->state === 'active') {
+                throw new ApiProblem('STALE_VERSION', 409, '请先确认暂停并修改，运行中的计划不能直接保存为草稿');
+            }
             if ($data['start_number'] !== $this->nextNumber($drama)) {
                 throw ValidationException::withMessages(['start_number' => '起点必须为下一未公开集，不能跳过缺集']);
             }

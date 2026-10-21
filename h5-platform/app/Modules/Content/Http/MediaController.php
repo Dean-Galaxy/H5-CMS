@@ -17,6 +17,23 @@ final class MediaController
 {
     public function __construct(private MediaStore $store, private Availability $availability) {}
 
+    public function assetPreview(string $id)
+    {
+        ContentGuard::staff();
+        $asset = Asset::where('state', 'ready')->findOrFail($id);
+        if (! empty($asset->metadata['context_drama_id'])) {
+            ContentGuard::staff(\App\Modules\Content\Models\DramaRecord::findOrFail($asset->metadata['context_drama_id']));
+        }
+        [$file, $type] = match ($asset->kind) {
+            'video' => ['media.mp4', 'video/mp4'],
+            'subtitle' => ['subtitles.vtt', 'text/vtt; charset=utf-8'],
+            'cover', 'banner' => ['image.png', 'image/png'],
+            default => throw new ApiProblem('NOT_FOUND', 404, '素材不可预览'),
+        };
+
+        return $this->file($asset, $file, $type);
+    }
+
     public function image(string $id)
     {
         $region = app(RegionResolver::class)->resolve()->country_code;

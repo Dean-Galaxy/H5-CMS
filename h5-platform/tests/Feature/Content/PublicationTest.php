@@ -100,15 +100,17 @@ final class PublicationTest extends ContentTestCase
     {
         $d = $this->fixture(10);
         $old = $d->plan;
-        $input = ['version' => 1, 'mode' => 'updating', 'interval_days' => 2, 'batch_size' => 5, 'start_number' => 1, 'launch_at' => now()->addDay()->toIso8601String()];
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/pause', ['version' => 1])->assertOk();
+        $input = ['version' => 2, 'mode' => 'updating', 'interval_days' => 2, 'batch_size' => 5, 'start_number' => 1, 'launch_at' => now()->addDay()->toIso8601String()];
         $this->putJson('/api/v1/admin/content/dramas/'.$d->id.'/plan', $input)->assertOk();
         $this->assertSame('obsolete', app(PublicationService::class)->execute($old->id, 1, $old->next_at));
         $preview = $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/publication-preview', [])->assertOk()->json();
-        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/activate', ['version' => 2, 'confirmation' => str_repeat('a', 64)])->assertStatus(409);
-        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/activate', ['version' => 2, 'confirmation' => $preview['confirmation']])->assertOk();
-        $this->putJson('/api/v1/admin/content/dramas/'.$d->id.'/plan', [...$input, 'version' => 3, 'launch_at' => now()->subDay()->toIso8601String()])->assertOk();
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/activate', ['version' => 3, 'confirmation' => str_repeat('a', 64)])->assertStatus(409);
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/activate', ['version' => 3, 'confirmation' => $preview['confirmation']])->assertOk();
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/pause', ['version' => 4])->assertOk();
+        $this->putJson('/api/v1/admin/content/dramas/'.$d->id.'/plan', [...$input, 'version' => 5, 'launch_at' => now()->subDay()->toIso8601String()])->assertOk();
         $preview = $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/publication-preview', [])->json();
-        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/activate', ['version' => 4, 'confirmation' => $preview['confirmation']])->assertUnprocessable();
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/activate', ['version' => 6, 'confirmation' => $preview['confirmation']])->assertUnprocessable();
     }
 
     public function test_unapproved_missed_schedule_is_held_and_not_silently_caught_up(): void

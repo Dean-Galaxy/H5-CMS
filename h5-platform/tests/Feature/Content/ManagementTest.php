@@ -157,9 +157,8 @@ final class ManagementTest extends ContentTestCase
     public function test_content_workspace_renders_module_owned_navigation_and_release_controls(): void
     {
         $response = $this->get('/admin/content-library')->assertOk();
-        $response->assertSee('剧目库')->assertSee('发布计划')->assertSee('分类')->assertSee('首页 Banner')
-            ->assertSee('分集与字幕')->assertSee('授权与免费集数')->assertSee('操作记录')
-            ->assertSee('预览并提前发布下一批')->assertSee('预览发布安排');
+        $response->assertSee('剧目库')->assertSee('发布排期')->assertSee('分类管理')->assertSee('首页 Banner')
+            ->assertSee('分集与字幕')->assertSee('授权与试看')->assertSee('操作记录')->assertSee('content-dialog');
     }
 
     public function test_published_episode_media_replacement_requires_ready_contextual_candidate_and_keeps_episode_id(): void

@@ -20,7 +20,13 @@ final class AdminController
     {
         ContentGuard::staff();
 
-        $dramas = DramaRecord::with(['plan', 'categories'])->withCount(['episodes as published_count' => fn ($q) => $q->whereNotNull('published_at')])->orderBy('sort_order')->orderBy('id')->get();
+        $dramas = DramaRecord::with(['plan', 'categories', 'episodes.video', 'episodes.subtitle'])->withCount(['episodes as published_count' => fn ($q) => $q->whereNotNull('published_at')])->orderBy('sort_order')->orderBy('id')->get();
+        foreach ($dramas as $drama) {
+            $drama->setAttribute('ready_count', $drama->episodes->filter(fn ($e) => $e->video?->state === 'ready'
+                && (! $e->subtitle_asset_id || ($e->subtitle?->state === 'ready'
+                    && ($e->subtitle->metadata['last_end'] ?? INF) <= ($e->video->metadata['duration'] ?? 0) + .5)))->count());
+            $drama->unsetRelation('episodes');
+        }
         $banners = Banner::orderBy('sort_order')->orderBy('id')->get();
         $page = $this->assetPage();
         $references = Asset::whereIn('id', $dramas->pluck('cover_asset_id')->merge($banners->pluck('image_asset_id'))->filter())->get()->map(fn ($a) => $this->asset($a));
@@ -103,6 +109,16 @@ final class AdminController
     public function plan(Request $r, PublicationService $p, string $id)
     {
         return $p->savePlan($id, $r->all());
+    }
+
+    public function schedulePreview(Request $r, PublicationService $p, string $id)
+    {
+        return $p->previewSchedule($id, $r->all());
+    }
+
+    public function schedule(Request $r, PublicationService $p, string $id)
+    {
+        return $p->schedule($id, $r->all());
     }
 
     public function activate(Request $r, PublicationService $p, string $id)
