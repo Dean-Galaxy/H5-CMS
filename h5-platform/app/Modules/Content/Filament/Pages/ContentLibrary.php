@@ -9,7 +9,7 @@ use Filament\Pages\Page;
 
 final class ContentLibrary extends Page
 {
-    protected static ?string $title = '内容媒体与发布';
+    protected static ?string $title = '内容管理';
 
     protected static ?string $slug = 'content-library';
 

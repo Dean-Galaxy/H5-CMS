@@ -1,0 +1,27 @@
+PASS staff password and MFA session loaded real content
+PASS new drama modal persists draft only
+PASS unsaved title retained on stay
+PASS episodes table uses five rows and real missing projections
+PASS mobile content navigation and upload button are inside viewport
+PASS issues filter shows only two missing episodes
+PASS mapping review sends zero upload requests
+PASS explicit start uploads both actual files
+PASS batch confirms bindings without publishing
+PASS candidate upload preserves current binding
+PASS candidate confirmation preserves original episode identity
+PASS SRT batch separately confirms language and binding
+PASS real decode failure remains candidate not current
+PASS cancel failed candidate retains current binding
+PASS stale failure retains editor input
+PASS server committed but response lost retains editor input
+PASS lost response test actually committed server change
+PASS now draft survives refresh without publication activation or date drift
+PASS proposed scheduled preview leaves persisted plan unchanged
+PASS cancel preview leaves persisted plan unchanged
+PASS final scheduled confirmation activates without early publication
+PASS cancel modify preserves active next_at and version
+PASS explicit pause then edit changes state to paused
+PASS now first batch atomically publishes 10 and keeps next time
+PASS 35 episodes publish 10 10 10 5 without catchup
+PASS owner global settings has independent route
+PASS no native prompts or script errors

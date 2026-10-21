@@ -18,6 +18,7 @@ Route::middleware(ContentEnabled::class)->group(function () {
     Route::get('/api/v1/admin/content/preview/{id}/{file}', [MediaController::class, 'previewMedia'])->whereUuid('id')->where('file', 'media\.mp4|master\.m3u8|captions\.m3u8|index\.m3u8|segment-[0-9]{5}\.ts|subtitles\.vtt')->name('content.preview-media');
     Route::prefix('/api/v1/admin/content')->group(function () {
         Route::get('/', [AdminController::class, 'index']);
+        Route::get('/assets/{id}/preview', [MediaController::class, 'assetPreview'])->whereUuid('id');
         Route::get('/assets', [AdminController::class, 'assets']);
         Route::get('/dramas/{id}', [AdminController::class, 'drama'])->whereUuid('id');
         Route::post('/dramas', [AdminController::class, 'saveDrama']);
@@ -29,7 +30,7 @@ Route::middleware(ContentEnabled::class)->group(function () {
         Route::patch('/dramas/{id}/free', [AdminController::class, 'freeCount'])->whereUuid('id');
         Route::put('/dramas/{id}/plan', [AdminController::class, 'plan'])->whereUuid('id');
         foreach (['publication-preview' => 'preview', 'activate' => 'activate', 'pause' => 'pause', 'resume' => 'resume', 'publish' => 'publish', 'withdraw' => 'withdraw', 'relist' => 'relist',
-            'launch-preview' => 'launchPreview', 'launch-now' => 'launchNow', 'next-batch-preview' => 'nextBatchPreview', 'publish-next-batch' => 'publishNextBatch'] as $path => $method) {
+            'schedule-preview' => 'schedulePreview', 'schedule' => 'schedule', 'launch-preview' => 'launchPreview', 'launch-now' => 'launchNow', 'next-batch-preview' => 'nextBatchPreview', 'publish-next-batch' => 'publishNextBatch'] as $path => $method) {
             Route::post('/dramas/{id}/'.$path, [AdminController::class, $method])->whereUuid('id');
         }
         Route::post('/categories', [AdminController::class, 'category']);
