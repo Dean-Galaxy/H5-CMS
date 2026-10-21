@@ -44,10 +44,21 @@
     }
   ],
   "pending": [
-    "05 dirty-state regression fix and localized validation",
-    "08 content design review",
+    "02 four scoped corrections after 08 design review",
     "06 final fixed combined candidate verification",
     "00 reception before 07 resume"
   ],
-  "preserved": "07 3/11 records, drafts, media and 8206/8303 runtime untouched"
+  "preserved": "07 3/11 records, drafts, media and 8206/8303 runtime untouched",
+  "followup_05": {
+    "delivery": "acf95b8c9169bf9839ea298bea32ced29500411d",
+    "source": "c97bb22e92bb626b5116fddf2e8f1dcaa571ae8a",
+    "manifest_entries_verified": 147,
+    "root_tests_passed": 11,
+    "root_assertions": 141,
+    "design_error_wording": "08 reviewed four images; specific finding closed",
+    "module_browser_checks": [
+      20,
+      33
+    ]
+  }
 }
