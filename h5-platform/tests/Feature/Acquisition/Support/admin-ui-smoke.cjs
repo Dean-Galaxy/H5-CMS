@@ -113,7 +113,7 @@ async function login(page, identity) {
    for(const [label,width,height,theme] of [['desktop',1280,900,'light'],['mobile',375,812,'light'],['desktop-dark',1280,900,'dark'],['mobile-dark',375,812,'dark']]) {
     await page.setViewportSize({width,height});await prototype.setViewportSize({width,height});
     await prototype.emulateMedia({colorScheme:theme});await page.evaluate(theme=>document.documentElement.classList.toggle('dark',theme==='dark'),theme);
-    for(const [real,design] of [['links','links'],['pixels','pixels'],['payments','results'],['deliveries','delivery']]) {
+    if(!process.env.H5_ACQUISITION_DIALOGS_ONLY) for(const [real,design] of [['links','links'],['pixels','pixels'],['payments','results'],['deliveries','delivery']]) {
      await tab(real);await frame.locator(`[data-tab="${design}"][data-kind="acquisition"]`).click();
      await page.evaluate(()=>window.scrollTo(0,0));await prototype.evaluate(()=>window.scrollTo(0,0));
      await page.screenshot({path:out+'/'+capturePrefix+label+'-'+real+'-actual.png'});await prototype.screenshot({path:out+'/'+capturePrefix+label+'-'+real+'-approved.png'});
@@ -137,6 +137,6 @@ async function login(page, identity) {
   await page.setViewportSize({width:375,height:812});
   check('mobile page has no horizontal overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth));
   check('no browser JavaScript errors',errors.length===0);
-  console.log(JSON.stringify({passed,browser:browser.version(),platform:process.platform,devicePixelRatio:await page.evaluate(()=>devicePixelRatio),zoom:1,base:new URL(base).origin,externalSending:'disabled',screenshots:process.env.H5_ACQUISITION_SCREENSHOTS||null}));
+  console.log(JSON.stringify({passed,browser:browser.version(),platform:process.platform,devicePixelRatio:await page.evaluate(()=>devicePixelRatio),zoom:1,base:new URL(base).origin,externalSending:'disabled',screenshots:process.env.H5_ACQUISITION_SCREENSHOTS||null,dialogsOnly:!!process.env.H5_ACQUISITION_DIALOGS_ONLY}));
  } finally {await browser.close()}
 })().catch(error=>{console.error(error.message);process.exit(1)});
