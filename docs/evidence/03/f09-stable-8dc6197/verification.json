@@ -1,0 +1,19 @@
+{
+  "application_commit": "e86227ea4a0181f79122d346aa1eac8bc4b567d2",
+  "capture_worktree_clean": true,
+  "targeted_browser_passed": 23,
+  "storage_checks_passed": 8,
+  "price_writes_in_targeted_run": 0,
+  "official_stripe": "not_configured_not_verified",
+  "test_server": {
+    "port": 8403,
+    "stopped": true
+  },
+  "normal_status_all_healthy": true,
+  "private_configuration_unchanged": true,
+  "billing_application_unchanged_from": "b6b0b96914d7d5c16df62cbe4295b98dd1d76b64",
+  "old_results_retained_with_original_versions": true,
+  "new_migrations": 0,
+  "new_dependencies": 0,
+  "F09": "open_pending_08_00_06"
+}

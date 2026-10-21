@@ -1,0 +1,40 @@
+{
+  "application_commit": "e86227ea4a0181f79122d346aa1eac8bc4b567d2",
+  "public_commit": "8dc6197ecc259aedd5dd1b3e2d171b3a4e90e2e9",
+  "merge_commit": "15e9e04bc6b99458de3a8d9b7053c17a78433896",
+  "business_contract": "1.0.5",
+  "files": {
+    "h5-platform/resources/views/billing/desk.blade.php": "9b570027ecca676cdca6232b970e8a85f2324d02d99ac8ba2b33a8c8ef246fe2",
+    "h5-platform/app/Modules/Billing/Filament/Pages/BillingDesk.php": "ea2ef3e80f2459373102012eca80808f8817cb8a7e08120c016ac12ce548f11d",
+    "h5-platform/app/Modules/Billing/Services/BillingAdministration.php": "e61ecb0979c39615cd04444ad586c2f51ded01361ed071f931be9d9ab966dac7",
+    "h5-platform/tests/Feature/Billing/Support/admin-browser.cjs": "e6bedabe47aea5febc3114e9ce634bb2c7d2e749ea319507aef802c073518f4d",
+    "h5-platform/tests/Feature/Billing/Support/admin-fidelity.cjs": "f8bb5e6e4b180900c8262bfeb975a068fa38a434a0314d67dff885a9303844a2",
+    "h5-platform/public/admin-ui/admin.css": "9f8dd19a8262839042f718f026068aa2f84bbdf6366c9a1fec026be64b797df0",
+    "h5-platform/public/admin-ui/admin.js": "233b5652f8db837a6249c2470d209d338a0cf7cb1c035a9a4119ed5b4e14144b",
+    "h5-platform/resources/views/components/admin/workspace.blade.php": "74cf66b4ae005035a57cde1671190926661082371f50a64f7dc8576f69bf3eba",
+    "h5-platform/composer.lock": "077219134203096b32abb3db2685c3defbab1c893ea89345f2882b2e7596ad48"
+  },
+  "screenshots": {
+    "e86227e-orders-desktop-approved.png": "03d4f773ad4abd8cbad554b28d8bfd6080dd7758232e8683160c95b152439f6c",
+    "e86227e-prices-desktop-approved-card.png": "a9e4d6fd67246c64ab4895e301a63a627df1c7bd913216f089e2d780890ab069",
+    "e86227e-orders-desktop-actual.png": "0dd06b47aa8a5df770963911bd8bcaba61c899247ba33e5fb555dc4400654544",
+    "e86227e-unsaved-error-short-unpaired.png": "8896dd7fd213bcdfab79239c902be5161c06ce24e12b0b0299a8ab8805557c6c",
+    "e86227e-prices-narrow-approved-card.png": "4990fb1b7cdd148924853d4728d762ef735504170b8f5c0278a4b368c4df51e4",
+    "e86227e-unsaved-error-desktop-unpaired.png": "6fcfe22274605787db692e6f58ba7ffc4a5fdcc1297a09b082b46a77161c77a8",
+    "e86227e-support-selected-extension.png": "3623b76fe2b1086c7e19d9a40011a79eb44ed6cc45d7a87075978c30482a35bf",
+    "e86227e-prices-desktop-approved.png": "7e6af8a075f6e176c2d23bdfc2e6421b99ef4576cc19349a0b461a07beb3d828",
+    "e86227e-support-narrow-approved.png": "b694795a684e1dd6f0699a73aa49a6207020e0d660f2d74f778a3a857c714664",
+    "e86227e-support-desktop-actual.png": "cdae2dcc38cce1b1a19289e88e0f22942ed889f5f9846a2f083d2b74c3332edb",
+    "e86227e-support-narrow-actual.png": "24a4d1df12744f82365b7b5ef7ed5854197abf619a5c9109fbbcbebd2fd32b8d",
+    "e86227e-prices-desktop-actual-card.png": "2ac5d8203ba1552d60f2feeb7de5c4c610680a04be8124c5d2620b70f3f30503",
+    "e86227e-prices-narrow-actual-card.png": "a24cd87d1c5b90ccaa74de010f71b3d045460eef74b169d1a89e91abfa056e6c",
+    "e86227e-support-desktop-approved.png": "c2b4b607d48a2f6493eedfcb80ae38e140d4a7f581a9489bfabdd8945bcc149d",
+    "e86227e-prices-desktop-actual.png": "029795ef8845547dccdb130b924cf224c1d4a2b59a39bedd794a08384a56f53b",
+    "e86227e-orders-narrow-actual.png": "1baeffb4357c06c5601516652e70fb6595cdb6a05eeafeca7a869273f80040a3",
+    "e86227e-prices-narrow-approved.png": "547cd4085112ae2270311842665cfa59c18ab1657084645869193e0a32377ed4",
+    "e86227e-prices-invalid-unpaired.png": "76897add60c8e30b39a925a8d5349d867ad2531e125d2cc7a25105908bd051be",
+    "e86227e-order-selected-extension.png": "4d4ce6f15277e88cf992f4c8b7932724daa19633b201d3f2c5f1e1a11c14a46f",
+    "e86227e-prices-narrow-actual.png": "9690e07ae277f2d1b98e3c462de5c5f90ac20db7600cac50cb8c07c7c1edb4fe",
+    "e86227e-orders-narrow-approved.png": "b73831565076ebe03e0956d9e3a9608e87c51a051c79360e8517c1fd58eaf41e"
+  }
+}
