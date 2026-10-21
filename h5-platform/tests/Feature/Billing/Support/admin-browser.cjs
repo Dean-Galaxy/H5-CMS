@@ -11,7 +11,8 @@ const server = JSON.parse(fs.readFileSync(path.join(runtime, '03-admin-browser-s
 assert(credentials.root === root && credentials.is_test === true && server.root === root);
 assert(credentials.database === server.database && credentials.database.endsWith('_test'));
 const base = `http://127.0.0.1:${server.port}`;
-const out = path.join(runtime, '03-admin-ui-browser');
+const sharedSmoke = process.argv.includes('--shared-smoke');
+const out = path.join(runtime, sharedSmoke ? '03-admin-shared-browser' : '03-admin-ui-browser');
 fs.mkdirSync(out, { recursive: true, mode: 0o700 });
 const checks = [];
 const errors = [];
@@ -72,6 +73,39 @@ async function login(ctx, role) {
     try {
         const ownerContext = await context();
         const page = await login(ownerContext, 'owner');
+        if (sharedSmoke) {
+            step = 'shared-1.0.5';
+            await page.goto(base + '/admin/billing-desk'); await selected(page, '订单查询');
+            const avatar = page.locator('img[src$="/admin-ui/staff-avatar.svg"]').first();
+            await avatar.waitFor();
+            await page.waitForFunction(() => [...document.images].some(img => img.src.endsWith('/admin-ui/staff-avatar.svg') && img.complete && img.naturalWidth > 0));
+            mark('same-origin staff avatar loads successfully');
+            check('owner still sees three authorized tabs', await page.getByRole('tab').count() === 3);
+            await tab(page, '订单查询').focus(); await page.keyboard.press('ArrowRight'); await selected(page, '会员价格');
+            await page.keyboard.press('End'); await selected(page, '客服记录');
+            await page.keyboard.press('Home'); await selected(page, '订单查询');
+            mark('shared patch preserves continuous real Livewire keyboard navigation');
+            await tab(page, '会员价格').click(); await selected(page, '会员价格');
+            const amount = page.locator('#billing-regular-usd');
+            check('previously saved dollar price remains exact', await amount.inputValue() === '12.34');
+            await amount.fill('12.345'); await tab(page, '订单查询').click(); await prompt(page).waitFor();
+            await prompt(page).getByRole('button', { name: '保存并继续' }).click();
+            await prompt(page).getByRole('alert').waitFor({ state: 'visible' });
+            check('shared patch preserves failed-save input and active tab', await amount.inputValue() === '12.345' && await tab(page, '会员价格').getAttribute('aria-selected') === 'true');
+            await closePrompt(page, '继续编辑');
+            await tab(page, '订单查询').click(); await closePrompt(page, '放弃修改'); await selected(page, '订单查询');
+            await tab(page, '会员价格').click(); await selected(page, '会员价格');
+            check('shared patch discard restores original price without new version', await amount.inputValue() === '12.34');
+            await snapshot(page, 'shared-owner-prices');
+            await page.setViewportSize({ width: 375, height: 812 });
+            await page.locator('.fi-sidebar-close-overlay').waitFor({ state: 'hidden' });
+            check('shared patch mobile has no document horizontal overflow', await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+            await snapshot(page, 'shared-mobile-prices');
+            check('shared patch has no external avatar or other external requests', external.size === 0 && externalFinished.size === 0);
+            check('shared patch has no page errors or HTTP 5xx', errors.length === 0 && unexpected.length === 0);
+            step = 'complete';
+            return;
+        }
         step = 'owner-orders';
         await page.goto(base + '/admin/billing-desk');
         await selected(page, '订单查询');

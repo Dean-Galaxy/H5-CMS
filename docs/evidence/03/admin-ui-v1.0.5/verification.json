@@ -1,0 +1,19 @@
+{
+  "source_commit": "1b22eafa3aa0b8e573b8721095b0b891f0a3451b",
+  "public_baseline": "46bd7cece7212a5db676056bc5cedac09fd2d8c3",
+  "business_contract": "1.0.5",
+  "browser_checks": 10,
+  "storage_checks": 8,
+  "contract_examples": 59,
+  "external_requests_attempted": 0,
+  "external_requests_completed": 0,
+  "browser_errors": 0,
+  "http_5xx": 0,
+  "billing_app_unchanged_from_original_delivery": true,
+  "private_configuration_unchanged": true,
+  "test_server_stopped": true,
+  "official_stripe": "not_configured_not_verified",
+  "production_charging": false,
+  "coordinator_acceptance": "pending",
+  "combination_acceptance": "pending"
+}
