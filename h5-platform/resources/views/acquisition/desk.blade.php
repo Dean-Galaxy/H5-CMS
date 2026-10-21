@@ -96,11 +96,12 @@
             const root = document.getElementById('acquisition-workspace');
             if (!root || root.dataset.acquisitionGuard === '1') return;
             root.dataset.acquisitionGuard = '1';
-            let activeEditor = null, opener = null, busy = false;
+            // Keep edit state outside Livewire's morphed DOM. Failed validation may replace a form.
+            let activeEditor = null, opener = null, busy = false, editorDirty = false;
             const lock = value => { busy = value; root.querySelectorAll('dialog[data-editor-dialog] input, dialog[data-editor-dialog] select, dialog[data-editor-dialog] button').forEach(control => control.disabled = value); };
             const component = () => window.Livewire?.find(root.closest('[wire\\:id]')?.getAttribute('wire:id'));
             const form = () => activeEditor && root.querySelector(`form[data-editor="${activeEditor}"]`);
-            const dirty = () => form()?.dataset.dirty === '1';
+            const dirty = () => Boolean(activeEditor && editorDirty);
             const failure = () => { const error = root.querySelector(`dialog[open] [data-editor-error]`) || root.querySelector('[data-editor-error]'); error.textContent = '未确认操作成功，请保留修改并检查表单或网络。'; error.hidden = false; };
             const close = () => { if (activeEditor) H5Admin.closeDialog(`acquisition-${activeEditor}-editor`); };
             const finish = async save => {
@@ -110,15 +111,15 @@
                     const current = form();
                     const ok = save ? await component().call(current.dataset.save) : await component().call('restoreEditor', activeEditor);
                     if (ok !== true) return false;
-                    form().dataset.dirty = '0';
+                    editorDirty = false;
                     close();
                     return true;
                 } catch { failure(); return false; }
                 finally { lock(false); }
             };
             const save = () => finish(true), discard = () => finish(false);
-            root.addEventListener('input', event => { const editor = event.target.closest('form[data-editor]'); if (editor) editor.dataset.dirty = '1'; });
-            root.addEventListener('change', event => { const editor = event.target.closest('form[data-editor]'); if (editor) editor.dataset.dirty = '1'; });
+            root.addEventListener('input', event => { const editor = event.target.closest('form[data-editor]'); if (editor && editor.dataset.editor === activeEditor) editorDirty = true; });
+            root.addEventListener('change', event => { const editor = event.target.closest('form[data-editor]'); if (editor && editor.dataset.editor === activeEditor) editorDirty = true; });
             root.addEventListener('close', event => {
                 if (!event.target.matches('dialog[data-editor-dialog]')) return;
                 activeEditor = null;
@@ -140,7 +141,7 @@
                     activeEditor = ({ newLink: 'link', selectLink: 'link', newPixel: 'pixel', selectPixel: 'pixel', selectAssignment: 'assignment' })[method];
                     if (!activeEditor) return;
                     opener = button;
-                    form().dataset.dirty = '0';
+                    editorDirty = false;
                     root.querySelectorAll('[data-editor-error]').forEach(error => error.hidden = true);
                     H5Admin.openDialog(`acquisition-${activeEditor}-editor`);
                 } catch { failure(); }

@@ -76,6 +76,7 @@ async function login(page, identity) {
     await prompt().getByRole('button',{name:'继续编辑'}).click();await prompt().waitFor({state:'detached'});
     check(label+' continue editing retains unsaved input',await editor.getByLabel('推广名称').inputValue()==='F09 未保存'&&await editor.getByLabel(/^平台/).inputValue()==='tiktok');
     await closeAfterDiscard();
+    passed.push(label+' repeated cancel after validation still requires discard and restores focus');
    }
    check('no browser JavaScript errors',errors.length===0);
    console.log(JSON.stringify({passed,browser:browser.version(),platform:process.platform,base:new URL(base).origin,externalSending:'disabled',errorsOnly:true,screenshots:out||null}));return;
