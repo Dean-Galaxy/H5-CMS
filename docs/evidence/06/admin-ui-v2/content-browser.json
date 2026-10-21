@@ -1,0 +1,30 @@
+{
+  "passed": 23,
+  "cases": [
+    "real staff password and MFA session",
+    "four top tabs and five detail tabs",
+    "new draft persisted without publication",
+    "continue editing preserves dirty form",
+    "discard restores server value",
+    "save then navigate waits for real server result",
+    "unknown save result keeps editor and dirty prompt",
+    "cover uploaded in basics and explicitly bound",
+    "real SRT candidate explicitly replaces draft and keeps it draft",
+    "combined first-now preview contains first and next ranges",
+    "one confirmation atomically publishes ten and activates future plan",
+    "35 episodes advance 10/10/10/5 without changing future slot",
+    "candidate upload does not replace current published media",
+    "published video replacement keeps ID count free rules and plan",
+    "published title edit retains original ID and locked media bindings",
+    "single-drama operation history shows replacement",
+    "refresh restores selected drama and detail tab",
+    "schedule overview is separate from drama editor",
+    "browser back restores previous tab",
+    "Banner upload and save stays in its own tab",
+    "mobile editor buttons are not blocked by sidebar",
+    "mobile no horizontal body overflow",
+    "no page script errors"
+  ],
+  "errors": [],
+  "boundary": "Loopback real staff UI and generated media; not production or provider acceptance"
+}
