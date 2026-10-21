@@ -34,6 +34,7 @@ async function login(page, identity) {
  const measureDialog=async (editor,label)=>{
   const metrics=await editor.evaluate((d,label)=>{
    const header=d.querySelector('.h5-dialog-header'), body=d.querySelector('.h5-dialog-body'), first=body.firstElementChild, actions=d.querySelector('.h5-dialog-actions'), close=d.querySelector('.h5-dialog-close');
+   body.scrollTop=0; // Measure from content start after any prior scroll test.
    const rect=e=>e.getBoundingClientRect();
    const startGap=rect(first).top-rect(header).bottom;
    body.scrollTop=body.scrollHeight;
