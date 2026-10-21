@@ -107,3 +107,6 @@ const dispose = H5Admin.protect(document.getElementById('billing-workspace'), {
 
 
 F09补充：公共 `h5-choice`（label包裹checkbox/radio）与 `h5-note` 已按原稿P:65–68提供；选择行12px内距/10px上距、选中软背景，短注12px/9px上距。模块使用这些类恢复原稿语义层级，不复制CSS。原稿管理窗角色字段上距18px、新增表单上距20px属于对应内容布局；公共标题间距尚待同状态对照，不以单页4px差值直接改变所有弹窗。
+
+
+08复核补充：公共标题不再设置37px最小高度，18px字号/1.55自然行高后5px间隔；关闭图标按钮使用通用8px/13px内距和37px桌面最小高度（580px以下42px）。dialog-body不再隐式grid/gap16px，内容按各原稿状态显式布局，仍保留限高滚动。workspace标题→下一行、标签→面板使用22px间隔，其余行维持原有间隔。请在本次公共补丁后再做最终配对，不给模块补偿旧37px/gap16px的反向margin。
