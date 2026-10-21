@@ -1,0 +1,9 @@
+{
+  "checkout_commit": "fc75b1144f93efccf8a1a28daa6adfbee0e23d96",
+  "contract": "1.0.4",
+  "checks_passed": 44,
+  "all_passed": true,
+  "workspace_binding": true,
+  "database_identity": "h5_217e1741db|5606|h5_app_217e1741db|f|f",
+  "scope": "independent CLI boot/config cache and local DB identity only; synthetic SMTP and empty Stripe credentials; native network functions disabled in probes; no external connection or delivery; no real FPM/systemd execution"
+}

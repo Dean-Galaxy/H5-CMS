@@ -1,0 +1,474 @@
+{
+    "media_root": "\/Volumes\/KESU\/H5-02-runtime-2e3d6828b8\/media",
+    "drama": {
+        "id": "01a11226-14f2-7096-aeea-517163e3a3d1",
+        "version": 70,
+        "state": "published",
+        "total_episodes": 62,
+        "cover_asset_id": "01a11420-7b7b-71d4-a291-74bb0cb27c1e"
+    },
+    "plan": {
+        "id": "01a11226-14fc-71da-bff5-e8a466868c9a",
+        "version": 6,
+        "state": "paused",
+        "mode": "updating"
+    },
+    "assets": [
+        {
+            "kind": "banner",
+            "state": "ready",
+            "count": 1
+        },
+        {
+            "kind": "subtitle",
+            "state": "ready",
+            "count": 62
+        },
+        {
+            "kind": "cover",
+            "state": "ready",
+            "count": 1
+        },
+        {
+            "kind": "video",
+            "state": "ready",
+            "count": 62
+        }
+    ],
+    "episodes": [
+        {
+            "number": 1,
+            "id": "01a1141f-d52b-73b7-81e1-66cce6e1b147",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": true
+        },
+        {
+            "number": 2,
+            "id": "01a11421-2058-7193-8dc7-4536d98b1dda",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": true
+        },
+        {
+            "number": 3,
+            "id": "01a11421-470b-733f-8255-ac16781599f9",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": true
+        },
+        {
+            "number": 4,
+            "id": "01a11421-72f1-7297-af26-782833183c2f",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": true
+        },
+        {
+            "number": 5,
+            "id": "01a11421-84e0-7032-b1fd-875a25fdeb7a",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": true
+        },
+        {
+            "number": 6,
+            "id": "01a11421-b0cb-72d6-8580-009c5718a891",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": true
+        },
+        {
+            "number": 7,
+            "id": "01a11423-402a-726c-94e2-a40d23e47313",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 8,
+            "id": "01a11423-59f1-730f-a894-563d4a48fce4",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 9,
+            "id": "01a11423-6aeb-7224-9480-ce5631d7c0ab",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 10,
+            "id": "01a11423-85d4-72b7-a11c-8d3873ee9850",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 11,
+            "id": "01a11423-96e9-7080-8a24-3acf565881ac",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 12,
+            "id": "01a11423-b354-70af-be38-d9b9a940ab69",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 13,
+            "id": "01a11423-f199-7073-89ff-a0caadda43cc",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 14,
+            "id": "01a11424-18db-710d-8de3-3457e3752048",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 15,
+            "id": "01a11424-28e1-70f0-b01e-1a54104dc568",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 16,
+            "id": "01a11424-3da4-71e6-a84b-63fed020adf1",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 17,
+            "id": "01a11424-55a2-73f7-8091-6c93a8fd6737",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 18,
+            "id": "01a11424-6d3a-7004-b05f-e0f833fd4f21",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 19,
+            "id": "01a11424-988f-717f-9112-ea4d506ff169",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 20,
+            "id": "01a11424-beba-71c1-93aa-2f1b3fb6773c",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 21,
+            "id": "01a11427-9411-701f-be10-1efa90ba1572",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 22,
+            "id": "01a11427-a3cb-7238-920b-4e2e57eaa397",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 23,
+            "id": "01a11427-b711-73a1-b58c-46e1e189d9a2",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 24,
+            "id": "01a11427-cda1-7180-bad9-9dd52dd3780e",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 25,
+            "id": "01a11427-db00-71b6-a273-afca4c483e20",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 26,
+            "id": "01a11427-ff08-72c9-b682-cddb63e8c50b",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 27,
+            "id": "01a11428-3819-71d5-bc7c-04b0c13d0c68",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 28,
+            "id": "01a11428-5671-724f-8457-1f3b5aab4888",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 29,
+            "id": "01a11428-6f61-7160-8ca1-7a3dced1194f",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 30,
+            "id": "01a11428-9688-719b-9043-81db97bb0106",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 31,
+            "id": "01a11428-c4e8-72a0-a97f-6c20a1126298",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 32,
+            "id": "01a11428-dbd4-70e0-a691-3bbfdc4eb381",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 33,
+            "id": "01a11429-09d4-7280-b08a-52a6098aec9f",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 34,
+            "id": "01a11429-1adf-709d-8f33-ac3b0c4da4c3",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 35,
+            "id": "01a11429-468b-71d5-9719-31fcd2794113",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 36,
+            "id": "01a11429-5858-73f0-9874-69157854c35a",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 37,
+            "id": "01a11429-75ca-712a-8242-3d0642207d4d",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 38,
+            "id": "01a11429-8ae0-7233-bc81-2765ad972c99",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 39,
+            "id": "01a11429-b09d-7149-8134-4cf3b10d1959",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 40,
+            "id": "01a11429-e408-73e7-a202-d565aed0f574",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 41,
+            "id": "01a1142a-1517-7159-9a05-0be2519023e5",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 42,
+            "id": "01a1142a-4cd0-7130-8675-77d90486fa86",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 43,
+            "id": "01a1142a-9440-71f2-b163-f303d0dea1d5",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 44,
+            "id": "01a1142a-ce41-7134-b667-8c48376d8dc1",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 45,
+            "id": "01a1142b-201d-7126-a767-bb99891d6797",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 46,
+            "id": "01a1142b-4cfd-73fb-a9f8-204aca9d8ebf",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 47,
+            "id": "01a1142b-7e8f-73e7-8576-c0fc8d6d1fca",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 48,
+            "id": "01a1142b-9e49-7206-8cca-454d4d08884d",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 49,
+            "id": "01a1142b-cf16-71d5-9179-fb1088dfedf3",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 50,
+            "id": "01a1142c-04d4-7313-9de2-7507528707ae",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 51,
+            "id": "01a1142c-3a84-7315-acda-1fad8e5e9703",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 52,
+            "id": "01a1142c-68ff-7222-9dc7-e675968225f9",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 53,
+            "id": "01a1142c-9ef6-716f-aed1-a5ec6e9a822c",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 54,
+            "id": "01a1142c-e631-708b-adb2-cf4e3fb94ac8",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 55,
+            "id": "01a1142d-1705-7072-b424-51a51bcbb7d0",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 56,
+            "id": "01a1142d-4e77-703d-8201-123868722756",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 57,
+            "id": "01a1142d-886d-7098-addb-6fd92e401ced",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 58,
+            "id": "01a1142d-b3ee-7249-863d-9435dfc8b19e",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 59,
+            "id": "01a1142d-f793-7076-b7dd-a038637c8f30",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 60,
+            "id": "01a1142e-4156-71ae-8cbb-c8dad4637c04",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 61,
+            "id": "01a1142e-8c62-719a-ad8d-70a1b09ddba1",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        },
+        {
+            "number": 62,
+            "id": "01a1142e-ea21-7387-af2e-43bdad8b1e2e",
+            "video": "ready",
+            "subtitle": "ready",
+            "published": false
+        }
+    ]
+}
