@@ -1,0 +1,43 @@
+INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Billing\BillingDeskTest
+  ✓ owner uses dollar inputs and exact saved price survives refresh      7.03s
+  ✓ support can open exact order without price controls or payment cred… 0.19s
+  ✓ invalid dollars keep the form and save pending refuses navigation    0.03s
+  ✓ stale price editor keeps entered dollars until explicit discard      0.14s
+  ✓ refresh context and forged tabs or cases do not bypass scope         0.08s
+  ✓ unsaved support note requires real validation and discard does not…  0.06s
+  ✓ payment refund and next renewal amounts render as precise dollars    0.16s
+  ✓ unauthed page does not bootstrap owner or prices                     0.82s
+  ✓ staff without mfa proof cannot render billing data                   0.08s
+  ✓ other roles cannot render the billing page                           0.33s
+  ✓ unknown support cancellation clears consumed verification but keeps… 0.12s
+
+   PASS  Tests\Feature\Billing\BillingUsdPriceTest
+  ✓ decimal strings and business boundaries save exact minor units and…  0.02s
+  ✓ malformed usd and non string types map errors to the input field wi… 0.02s
+  ✓ positive price range and test acknowledgement remain module rules    0.08s
+  ✓ legacy minor fields cannot override or replace usd input             0.02s
+  ✓ stale usd submission cannot overwrite a newer price version          0.02s
+  ✓ staff permissions and mfa are checked before parsing usd             0.02s
+  ✓ usd price change preserves existing offer checkout intent and subsc… 0.13s
+  ✓ usd price change preserves paid facts and original resume quote      0.13s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.01s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.02s
+  ✓ livewire tabs call the module method without using inline user code  0.05s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  1.42s
+  ✓ dialog has accessible title and real submit button can target its f… 0.04s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 0.20s
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.17s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund   0.74s
+
+  Tests:    28 passed (572 assertions)
+  Duration: 13.83s

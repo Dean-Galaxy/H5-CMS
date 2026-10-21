@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-21",
+  "contract": "1.0.5",
+  "billing": {
+    "tested_commit": "dda8e6f8164d741885de8857877553efba766ee5",
+    "passed": 28,
+    "assertions": 572,
+    "evidence": "billing-tests.txt"
+  },
+  "acquisition_identity": {
+    "tested_commit": "eafea3ea03b7eb7a102b1f17e677355f2f6e2971",
+    "passed": 71,
+    "assertions": 725,
+    "evidence": "acquisition-identity-tests.txt"
+  },
+  "database": "h5_5c78d05e4e_test",
+  "official_payment": false,
+  "external_ads": false,
+  "final_combination_acceptance": "pending"
+}
