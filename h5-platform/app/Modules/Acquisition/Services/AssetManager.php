@@ -112,6 +112,14 @@ final class AssetManager
             'name' => ['required', 'string', 'max:100'], 'platform' => ['required', Rule::in(['meta', 'tiktok'])],
             'drama_id' => ['required', 'uuid'], 'pixel_id' => ['required', 'uuid'], 'active' => ['required', 'boolean'],
             'version' => ['required', 'integer', 'min:0'],
+        ], [
+            'name.required' => '请填写推广名称', 'name.string' => '推广名称必须是文字', 'name.max' => '推广名称不能超过100个字符',
+            'platform.required' => '请选择投放平台', 'platform.in' => '请选择Meta或TikTok平台',
+            'drama_id.required' => '请选择已发布剧目', 'drama_id.uuid' => '剧目选择无效，请重新读取并选择已发布剧目',
+            'pixel_id.required' => '请选择授权像素', 'pixel_id.uuid' => '像素选择无效，请重新选择授权像素',
+            'active.required' => '请选择启用状态', 'active.boolean' => '启用状态无效，请重新选择',
+            'version.required' => '缺少链接版本，请重新打开链接编辑', 'version.integer' => '链接版本无效，请重新打开链接编辑',
+            'version.min' => '链接版本无效，请重新打开链接编辑',
         ])->validate();
 
         return DB::transaction(function () use ($id, $data, $actor) {

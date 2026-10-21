@@ -64,6 +64,23 @@ final class DeskTest extends AcquisitionTestCase
         $this->assertDatabaseCount('acquisition_receipts', 0);
     }
 
+    public function test_link_validation_is_actionable_chinese_and_preserves_unsaved_input(): void
+    {
+        $this->signIn();
+        $page = Livewire::test(AcquisitionDesk::class)->call('newLink')
+            ->set('link.name', '尚未保存的推广名称')->set('link.platform', 'tiktok')
+            ->call('saveLink')->assertHasErrors(['drama_id' => 'required', 'pixel_id' => 'required'])
+            ->assertSee('请选择已发布剧目')->assertSee('请选择授权像素')
+            ->assertDontSee('The drama id field is required')->assertDontSee('The pixel id field is required')
+            ->assertSet('link.name', '尚未保存的推广名称')->assertSet('link.platform', 'tiktok')->assertSet('linkId', null);
+        $page->set('link.drama_id', 'invalid-drama')->set('link.pixel_id', 'invalid-pixel')->call('saveLink')
+            ->assertHasErrors(['drama_id' => 'uuid', 'pixel_id' => 'uuid'])
+            ->assertSee('剧目选择无效，请重新读取并选择已发布剧目')->assertSee('像素选择无效，请重新选择授权像素')
+            ->assertSet('link.name', '尚未保存的推广名称')->assertSet('link.platform', 'tiktok')
+            ->assertSet('link.drama_id', 'invalid-drama')->assertSet('link.pixel_id', 'invalid-pixel');
+        $this->assertDatabaseCount('acquisition_links', 0);
+    }
+
     public function test_hidden_action_calls_cannot_edit_foreign_pixel_or_self_assign(): void
     {
         $creator = $this->signIn();
