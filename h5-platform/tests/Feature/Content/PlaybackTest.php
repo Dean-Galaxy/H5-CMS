@@ -171,4 +171,24 @@ final class PlaybackTest extends ContentTestCase
         $this->grant($ep->id)->assertOk()->assertJsonPath('reason', 'REGION_BLOCKED');
         $this->postJson('/api/v1/episodes/'.$ep->id.'/playback-grants', ['play_session_id' => null, 'region' => 'US'])->assertUnprocessable();
     }
+
+    public function test_video_replacement_retains_files_but_old_manifest_segment_and_range_grants_are_stale(): void
+    {
+        $d = $this->fixture(1, 1, true);
+        $ep = $d->episodes()->first();
+        $oldFile = app(MediaStore::class)->path($ep->video->output_key.'/media.mp4');
+        $grant = $this->grant($ep->id)->assertOk()->json();
+        $this->get($this->signed($grant['grant_id'], 'media.mp4'), ['Range' => 'bytes=0-9'])->assertStatus(206);
+        $candidate = $this->readyAsset();
+        $candidate->update(['metadata' => $candidate->metadata + ['context_drama_id' => $d->id, 'context_episode_id' => $ep->id, 'context_role' => 'episode_replacement_video']]);
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/episodes/'.$ep->id.'/media-replacement', [
+            'drama_version' => $d->version, 'episode_version' => $ep->version, 'role' => 'video', 'asset_id' => $candidate->id, 'confirmation' => true])->assertOk();
+        foreach (['master.m3u8', 'index.m3u8', 'segment-00000.ts', 'media.mp4'] as $file) {
+            $this->getJson($this->signed($grant['grant_id'], $file), ['Range' => 'bytes=0-9'])->assertStatus(409)->assertJsonPath('error.code', 'STALE_VERSION');
+        }
+        $this->assertFileExists($oldFile);
+        $new = $this->grant($ep->id)->assertOk()->assertJsonPath('allowed', true)->json();
+        $this->assertSame($candidate->id, Grant::findOrFail($new['grant_id'])->asset_id);
+        $this->get($this->signed($new['grant_id'], 'media.mp4'), ['Range' => 'bytes=0-9'])->assertStatus(206);
+    }
 }

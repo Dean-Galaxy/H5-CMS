@@ -6,7 +6,9 @@ use App\Enums\Role;
 use App\Modules\Content\Models\Asset;
 use App\Modules\Content\Models\Banner;
 use App\Modules\Content\Models\DramaRecord;
+use App\Modules\Content\Services\MediaStore;
 use App\Modules\Identity\Models\Viewer;
+use Illuminate\Support\Str;
 
 final class ManagementTest extends ContentTestCase
 {
@@ -150,5 +152,104 @@ final class ManagementTest extends ContentTestCase
         $this->patchJson('/api/v1/admin/content/dramas/'.$b->id.'/episodes/'.$ep->id, $payload)->assertNotFound();
         $this->patchJson('/api/v1/admin/content/dramas/'.$a->id.'/free', ['version' => 1, 'free_count' => 5])->assertOk();
         $this->patchJson('/api/v1/admin/content/dramas/'.$a->id, ['version' => 1, ...$this->draftInput()])->assertStatus(409);
+    }
+
+    public function test_content_workspace_renders_module_owned_navigation_and_release_controls(): void
+    {
+        $response = $this->get('/admin/content-library')->assertOk();
+        $response->assertSee('剧目库')->assertSee('发布计划')->assertSee('分类')->assertSee('首页 Banner')
+            ->assertSee('分集与字幕')->assertSee('授权与免费集数')->assertSee('操作记录')
+            ->assertSee('预览并提前发布下一批')->assertSee('预览发布安排');
+    }
+
+    public function test_published_episode_media_replacement_requires_ready_contextual_candidate_and_keeps_episode_id(): void
+    {
+        $d = $this->fixture(1, 1, true);
+        $episode = $d->episodes()->first();
+        $oldVideo = $episode->video_asset_id;
+        $oldPath = app(MediaStore::class)->path($episode->video->output_key.'/media.mp4');
+        $pending = $this->readyAsset('video');
+        $pending->update(['state' => 'processing', 'metadata' => $pending->metadata + ['context_drama_id' => $d->id, 'context_episode_id' => $episode->id, 'context_role' => 'episode_replacement_video']]);
+        $candidate = $this->readyAsset('video');
+        $candidate->update(['metadata' => $candidate->metadata + ['context_drama_id' => $d->id, 'context_episode_id' => $episode->id, 'context_role' => 'episode_replacement_video']]);
+        $base = '/api/v1/admin/content/dramas/'.$d->id.'/episodes/'.$episode->id.'/media-replacement';
+        $this->postJson($base, ['drama_version' => $d->version, 'episode_version' => $episode->version, 'role' => 'video', 'asset_id' => $pending->id, 'confirmation' => true])
+            ->assertUnprocessable();
+        $this->assertSame($oldVideo, $episode->fresh()->video_asset_id);
+        $this->postJson($base, ['drama_version' => $d->version, 'episode_version' => $episode->version, 'role' => 'video', 'asset_id' => $candidate->id, 'confirmation' => true])
+            ->assertOk()->assertJsonPath('id', $episode->id)->assertJsonPath('video_asset_id', $candidate->id);
+        $this->assertSame($episode->id, $d->episodes()->first()->id);
+        $this->assertNotSame($oldVideo, $episode->fresh()->video_asset_id);
+        $this->assertFileExists($oldPath);
+        $stale = $this->postJson($base, ['drama_version' => $d->version, 'episode_version' => 1, 'role' => 'video', 'asset_id' => $oldVideo, 'confirmation' => true]);
+        $stale->assertStatus(409);
+    }
+
+    public function test_subtitle_candidate_upload_preserves_context_and_cancel_cannot_change_bound_media(): void
+    {
+        $d = $this->fixture(1, 1, true);
+        $ep = $d->episodes()->first();
+        $body = "1\n00:00:00,000 --> 00:00:01,000\nHello\n";
+        $input = ['kind' => 'subtitle', 'filename' => '1.srt', 'bytes' => strlen($body), 'context_drama_id' => $d->id,
+            'context_episode_id' => $ep->id, 'context_role' => 'episode_replacement_subtitle', 'context_language' => 'en'];
+        $candidate = $this->postJson('/api/v1/admin/content/uploads', $input)->assertOk()->assertJsonPath('metadata.context_language', 'en')->json('id');
+        $media = app(MediaStore::class);
+        $media->append($candidate, 0, $body);
+        $media->finish($candidate);
+        $asset = $media->process($candidate);
+        $this->assertSame('ready', $asset->state);
+        $this->assertFalse($asset->metadata['language_verified']);
+        $this->assertSame('en', $asset->metadata['context_language']);
+        $payload = ['drama_version' => $d->fresh()->version, 'episode_version' => $ep->version, 'role' => 'subtitle',
+            'asset_id' => $candidate, 'subtitle_language' => 'zh_CN', 'confirmation' => true];
+        $url = '/api/v1/admin/content/dramas/'.$d->id.'/episodes/'.$ep->id.'/media-replacement';
+        $this->postJson($url, $payload)->assertUnprocessable();
+        $payload['subtitle_language'] = 'en';
+        $this->postJson($url, $payload)->assertOk()->assertJsonMissingPath('subtitle.output_key');
+        $this->postJson('/api/v1/admin/content/uploads/'.$candidate.'/cancel')->assertStatus(409);
+        $this->assertSame($candidate, $ep->fresh()->subtitle_asset_id);
+        $this->assertSame($ep->video_asset_id, $ep->fresh()->video_asset_id);
+        $this->assertSame($d->free_count, $d->fresh()->free_count);
+        $this->assertSame($d->plan->toArray(), $d->fresh()->plan->toArray());
+        $history = $this->getJson('/api/v1/admin/content/dramas/'.$d->id)->assertOk()->json('operations');
+        $this->assertContains('episode.media_replaced', array_column($history, 'action'));
+        $other = $this->postJson('/api/v1/admin/content/uploads', $input)->assertOk()->json('id');
+        Asset::findOrFail($other)->update(['state' => 'processing', 'processing_token' => (string) Str::uuid7()]);
+        $this->postJson('/api/v1/admin/content/uploads/'.$other.'/cancel')->assertOk()->assertJsonPath('state', 'canceled');
+        $this->assertNull(Asset::findOrFail($other)->processing_token);
+        $this->assertSame('canceled', $media->process($other)->state);
+        $this->assertSame($candidate, $ep->fresh()->subtitle_asset_id);
+    }
+
+    public function test_replacement_rejects_wrong_context_timing_and_missing_files_without_mutation(): void
+    {
+        $d = $this->fixture(2, 2, true);
+        $ep = $d->episodes()->first();
+        $a = $this->readyAsset('subtitle');
+        $context = ['context_drama_id' => $d->id, 'context_episode_id' => $ep->id, 'context_role' => 'episode_replacement_subtitle', 'context_language' => 'en'];
+        $a->update(['metadata' => array_merge($a->metadata, $context, ['last_end' => 100])]);
+        $url = '/api/v1/admin/content/dramas/'.$d->id.'/episodes/'.$ep->id.'/media-replacement';
+        $payload = ['drama_version' => $d->version, 'episode_version' => $ep->version, 'role' => 'subtitle', 'asset_id' => $a->id, 'subtitle_language' => 'en', 'confirmation' => true];
+        $this->postJson($url, $payload)->assertUnprocessable();
+        $a->update(['metadata' => array_merge($a->metadata, ['last_end' => 1, 'context_episode_id' => $d->episodes()->where('id', '!=', $ep->id)->first()->id])]);
+        $this->postJson($url, $payload)->assertUnprocessable();
+        $a->update(['metadata' => array_merge($a->metadata, $context)]);
+        unlink(app(MediaStore::class)->path($a->output_key.'/subtitles.vtt'));
+        $this->postJson($url, $payload)->assertUnprocessable();
+        $this->assertNull($ep->fresh()->subtitle_asset_id);
+        $this->assertSame($d->version, $d->fresh()->version);
+        $this->assertSame(2, $d->episodes()->whereNotNull('published_at')->count());
+    }
+
+    public function test_draft_media_binding_cannot_be_replaced_by_generic_edit_before_candidate_confirmation(): void
+    {
+        $d = $this->fixture(1);
+        $ep = $d->episodes()->first();
+        $candidate = $this->readyAsset();
+        $this->patchJson('/api/v1/admin/content/dramas/'.$d->id.'/episodes/'.$ep->id, ['version' => $ep->version,
+            'number' => 1, 'title_en' => '', 'title_zh' => '', 'video_asset_id' => $candidate->id])->assertUnprocessable();
+        $this->assertSame($ep->video_asset_id, $ep->fresh()->video_asset_id);
+        $this->assertNull($ep->fresh()->published_at);
+        $this->assertSame($d->version, $d->fresh()->version);
     }
 }

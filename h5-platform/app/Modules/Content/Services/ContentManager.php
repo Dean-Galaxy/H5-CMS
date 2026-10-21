@@ -107,8 +107,10 @@ final class ContentManager
             $episode->fill($data);
             $episode->title_en = trim($episode->title_en ?? '');
             $episode->title_zh = trim($episode->title_zh ?? '');
-            if ($drama->state === 'published' && $episode->published_at && $episode->isDirty(['video_asset_id', 'subtitle_asset_id'])) {
-                throw ValidationException::withMessages(['video_asset_id' => '请先整剧下架，再更换已公开分集的素材']);
+            foreach (['video_asset_id', 'subtitle_asset_id'] as $binding) {
+                if ($id && $episode->isDirty($binding) && ($episode->getOriginal($binding) || $episode->published_at)) {
+                    throw ValidationException::withMessages([$binding => '已有素材或已公开分集请使用独立候选上传并确认替换']);
+                }
             }
             $episode->version = $id ? $episode->version + 1 : 1;
             $episode->save();
@@ -116,6 +118,58 @@ final class ContentManager
             ContentGuard::changed('episode.saved', 'content_episode', $episode->id, $episode->version);
 
             return $episode;
+        });
+    }
+
+    public function replaceEpisodeMedia(string $dramaId, string $episodeId, array $input): EpisodeRecord
+    {
+        ContentGuard::staff();
+        $data = ContentGuard::validate($input, ['drama_version' => 'required|integer|min:1', 'episode_version' => 'required|integer|min:1',
+            'role' => 'required|in:video,subtitle', 'asset_id' => 'required|uuid', 'subtitle_language' => 'nullable|in:en,zh_CN', 'confirmation' => 'required|accepted']);
+
+        return ContentGuard::mutate(function () use ($dramaId, $episodeId, $data) {
+            $drama = DramaRecord::findOrFail($dramaId);
+            ContentGuard::staff($drama);
+            ContentGuard::version($drama, $data['drama_version']);
+            $episode = $drama->episodes()->findOrFail($episodeId);
+            ContentGuard::version($episode, $data['episode_version']);
+            $asset = Asset::findOrFail($data['asset_id']);
+            $role = $data['role'];
+            $contextRole = 'episode_replacement_'.$role;
+            if ($asset->kind !== ($role === 'video' ? 'video' : 'subtitle') || $asset->state !== 'ready'
+                || ($asset->metadata['context_drama_id'] ?? null) !== $drama->id
+                || ($asset->metadata['context_episode_id'] ?? null) !== $episode->id
+                || ($asset->metadata['context_role'] ?? null) !== $contextRole
+                || ($role === 'subtitle' && ($asset->metadata['context_language'] ?? null) !== ($data['subtitle_language'] ?? null))) {
+                throw ValidationException::withMessages(['asset_id' => '候选素材未处理完成，或不属于当前分集及替换位置']);
+            }
+            if ($role === 'video' && ! app(MediaStore::class)->playable($asset)) {
+                throw ValidationException::withMessages(['asset_id' => '候选视频文件或 HLS 清单检查失败']);
+            }
+            if ($role === 'subtitle') {
+                $path = $asset->output_key ? app(MediaStore::class)->path($asset->output_key.'/subtitles.vtt') : null;
+                if (! $path || ! is_file($path) || filesize($path) === 0 || ! in_array($data['subtitle_language'] ?? null, ['en', 'zh_CN'], true)) {
+                    throw ValidationException::withMessages(['asset_id' => '候选字幕尚未生成有效 VTT，或未登记实际语言']);
+                }
+            }
+            $video = $role === 'video' ? $asset : $episode->video;
+            $subtitle = $role === 'subtitle' ? $asset : $episode->subtitle;
+            if ($video && $subtitle && ($subtitle->metadata['last_end'] ?? INF) > ($video->metadata['duration'] ?? 0) + 0.5) {
+                throw ValidationException::withMessages(['asset_id' => '字幕时轴超过视频时长，请核对候选素材']);
+            }
+            if ($role === 'video') {
+                $episode->video_asset_id = $asset->id;
+            } else {
+                $episode->subtitle_asset_id = $asset->id;
+                $episode->subtitle_language = $data['subtitle_language'];
+            }
+            $episode->version++;
+            $episode->save();
+            $drama->version++;
+            $drama->save();
+            ContentGuard::changed('episode.media_replaced', 'content_episode', $episode->id, $episode->version);
+
+            return $episode->fresh();
         });
     }
 
@@ -130,9 +184,9 @@ final class ContentManager
             if ($episode->published_at) {
                 throw new ApiProblem('STALE_VERSION', 409, '已发布记录保留，不可删除');
             }
+            ContentGuard::changed('episode.deleted', 'content_episode', $id, $version);
             $episode->delete();
             $drama->increment('version');
-            ContentGuard::changed('episode.deleted', 'content_episode', $id, $version);
         });
     }
 

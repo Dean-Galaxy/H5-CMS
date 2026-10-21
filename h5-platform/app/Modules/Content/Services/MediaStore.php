@@ -4,6 +4,8 @@ namespace App\Modules\Content\Services;
 
 use App\Enums\Role;
 use App\Modules\Content\Models\Asset;
+use App\Modules\Content\Models\DramaRecord;
+use App\Modules\Content\Models\EpisodeRecord;
 use App\Support\ApiProblem;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -83,7 +85,9 @@ final class MediaStore
     public function start(array $input): Asset
     {
         $staff = ContentGuard::staff();
-        $data = ContentGuard::validate($input, ['kind' => 'required|in:video,cover,banner,subtitle', 'filename' => 'required|string|max:200', 'bytes' => 'required|integer|min:1|max:2147483648']);
+        $data = ContentGuard::validate($input, ['kind' => 'required|in:video,cover,banner,subtitle', 'filename' => 'required|string|max:200', 'bytes' => 'required|integer|min:1|max:2147483648',
+            'context_drama_id' => 'nullable|uuid', 'context_episode_id' => 'nullable|uuid', 'context_role' => 'nullable|in:episode_replacement_video,episode_replacement_subtitle']);
+        $language = ContentGuard::validate($input, ['context_language' => 'nullable|in:en,zh_CN']);
         if (preg_match('~[\\\\/\x00-\x1F]~', $data['filename'])) {
             throw ValidationException::withMessages(['filename' => '文件名不得包含路径或控制字符']);
         }
@@ -97,8 +101,22 @@ final class MediaStore
         if (! in_array($extension, $allowed, true) || $data['bytes'] > $max) {
             throw ValidationException::withMessages(['file' => '文件类型或大小不符合要求']);
         }
+        if (! empty($data['context_role'])) {
+            $drama = DramaRecord::findOrFail($data['context_drama_id'] ?? '');
+            ContentGuard::staff($drama);
+            $episode = $drama->episodes()->findOrFail($data['context_episode_id'] ?? '');
+            $expectedKind = $data['context_role'] === 'episode_replacement_video' ? 'video' : 'subtitle';
+            if ($data['kind'] !== $expectedKind) {
+                throw ValidationException::withMessages(['kind' => '替换素材类型与分集位置不匹配']);
+            }
+            if ($expectedKind === 'subtitle' && empty($language['context_language'])) {
+                throw ValidationException::withMessages(['context_language' => '字幕候选需登记实际语言']);
+            }
+        } elseif (! empty($data['context_drama_id']) || ! empty($data['context_episode_id'])) {
+            throw ValidationException::withMessages(['context_role' => '替换上传必须同时指定剧目、分集和位置']);
+        }
 
-        return ContentGuard::mutate(function () use ($staff, $data, $extension) {
+        return ContentGuard::mutate(function () use ($staff, $data, $extension, $language) {
             // Limit abandoned uploads per staff; ready files do not count.
             if (Asset::where('created_by', $staff->id)->where('state', 'uploading')->count() >= 100) {
                 throw new ApiProblem('VALIDATION_FAILED', 422, '未完成上传过多，请先完成或取消旧上传');
@@ -113,8 +131,16 @@ final class MediaStore
             fclose($handle);
             chmod($path, 0600);
 
+            $metadata = ['original_filename' => $data['filename']];
+            if (! empty($data['context_role'])) {
+                $metadata += ['context_drama_id' => $data['context_drama_id'], 'context_episode_id' => $data['context_episode_id'], 'context_role' => $data['context_role']];
+                if ($data['context_role'] === 'episode_replacement_subtitle') {
+                    $metadata['context_language'] = $language['context_language'];
+                }
+            }
+
             return Asset::create(['id' => $id, 'created_by' => $staff->id, 'kind' => $data['kind'], 'extension' => $extension,
-                'metadata' => ['original_filename' => $data['filename']], 'expected_bytes' => $data['bytes'], 'source_key' => 'assets/'.$id.'/source.'.$extension])->fresh();
+                'metadata' => $metadata, 'expected_bytes' => $data['bytes'], 'source_key' => 'assets/'.$id.'/source.'.$extension])->fresh();
         });
     }
 
@@ -209,10 +235,18 @@ final class MediaStore
         return ContentGuard::mutate(function () use ($id) {
             $asset = Asset::findOrFail($id);
             $this->uploadOwner($asset);
-            if ($asset->state !== 'uploading') {
+            $candidate = ! empty($asset->metadata['context_role']);
+            if ($candidate) {
+                ContentGuard::staff(DramaRecord::findOrFail($asset->metadata['context_drama_id']));
+                if (EpisodeRecord::where('video_asset_id', $id)->orWhere('subtitle_asset_id', $id)->exists()) {
+                    throw new ApiProblem('STALE_VERSION', 409, '当前已绑定素材不能作为候选取消');
+                }
+            }
+            if ($asset->state !== 'uploading' && ! ($candidate && in_array($asset->state, ['pending', 'processing', 'failed', 'ready'], true))) {
                 throw new ApiProblem('STALE_VERSION', 409, '只能取消未完成上传');
             }
-            $asset->update(['state' => 'canceled']);
+            // Invalidate the worker claim; a late decoding result cannot revive a canceled candidate.
+            $asset->update(['state' => 'canceled', 'processing_token' => null, 'processing_until' => null]);
             ContentGuard::changed('upload.canceled', 'content_asset', $asset->id);
 
             return $asset;

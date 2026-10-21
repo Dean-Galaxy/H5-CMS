@@ -94,6 +94,25 @@ final class ConcurrencyTest extends ContentTestCase
         }
     }
 
+    public function test_launch_now_competes_with_scheduler_and_duplicate_confirmation_only_publishes_once(): void
+    {
+        foreach ([['launch_now', 'scheduled'], ['launch_now', 'launch_now']] as $actions) {
+            $d = $this->fixture(35);
+            $payload = $this->payload($d);
+            $settings = ['mode' => 'updating', 'interval_days' => 1, 'batch_size' => 10, 'next_at' => now()->addDay()->toIso8601String()];
+            $preview = app(PublicationService::class)->previewLaunchNow($d->id, $settings);
+            $payload['launch_payload'] = [...$settings, 'plan_version' => $preview['plan_version'], 'confirmation' => $preview['confirmation']];
+            $runner = new PublicationRace;
+            $results = $runner->run($payload, $actions);
+            $this->assertTrue($runner->report['lock_observed']);
+            $this->assertTrue($runner->report['children_stopped']);
+            $this->assertSame(10, $d->episodes()->whereNotNull('published_at')->count());
+            $this->assertSame(1, Publication::where('drama_id', $d->id)->count());
+            $this->assertTrue(in_array('ok', $results, true) || in_array('published', $results, true));
+            $this->assertTrue(in_array('STALE_VERSION', $results, true) || in_array('obsolete', $results, true));
+        }
+    }
+
     private function payload($drama): array
     {
         $p = $drama->plan;

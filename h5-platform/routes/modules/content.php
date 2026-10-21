@@ -24,10 +24,12 @@ Route::middleware(ContentEnabled::class)->group(function () {
         Route::patch('/dramas/{id}', [AdminController::class, 'saveDrama'])->whereUuid('id');
         Route::post('/dramas/{drama}/episodes', [AdminController::class, 'saveEpisode'])->whereUuid('drama');
         Route::patch('/dramas/{drama}/episodes/{id}', [AdminController::class, 'saveEpisode'])->whereUuid(['drama', 'id']);
+        Route::post('/dramas/{drama}/episodes/{id}/media-replacement', [AdminController::class, 'replaceEpisodeMedia'])->whereUuid(['drama', 'id']);
         Route::delete('/dramas/{drama}/episodes/{id}', [AdminController::class, 'removeEpisode'])->whereUuid(['drama', 'id']);
         Route::patch('/dramas/{id}/free', [AdminController::class, 'freeCount'])->whereUuid('id');
         Route::put('/dramas/{id}/plan', [AdminController::class, 'plan'])->whereUuid('id');
-        foreach (['publication-preview' => 'preview', 'activate' => 'activate', 'pause' => 'pause', 'resume' => 'resume', 'publish' => 'publish', 'withdraw' => 'withdraw', 'relist' => 'relist'] as $path => $method) {
+        foreach (['publication-preview' => 'preview', 'activate' => 'activate', 'pause' => 'pause', 'resume' => 'resume', 'publish' => 'publish', 'withdraw' => 'withdraw', 'relist' => 'relist',
+            'launch-preview' => 'launchPreview', 'launch-now' => 'launchNow', 'next-batch-preview' => 'nextBatchPreview', 'publish-next-batch' => 'publishNextBatch'] as $path => $method) {
             Route::post('/dramas/{id}/'.$path, [AdminController::class, $method])->whereUuid('id');
         }
         Route::post('/categories', [AdminController::class, 'category']);

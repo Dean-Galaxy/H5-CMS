@@ -1,0 +1,23 @@
+{
+  "shared_base": "46bd7cece7212a5db676056bc5cedac09fd2d8c3",
+  "business_contract": "1.0.5",
+  "sha256": {
+    "h5-platform/app/Modules/Content/Http/AdminController.php": "f7e498c9c4116d812d1ae120ed961c1fa174d6ae5ccd741785dac9f9d6c9831f",
+    "h5-platform/app/Modules/Content/Services/ContentGuard.php": "7b4696d34a17a5664b27ddd15be0e196e6f8bafda551ae5b7d8e3e875acdd862",
+    "h5-platform/app/Modules/Content/Services/ContentManager.php": "1ebe8e2dcbbc0a2084bca04fc2e070052d26d63a5e38947177e798ae1b9504a3",
+    "h5-platform/app/Modules/Content/Services/MediaStore.php": "ee50f122005d7657c422f9a6d2cda1bb4edd8ea94f4c71378f370d6a50c6466f",
+    "h5-platform/app/Modules/Content/Services/PublicationService.php": "b9bda35f8c7305c989603072acc76af381c62a5a6b2571e2febd898794f518d3",
+    "h5-platform/database/migrations/2026_10_21_020001_create_content_operations.php": "902371272873aaad17798f1779a230c376db06256d49af43c0f2382eeee8ab82",
+    "h5-platform/public/content/admin.css": "ca10e21a641a26ed32002f2620f7f2f64acfe343841ae892b8b0380c30f95b9c",
+    "h5-platform/public/content/admin.js": "36cda8e31ab7d584ca4543a377cc6464afb10e03e161efd1075c3181587b7ec8",
+    "h5-platform/resources/views/content/library.blade.php": "463a60bbc7e0c7e4a065a07df8da9e4aadc3464752ed793a75a3476438f65bfc",
+    "h5-platform/routes/modules/content.php": "6c70810d32f0a6540983b75e10bc9636dd0fae50a6c688a6bcfa2f9df6459092",
+    "h5-platform/tests/Feature/Content/ConcurrencyTest.php": "29a090393443ca30e342193177771c319e96d49549bf438b752c67514ea5e28a",
+    "h5-platform/tests/Feature/Content/ManagementTest.php": "9f159ecb6d6510a02d8a89f2468109b41a809589736bf908990067e1e8e41b42",
+    "h5-platform/tests/Feature/Content/PlaybackTest.php": "a4dcd9b51124b07349f1f41093aee589ca3e4690e77885edb18bde17870fc2d3",
+    "h5-platform/tests/Feature/Content/PublicationTest.php": "b19bbddd03a354508f6cd55fabb611bd3abe1c05ad31ff51010b68a7cc8a21be",
+    "h5-platform/tests/Feature/Content/Support/admin-content.browser.cjs": "72d64d60115acf4b6a0bb76a5367323e4e2608b79b06a00ba53a49ea4eb6552a",
+    "h5-platform/tests/Feature/Content/Support/prepare-browser.php": "5398aff0a3ef4c7aed88bd15208a20e1d1cf18a3557868bbbced719832892514",
+    "h5-platform/tests/Feature/Content/Support/publication-worker.php": "1ac797cdab1db9d10742a266e858ba71352176eaea210f942c83a7a6411cc6f7"
+  }
+}

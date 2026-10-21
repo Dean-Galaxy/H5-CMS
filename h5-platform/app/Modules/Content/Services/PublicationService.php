@@ -12,6 +12,127 @@ use Illuminate\Validation\ValidationException;
 
 final class PublicationService
 {
+    public function previewLaunchNow(string $dramaId, array $input): array
+    {
+        ContentGuard::staff();
+        $data = ContentGuard::validate($input, ['mode' => 'required|in:completed,updating', 'interval_days' => 'required|integer|in:1,2,7',
+            'batch_size' => 'required|integer|in:1,2,5,10,20', 'next_at' => 'nullable|date_format:Y-m-d\\TH:i:sP']);
+
+        return ContentGuard::mutate(function () use ($dramaId, $data) {
+            $drama = DramaRecord::findOrFail($dramaId);
+            ContentGuard::staff($drama);
+            if ($drama->state === 'withdrawn') {
+                throw new ApiProblem('STALE_VERSION', 409, '下架剧目需先明确重新上架');
+            }
+            $plan = $drama->plan;
+            $from = $this->nextNumber($drama);
+            $through = $data['mode'] === 'completed' ? (int) ($drama->total_episodes ?? 0) : min((int) ($drama->total_episodes ?? 0), $from + $data['batch_size'] - 1);
+            $next = null;
+            if ($data['mode'] === 'updating' && $drama->total_episodes && $through < $drama->total_episodes) {
+                if (empty($data['next_at'])) {
+                    throw ValidationException::withMessages(['next_at' => '更新中首批立即发布时，必须同时确认下一批北京时间']);
+                }
+                $next = $this->future($data['next_at']);
+            }
+            $reason = $this->blockReason($drama, $from, $through, now());
+            $result = ['drama_id' => $drama->id, 'drama_version' => $drama->version, 'plan_version' => $plan->version,
+                'mode' => $data['mode'], 'interval_days' => $data['interval_days'], 'batch_size' => $data['batch_size'],
+                'from' => $from, 'through' => $through, 'count' => max(0, $through - $from + 1),
+                'next_at' => $next?->toIso8601ZuluString(), 'blocked_reason' => $reason];
+            $result['confirmation'] = hash_hmac('sha256', json_encode($result, JSON_THROW_ON_ERROR), config('app.key'));
+
+            return $result;
+        });
+    }
+
+    public function launchNow(string $dramaId, array $input): array
+    {
+        ContentGuard::staff();
+        $data = ContentGuard::validate($input, ['plan_version' => 'required|integer|min:1', 'confirmation' => 'required|string|size:64',
+            'mode' => 'required|in:completed,updating', 'interval_days' => 'required|integer|in:1,2,7', 'batch_size' => 'required|integer|in:1,2,5,10,20',
+            'next_at' => 'nullable|date_format:Y-m-d\\TH:i:sP']);
+
+        return ContentGuard::mutate(function () use ($dramaId, $data) {
+            $drama = DramaRecord::findOrFail($dramaId);
+            ContentGuard::staff($drama);
+            $plan = $drama->plan;
+            ContentGuard::version($plan, $data['plan_version']);
+            $preview = $this->previewLaunchNow($dramaId, $data);
+            if (! hash_equals($preview['confirmation'], $data['confirmation'])) {
+                throw new ApiProblem('STALE_VERSION', 409, '发布范围或计划版本已变化，请重新预览');
+            }
+            if ($preview['blocked_reason']) {
+                throw ValidationException::withMessages(['publication' => $preview['blocked_reason']]);
+            }
+            $numbers = $this->publish($drama, $preview['from'], $preview['through']);
+            $next = $preview['next_at'] ? CarbonImmutable::parse($preview['next_at'])->utc() : null;
+            $plan->fill(['mode' => $data['mode'], 'interval_days' => $data['interval_days'], 'batch_size' => $data['batch_size'],
+                'start_number' => $this->nextNumber($drama), 'launch_at' => now(), 'next_at' => $next,
+                'state' => $this->completed($drama) ? 'finished' : 'active', 'version' => $plan->version + 1, 'last_error' => null])->save();
+            Publication::create(['drama_id' => $dramaId, 'plan_id' => $plan->id, 'plan_version' => $plan->version,
+                'scheduled_at' => null, 'executed_at' => now(), 'source' => 'manual_initial', 'result' => 'published', 'episode_numbers' => $numbers]);
+            ContentGuard::changed('plan.launched_now', 'content_plan', $plan->id, $plan->version);
+
+            return ['published' => $numbers, 'published_count' => $drama->episodes()->whereNotNull('published_at')->count(),
+                'next_number' => $this->nextNumber($drama), 'next_at' => $next?->toIso8601ZuluString(), 'plan_state' => $plan->state];
+        });
+    }
+
+    public function previewNextBatch(string $dramaId): array
+    {
+        ContentGuard::staff();
+
+        return ContentGuard::mutate(function () use ($dramaId) {
+            $drama = DramaRecord::findOrFail($dramaId);
+            ContentGuard::staff($drama);
+            $plan = $drama->plan;
+            if ($plan->state !== 'active' || $plan->mode !== 'updating' || ! $plan->next_at || $drama->state === 'withdrawn') {
+                throw new ApiProblem('STALE_VERSION', 409, '仅可提前发布正在运行的更新中计划下一批');
+            }
+            if ($plan->next_at <= now()) {
+                throw new ApiProblem('DEPENDENCY_NOT_READY', 409, '下一排期已到期，按当前定时状态处理，不提前改写排期');
+            }
+            [$from, $through] = $this->range($drama, $plan);
+            $result = ['drama_id' => $drama->id, 'drama_version' => $drama->version, 'plan_version' => $plan->version,
+                'from' => $from, 'through' => $through, 'next_at' => $plan->next_at->toIso8601ZuluString(),
+                'blocked_reason' => $this->blockReason($drama, $from, $through, now())];
+            $result['confirmation'] = hash_hmac('sha256', json_encode($result, JSON_THROW_ON_ERROR), config('app.key'));
+
+            return $result;
+        });
+    }
+
+    public function publishNextBatch(string $dramaId, array $input): array
+    {
+        ContentGuard::staff();
+        $data = ContentGuard::validate($input, ['plan_version' => 'required|integer|min:1', 'confirmation' => 'required|string|size:64']);
+
+        return ContentGuard::mutate(function () use ($dramaId, $data) {
+            $drama = DramaRecord::findOrFail($dramaId);
+            ContentGuard::staff($drama);
+            ContentGuard::version($drama->plan, $data['plan_version']);
+            $preview = $this->previewNextBatch($dramaId);
+            if (! hash_equals($preview['confirmation'], $data['confirmation'])) {
+                throw new ApiProblem('STALE_VERSION', 409, '计划、游标或下一时间已变化，请重新预览');
+            }
+            if ($preview['blocked_reason']) {
+                throw ValidationException::withMessages(['publication' => $preview['blocked_reason']]);
+            }
+            $plan = $drama->plan;
+            $numbers = $this->publish($drama, $preview['from'], $preview['through']);
+            $done = $this->completed($drama);
+            $plan->update(['state' => $done ? 'finished' : 'active', 'start_number' => $this->nextNumber($drama),
+                // The previously confirmed future slot now belongs to the next batch.
+                'next_at' => $done ? null : CarbonImmutable::parse($preview['next_at'])->utc(), 'version' => $plan->version + 1, 'last_error' => null]);
+            Publication::create(['drama_id' => $dramaId, 'plan_id' => $plan->id, 'plan_version' => $plan->version,
+                'scheduled_at' => null, 'executed_at' => now(), 'source' => 'manual_next_batch', 'result' => 'published', 'episode_numbers' => $numbers]);
+            ContentGuard::changed('plan.batch_published_early', 'content_plan', $plan->id, $plan->version);
+
+            return ['published' => $numbers, 'published_count' => $drama->episodes()->whereNotNull('published_at')->count(),
+                'next_number' => $this->nextNumber($drama), 'next_at' => $plan->next_at?->toIso8601ZuluString(), 'plan_state' => $plan->state];
+        });
+    }
+
     public function savePlan(string $dramaId, array $input): Plan
     {
         ContentGuard::staff();

@@ -53,8 +53,10 @@ final class AdminController
         ContentGuard::staff($drama);
         // Always include this drama's bindings, even when they are older than the latest upload page.
         $ids = $drama->episodes->pluck('video_asset_id')->merge($drama->episodes->pluck('subtitle_asset_id'))->push($drama->cover_asset_id)->filter();
+        $candidateIds = Asset::where('metadata->context_drama_id', $id)->whereIn('metadata->context_episode_id', $drama->episodes->pluck('id'))->pluck('id');
 
-        return ['drama' => $drama, 'assets' => Asset::whereIn('id', $ids)->get()->map(fn ($a) => $this->asset($a)),
+        return ['drama' => $drama, 'assets' => Asset::whereIn('id', $ids->merge($candidateIds))->get()->map(fn ($a) => $this->asset($a)),
+            'operations' => DB::table('content_operations')->where('drama_id', $id)->orderByDesc('id')->limit(100)->get(['action', 'resource_type', 'resource_id', 'version', 'occurred_at']),
             'publications' => Publication::where('drama_id', $id)->orderByDesc('executed_at')->limit(50)->get()];
     }
 
@@ -66,6 +68,11 @@ final class AdminController
     public function saveEpisode(Request $r, ContentManager $m, string $drama, ?string $id = null)
     {
         return response()->json($m->saveEpisode($drama, $r->all(), $id));
+    }
+
+    public function replaceEpisodeMedia(Request $r, ContentManager $m, string $drama, string $id)
+    {
+        return response()->json($m->replaceEpisodeMedia($drama, $id, $r->all()));
     }
 
     public function freeCount(Request $r, ContentManager $m, string $id)
@@ -106,6 +113,26 @@ final class AdminController
     public function publish(Request $r, PublicationService $p, string $id)
     {
         return $p->manual($id, $r->all());
+    }
+
+    public function launchPreview(Request $r, PublicationService $p, string $id)
+    {
+        return $p->previewLaunchNow($id, $r->all());
+    }
+
+    public function launchNow(Request $r, PublicationService $p, string $id)
+    {
+        return $p->launchNow($id, $r->all());
+    }
+
+    public function nextBatchPreview(Request $r, PublicationService $p, string $id)
+    {
+        return $p->previewNextBatch($id);
+    }
+
+    public function publishNextBatch(Request $r, PublicationService $p, string $id)
+    {
+        return $p->publishNextBatch($id, $r->all());
     }
 
     public function resume(Request $r, PublicationService $p, string $id)

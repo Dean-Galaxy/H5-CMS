@@ -57,6 +57,7 @@ try {
     try {
         $result = match ($d['action']) {
             'scheduled' => $s->execute($d['plan'], $d['plan_version'], CarbonImmutable::parse($d['at'])),
+            'launch_now' => $s->launchNow($d['drama'], $d['launch_payload']),
             'manual' => $s->manual($d['drama'], ['version' => $d['version'], 'through' => 3, 'confirmation' => $d['confirmation']]),
             'withdraw' => $s->withdraw($d['drama'], $d['version']),
             'edit' => $s->savePlan($d['drama'], ['version' => $d['plan_version'], 'mode' => 'updating', 'interval_days' => 2, 'batch_size' => 5,

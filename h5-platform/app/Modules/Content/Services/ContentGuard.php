@@ -6,6 +6,7 @@ use App\Contracts\AuditRecorder;
 use App\Contracts\IdentityContext;
 use App\Data\ResourceScope;
 use App\Enums\Permission;
+use App\Modules\Content\Models\Asset;
 use App\Modules\Content\Models\DramaRecord;
 use App\Support\ApiProblem;
 use Illuminate\Support\Facades\DB;
@@ -46,5 +47,17 @@ final class ContentGuard
     {
         DB::table('content_settings')->where('id', 1)->increment('catalog_version');
         app(AuditRecorder::class)->record('content.'.$action, $type, $id, 'success', ['version' => $version]);
+        // Module-local history projection; staff/security audit remains owned by Identity.
+        $dramaId = match ($type) {
+            'content_drama' => $id,
+            'content_episode' => DB::table('content_episodes')->where('id', $id)->value('drama_id'),
+            'content_plan' => DB::table('content_plans')->where('id', $id)->value('drama_id'),
+            'content_asset' => Asset::find($id)?->metadata['context_drama_id'] ?? null,
+            default => null,
+        };
+        if ($dramaId) {
+            DB::table('content_operations')->insert(['drama_id' => $dramaId, 'action' => $action, 'resource_type' => $type,
+                'resource_id' => $id, 'version' => $version, 'occurred_at' => now()]);
+        }
     }
 }

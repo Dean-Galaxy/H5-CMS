@@ -121,4 +121,42 @@ final class PublicationTest extends ContentTestCase
         $this->assertSame('D03_DECISION_REQUIRED', $p->fresh()->last_error);
         $this->assertSame(0, $d->episodes()->whereNotNull('published_at')->count());
     }
+
+    public function test_immediate_updating_launch_and_early_next_batch_preserve_cursor_and_confirmed_time(): void
+    {
+        $d = $this->fixture(35);
+        $next = now()->addDays(2)->startOfMinute();
+        $payload = ['mode' => 'updating', 'interval_days' => 1, 'batch_size' => 10, 'next_at' => $next->toIso8601String()];
+        $preview = $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/launch-preview', $payload)->assertOk()
+            ->assertJsonPath('from', 1)->assertJsonPath('through', 10)->json();
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/launch-now', [...$payload, 'plan_version' => $preview['plan_version'], 'confirmation' => $preview['confirmation']])
+            ->assertOk()->assertJsonPath('published', range(1, 10))->assertJsonPath('published_count', 10);
+        $plan = $d->plan()->first();
+        $this->assertSame('active', $plan->state);
+        $this->assertTrue($plan->next_at->equalTo($next));
+        $early = $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/next-batch-preview', [])->assertOk()
+            ->assertJsonPath('from', 11)->assertJsonPath('through', 20)->json();
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/publish-next-batch', ['plan_version' => $early['plan_version'], 'confirmation' => $early['confirmation']])
+            ->assertOk()->assertJsonPath('published', range(11, 20))->assertJsonPath('published_count', 20);
+        $this->assertTrue($d->plan()->first()->next_at->equalTo($next));
+        $this->assertSame(20, $d->episodes()->whereNotNull('published_at')->count());
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/publish-next-batch', ['plan_version' => $early['plan_version'], 'confirmation' => $early['confirmation']])->assertStatus(409);
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/launch-now', [...$payload, 'plan_version' => $preview['plan_version'], 'confirmation' => $preview['confirmation']])->assertStatus(409);
+        $this->travelTo($next);
+        $current = $d->plan()->first();
+        $this->assertSame('published', app(PublicationService::class)->execute($current->id, $current->version, $next));
+        $this->assertSame(30, $d->episodes()->whereNotNull('published_at')->count());
+        $this->assertSame('duplicate', app(PublicationService::class)->execute($current->id, $current->version, $next));
+    }
+
+    public function test_immediate_completed_launch_blocks_incomplete_total_without_partial_publish(): void
+    {
+        $d = $this->fixture(34, 35);
+        $preview = $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/launch-preview', ['mode' => 'completed', 'interval_days' => 1, 'batch_size' => 10])
+            ->assertOk()->assertJsonPath('through', 35)->json();
+        $this->assertSame('EPISODE_GAP', $preview['blocked_reason']);
+        $this->postJson('/api/v1/admin/content/dramas/'.$d->id.'/launch-now', ['mode' => 'completed', 'interval_days' => 1, 'batch_size' => 10,
+            'plan_version' => $preview['plan_version'], 'confirmation' => $preview['confirmation']])->assertUnprocessable();
+        $this->assertSame(0, $d->episodes()->whereNotNull('published_at')->count());
+    }
 }
