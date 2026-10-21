@@ -1,7 +1,8 @@
 <x-filament-panels::page>
     <x-admin.workspace
         id="identity-staff-workspace"
-        description="每人使用独立的员工账号。角色决定可操作的功能；员工账号与观众身份分开。"
+        title="员工与权限"
+        description="每人独立账号；账号与观众身份分开"
         x-data="{
             busy: false,
             dirty: false,
@@ -69,7 +70,7 @@
     >
         @if($tab === 'accounts')
             <x-slot:actions>
-                <button type="button" class="h5-button h5-primary" x-on:click="open(null, $event.currentTarget)" :disabled="busy || !ready">新增员工</button>
+                <button type="button" class="h5-button h5-primary" x-on:click="open(null, $event.currentTarget)" :disabled="busy || !ready"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>新增员工</button>
             </x-slot:actions>
         @endif
 
@@ -87,13 +88,13 @@
                             <tr wire:key="staff-{{ $staff->id }}">
                                 <td>{{ $staff->name }}<br><span class="h5-muted">{{ $staff->email }}</span></td>
                                 <td>{{ $staff->role->label() }}</td>
-                                <td><span class="h5-badge">{{ $staff->active ? '使用中' : '已停用' }}</span></td>
-                                <td>{{ filled($staff->getAppAuthenticationSecret()) ? '已配置' : '待本人配置' }}</td>
+                                <td><span class="h5-badge {{ $staff->active ? 'h5-ok' : '' }}">{{ $staff->active ? '启用' : '已停用' }}</span></td>
+                                <td>{{ filled($staff->getAppAuthenticationSecret()) ? '已设置' : '待本人配置' }}</td>
                                 <td>
                                     @if($staff->id === auth('staff')->id())
                                         <span class="h5-muted">当前账号</span>
                                     @else
-                                        <button type="button" class="h5-button" x-on:click="open(@js($staff->id), $event.currentTarget)" :disabled="busy || !ready" aria-label="管理 {{ $staff->name }}">管理</button>
+                                        <button type="button" class="h5-link" x-on:click="open(@js($staff->id), $event.currentTarget)" :disabled="busy || !ready" aria-label="管理 {{ $staff->name }}">管理</button>
                                     @endif
                                 </td>
                             </tr>
@@ -103,30 +104,35 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="h5-muted">保存角色或启用状态变更会撤销该员工的旧会话。不能停用或降级当前负责人的账号。</p>
+                <p class="h5-note">新增员工后由本人配置二次验证。权限或状态变更会撤销旧会话；不能停用或降级当前账号。</p>
             </section>
         @else
             <section id="identity-staff-tabs-panel-audit" role="tabpanel" aria-labelledby="identity-staff-tabs-tab-audit" class="h5-tab-panel" tabindex="0">
-                <p class="h5-muted">最近 30 条脱敏记录，时间以 UTC 显示。请求编号可用于排查问题。</p>
                 <div class="h5-table-wrap">
                     <table class="h5-table">
-                        <thead><tr><th scope="col">UTC 时间</th><th scope="col">动作</th><th scope="col">结果</th><th scope="col">请求编号</th></tr></thead>
+                        <thead><tr><th scope="col">时间（北京时间）</th><th scope="col">操作</th><th scope="col">结果</th><th scope="col">操作人</th></tr></thead>
                         <tbody>
                         @forelse($auditEvents as $event)
-                            <tr wire:key="audit-{{ $event->id }}"><td>{{ $event->occurred_at }}</td><td>{{ $event->action }}</td><td>{{ $event->result }}</td><td><code>{{ $event->request_id }}</code></td></tr>
+                            <tr wire:key="audit-{{ $event['id'] }}">
+                                <td>{{ $event['time'] }}</td>
+                                <td>{{ $event['action'] }}<details class="h5-muted"><summary>排查编号</summary><small>{{ $event['request_id'] }}</small></details></td>
+                                <td>{{ $event['result'] }}</td>
+                                <td>{{ $event['actor'] }}</td>
+                            </tr>
                         @empty
                             <tr><td colspan="4">暂无审计记录。</td></tr>
                         @endforelse
                         </tbody>
                     </table>
                 </div>
+                <p class="h5-note">最近 30 条脱敏记录，时间以北京时间显示。员工姓名按当前账号脱敏展示。</p>
             </section>
         @endif
 
-        <x-admin.dialog id="identity-staff-editor" :title="$editingId ? '管理员工' : '新增员工'" wire:ignore.self
+        <x-admin.dialog id="identity-staff-editor" :title="$editingId ? '管理'.$editingName : '新增员工'" wire:ignore.self
             x-on:h5-admin:dialog-close-request="if (busy) $event.preventDefault()">
             <form id="identity-staff-form" x-on:submit.prevent="save()" x-on:input="dirty = true" x-on:change="dirty = true">
-                <fieldset class="h5-form-grid" :disabled="busy || !ready">
+                <fieldset class="{{ $editingId === null ? 'h5-form-grid' : '' }}" style="{{ $editingId === null ? 'margin-top:20px' : '' }}" :disabled="busy || !ready">
                     @if($editingId === null)
                         <label class="h5-field">姓名
                             <input class="h5-input" wire:model="newStaff.name" required maxlength="80" autocomplete="name">
@@ -150,21 +156,18 @@
                             <small id="staff-password-help">{{ \App\Modules\Identity\Services\StaffPassword::HELP }}</small>
                             @error('newStaff.password')<span class="h5-error" role="alert">{{ $message }}</span>@enderror
                         </label>
-                        <p class="h5-alert h5-span">请通过私密方式把初始密码交给本人。首次登录必须配置验证器并保存恢复码；这一步不会发送邀请邮件。</p>
+                        <p class="h5-note h5-span">请私密交付初始密码；首次登录须配置验证器并保存恢复码。不会自动发送邀请邮件。</p>
                     @else
-                        <div class="h5-span"><strong>{{ $editingName }}</strong><p class="h5-muted">{{ $editingEmail }}</p></div>
-                        <label class="h5-field">角色
+                        <p class="h5-note">{{ $editingEmail }}</p>
+                        <label class="h5-field" style="margin-top:18px">角色
                             <select class="h5-input" aria-label="角色" wire:model="editStaff.role" required>
                                 @foreach($roles as $role)<option value="{{ $role->value }}">{{ $role->label() }}</option>@endforeach
                             </select>
                             @error('editStaff.role')<span class="h5-error" role="alert">{{ $message }}</span>@enderror
                         </label>
-                        <label class="h5-field">账号状态
-                            <span><input type="checkbox" wire:model="editStaff.active"> 启用账号</span>
-                            <small>取消启用后，该员工不能登录。</small>
-                            @error('editStaff.active')<span class="h5-error" role="alert">{{ $message }}</span>@enderror
-                        </label>
-                        <p class="h5-alert h5-span">保存后，该员工已有的登录会话将失效，需要重新登录并完成二次验证。</p>
+                        <label class="h5-choice h5-span"><input type="checkbox" wire:model="editStaff.active"> 启用账号</label>
+                        @error('editStaff.active')<span class="h5-error h5-span" role="alert">{{ $message }}</span>@enderror
+                        <p class="h5-note h5-span">取消启用后不能登录。权限变更后旧会话失效，须按新权限重新登录并完成二次验证。</p>
                     @endif
                     @error('editor')<p class="h5-error h5-span" role="alert">{{ $message }}</p>@enderror
                     @error('editStaff.version')<p class="h5-error h5-span" role="alert">{{ $message }}</p>@enderror
