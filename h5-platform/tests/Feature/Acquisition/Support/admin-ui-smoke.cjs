@@ -59,6 +59,32 @@ async function login(page, identity) {
   check('A01/A02 exactly four authorized top-level tabs',await page.getByRole('tab').count()===4);
   check('A01 list has no visible persistent editor',await page.locator('form[data-editor]:visible').count()===0);
   check('external sending explicitly disabled',(await page.locator('[data-acquisition-environment]').innerText()).includes('外部发送：关闭'));
+  if(process.env.H5_ACQUISITION_ERRORS_ONLY) {
+   const out=process.env.H5_ACQUISITION_SCREENSHOTS,prefix=process.env.H5_ACQUISITION_CAPTURE_PREFIX||'';
+   if(out) fs.mkdirSync(out,{recursive:true});
+   const editor=page.locator('#acquisition-link-editor');
+   for(const [label,width,height,theme] of [['desktop',1280,900,'light'],['mobile',375,812,'light'],['desktop-dark',1280,900,'dark'],['mobile-dark',375,812,'dark']]) {
+    await page.setViewportSize({width,height});await page.evaluate(theme=>document.documentElement.classList.toggle('dark',theme==='dark'),theme);
+    await page.getByRole('button',{name:'新增链接',exact:true}).click();await editor.waitFor({state:'visible'});
+    await editor.getByLabel('推广名称').fill('F09 未保存');await editor.getByLabel(/^平台/).selectOption('tiktok');
+    await editor.getByRole('button',{name:'取消',exact:true}).click();await prompt().getByRole('button',{name:'保存并继续'}).click();
+    await prompt().getByRole('alert').waitFor({state:'visible'});
+    const messages=await editor.locator('[role=alert]').allTextContents();
+    check(label+' required drama and pixel messages are actionable Chinese',messages.includes('请选择已发布剧目')&&messages.includes('请选择授权像素')&&!messages.some(text=>text.includes('field is required')));
+    check(label+' failed save preserves open editor and entered name/platform',await editor.isVisible()&&await prompt().isVisible()&&await editor.getByLabel('推广名称').inputValue()==='F09 未保存'&&await editor.getByLabel(/^平台/).inputValue()==='tiktok');
+    if(out) await page.screenshot({path:out+'/'+prefix+label+'-rejected-save-actual-only.png'});
+    await prompt().getByRole('button',{name:'继续编辑'}).click();await prompt().waitFor({state:'detached'});
+    check(label+' continue editing retains unsaved input',await editor.getByLabel('推广名称').inputValue()==='F09 未保存'&&await editor.getByLabel(/^平台/).inputValue()==='tiktok');
+    await closeAfterDiscard();
+    passed.push(label+' repeated cancel after validation still requires discard and restores focus');
+   }
+   check('no browser JavaScript errors',errors.length===0);
+   console.log(JSON.stringify({passed,browser:browser.version(),platform:process.platform,base:new URL(base).origin,externalSending:'disabled',errorsOnly:true,screenshots:out||null}));return;
+   async function closeAfterDiscard() {
+    await editor.getByRole('button',{name:'取消',exact:true}).click();await prompt().getByRole('button',{name:'放弃修改'}).click();await editor.waitFor({state:'hidden'});
+    await page.waitForFunction(()=>document.activeElement?.dataset.editorAction==='newLink');
+   }
+  }
   await page.getByRole('tab',{name:'推广链接'}).focus();
   for(const [key,id] of [['ArrowRight','pixels'],['End','deliveries'],['Home','links'],['ArrowLeft','deliveries'],['Home','links']]) {
    await page.keyboard.press(key);

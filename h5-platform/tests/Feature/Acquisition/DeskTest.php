@@ -64,6 +64,40 @@ final class DeskTest extends AcquisitionTestCase
         $this->assertDatabaseCount('acquisition_receipts', 0);
     }
 
+    public function test_link_validation_is_actionable_chinese_and_preserves_unsaved_input(): void
+    {
+        $this->signIn();
+        $page = Livewire::test(AcquisitionDesk::class)->call('newLink')
+            ->set('link.name', '尚未保存的推广名称')->set('link.platform', 'tiktok')
+            ->call('saveLink')->assertHasErrors(['drama_id' => 'required', 'pixel_id' => 'required'])
+            ->assertSee('请选择已发布剧目')->assertSee('请选择授权像素')
+            ->assertDontSee('The drama id field is required')->assertDontSee('The pixel id field is required')
+            ->assertSet('link.name', '尚未保存的推广名称')->assertSet('link.platform', 'tiktok')->assertSet('linkId', null);
+        $page->set('link.drama_id', 'invalid-drama')->set('link.pixel_id', 'invalid-pixel')->call('saveLink')
+            ->assertHasErrors(['drama_id' => 'uuid', 'pixel_id' => 'uuid'])
+            ->assertSee('剧目选择无效，请重新读取并选择已发布剧目')->assertSee('像素选择无效，请重新选择授权像素')
+            ->assertSet('link.name', '尚未保存的推广名称')->assertSet('link.platform', 'tiktok')
+            ->assertSet('link.drama_id', 'invalid-drama')->assertSet('link.pixel_id', 'invalid-pixel');
+        $this->assertDatabaseCount('acquisition_links', 0);
+    }
+
+    public function test_pixel_and_assignment_validation_stays_strict_with_chinese_messages(): void
+    {
+        $staff = $this->signIn($this->staff(Role::Owner));
+        [$pixel] = $this->assets();
+        Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixel['id'])
+            ->set('pixel.name', '')->set('pixel.external_id', 'invalid!')->call('savePixel')
+            ->assertHasErrors(['name' => 'required', 'external_id' => 'regex'])
+            ->assertSee('请填写像素名称')->assertSee('像素编号格式无效，请核对所选平台的编号')
+            ->assertSet('pixel.name', '')->assertSet('pixel.external_id', 'invalid!');
+        $this->assertDatabaseHas('acquisition_pixels', ['id' => $pixel['id'], 'name' => $pixel['name'], 'version' => 1]);
+        Livewire::test(AcquisitionDesk::class)->call('selectAssignment', 'pixel', $pixel['id'])
+            ->set('staffIds', [$staff->id, $staff->id])->call('share')
+            ->assertHasErrors(['staff_ids.0' => 'distinct', 'staff_ids.1' => 'distinct'])
+            ->assertSee('员工不能重复选择，请重新读取名单后选择')->assertSet('staffIds', [$staff->id, $staff->id]);
+        $this->assertDatabaseCount('acquisition_assignments', 0);
+    }
+
     public function test_hidden_action_calls_cannot_edit_foreign_pixel_or_self_assign(): void
     {
         $creator = $this->signIn();
