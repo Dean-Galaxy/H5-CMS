@@ -1,0 +1,91 @@
+INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Billing\BillingAdministrationTest
+  ✓ prices append versions and never overwrite prior terms               0.22s
+  ✓ invalid amounts and non test prices cannot be saved                  0.02s
+  ✓ every administration action requires allowed staff and mfa           0.03s
+  ✓ case scope is derived from order and cannot be replaced with anothe… 0.02s
+  ✓ support view and notes use minimal scoped fields and safe audit      0.02s
+  ✓ verified cancel dispatches only persisted identity and returns proc… 0.02s
+  ✓ owner still needs verified request and malformed case link is rejec… 0.02s
+
+   FAIL  Tests\Feature\Billing\BillingDeskTest
+  ✓ owner uses dollar inputs and exact saved price survives refresh      0.07s
+  ⨯ support can open exact order without price controls or payment cred… 0.02s
+  ✓ invalid dollars keep the form and save pending refuses navigation    0.03s
+  ✓ stale price editor keeps entered dollars until explicit discard      0.05s
+  ⨯ refresh context and forged tabs or cases do not bypass scope         0.03s
+  ✓ unsaved support note requires real validation and discard does not…  0.07s
+  ✓ payment refund and next renewal amounts render as precise dollars    0.03s
+  ✓ unauthed page does not bootstrap owner or prices                     0.02s
+  ✓ staff without mfa proof cannot render billing data                   0.02s
+  ✓ other roles cannot render the billing page                           0.03s
+  ✓ unknown support cancellation clears consumed verification but keeps… 0.06s
+
+   PASS  Tests\Feature\Billing\BillingUsdPriceTest
+  ✓ decimal strings and business boundaries save exact minor units and…  0.03s
+  ✓ malformed usd and non string types map errors to the input field wi… 0.02s
+  ✓ positive price range and test acknowledgement remain module rules    0.02s
+  ✓ legacy minor fields cannot override or replace usd input             0.02s
+  ✓ stale usd submission cannot overwrite a newer price version          0.02s
+  ✓ staff permissions and mfa are checked before parsing usd             0.02s
+  ✓ usd price change preserves existing offer checkout intent and subsc… 0.04s
+  ✓ usd price change preserves paid facts and original resume quote      0.05s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.01s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.01s
+  ✓ livewire tabs call the module method without using inline user code  0.01s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.04s
+  ✓ dialog has accessible title and real submit button can target its f… 0.01s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\BillingDeskTest > support can open exact or…
+  Expected: <div wire:key="lw-3833905583-0" wire:snapshot="" wire:effects="" wire:id="vrNByjdxLMzqRWcxfrKp" wire:name="App\Modules\Billing\Filament\Pages\BillingDesk"\n
+      class="fi-page"\n
+  >\n
+  ... (118 more lines)
+
+  Not to contain: 会员价格
+
+  at vendor/livewire/livewire/src/Features/SupportTesting/MakesAssertions.php:62
+     58▕      */
+     59▕     function assertDontSee($values, $escape = true, $stripInitialData = true)
+     60▕     {
+     61▕         foreach (Arr::wrap($values) as $value) {
+  ➜  62▕             PHPUnit::assertStringNotContainsString(
+     63▕                 $escape ? e($value): $value,
+     64▕                 $this->html($stripInitialData)
+     65▕             );
+     66▕         }
+
+      +1 vendor frames
+  2   tests/Feature/Billing/BillingDeskTest.php:65
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\BillingDeskTest > refresh context and forge…
+  Expected: "XQqBkdakwE2OXaZjETco" wire:name="App\Modules\Billing\Filament\Pages\BillingDesk"\n
+      class="fi-page"\n
+  >\n
+  ... (136 more lines)
+
+  Not to contain: 会员价格
+
+  at vendor/livewire/livewire/src/Features/SupportTesting/MakesAssertions.php:62
+     58▕      */
+     59▕     function assertDontSee($values, $escape = true, $stripInitialData = true)
+     60▕     {
+     61▕         foreach (Arr::wrap($values) as $value) {
+  ➜  62▕             PHPUnit::assertStringNotContainsString(
+     63▕                 $escape ? e($value): $value,
+     64▕                 $this->html($stripInitialData)
+     65▕             );
+     66▕         }
+
+      +1 vendor frames
+  2   tests/Feature/Billing/BillingDeskTest.php:117
+
+
+  Tests:    2 failed, 30 passed (538 assertions)
+  Duration: 1.22s
