@@ -1,0 +1,209 @@
+{
+  "reference_commit": "bc5a24d63b7e23126bad9bb5519ea0e9fa8825cf",
+  "reference_index_sha256": "5dd3d41fd6e8e1f141c1da3e02762944e10141e02e73074f5aae85d9432c6b05",
+  "reference_document_sha256": "4e4237a8632f6b0a9be92ac89a22a38ced956d6078fd5985f9d64de8aa69a549",
+  "reference_fragment_sha256": "61491c1a40a21ed75e76e83387d2eb912de8b4862d118a0685aaa1fdc3a0c0e5",
+  "browser": "155.0.8059.85",
+  "operating_system": "darwin 27.0.0",
+  "source_files": {
+    "h5-platform/resources/views/billing/desk.blade.php": "9b570027ecca676cdca6232b970e8a85f2324d02d99ac8ba2b33a8c8ef246fe2",
+    "h5-platform/public/admin-ui/admin.css": "9f8dd19a8262839042f718f026068aa2f84bbdf6366c9a1fec026be64b797df0",
+    "h5-platform/public/admin-ui/admin.js": "233b5652f8db837a6249c2470d209d338a0cf7cb1c035a9a4119ed5b4e14144b",
+    "h5-platform/resources/views/components/admin/workspace.blade.php": "74cf66b4ae005035a57cde1671190926661082371f50a64f7dc8576f69bf3eba"
+  },
+  "worktree_status": "",
+  "application_head": "e86227ea4a0181f79122d346aa1eac8bc4b567d2",
+  "pairs": [
+    {
+      "name": "prices-desktop",
+      "state": "Owner; prices tab; unsaved 13.34 / 4.21 USD",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dpr": 1,
+      "zoom": "1",
+      "theme": "light",
+      "fragment_wrapper": "Fixed index inner document, including export typography; outer iframe wrapper omitted for equal canvas viewport",
+      "crop": true
+    },
+    {
+      "name": "prices-narrow",
+      "state": "Owner; prices tab; unsaved 13.34 / 4.21 USD",
+      "viewport": [
+        375,
+        812
+      ],
+      "dpr": 1,
+      "zoom": "1",
+      "theme": "light",
+      "fragment_wrapper": "Fixed index inner document, including export typography; outer iframe wrapper omitted for equal canvas viewport",
+      "crop": true
+    },
+    {
+      "name": "orders-desktop",
+      "state": "Owner; orders tab; no selected order (actual recent-order table is a real extension)",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dpr": 1,
+      "zoom": "1",
+      "theme": "light",
+      "fragment_wrapper": "Fixed index inner document, including export typography; outer iframe wrapper omitted for equal canvas viewport",
+      "crop": false
+    },
+    {
+      "name": "support-desktop",
+      "state": "Owner; support tab; no selected order (actual case table is a real extension)",
+      "viewport": [
+        1280,
+        900
+      ],
+      "dpr": 1,
+      "zoom": "1",
+      "theme": "light",
+      "fragment_wrapper": "Fixed index inner document, including export typography; outer iframe wrapper omitted for equal canvas viewport",
+      "crop": false
+    },
+    {
+      "name": "support-narrow",
+      "state": "Owner; support tab; no selected order (real extension table can scroll)",
+      "viewport": [
+        375,
+        812
+      ],
+      "dpr": 1,
+      "zoom": "1",
+      "theme": "light",
+      "fragment_wrapper": "Fixed index inner document, including export typography; outer iframe wrapper omitted for equal canvas viewport",
+      "crop": false
+    },
+    {
+      "name": "orders-narrow",
+      "state": "Owner; orders tab; no selected order",
+      "viewport": [
+        375,
+        812
+      ],
+      "dpr": 1,
+      "zoom": "1",
+      "theme": "light",
+      "fragment_wrapper": "Fixed index inner document, including export typography; outer iframe wrapper omitted for equal canvas viewport",
+      "crop": false
+    }
+  ],
+  "typography": [
+    {
+      "name": "h1",
+      "actual": {
+        "size": "23px",
+        "line_height": "30.6667px",
+        "family": "-apple-system-body, ui-sans-serif, -apple-system, system-ui, \"Segoe UI\", Helvetica, \"Apple Color Emoji\", Arial, sans-serif, \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+        "weight": "600"
+      },
+      "reference": {
+        "size": "23px",
+        "line_height": "30.6667px",
+        "family": "-apple-system-body, ui-sans-serif, -apple-system, system-ui, \"Segoe UI\", Helvetica, \"Apple Color Emoji\", Arial, sans-serif, \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+        "weight": "600"
+      }
+    },
+    {
+      "name": "h2",
+      "actual": {
+        "size": "18px",
+        "line_height": "25.2px",
+        "family": "-apple-system-body, ui-sans-serif, -apple-system, system-ui, \"Segoe UI\", Helvetica, \"Apple Color Emoji\", Arial, sans-serif, \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+        "weight": "600"
+      },
+      "reference": {
+        "size": "18px",
+        "line_height": "25.2px",
+        "family": "-apple-system-body, ui-sans-serif, -apple-system, system-ui, \"Segoe UI\", Helvetica, \"Apple Color Emoji\", Arial, sans-serif, \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+        "weight": "600"
+      }
+    },
+    {
+      "name": "h3",
+      "actual": {
+        "size": "15px",
+        "line_height": "23.3333px",
+        "family": "-apple-system-body, ui-sans-serif, -apple-system, system-ui, \"Segoe UI\", Helvetica, \"Apple Color Emoji\", Arial, sans-serif, \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+        "weight": "600"
+      },
+      "reference": {
+        "size": "15px",
+        "line_height": "23.3333px",
+        "family": "-apple-system-body, ui-sans-serif, -apple-system, system-ui, \"Segoe UI\", Helvetica, \"Apple Color Emoji\", Arial, sans-serif, \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+        "weight": "600"
+      }
+    }
+  ],
+  "dialogs": [
+    {
+      "name": "unsaved-error-desktop",
+      "close": {
+        "top": 87,
+        "bottom": 124,
+        "width": 44,
+        "height": 37
+      },
+      "body": {
+        "top": 124,
+        "bottom": 191.375,
+        "width": 590,
+        "height": 67.375
+      },
+      "actions": {
+        "top": 211.375,
+        "bottom": 251.0625,
+        "width": 590,
+        "height": 39.6875
+      },
+      "dialog_width": 640,
+      "viewport": [
+        1280,
+        900
+      ]
+    },
+    {
+      "name": "unsaved-error-short",
+      "close": {
+        "top": 36,
+        "bottom": 78,
+        "width": 44,
+        "height": 42
+      },
+      "body": {
+        "top": 78,
+        "bottom": 167.0625,
+        "width": 319,
+        "height": 89.0625
+      },
+      "actions": {
+        "top": 187.0625,
+        "bottom": 229.0625,
+        "width": 319,
+        "height": 42
+      },
+      "dialog_width": 355,
+      "viewport": [
+        375,
+        320
+      ]
+    }
+  ],
+  "prototype_external_blocked": [
+    "unpkg.com"
+  ],
+  "unmatched": [
+    "invalid-price state: real validation differs intentionally from prototype sample",
+    "selected-order/payment/entitlement and support-action details: original did not fully draw these real extensions",
+    "Billing unsaved/error dialog is a real protection extension not drawn for the prototype prices tab; actual desktop/short-screen screenshots retained",
+    "dark mode, browser zoom changes, empty database and unconfigured-price screenshot not paired in this run"
+  ],
+  "scope": "Price fields/preview paired with equal data. Orders/support common entry hierarchy paired; actual recent-order/case tables have no prototype equivalent and are not a same-data visual pass.",
+  "successful_price_writes": 0,
+  "official_payment_verified": false
+}
