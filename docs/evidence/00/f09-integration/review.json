@@ -41,11 +41,22 @@
       "candidate": "3381fb9",
       "suite": "OpenAPI structure and examples",
       "passed": 59
+    },
+    {
+      "candidate": "6f2b87d5676191d09b7e3dfabeb251a72b6a6ef9",
+      "suite": "Content DesignWorkflow + Management",
+      "passed": 20,
+      "assertions": 257
+    },
+    {
+      "candidate": "6f2b87d5676191d09b7e3dfabeb251a72b6a6ef9",
+      "suite": "Content errors.test.cjs",
+      "passed": 8
     }
   ],
   "pending": [
-    "02 four scoped corrections after 08 design review",
-    "06 final fixed combined candidate verification",
+    "08 final targeted 02 review",
+    "06 fixed 6f2b87d combined verification",
     "00 reception before 07 resume"
   ],
   "preserved": "07 3/11 records, drafts, media and 8206/8303 runtime untouched",
@@ -60,5 +71,14 @@
       20,
       33
     ]
+  },
+  "final_application_candidate": "6f2b87d5676191d09b7e3dfabeb251a72b6a6ef9",
+  "followup_02": {
+    "delivery": "dce28949b70fdcbf44516eefb213e6aceddd43ee",
+    "source": "2aab2fbd8c3f0ad2a78efe06ce244f25fc7209e6",
+    "manifest_entries_verified": 63,
+    "module_browser_checks": 74,
+    "screenshots": 50,
+    "design_review": "08 pending targeted final review"
   }
 }
