@@ -72,8 +72,13 @@ final class StaffAudit
         if ($event->action === 'verification.sent' && $event->result === 'success') {
             $changes = json_decode($event->changes, true);
 
-            return in_array($changes['mail_mode'] ?? null, ['log', 'array'], true)
-                ? '已生成本地预览' : '已提交发送（送达未确认）';
+            // Interpret only the recorded mode, never today's configuration. Aggregate or
+            // unknown mailers do not identify the transport that handled a historical message.
+            return match ($changes['mail_mode'] ?? null) {
+                'preview', 'log', 'array' => '已生成本地预览',
+                'smtp', 'sendmail', 'ses', 'postmark', 'resend' => '已提交发送（送达未确认）',
+                default => '邮件处理已记录（发送方式未确认）',
+            };
         }
 
         return match ($event->result) {
