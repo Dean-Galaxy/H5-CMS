@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checks": [
+    "server rejects letter-only password and retains draft in the shared dialog",
+    "continue editing retains invalid draft",
+    "discard closes dialog and restores opener focus",
+    "shared dialog spacing switches from create 20px to manage 18px after real Livewire target load",
+    "real management save updates role/status and restores focus",
+    "real staff update appears as readable Beijing audit with masked current actor",
+    "request ID is available only as secondary expandable detail",
+    "audit tab survives reload in UTC browser timezone"
+  ]
+}
