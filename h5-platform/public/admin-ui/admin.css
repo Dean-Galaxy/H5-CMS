@@ -17,8 +17,8 @@
 /* P:24/32: the title and tab rows each leave 22px before their next row. */
 .h5-admin-workspace>.h5-heading,.h5-admin-workspace>.h5-tabs{margin-bottom:2px}
 :is(.h5-admin-workspace,.h5-admin-dialog) :is(h1,h2,h3,p){margin:0}
-:is(.h5-admin-workspace,.h5-admin-dialog) h2{font-size:18px;font-weight:600}
-:is(.h5-admin-workspace,.h5-admin-dialog) h3{font-size:15px;font-weight:600}
+:is(.h5-admin-workspace,.h5-admin-dialog) h2{font-size:18px;font-weight:600;line-height:1.4}
+:is(.h5-admin-workspace,.h5-admin-dialog) h3{font-size:15px;font-weight:600;line-height:1.5555555556}
 :is(.h5-admin-workspace,.h5-admin-dialog) :is(button,input,select,textarea){font:inherit;max-width:100%}
 :is(.h5-admin-workspace,.h5-admin-dialog) :focus-visible{outline:3px solid #4883ba;outline-offset:3px}
 :is(.h5-admin-workspace,.h5-admin-dialog) button{cursor:pointer}
@@ -63,7 +63,7 @@
 .h5-dialog-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8}
 .h5-admin-dialog .h5-dialog-body{padding:max(5px,var(--h5-dialog-content-start-gap,5px)) 0 0;overflow-y:auto;min-height:0}
 .h5-admin-dialog .h5-dialog-actions{flex:none;border:0;padding:0;margin-top:20px;display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
-:is(.h5-admin-workspace,.h5-admin-dialog) h1{font-size:23px;font-weight:600;letter-spacing:-.5px}
+:is(.h5-admin-workspace,.h5-admin-dialog) h1{font-size:23px;font-weight:600;letter-spacing:-.5px;line-height:1.3333333333}
 .h5-heading p{margin-top:5px!important;font-size:13px}
 /* Approved P:65–68: contextual checkbox/radio choice and short note. */
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-choice{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--h5-line);border-radius:8px;margin-top:10px;background:var(--h5-paper)}
@@ -103,7 +103,7 @@
 .fi-body .fi-main{max-width:none;padding:25px 26px 20px}
 .fi-body .fi-page-header-main-ctn{padding:0;gap:22px}
 .fi-body .fi-page-content{gap:20px}
-.fi-body .fi-header-heading{font-size:23px;font-weight:600;letter-spacing:-.5px;color:var(--h5-text)}
+.fi-body .fi-header-heading{font-size:23px;font-weight:600;letter-spacing:-.5px;color:var(--h5-text);line-height:1.3333333333}
 .fi-page:has(.h5-workspace-title)>.fi-page-header-main-ctn>.fi-header{display:none}
 @media(max-width:800px){
  .fi-body .fi-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;align-content:start}
