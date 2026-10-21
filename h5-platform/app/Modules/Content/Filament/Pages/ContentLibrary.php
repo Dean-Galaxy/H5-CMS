@@ -15,11 +15,6 @@ final class ContentLibrary extends Page
 
     protected string $view = 'content.library';
 
-    public function getHeading(): string
-    {
-        return '';
-    }
-
     public static function canAccess(): bool
     {
         $user = auth('staff')->user();

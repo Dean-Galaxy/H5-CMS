@@ -166,7 +166,7 @@ final class PublicationService
             if (! hash_equals($preview['confirmation'], $confirmation)) {
                 throw new ApiProblem('STALE_VERSION', 409, '安排或内容已变化，请重新预览');
             }
-            $this->savePlan($dramaId, [...$input, 'start_number' => $preview['from']]);
+            $this->savePlan($dramaId, [...$input, 'draft_timing' => 'scheduled', 'start_number' => $preview['from']]);
             $saved = $this->preview($dramaId);
 
             return $this->activate($dramaId, ['version' => $saved['plan_version'], 'confirmation' => $saved['confirmation']]);
@@ -178,7 +178,7 @@ final class PublicationService
         ContentGuard::staff();
         $data = ContentGuard::validate($input, ['version' => 'required|integer|min:1', 'mode' => 'required|in:completed,updating',
             'interval_days' => 'required|integer|in:1,2,7', 'batch_size' => 'required|integer|in:1,2,5,10,20',
-            'start_number' => 'required|integer|min:1|max:10000', 'launch_at' => 'required|date_format:Y-m-d\\TH:i:sP']);
+            'draft_timing' => 'sometimes|in:scheduled,now', 'start_number' => 'required|integer|min:1|max:10000', 'launch_at' => 'required|date_format:Y-m-d\\TH:i:sP']);
         $at = CarbonImmutable::parse($data['launch_at'])->utc();
         if ($at->second !== 0) {
             throw ValidationException::withMessages(['launch_at' => '发布时刻精确到分钟，秒必须为 00']);

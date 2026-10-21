@@ -3,6 +3,7 @@
 namespace Tests\Feature\Content;
 
 use App\Enums\Role;
+use App\Modules\Content\Services\PublicationService;
 use Illuminate\Support\Facades\DB;
 
 final class DesignWorkflowTest extends ContentTestCase
@@ -36,6 +37,54 @@ final class DesignWorkflowTest extends ContentTestCase
         $this->assertSame($paused, $d->plan->fresh()->getRawOriginal());
         $this->postJson($base.'/schedule', [...$input, 'confirmation' => $preview['confirmation']])->assertOk()->assertJsonPath('state', 'active');
         $this->assertSame(5, $d->plan->fresh()->batch_size);
+        $this->assertSame(0, $d->episodes()->whereNotNull('published_at')->count());
+    }
+
+    public function test_draft_timing_migration_preserves_existing_running_paused_and_scheduled_records(): void
+    {
+        $plans = [];
+        foreach (['active', 'paused', 'draft'] as $state) {
+            $drama = $this->fixture(2);
+            $plan = $drama->plan;
+            $plan->update(['state' => $state, 'version' => 7, 'launch_at' => now()->addDay(),
+                'next_at' => $state === 'active' ? now()->addDays(2) : null]);
+            $plans[] = $plan->fresh();
+        }
+        $fields = ['id', 'state', 'version', 'launch_at', 'next_at', 'start_number', 'mode', 'interval_days', 'batch_size'];
+        $before = array_map(fn ($p) => $p->only($fields), $plans);
+        $migration = require database_path('migrations/2026_10_21_020002_add_content_plan_draft_timing.php');
+        $migration->down();
+        $this->assertEquals($before, array_map(fn ($p) => $p->fresh()->only($fields), $plans));
+        $migration->up();
+        $this->assertEquals($before, array_map(fn ($p) => $p->fresh()->only($fields), $plans));
+        foreach ($plans as $plan) {
+            $this->assertSame('scheduled', $plan->fresh()->draft_timing);
+        }
+        $this->assertSame(0, DB::table('content_episodes')->whereNotNull('published_at')->count());
+    }
+
+    public function test_operation_actor_comes_from_frozen_identity_context_and_old_rows_stay_unknown(): void
+    {
+        $d = $this->fixture(2);
+        $row = DB::table('content_operations')->where('drama_id', $d->id)->first();
+        $this->assertSame($this->owner->name, $row->actor_name);
+        $this->assertSame('staff', $row->actor_kind);
+        DB::table('content_operations')->where('id', $row->id)->update(['actor_name' => null, 'actor_kind' => null]);
+        $this->getJson('/api/v1/admin/content/dramas/'.$d->id)->assertOk()->assertJsonPath('operations.0.actor_name', null);
+        auth('staff')->logout();
+        app('session.store')->save();
+        app(PublicationService::class)->execute($d->plan->id, $d->plan->version, $d->plan->next_at);
+        $this->assertSame('system', DB::table('content_operations')->where('drama_id', $d->id)->orderByDesc('id')->value('actor_kind'));
+    }
+
+    public function test_now_draft_saves_intent_without_publishing_or_activating(): void
+    {
+        $d = $this->createDrama();
+        $at = $d->plan->launch_at->toIso8601String();
+        $this->putJson('/api/v1/admin/content/dramas/'.$d->id.'/plan', ['version' => 1, 'mode' => 'completed',
+            'interval_days' => 1, 'batch_size' => 10, 'start_number' => 1, 'launch_at' => $at, 'draft_timing' => 'now'])
+            ->assertOk()->assertJsonPath('draft_timing', 'now')->assertJsonPath('state', 'draft')->assertJsonPath('next_at', null);
+        $this->assertSame($at, $d->plan->fresh()->launch_at->toIso8601String());
         $this->assertSame(0, $d->episodes()->whereNotNull('published_at')->count());
     }
 

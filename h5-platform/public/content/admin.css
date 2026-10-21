@@ -1,9 +1,5 @@
 /* Content-only composition. Shared colors, buttons, fields, tabs, tables and dialogs belong to 00. */
-#content-app .ct-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap}
-#content-app .ct-heading h1{font-size:23px;font-weight:600;letter-spacing:-.5px}
-#content-app .ct-heading p{margin-top:5px;font-size:13px}
-#content-app .ct-crumb{display:flex;gap:8px;align-items:center;margin-bottom:14px;color:var(--h5-muted);font-size:12px}
-#content-app .ct-link{padding:4px 0;background:transparent;border:0;color:var(--h5-orange);text-align:left;font:inherit;cursor:pointer}
+#content-app .ct-crumb{display:flex;gap:8px;align-items:center;margin-bottom:-6px;color:var(--h5-muted);font-size:12px}
 #content-app .ct-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0}
 #content-app .ct-search{width:245px}
 #content-app .ct-inline-select{width:auto}
@@ -16,14 +12,7 @@
 #content-app .ct-formactions{border-top:1px solid var(--h5-line);margin-top:22px;padding-top:17px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 #content-app .ct-chip{padding:6px 10px;border:1px solid var(--h5-line);border-radius:6px;background:var(--h5-paper);font-size:12px}
 #content-app .ct-chip[aria-pressed=true]{background:var(--h5-soft);border-color:var(--h5-muted)}
-#content-app .ct-ok{color:var(--h5-green);background:var(--h5-greenbg)}
-#content-app .ct-warn{color:var(--h5-orange);background:var(--h5-orangebg)}
-#content-app .ct-bad{color:var(--h5-red);background:var(--h5-redbg)}
 #content-app .ct-split{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(230px,.8fr);gap:17px;align-items:start;margin-top:22px}
-#content-app .ct-choice{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--h5-line);border-radius:8px;margin-top:10px;background:var(--h5-paper)}
-#content-app .ct-choice input{margin-top:4px;accent-color:var(--h5-ink)}
-#content-app .ct-choice:has(input:checked){border-color:var(--h5-muted);background:var(--h5-soft)}
-#content-app .ct-choice small{display:block}
 #content-app .ct-timing{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:13px 0}
 #content-app .ct-timing label{display:flex;gap:6px;align-items:center}
 #content-app .ct-schedule-row{padding:10px 0;border-bottom:1px solid var(--h5-line);display:flex;justify-content:space-between;gap:12px;font-size:12px}
@@ -54,8 +43,17 @@
 @media(max-width:580px){#content-app .ct-split{grid-template-columns:1fr}#content-app .ct-search{width:100%}#content-app .ct-heading h1{font-size:21px}#content-app .ct-dl{grid-template-columns:1fr}#content-app .ct-dl dd{margin-bottom:8px}}
 
 #content-settings .ct-default-count{max-width:260px;margin-top:18px}
-#content-settings .ct-choice{display:flex;gap:10px;align-items:flex-start;margin-top:18px}
-#content-settings .ct-choice small{display:block}
 #content-settings .ct-formactions{margin-top:22px;padding-top:17px;border-top:1px solid var(--h5-line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 #content-app .ct-tools>select{width:auto}
 #content-app pre{white-space:pre-wrap;overflow-wrap:anywhere}
+
+#content-app .ct-language{display:flex;align-items:center;gap:10px;font-size:12px;margin-top:8px}
+#content-app .ct-language select{width:auto}
+#content-app .ct-current-file{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+#content-dialog-content>p:first-child,#content-dialog-content>form>p:first-child{margin-top:0}
+#content-dialog-content[data-kind="episode"]>form{margin-top:16px}
+#content-dialog-content[data-kind="new-drama"]>form>p:first-child{margin-bottom:18px}
+
+#content-app .ct-icon{width:17px;height:17px;flex:none}
+#content-app .ct-tools>span>.ct-icon{display:block}

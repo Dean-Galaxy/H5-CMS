@@ -56,8 +56,10 @@ final class ContentGuard
             default => null,
         };
         if ($dramaId) {
+            $actor = app(IdentityContext::class)->staff();
             DB::table('content_operations')->insert(['drama_id' => $dramaId, 'action' => $action, 'resource_type' => $type,
-                'resource_id' => $id, 'version' => $version, 'occurred_at' => now()]);
+                'resource_id' => $id, 'version' => $version, 'occurred_at' => now(),
+                'actor_name' => $actor?->name, 'actor_kind' => $actor ? 'staff' : 'system']);
         }
     }
 }

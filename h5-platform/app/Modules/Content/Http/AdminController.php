@@ -62,7 +62,7 @@ final class AdminController
         $candidateIds = Asset::where('metadata->context_drama_id', $id)->whereIn('metadata->context_episode_id', $drama->episodes->pluck('id'))->pluck('id');
 
         return ['drama' => $drama, 'assets' => Asset::whereIn('id', $ids->merge($candidateIds))->get()->map(fn ($a) => $this->asset($a)),
-            'operations' => DB::table('content_operations')->where('drama_id', $id)->orderByDesc('id')->limit(100)->get(['action', 'resource_type', 'resource_id', 'version', 'occurred_at']),
+            'operations' => DB::table('content_operations')->where('drama_id', $id)->orderByDesc('id')->limit(100)->get(['action', 'resource_type', 'resource_id', 'version', 'occurred_at', 'actor_name', 'actor_kind']),
             'publications' => Publication::where('drama_id', $id)->orderByDesc('executed_at')->limit(50)->get()];
     }
 
