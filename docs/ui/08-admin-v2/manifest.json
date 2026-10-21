@@ -1,0 +1,54 @@
+{
+  "uiVersion": "08-admin-v2",
+  "approvalDate": "2026-10-21",
+  "approvalThread": "01a158d4-af6c-7811-bc7f-f7c57abc7962",
+  "approvalQuote": "OK 我觉得这版的ui行了，记得在github上面存档。然后发送给对应的子任务进行相应的工作",
+  "applicationBaseline": "15bd8fa204fa7cd499702ede826e727768bcd58b",
+  "applicationAcceptance": "a25dd8f",
+  "contractVersion": "1.0.4",
+  "scope": "approved mock UI and implementation handoff; no application changes",
+  "prototypeChecksPassed": 32,
+  "exportCheck": "passed",
+  "files": {
+    "README.md": {
+      "sha256": "5c7e9e8ba4de16e37f746541a255946ec690c4ef94f9a5bfa39053046018df42",
+      "bytes": 6166
+    },
+    "approved-fragment.html": {
+      "sha256": "61491c1a40a21ed75e76e83387d2eb912de8b4862d118a0685aaa1fdc3a0c0e5",
+      "bytes": 69101
+    },
+    "export-checks.json": {
+      "sha256": "4f462394fe829cd52c22b989e9f9aaf631f81b01f56afb57a968c6b74628c73d",
+      "bytes": 293
+    },
+    "implementation.md": {
+      "sha256": "0d994917168757c5095c75c348fc349443093a666323b918dc4a3033dc7a8d0a",
+      "bytes": 9889
+    },
+    "index.html": {
+      "sha256": "5dd3d41fd6e8e1f141c1da3e02762944e10141e02e73074f5aae85d9432c6b05",
+      "bytes": 169075
+    },
+    "prototype-checks.json": {
+      "sha256": "815ff150b70c938147eb563998104eab560c3727ab2ee9823f18896898e65411",
+      "bytes": 1792
+    },
+    "screenshots/episode-editor.png": {
+      "sha256": "0ce9d98299beae8a3a27ee591cd34b7192ed2b9c610d20f1b6ee0dee2fd9c2ea",
+      "bytes": 124150
+    },
+    "screenshots/library.png": {
+      "sha256": "02f033efc8aeab36fd9c7a7f1006273a5a199425df88541bb984837df2117108",
+      "bytes": 82591
+    },
+    "screenshots/release-active.png": {
+      "sha256": "97bf30f6c03374977a0d424c3e651c2a55f166a82d44440b0012ae56dfb9f0d7",
+      "bytes": 102059
+    },
+    "screenshots/release-plan.png": {
+      "sha256": "68dea934149a45a924c7b5a2b8f4fc46e718fe3c83ddaa0772cd59153d236536",
+      "bytes": 129969
+    }
+  }
+}

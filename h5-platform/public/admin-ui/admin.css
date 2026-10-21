@@ -1,0 +1,62 @@
+/* Shared staff UI only. Audience/identity.css and audience/site.css remain independent. */
+.h5-admin-workspace,.h5-admin-dialog {
+    --h5-bg:#f6f7f9;--h5-paper:#fff;--h5-text:#202733;--h5-muted:#647082;--h5-line:#dfe4eb;
+    --h5-ink:#263547;--h5-inktext:#fff;--h5-soft:#eef2f7;--h5-orange:#985200;--h5-orangebg:#fff4e4;
+    --h5-green:#17734c;--h5-greenbg:#eaf7f0;--h5-red:#b13434;--h5-redbg:#fff0ef;
+    font:14px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--h5-text);min-width:0;box-sizing:border-box;
+}
+.dark .h5-admin-workspace,.dark .h5-admin-dialog {
+    --h5-bg:#15171c;--h5-paper:#1c2027;--h5-text:#ecedf1;--h5-muted:#aab2c1;--h5-line:#424b58;
+    --h5-ink:#e6eaf1;--h5-inktext:#18202c;--h5-soft:#2c3442;--h5-orange:#f2bb72;--h5-orangebg:#3b3024;
+    --h5-green:#8ad8b3;--h5-greenbg:#223b31;--h5-red:#f5a2a2;--h5-redbg:#422a2d;
+}
+:is(.h5-admin-workspace,.h5-admin-dialog) *{box-sizing:border-box}
+:is(.h5-admin-workspace,.h5-admin-dialog) [hidden]{display:none!important}
+.h5-admin-workspace{display:grid;gap:20px;isolation:isolate}
+:is(.h5-admin-workspace,.h5-admin-dialog) :is(h1,h2,h3,p){margin:0}
+:is(.h5-admin-workspace,.h5-admin-dialog) h2{font-size:20px;font-weight:650}
+:is(.h5-admin-workspace,.h5-admin-dialog) h3{font-size:16px;font-weight:600}
+:is(.h5-admin-workspace,.h5-admin-dialog) :is(button,input,select,textarea){font:inherit;max-width:100%}
+:is(.h5-admin-workspace,.h5-admin-dialog) :focus-visible{outline:3px solid #4883ba;outline-offset:3px}
+:is(.h5-admin-workspace,.h5-admin-dialog) button{cursor:pointer}
+:is(.h5-admin-workspace,.h5-admin-dialog) button:disabled{opacity:.5;cursor:not-allowed}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-muted{color:var(--h5-muted)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid var(--h5-line);border-radius:7px;background:var(--h5-paper);color:var(--h5-text);text-decoration:none;white-space:normal}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-primary{background:var(--h5-ink);color:var(--h5-inktext);border-color:var(--h5-ink)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-danger{color:var(--h5-red)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tabs{display:flex;gap:24px;overflow-x:auto;max-width:100%;border-bottom:1px solid var(--h5-line);padding:4px 3px 0;scrollbar-width:thin}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tab{flex:none;border:0;border-bottom:2px solid transparent;padding:10px 2px 12px;background:transparent;color:var(--h5-muted);min-height:44px}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tab[aria-selected=true]{border-bottom-color:var(--h5-ink);color:var(--h5-text);font-weight:650}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-count{margin-left:7px;font-size:12px;border-radius:5px;padding:2px 6px;background:var(--h5-soft)}
+.h5-admin-workspace .h5-tab-panel{display:grid;gap:18px;min-width:0}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-card{border:1px solid var(--h5-line);border-radius:10px;background:var(--h5-paper);padding:20px;min-width:0}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-field{display:grid;gap:6px;min-width:0}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-field small{color:var(--h5-muted)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-input{min-width:0;width:100%;border:1px solid var(--h5-line);border-radius:7px;padding:9px 11px;background:var(--h5-paper);color:var(--h5-text)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-input:disabled{background:var(--h5-soft)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-span{grid-column:1/-1}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table-wrap{max-width:100%;overflow-x:auto;border:1px solid var(--h5-line);border-radius:10px;background:var(--h5-paper)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table{border-collapse:collapse;width:100%;text-align:left}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table :is(th,td){padding:14px 12px;border-bottom:1px solid var(--h5-line);vertical-align:top}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table th{font-size:12px;font-weight:600;color:var(--h5-muted);background:var(--h5-bg);white-space:nowrap}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-badge{display:inline-block;padding:3px 7px;border-radius:5px;font-size:12px;background:var(--h5-soft)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-alert{padding:12px 14px;border-radius:8px;background:var(--h5-orangebg);color:var(--h5-orange);overflow-wrap:anywhere}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-error{background:var(--h5-redbg);color:var(--h5-red);padding:12px;border-radius:8px}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-success{background:var(--h5-greenbg);color:var(--h5-green);padding:12px;border-radius:8px}
+.h5-admin-dialog{padding:0;border:1px solid var(--h5-line);border-radius:12px;margin:auto;width:min(760px,calc(100% - 24px));max-width:calc(100% - 24px);max-height:calc(100dvh - 32px);background:var(--h5-paper);box-shadow:0 18px 70px #0004}
+.h5-admin-dialog[open]{display:flex;flex-direction:column}
+.h5-admin-dialog::backdrop{background:#11182780}
+.h5-admin-dialog .h5-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid var(--h5-line);flex:none}
+.h5-admin-dialog .h5-dialog-body{padding:20px;overflow-y:auto;min-height:0;display:grid;gap:16px}
+.h5-admin-dialog .h5-dialog-actions{flex:none;border-top:1px solid var(--h5-line);padding:14px 20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.h5-admin-dialog.h5-confirm-leave{width:min(520px,calc(100% - 24px))}
+@media(max-width:640px){
+    :is(.h5-admin-workspace,.h5-admin-dialog) .h5-form-grid{grid-template-columns:minmax(0,1fr)}
+    :is(.h5-admin-workspace,.h5-admin-dialog) .h5-card{padding:14px}
+    .h5-admin-dialog .h5-dialog-actions .h5-button{flex:1 1 auto}
+    .h5-admin-dialog :is(.h5-dialog-header,.h5-dialog-body,.h5-dialog-actions){padding:14px}
+}
