@@ -1,0 +1,2 @@
+PASS staff password and MFA session loaded real content
+Exact previous synthetic fixture withdrawn
