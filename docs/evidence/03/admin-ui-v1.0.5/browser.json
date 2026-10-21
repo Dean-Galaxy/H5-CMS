@@ -1,0 +1,23 @@
+{
+  "step": "complete",
+  "passed": 10,
+  "checks": [
+    "owner: real password and MFA login",
+    "same-origin staff avatar loads successfully",
+    "owner still sees three authorized tabs",
+    "shared patch preserves continuous real Livewire keyboard navigation",
+    "previously saved dollar price remains exact",
+    "shared patch preserves failed-save input and active tab",
+    "shared patch discard restores original price without new version",
+    "shared patch mobile has no document horizontal overflow",
+    "shared patch has no external avatar or other external requests",
+    "shared patch has no page errors or HTTP 5xx"
+  ],
+  "errors": [],
+  "server_failures": [],
+  "blocked_external_hosts": [],
+  "completed_external_hosts": [],
+  "is_test": true,
+  "official_payment_verified": false,
+  "boundary": "Real Chrome password+MFA and HTTP UI; synthetic payment facts in this workspace testing database only."
+}

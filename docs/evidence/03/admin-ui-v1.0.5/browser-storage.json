@@ -1,0 +1,26 @@
+{
+  "is_test": true,
+  "verified": true,
+  "official_payment_verified": false,
+  "checks": {
+    "current_price_matches": true,
+    "price_version_incremented_once": true,
+    "active_amounts_unchanged": true,
+    "active_ledger_unchanged": true,
+    "partial_refund_amounts_unchanged": true,
+    "partial_refund_ledger_unchanged": true,
+    "support_case_owner_matches": true,
+    "support_note_saved_once": true
+  },
+  "counts": {
+    "orders": 2,
+    "subscriptions": 2,
+    "payments": 2,
+    "entitlements": 2,
+    "outbox": 2
+  },
+  "support_saved_note_count": 1,
+  "price_version": 2,
+  "regular_amount_minor": 1234,
+  "first_week_amount_minor": 321
+}
