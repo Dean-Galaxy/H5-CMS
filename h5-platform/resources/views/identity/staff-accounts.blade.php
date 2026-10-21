@@ -42,6 +42,8 @@
                     if (id === null) await $wire.openCreate();
                     else await $wire.openStaff(id);
                     this.dirty = false;
+                    // wire:ignore.self preserves dialog attributes; update the shared layout parameter after the server accepts the target.
+                    document.getElementById('identity-staff-editor').style.setProperty('--h5-dialog-content-start-gap', id === null ? '20px' : '18px');
                     H5Admin.openDialog('identity-staff-editor');
                 } finally { this.busy = false; }
             },
