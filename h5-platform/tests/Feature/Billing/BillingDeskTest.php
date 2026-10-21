@@ -2,9 +2,14 @@
 
 namespace Tests\Feature\Billing;
 
+use App\Contracts\MembershipReader;
+use App\Data\Membership;
 use App\Enums\Role;
+use App\Enums\SubscriptionState;
 use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Billing\Filament\Pages\BillingDesk;
+use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Services\BillingAdministration;
 use App\Modules\Billing\Services\BillingStore;
 use App\Modules\Identity\Models\Staff;
 use Filament\Facades\Filament;
@@ -13,6 +18,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Livewire\Livewire;
+use Tests\Feature\Billing\Support\FakeGateway;
 use Tests\TestCase;
 
 final class BillingDeskTest extends TestCase
@@ -33,62 +39,131 @@ final class BillingDeskTest extends TestCase
         });
     }
 
-    public function test_owner_renders_explicit_sample_prices_and_saved_version_survives_refresh(): void
+    public function test_owner_uses_dollar_inputs_and_exact_saved_price_survives_refresh(): void
     {
         $this->signIn(Role::Owner);
+        $page = Livewire::test(BillingDesk::class)->assertOk()
+            ->assertSet('tab', 'orders')->assertSet('price.version', 0)
+            ->assertSet('price.regular_amount_usd', '')->assertSet('price.first_week_amount_usd', '')
+            ->assertSee('Stripe 未配置')->assertDontSee('常规周价（USD）');
         $this->assertDatabaseCount('billing_prices', 0);
-        $page = Livewire::test(BillingDesk::class)
-            ->assertOk()
-            ->assertSee('Stripe 未配置；官方测试未验证')
-            ->assertSee('仅是测试样例，尚非最终售价')
-            ->assertSee('首次保存前没有生效价格')
-            ->assertSee('负责人：新订阅价格')
-            ->assertSet('price.version', 0)
-            ->assertSet('price.is_test', true);
-        $this->assertDatabaseCount('billing_prices', 0);
-        $page->set('price.regular_amount_minor', 1500)
-            ->set('price.first_week_amount_minor', 500)
-            ->call('savePrice')
-            ->assertHasNoErrors()
-            ->assertSet('price.version', 1)
-            ->assertSee('版本：1');
+        $page->call('selectTab', 'prices')->assertReturned(true)
+            ->set('price.regular_amount_usd', '12.34')->set('price.first_week_amount_usd', '3.21')
+            ->call('savePrice')->assertReturned(true)->assertHasNoErrors()
+            ->assertSet('price.version', 1)->assertSet('price.regular_amount_usd', '12.34');
         Notification::assertNotified('测试价格新版本已保存，原订阅约定价保留');
-        $this->assertDatabaseHas('billing_prices', ['version' => 1, 'regular_amount_minor' => 1500, 'first_week_amount_minor' => 500, 'is_test' => true]);
-        $page = Livewire::test(BillingDesk::class)
-            ->assertOk()
-            ->assertSet('price.version', 1)
-            ->assertSet('price.regular_amount_minor', 1500)
-            ->assertSet('price.first_week_amount_minor', 500)
-            ->assertSee('版本：1');
-        $this->savePreview($page->html(true));
+        $this->assertDatabaseHas('billing_prices', ['version' => 1, 'regular_amount_minor' => 1234, 'first_week_amount_minor' => 321, 'is_test' => true]);
+        Livewire::withQueryParams(['tab' => 'prices'])->test(BillingDesk::class)->assertOk()
+            ->assertSet('tab', 'prices')->assertSet('price.version', 1)
+            ->assertSet('price.regular_amount_usd', '12.34')->assertSet('price.first_week_amount_usd', '3.21');
+        $this->assertDatabaseCount('billing_prices', 1);
     }
 
     public function test_support_can_open_exact_order_without_price_controls_or_payment_credentials(): void
     {
         $support = $this->signIn(Role::Support);
         $orderId = $this->order();
-        $page = Livewire::test(BillingDesk::class)
-            ->assertOk()
-            ->assertSee('Stripe 未配置；官方测试未验证')
-            ->assertDontSee('负责人：新订阅价格')
-            ->assertDontSee('保存新的测试价格版本')
-            ->assertDontSee('负责人：最近 50 笔站内订单')
-            ->set('orderId', $orderId)
-            ->call('openCase')
-            ->assertHasNoErrors()
-            ->assertSee($orderId)
-            ->assertSee('订单与会员核实结果')
-            ->assertSee('测试订单')
+        $page = Livewire::test(BillingDesk::class)->assertOk()
+            ->assertDontSee('会员价格')->assertDontSee('常规周价')
+            ->set('orderId', $orderId)->call('openCase')->assertReturned(true)->assertHasNoErrors()
+            ->assertSee($orderId)->assertSee('$3.00 USD')->assertSee('$12.00 USD')
             ->assertDontSee('https://example.test/private-checkout');
         $caseId = $page->get('caseId');
         $this->assertDatabaseHas('billing_cases', ['id' => $caseId, 'order_id' => $orderId, 'staff_id' => $support->id]);
-        $page->set('note', 'Testing only: identity and cancellation request still need verification.')
-            ->call('addNote')->assertHasNoErrors()
-            ->assertSee('Testing only: identity and cancellation request still need verification.');
+        $page->call('selectTab', 'support')->assertReturned(true)
+            ->set('note', 'Testing only: request still needs verification.')
+            ->call('addNote')->assertReturned(true)->assertHasNoErrors()
+            ->assertSet('note', '')->assertSee('Testing only: request still needs verification.');
         $this->assertDatabaseCount('billing_notes', 1);
-        $page->call('savePrice')->assertOk();
+        $page->call('savePrice')->assertReturned(false)->assertHasErrors('billing');
         Notification::assertNotified('无权执行此操作');
+        $page->call('selectTab', 'prices')->assertReturned(false)->assertSet('tab', 'support');
         $this->assertDatabaseCount('billing_prices', 0);
+    }
+
+    public function test_invalid_dollars_keep_the_form_and_save_pending_refuses_navigation(): void
+    {
+        $this->signIn(Role::Owner);
+        $page = Livewire::test(BillingDesk::class)->call('selectTab', 'prices')
+            ->set('price.regular_amount_usd', '12.345')->set('price.first_week_amount_usd', '3.00')
+            ->call('savePending')->assertReturned(false)
+            ->assertHasErrors('price.regular_amount_usd')->assertSet('tab', 'prices')
+            ->assertSet('price.regular_amount_usd', '12.345')->assertSet('price.version', 0);
+        $this->assertDatabaseCount('billing_prices', 0);
+        $page->call('discardPending')->assertReturned(true)->assertHasNoErrors()
+            ->assertSet('price.regular_amount_usd', '')->assertSet('price.first_week_amount_usd', '');
+        $this->assertDatabaseCount('billing_prices', 0);
+    }
+
+    public function test_stale_price_editor_keeps_entered_dollars_until_explicit_discard(): void
+    {
+        $this->signIn(Role::Owner);
+        $first = Livewire::test(BillingDesk::class)->call('selectTab', 'prices');
+        $stale = Livewire::test(BillingDesk::class)->call('selectTab', 'prices');
+        $first->set('price.regular_amount_usd', '15.00')->set('price.first_week_amount_usd', '4.50')
+            ->call('savePrice')->assertReturned(true);
+        $stale->set('price.regular_amount_usd', '18.00')->set('price.first_week_amount_usd', '5.00')
+            ->call('savePrice')->assertReturned(false)->assertHasErrors('billing')
+            ->assertSet('price.regular_amount_usd', '18.00')->assertSet('price.version', 0);
+        $this->assertDatabaseCount('billing_prices', 1);
+        $stale->call('discardPending')->assertReturned(true)->assertHasNoErrors()
+            ->assertSet('price.regular_amount_usd', '15.00')->assertSet('price.version', 1);
+    }
+
+    public function test_refresh_context_and_forged_tabs_or_cases_do_not_bypass_scope(): void
+    {
+        $this->signIn(Role::Support);
+        $own = app(BillingAdministration::class)->openCase($this->order());
+        $page = Livewire::withQueryParams(['tab' => 'support', 'case' => $own])->test(BillingDesk::class)
+            ->assertSet('tab', 'support')->assertSet('caseId', $own);
+        $page->set('tab', 'prices')->assertDontSee('常规周价')->assertDontSee('会员价格');
+        $this->signIn(Role::Support);
+        Livewire::withQueryParams(['tab' => 'prices', 'case' => $own])->test(BillingDesk::class)
+            ->assertSet('tab', 'orders')->assertSet('caseId', null)->assertDontSee('常规周价');
+        Livewire::withQueryParams(['tab' => 'invalid', 'case' => 'not-a-uuid'])->test(BillingDesk::class)
+            ->assertSet('tab', 'orders')->assertSet('caseId', null);
+        $this->assertDatabaseCount('billing_notes', 0);
+    }
+
+    public function test_unsaved_support_note_requires_real_validation_and_discard_does_not_write(): void
+    {
+        $this->signIn(Role::Support);
+        $page = Livewire::test(BillingDesk::class)->set('orderId', $this->order())->call('openCase')
+            ->call('selectTab', 'support')->set('note', str_repeat('x', 2001))
+            ->call('savePending')->assertReturned(false)->assertHasErrors('body')
+            ->assertSet('note', str_repeat('x', 2001));
+        $this->assertDatabaseCount('billing_notes', 0);
+        $page->call('discardPending')->assertReturned(true)->assertSet('note', '');
+        $this->assertDatabaseCount('billing_notes', 0);
+        $page->set('identityVerified', true)->set('cancelRequested', true)
+            ->set('note', 'Verified the current cancellation request.')
+            ->call('savePending')->assertReturned(true)->assertHasNoErrors()->assertSet('note', '');
+        $this->assertDatabaseCount('billing_notes', 1);
+        $this->assertDatabaseHas('billing_cases', ['id' => $page->get('caseId'), 'identity_verified' => true, 'cancel_requested' => true]);
+    }
+
+    public function test_payment_refund_and_next_renewal_amounts_render_as_precise_dollars(): void
+    {
+        $this->signIn(Role::Owner);
+        $orderId = $this->order();
+        $order = DB::table('billing_orders')->find($orderId);
+        // Read-only presentation fixture in the isolated test DB; no claim of settlement.
+        DB::table('billing_payments')->insert([
+            'id' => BillingStore::id(), 'order_id' => $orderId, 'viewer_id' => $order->viewer_id,
+            'subscription_id' => $order->subscription_id, 'provider_invoice_id' => 'in_ui_'.BillingStore::id(),
+            'amount_minor' => 300, 'refunded_amount_minor' => 1, 'currency' => 'USD', 'is_test' => true,
+            'period_start' => now(), 'period_end' => now()->addWeek(), 'paid_at' => now(), 'created_at' => now(),
+        ]);
+        $this->mock(MembershipReader::class, function ($mock) {
+            $mock->shouldReceive('membership')->andReturn(new Membership(true, now()->toIso8601ZuluString(),
+                now()->addWeek()->toIso8601ZuluString(), true, SubscriptionState::Active, false,
+                now()->addWeek()->toIso8601ZuluString(), 1201, []));
+        });
+        $page = Livewire::test(BillingDesk::class)->set('orderId', $orderId)->call('openCase')
+            ->assertReturned(true)->assertSee('$3.00 USD')->assertSee('$0.01 USD')->assertSee('$12.01 USD');
+        DB::table('billing_payments')->where('order_id', $orderId)->update(['refunded_amount_minor' => 0]);
+        $page->call('$refresh')->assertSee('$0.00 USD');
+        $this->assertDatabaseHas('billing_payments', ['order_id' => $orderId, 'amount_minor' => 300, 'refunded_amount_minor' => 0]);
     }
 
     public function test_unauthed_page_does_not_bootstrap_owner_or_prices(): void
@@ -116,6 +191,64 @@ final class BillingDeskTest extends TestCase
         }
         $this->assertDatabaseCount('billing_cases', 0);
         $this->assertDatabaseCount('billing_prices', 0);
+    }
+
+    public function test_unknown_support_cancellation_clears_consumed_verification_but_keeps_unsaved_note(): void
+    {
+        $this->signIn(Role::Support);
+        $orderId = $this->order();
+        $order = DB::table('billing_orders')->find($orderId);
+        $providerId = 'sub_ui_'.$order->subscription_id;
+        $customerId = 'cus_ui_'.$order->viewer_id;
+        $start = now()->startOfSecond();
+        $end = $start->copy()->addWeek();
+        // Isolated local fixture; only the provider response is simulated. The case,
+        // reservation, consumed verification and pending operation use real services.
+        DB::table('billing_subscriptions')->insert([
+            'id' => $order->subscription_id, 'viewer_id' => $order->viewer_id, 'first_order_id' => $orderId,
+            'provider_id' => $providerId, 'customer_id' => $customerId, 'state' => 'active', 'provider_status' => 'active',
+            'price_version' => 1, 'regular_amount_minor' => 1200, 'first_week_amount_minor' => 300,
+            'currency' => 'USD', 'is_test' => true, 'renewal_enabled' => true, 'resolution_required' => false,
+            'period_start' => $start, 'period_end' => $end, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $gateway = new FakeGateway;
+        $gateway->subscriptions[$providerId] = [
+            'id' => $providerId, 'customer_id' => $customerId, 'order_id' => $orderId,
+            'status' => 'active', 'cancel_at_period_end' => false,
+            'period_start' => BillingStore::iso($start), 'period_end' => BillingStore::iso($end),
+            'regular_amount_minor' => 1200, 'currency' => 'USD', 'is_test' => true,
+        ];
+        $gateway->failRenewal = true;
+        $this->app->instance(PaymentGateway::class, $gateway);
+        $page = Livewire::test(BillingDesk::class)->set('orderId', $orderId)->call('openCase')
+            ->assertReturned(true)->call('selectTab', 'support')
+            ->set('identityVerified', true)->set('cancelRequested', true)
+            ->call('saveVerification')->assertReturned(true)->assertHasNoErrors();
+        $caseId = $page->get('caseId');
+        session()->forget(['filament.notifications', 'filament.claimed_notifications']);
+        $note = 'Keep this unsaved note while the accepted cancellation is reconciled.';
+        $page->set('note', $note)->call('cancelForCustomer')->assertReturned(false)
+            ->assertHasErrors('billing')->assertSee('付款或订阅正在核对，请稍后刷新')
+            ->assertSet('identityVerified', false)->assertSet('cancelRequested', false)
+            ->assertSet('savedVerification', ['identity_verified' => false, 'cancel_requested' => false])
+            ->assertSet('note', $note)->assertSet('caseId', $caseId)->assertSet('tab', 'support');
+        $this->assertSame(1, $gateway->renewalCalls);
+        $this->assertTrue($gateway->subscriptions[$providerId]['cancel_at_period_end']);
+        $this->assertDatabaseHas('billing_cases', [
+            'id' => $caseId, 'identity_verified' => false, 'cancel_requested' => false, 'verified_at' => null,
+        ]);
+        $this->assertDatabaseHas('billing_operations', [
+            'subscription_id' => $order->subscription_id, 'kind' => 'cancel',
+            'state' => 'pending', 'last_error' => 'PROVIDER_RESULT_UNRESOLVED',
+        ]);
+        $this->assertDatabaseHas('billing_subscriptions', [
+            'id' => $order->subscription_id, 'desired_renewal' => false,
+            'renewal_enabled' => true, 'resolution_required' => true,
+        ]);
+        $this->assertDatabaseCount('billing_notes', 0);
+        $notifications = collect(session()->get('filament.claimed_notifications') ?? session()->get('filament.notifications', []));
+        $this->assertTrue($notifications->contains(fn (array $notification) => $notification['title'] === '付款或订阅正在核对，请稍后刷新'));
+        $this->assertFalse($notifications->contains(fn (array $notification) => $notification['status'] === 'success'));
     }
 
     private function signIn(Role $role): Staff
