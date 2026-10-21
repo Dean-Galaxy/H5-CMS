@@ -1,0 +1,106 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "state": "create",
+      "viewport": [
+        375,
+        450
+      ],
+      "status": "passed",
+      "checks": "actual open then resize, body scroll, full X hit area and click close",
+      "metrics": {
+        "dialog": {
+          "x": 10,
+          "y": 18,
+          "width": 355,
+          "height": 414,
+          "bottom": 432
+        },
+        "body": {
+          "x": 28,
+          "y": 78,
+          "width": 319,
+          "height": 274,
+          "bottom": 352
+        },
+        "close": {
+          "x": 303,
+          "y": 36,
+          "width": 44,
+          "height": 42,
+          "bottom": 78
+        },
+        "header": {
+          "x": 28,
+          "y": 36,
+          "width": 319,
+          "height": 42,
+          "bottom": 78
+        },
+        "scrollTop": 138,
+        "scrollHeight": 412,
+        "clientHeight": 274,
+        "closeHit": true
+      }
+    },
+    {
+      "state": "manage",
+      "viewport": [
+        375,
+        450
+      ],
+      "status": "passed",
+      "checks": "actual open then resize, body scroll, full X hit area and click close",
+      "metrics": {
+        "dialog": {
+          "x": 10,
+          "y": 18,
+          "width": 355,
+          "height": 351.4375,
+          "bottom": 369.4375
+        },
+        "body": {
+          "x": 28,
+          "y": 78,
+          "width": 319,
+          "height": 211.4375,
+          "bottom": 289.4375
+        },
+        "close": {
+          "x": 303,
+          "y": 36,
+          "width": 44,
+          "height": 42,
+          "bottom": 78
+        },
+        "header": {
+          "x": 28,
+          "y": 36,
+          "width": 319,
+          "height": 42,
+          "bottom": 78
+        },
+        "scrollTop": 0,
+        "scrollHeight": 211,
+        "clientHeight": 211,
+        "closeHit": true
+      }
+    },
+    {
+      "state": "unsaved",
+      "viewport": [
+        375,
+        450
+      ],
+      "status": "passed",
+      "checks": "actual default-gap prompt keeps first paragraph below X; discard closes",
+      "metrics": {
+        "gap": "",
+        "bodyTop": 78,
+        "closeBottom": 78,
+        "closeHit": true
+      }
+    }
+  ]
+}

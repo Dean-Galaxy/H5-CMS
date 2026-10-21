@@ -1,0 +1,1167 @@
+{
+  "checks": [
+    "desktop: four populated/blank-dialog states captured without script errors",
+    "mobile: four populated/blank-dialog states captured without script errors",
+    "dark: four populated/blank-dialog states captured without script errors"
+  ],
+  "metadata": [
+    {
+      "variant": "desktop",
+      "state": "accounts",
+      "kind": "prototype",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 692
+        },
+        "title": {
+          "x": 191,
+          "y": 90,
+          "width": 206.390625,
+          "height": 30.65625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 192,
+          "y": 227.484375,
+          "width": 1060,
+          "height": 164.875
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "desktop",
+      "state": "accounts",
+      "kind": "actual",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 1280,
+          "height": 836
+        },
+        "title": {
+          "x": 190,
+          "y": 89,
+          "width": 212.171875,
+          "height": 35.640625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 191,
+          "y": 231.46875,
+          "width": 1062,
+          "height": 197.34375
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "desktop",
+      "state": "create",
+      "kind": "prototype",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 692
+        },
+        "title": {
+          "x": 191,
+          "y": 90,
+          "width": 206.390625,
+          "height": 30.65625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 192,
+          "y": 227.484375,
+          "width": 1060,
+          "height": 164.875
+        },
+        "dialog": {
+          "x": 320,
+          "y": 63,
+          "width": 640,
+          "height": 466.59375
+        },
+        "dialogPadding": "24px",
+        "contentStartGap": "",
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "desktop",
+      "state": "create",
+      "kind": "actual",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 1280,
+          "height": 836
+        },
+        "title": {
+          "x": 190,
+          "y": 89,
+          "width": 212.171875,
+          "height": 35.640625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 191,
+          "y": 231.46875,
+          "width": 1062,
+          "height": 197.34375
+        },
+        "dialog": {
+          "x": 320,
+          "y": 62,
+          "width": 640,
+          "height": 461.953125
+        },
+        "dialogPadding": "24px",
+        "contentStartGap": "20px",
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "desktop",
+      "state": "manage",
+      "kind": "prototype",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 692
+        },
+        "title": {
+          "x": 191,
+          "y": 90,
+          "width": 206.390625,
+          "height": 30.65625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 192,
+          "y": 227.484375,
+          "width": 1060,
+          "height": 164.875
+        },
+        "dialog": {
+          "x": 320,
+          "y": 63,
+          "width": 640,
+          "height": 304.84375
+        },
+        "dialogPadding": "24px",
+        "contentStartGap": "",
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "desktop",
+      "state": "manage",
+      "kind": "actual",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 1280,
+          "height": 836
+        },
+        "title": {
+          "x": 190,
+          "y": 89,
+          "width": 212.171875,
+          "height": 35.640625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 191,
+          "y": 231.46875,
+          "width": 1062,
+          "height": 197.34375
+        },
+        "dialog": {
+          "x": 320,
+          "y": 62,
+          "width": 640,
+          "height": 344.53125
+        },
+        "dialogPadding": "24px",
+        "contentStartGap": "18px",
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "desktop",
+      "state": "audit",
+      "kind": "prototype",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 692
+        },
+        "title": {
+          "x": 191,
+          "y": 90,
+          "width": 206.390625,
+          "height": 30.65625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 192,
+          "y": 227.484375,
+          "width": 1060,
+          "height": 101.28125
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": null,
+        "badgeBackground": null
+      }
+    },
+    {
+      "variant": "desktop",
+      "state": "audit",
+      "kind": "actual",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 1280,
+          "height": 2142.03125
+        },
+        "title": {
+          "x": 190,
+          "y": 89,
+          "width": 212.171875,
+          "height": 35.640625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 191,
+          "y": 231.46875,
+          "width": 1062,
+          "height": 1907.96875
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": null,
+        "badgeBackground": null
+      }
+    },
+    {
+      "variant": "mobile",
+      "state": "accounts",
+      "kind": "prototype",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          375,
+          812
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 719.046875
+        },
+        "title": {
+          "x": 13,
+          "y": 277.890625,
+          "width": 206.390625,
+          "height": 28
+        },
+        "titleFont": "21px",
+        "table": {
+          "x": 14,
+          "y": 412.71875,
+          "width": 580,
+          "height": 164.875
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "mobile",
+      "state": "accounts",
+      "kind": "actual",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          375,
+          812
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 375,
+          "height": 748
+        },
+        "title": {
+          "x": 12,
+          "y": 145,
+          "width": 212.171875,
+          "height": 32.546875
+        },
+        "titleFont": "21px",
+        "table": {
+          "x": 13,
+          "y": 284.375,
+          "width": 580,
+          "height": 219.03125
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "mobile",
+      "state": "create",
+      "kind": "prototype",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          375,
+          812
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 719.046875
+        },
+        "title": {
+          "x": 13,
+          "y": 277.890625,
+          "width": 206.390625,
+          "height": 28
+        },
+        "titleFont": "21px",
+        "table": {
+          "x": 14,
+          "y": 412.71875,
+          "width": 580,
+          "height": 164.875
+        },
+        "dialog": {
+          "x": 11,
+          "y": 19,
+          "width": 353,
+          "height": 537.59375
+        },
+        "dialogPadding": "17px",
+        "contentStartGap": "",
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "mobile",
+      "state": "create",
+      "kind": "actual",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          375,
+          812
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 375,
+          "height": 748
+        },
+        "title": {
+          "x": 12,
+          "y": 145,
+          "width": 212.171875,
+          "height": 32.546875
+        },
+        "titleFont": "21px",
+        "table": {
+          "x": 13,
+          "y": 284.375,
+          "width": 580,
+          "height": 219.03125
+        },
+        "dialog": {
+          "x": 10,
+          "y": 18,
+          "width": 355,
+          "height": 551.546875
+        },
+        "dialogPadding": "17px",
+        "contentStartGap": "20px",
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "mobile",
+      "state": "manage",
+      "kind": "prototype",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          375,
+          812
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 719.046875
+        },
+        "title": {
+          "x": 13,
+          "y": 277.890625,
+          "width": 206.390625,
+          "height": 28
+        },
+        "titleFont": "21px",
+        "table": {
+          "x": -219,
+          "y": 412.71875,
+          "width": 580,
+          "height": 164.875
+        },
+        "dialog": {
+          "x": 11,
+          "y": 19,
+          "width": 353,
+          "height": 293.15625
+        },
+        "dialogPadding": "17px",
+        "contentStartGap": "",
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "mobile",
+      "state": "manage",
+      "kind": "actual",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          375,
+          812
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 375,
+          "height": 748
+        },
+        "title": {
+          "x": 12,
+          "y": 145,
+          "width": 212.171875,
+          "height": 32.546875
+        },
+        "titleFont": "21px",
+        "table": {
+          "x": -218,
+          "y": 284.375,
+          "width": 580,
+          "height": 219.03125
+        },
+        "dialog": {
+          "x": 10,
+          "y": 18,
+          "width": 355,
+          "height": 351.4375
+        },
+        "dialogPadding": "17px",
+        "contentStartGap": "18px",
+        "actionColor": "rgb(152, 82, 0)",
+        "badgeBackground": "rgb(234, 247, 240)"
+      }
+    },
+    {
+      "variant": "mobile",
+      "state": "audit",
+      "kind": "prototype",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          375,
+          812
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 719.046875
+        },
+        "title": {
+          "x": 13,
+          "y": 323.484375,
+          "width": 206.390625,
+          "height": 28
+        },
+        "titleFont": "21px",
+        "table": {
+          "x": 14,
+          "y": 458.3125,
+          "width": 580,
+          "height": 101.28125
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": null,
+        "badgeBackground": null
+      }
+    },
+    {
+      "variant": "mobile",
+      "state": "audit",
+      "kind": "actual",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "light",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          375,
+          812
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 375,
+          "height": 2233.21875
+        },
+        "title": {
+          "x": 12,
+          "y": 145,
+          "width": 212.171875,
+          "height": 32.546875
+        },
+        "titleFont": "21px",
+        "table": {
+          "x": 13,
+          "y": 284.375,
+          "width": 580,
+          "height": 1929.65625
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": null,
+        "badgeBackground": null
+      }
+    },
+    {
+      "variant": "dark",
+      "state": "accounts",
+      "kind": "prototype",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "dark",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 692
+        },
+        "title": {
+          "x": 191,
+          "y": 90,
+          "width": 206.390625,
+          "height": 30.65625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 192,
+          "y": 227.484375,
+          "width": 1060,
+          "height": 164.875
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": "rgb(242, 187, 114)",
+        "badgeBackground": "rgb(34, 59, 49)"
+      }
+    },
+    {
+      "variant": "dark",
+      "state": "accounts",
+      "kind": "actual",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "dark",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 1280,
+          "height": 836
+        },
+        "title": {
+          "x": 190,
+          "y": 89,
+          "width": 212.171875,
+          "height": 35.640625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 191,
+          "y": 231.46875,
+          "width": 1062,
+          "height": 197.34375
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": "rgb(242, 187, 114)",
+        "badgeBackground": "rgb(34, 59, 49)"
+      }
+    },
+    {
+      "variant": "dark",
+      "state": "create",
+      "kind": "prototype",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "dark",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 692
+        },
+        "title": {
+          "x": 191,
+          "y": 90,
+          "width": 206.390625,
+          "height": 30.65625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 192,
+          "y": 227.484375,
+          "width": 1060,
+          "height": 164.875
+        },
+        "dialog": {
+          "x": 320,
+          "y": 63,
+          "width": 640,
+          "height": 466.59375
+        },
+        "dialogPadding": "24px",
+        "contentStartGap": "",
+        "actionColor": "rgb(242, 187, 114)",
+        "badgeBackground": "rgb(34, 59, 49)"
+      }
+    },
+    {
+      "variant": "dark",
+      "state": "create",
+      "kind": "actual",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "dark",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 1280,
+          "height": 836
+        },
+        "title": {
+          "x": 190,
+          "y": 89,
+          "width": 212.171875,
+          "height": 35.640625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 191,
+          "y": 231.46875,
+          "width": 1062,
+          "height": 197.34375
+        },
+        "dialog": {
+          "x": 320,
+          "y": 62,
+          "width": 640,
+          "height": 461.953125
+        },
+        "dialogPadding": "24px",
+        "contentStartGap": "20px",
+        "actionColor": "rgb(242, 187, 114)",
+        "badgeBackground": "rgb(34, 59, 49)"
+      }
+    },
+    {
+      "variant": "dark",
+      "state": "manage",
+      "kind": "prototype",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "dark",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 692
+        },
+        "title": {
+          "x": 191,
+          "y": 90,
+          "width": 206.390625,
+          "height": 30.65625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 192,
+          "y": 227.484375,
+          "width": 1060,
+          "height": 164.875
+        },
+        "dialog": {
+          "x": 320,
+          "y": 63,
+          "width": 640,
+          "height": 304.84375
+        },
+        "dialogPadding": "24px",
+        "contentStartGap": "",
+        "actionColor": "rgb(242, 187, 114)",
+        "badgeBackground": "rgb(34, 59, 49)"
+      }
+    },
+    {
+      "variant": "dark",
+      "state": "manage",
+      "kind": "actual",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "dark",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 1280,
+          "height": 836
+        },
+        "title": {
+          "x": 190,
+          "y": 89,
+          "width": 212.171875,
+          "height": 35.640625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 191,
+          "y": 231.46875,
+          "width": 1062,
+          "height": 197.34375
+        },
+        "dialog": {
+          "x": 320,
+          "y": 62,
+          "width": 640,
+          "height": 344.53125
+        },
+        "dialogPadding": "24px",
+        "contentStartGap": "18px",
+        "actionColor": "rgb(242, 187, 114)",
+        "badgeBackground": "rgb(34, 59, 49)"
+      }
+    },
+    {
+      "variant": "dark",
+      "state": "audit",
+      "kind": "prototype",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "dark",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 692
+        },
+        "title": {
+          "x": 191,
+          "y": 90,
+          "width": 206.390625,
+          "height": 30.65625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 192,
+          "y": 227.484375,
+          "width": 1060,
+          "height": 101.28125
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": null,
+        "badgeBackground": null
+      }
+    },
+    {
+      "variant": "dark",
+      "state": "audit",
+      "kind": "actual",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "colorScheme": "dark",
+      "timezoneId": "UTC",
+      "metrics": {
+        "scrollX": 0,
+        "scrollY": 0,
+        "viewport": [
+          1280,
+          900
+        ],
+        "bodyOverflow": false,
+        "root": {
+          "x": 0,
+          "y": 64,
+          "width": 1280,
+          "height": 2142.03125
+        },
+        "title": {
+          "x": 190,
+          "y": 89,
+          "width": 212.171875,
+          "height": 35.640625
+        },
+        "titleFont": "23px",
+        "table": {
+          "x": 191,
+          "y": 231.46875,
+          "width": 1062,
+          "height": 1907.96875
+        },
+        "dialog": null,
+        "dialogPadding": null,
+        "contentStartGap": null,
+        "actionColor": null,
+        "badgeBackground": null
+      }
+    }
+  ],
+  "implementation_commit": "c0f8d5bdf208cdae99f390f5b895e3ab1987cc4d",
+  "shared_base": "2e6dd1b4b7473a9ad542bb950e31ecc37e53a3c1",
+  "prototype_commit": "bc5a24d63b7e23126bad9bb5519ea0e9fa8825cf",
+  "contract": "1.0.5",
+  "browser": "Google Chrome 155.0.8059.85",
+  "platform": "macOS 27.0 arm64",
+  "zoom": 1,
+  "prototype_canvas": "Exact decoded index.html iframe data-srcdoc; outer 16px export wrapper excluded on both sides; fragment unchanged",
+  "screenshot_prefix": "c0f8d5b",
+  "audit_rows": {
+    "prototype": 1,
+    "actual": 25
+  },
+  "staff_rows": {
+    "prototype": 2,
+    "actual": 2
+  },
+  "strict_pixel_comparison": false
+}
