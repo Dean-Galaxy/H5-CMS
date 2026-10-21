@@ -129,10 +129,10 @@
             </section>
         @endif
 
-        <x-admin.dialog id="identity-staff-editor" :title="$editingId ? '管理'.$editingName : '新增员工'" wire:ignore.self
+        <x-admin.dialog id="identity-staff-editor" :title="$editingId ? '管理'.$editingName : '新增员工'" :content-start-gap="$editingId ? 18 : 20" wire:ignore.self
             x-on:h5-admin:dialog-close-request="if (busy) $event.preventDefault()">
             <form id="identity-staff-form" x-on:submit.prevent="save()" x-on:input="dirty = true" x-on:change="dirty = true">
-                <fieldset class="{{ $editingId === null ? 'h5-form-grid' : '' }}" style="{{ $editingId === null ? 'margin-top:20px' : '' }}" :disabled="busy || !ready">
+                <fieldset class="{{ $editingId === null ? 'h5-form-grid' : '' }}" :disabled="busy || !ready">
                     @if($editingId === null)
                         <label class="h5-field">姓名
                             <input class="h5-input" wire:model="newStaff.name" required maxlength="80" autocomplete="name">
@@ -158,7 +158,7 @@
                         </label>
                         <p class="h5-note h5-span">请私密交付初始密码；首次登录须配置验证器并保存恢复码。不会自动发送邀请邮件。</p>
                     @else
-                        <p class="h5-note">{{ $editingEmail }}</p>
+                        <p class="h5-muted"><small>{{ $editingEmail }}</small></p>
                         <label class="h5-field" style="margin-top:18px">角色
                             <select class="h5-input" aria-label="角色" wire:model="editStaff.role" required>
                                 @foreach($roles as $role)<option value="{{ $role->value }}">{{ $role->label() }}</option>@endforeach
