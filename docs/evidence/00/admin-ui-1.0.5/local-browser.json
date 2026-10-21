@@ -1,0 +1,24 @@
+{
+  "passed": 17,
+  "cases": [
+    "one panel initially visible",
+    "keyboard selects next tab",
+    "Home returns first tab",
+    "dirty tab asks before leaving",
+    "continue keeps input and tab",
+    "failed save keeps dialog and tab",
+    "unknown save outcome stays in editor",
+    "confirmed save continues once",
+    "discard restores last saved value",
+    "Escape respects dirty dialog",
+    "confirmed discard closes original dialog",
+    "focus returns to opener",
+    "mobile long-dialog actions stay visible",
+    "mobile body has no horizontal overflow",
+    "only one simultaneous leave prompt",
+    "approved tab does not recursively prompt",
+    "no browser script errors"
+  ],
+  "errors": [],
+  "boundary": "Shared UI fixture only; not module or provider acceptance"
+}

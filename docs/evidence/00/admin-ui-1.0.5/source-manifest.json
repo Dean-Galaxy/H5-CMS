@@ -1,0 +1,546 @@
+{
+  "source_commit": "46bd7cece7212a5db676056bc5cedac09fd2d8c3",
+  "created_at": "2026-10-21T06:55:36.326454+00:00",
+  "contract": "1.0.5",
+  "source_files": {
+    "docs/contracts/examples/assignable-staff-empty.json": {
+      "sha256": "0ba0a19264d99ae5d49caa5cb1ee737799cba962afb923c602f96120df6f6813",
+      "bytes": 41
+    },
+    "docs/contracts/examples/assignable-staff-page.json": {
+      "sha256": "2045682a2a8771d404e0970f79f7bf4eaa056987cee4b6e48065bf55f11bdd93",
+      "bytes": 194
+    },
+    "docs/contracts/examples/catalog-category.json": {
+      "sha256": "5b5d78553359fc1bbe310b247af166258db68d5a5aff6afa6abfbaeb8286b36e",
+      "bytes": 1854
+    },
+    "docs/contracts/examples/categories-en.json": {
+      "sha256": "b29cc3feae5e34c52ac35e41a74a877c5ab5abaee57867ca32013097a7af6e90",
+      "bytes": 262
+    },
+    "docs/contracts/examples/categories-zh_CN.json": {
+      "sha256": "a4c2a82addcebbc878a694736d1a10c965bec573ee908af0ee3c0012f5bd32e6",
+      "bytes": 265
+    },
+    "docs/contracts/examples/dependency-not-ready.json": {
+      "sha256": "6ad1c7b912165001aa1013b7f1b130a75ba2579c6ce7983a6315bfdee237875f",
+      "bytes": 200
+    },
+    "docs/contracts/examples/drama-from-home.json": {
+      "sha256": "957bbcf9ca513791776da7748018d45e4f2b00ee0fd439b9d62c7078f52a2af9",
+      "bytes": 1570
+    },
+    "docs/contracts/examples/health-content.json": {
+      "sha256": "e0aa28b4773e19e582b3bae69eeebcec3b461076ade2b6c2493d6f0038fc487c",
+      "bytes": 234
+    },
+    "docs/contracts/examples/health-foundation.json": {
+      "sha256": "9a20192e7e542cfe0a94d222f9f03c1dd35fdddc19e0970d87b151f9ef7be927",
+      "bytes": 238
+    },
+    "docs/contracts/examples/home-empty.json": {
+      "sha256": "ff1c43081c05aea4f6f349b9963d286e4fd7aa233622e1b2ba320a9fa5a75338",
+      "bytes": 83
+    },
+    "docs/contracts/examples/home-en.json": {
+      "sha256": "a7a936b69f1a20363ba998996ae76933b6c534b37148327a21fa6b09ffa1ae3a",
+      "bytes": 928
+    },
+    "docs/contracts/examples/home-zh_CN.json": {
+      "sha256": "4b2e84417bd948233b86fbe8e6aa8431726a20cabbdf522c320975467a58b764",
+      "bytes": 963
+    },
+    "docs/contracts/examples/identity-guest.json": {
+      "sha256": "dd759803faddf86c89b2b44e228ac123d4cbb847952c6ed1ecf7ab8d4a49927f",
+      "bytes": 38
+    },
+    "docs/contracts/examples/identity-viewer.json": {
+      "sha256": "443a3daea05d970f6c5af9f5a6fb4e48c2257611f59866695d1d356afc5a99fd",
+      "bytes": 153
+    },
+    "docs/contracts/examples/invalid-assignable-staff-contact.json": {
+      "sha256": "bda08c47f8ab12eade97a433a33b7322c2dd2cb722330acc0b88242e7c666daa",
+      "bytes": 169
+    },
+    "docs/contracts/examples/invalid-assignable-staff-inactive.json": {
+      "sha256": "b457df00f63475744b2bedf0f566e7ce5ed497f402bdf4426debd2ee8547e706",
+      "bytes": 127
+    },
+    "docs/contracts/examples/invalid-assignable-staff-role.json": {
+      "sha256": "6fe4d3e3f41247a4558a21b28a6e54d105113a6c6221d3df1a90e26f43b87a55",
+      "bytes": 122
+    },
+    "docs/contracts/examples/invalid-denied-media-leak.json": {
+      "sha256": "8b5f641f430975bc01207ceaab6e691cf793beac5d930ccd10cf7d3326686b9e",
+      "bytes": 250
+    },
+    "docs/contracts/examples/invalid-fractional-money.json": {
+      "sha256": "5ba1c8cfa0e916f7cae61eeb53d2d76eebd2c95adbaf4865152d7ccc0ca98a6f",
+      "bytes": 279
+    },
+    "docs/contracts/examples/invalid-health-state.json": {
+      "sha256": "7bbbe0aafb4e6756344f2fe8a69f01791b662f608d417d838cb18ce911d3375f",
+      "bytes": 236
+    },
+    "docs/contracts/examples/invalid-home-banner-image.json": {
+      "sha256": "f8a0f10478c0c7bc56d13b75a0d61f70b2dfb2aeaa81b2a706a39487e35970f4",
+      "bytes": 909
+    },
+    "docs/contracts/examples/invalid-home-banner-target.json": {
+      "sha256": "cafacdbe373283baa21efc868c1cc837de1cf72eb41680c53030ca2d51a06792",
+      "bytes": 917
+    },
+    "docs/contracts/examples/invalid-home-draft.json": {
+      "sha256": "620b7ac4553df0fb7db5f0823e20444ed7a85b1c2b1c4eeffe77b9dff23abb9e",
+      "bytes": 925
+    },
+    "docs/contracts/examples/invalid-home-media-leak.json": {
+      "sha256": "02d69f7afc989f571af2571513aec0c2b16959673f9f7a71df744d3788054cb7",
+      "bytes": 990
+    },
+    "docs/contracts/examples/invalid-home-no-published-episodes.json": {
+      "sha256": "095583951dab5ca9f7091bdc2ad8b46e8ce7c00c5f2eef0da09e173da86bd8e9",
+      "bytes": 928
+    },
+    "docs/contracts/examples/invalid-payment-status.json": {
+      "sha256": "33141a3b0043d782ef7e1cee21fa30024502649f48703d3bd53377dfb6338f4b",
+      "bytes": 319
+    },
+    "docs/contracts/examples/invalid-playback-client-region.json": {
+      "sha256": "9a574ffe14b16090fb5e94fcc2edf9826c307f069521f82b3999c392a224d8dd",
+      "bytes": 48
+    },
+    "docs/contracts/examples/invalid-promotable-drama-country.json": {
+      "sha256": "535afd2ef719d071a767d678d8e2096ab614e90ea6f596de8e80ba42d78e9693",
+      "bytes": 160
+    },
+    "docs/contracts/examples/invalid-promotable-drama-media.json": {
+      "sha256": "eca917c4dab3d9e3bca9e8abb6622278a6e5a94f6e9bd6ac313e3fa0e99aa063",
+      "bytes": 222
+    },
+    "docs/contracts/examples/invalid-promotable-drama-unpublished.json": {
+      "sha256": "7e3991a94560eb700d64e73bdf4232dbfe75b2a937cc9652ab6621902005692b",
+      "bytes": 160
+    },
+    "docs/contracts/examples/invalid-region-source.json": {
+      "sha256": "b3a7720cf0fe7b5f9e7dc9ec3bd41d85e9b1cea3935a867b0400f1e9f2660d37",
+      "bytes": 53
+    },
+    "docs/contracts/examples/invalid-resume-input-currency.json": {
+      "sha256": "fe5e1e181cb18f401e4af7caa09fb0ffca1863003b0414d2de2b8c4c1bb81a04",
+      "bytes": 206
+    },
+    "docs/contracts/examples/invalid-resume-input-no-quote.json": {
+      "sha256": "f5b446222dde93d3d1015c89215ae98c0af27a1ae3afa69874618dbe84e861ff",
+      "bytes": 152
+    },
+    "docs/contracts/examples/invalid-resume-input-owner.json": {
+      "sha256": "038b85b8b269fc4a8204325cb75303062180ed5cd043f8162bf559ee3c9a37fc",
+      "bytes": 261
+    },
+    "docs/contracts/examples/invalid-resume-quote-no-renewal.json": {
+      "sha256": "cfa8f5e1c90bb8fddf311eebf916185b3cced676ac4198fd3fe4f96a2bc9b18d",
+      "bytes": 272
+    },
+    "docs/contracts/examples/invalid-resume-quote-no-version.json": {
+      "sha256": "dbfa2ac6e9ccac0867680322c270bcaf0b6f63a1f69bdff3808844c295e317a6",
+      "bytes": 261
+    },
+    "docs/contracts/examples/invalid-staff-create-seven.json": {
+      "sha256": "288374ee0ab3e31899d500fbd78c723a7d08fc6e053ad41813d1caeff9cb9971",
+      "bytes": 117
+    },
+    "docs/contracts/examples/login-request.json": {
+      "sha256": "6ed55cf3aa38d83eac39fa3b31d6ad912cfd365eb8e70c786879873b7221c2b2",
+      "bytes": 70
+    },
+    "docs/contracts/examples/manifest.json": {
+      "sha256": "74d924621dc5b8ad7232987df98984cb73a3d5c73b2fd8f6a69ef1ec1cd1e645",
+      "bytes": 5770
+    },
+    "docs/contracts/examples/membership-canceled-paid.json": {
+      "sha256": "9651147274c70618a7e95b24b855701776861904d97e5edfc68513c86c56920d",
+      "bytes": 321
+    },
+    "docs/contracts/examples/membership-payment-unresolved.json": {
+      "sha256": "320f1170870fc910d46cda28f9d2e0e40ed2ff76c629eabdf33b8481004a9782",
+      "bytes": 306
+    },
+    "docs/contracts/examples/offer-after-price-change.json": {
+      "sha256": "2805c44178e528ec7dbf53140f91c6306504e9fac95bfea977817df8286a45b1",
+      "bytes": 279
+    },
+    "docs/contracts/examples/offer.json": {
+      "sha256": "5f5d1c2b91bbd3663176d3a4dca11f97b7a5af88d9b4e7e15fcf4f4514f378a7",
+      "bytes": 279
+    },
+    "docs/contracts/examples/payment-settled.json": {
+      "sha256": "69a787828e2e33a6e2e1bc280ffd7977b65c99cee12def2ad31b76db6fc5f3bc",
+      "bytes": 477
+    },
+    "docs/contracts/examples/permission-denied.json": {
+      "sha256": "50ac0f3c7ab69dbb4d3bfdace737ef9b8bc6db34582c1a8de9af1da3e37addcf",
+      "bytes": 192
+    },
+    "docs/contracts/examples/playback-allowed.json": {
+      "sha256": "9fffc1bf36476a2b5328d73e4131702685fcdcffb7fdbc590ad1aca94dad9ddf",
+      "bytes": 324
+    },
+    "docs/contracts/examples/playback-denied.json": {
+      "sha256": "c4115d18dccc86a502844afed38bbb86f24115744083f401f8e3abd7dfca6922",
+      "bytes": 210
+    },
+    "docs/contracts/examples/playback-input-new.json": {
+      "sha256": "631eba9d5311d4c8c5bfcf91da413cb0b93751ded57135fd8316fe6a16a9bec3",
+      "bytes": 30
+    },
+    "docs/contracts/examples/playback-input-renew.json": {
+      "sha256": "a7a3bb508fd5800149daf22f29964834b0c958bf0081b311ff5ead11caa2641f",
+      "bytes": 64
+    },
+    "docs/contracts/examples/progress-input.json": {
+      "sha256": "a869d77f29b1299663681877dcbfcf112827b8015edc011ebfc7899a3a897f5e",
+      "bytes": 163
+    },
+    "docs/contracts/examples/progress.json": {
+      "sha256": "e1e39db7e932afe00d3a0d10cc5b5f0faa055ca15f870b27e873d31bf22983f3",
+      "bytes": 255
+    },
+    "docs/contracts/examples/promotable-drama-empty.json": {
+      "sha256": "0ba0a19264d99ae5d49caa5cb1ee737799cba962afb923c602f96120df6f6813",
+      "bytes": 41
+    },
+    "docs/contracts/examples/promotable-drama-page.json": {
+      "sha256": "5f781cee1b8f24bcb6f775c391aa662f93d21884432460395a49a644e7ff2529",
+      "bytes": 232
+    },
+    "docs/contracts/examples/region-local-us.json": {
+      "sha256": "0d689669d14f993e041a4950204c3c8450f5caff6097181620b7b1a292450a93",
+      "bytes": 56
+    },
+    "docs/contracts/examples/region-unresolved.json": {
+      "sha256": "a89070279daabf2ecfc879dd24939154363d635835522b38642a204cf202cc13",
+      "bytes": 53
+    },
+    "docs/contracts/examples/register-request.json": {
+      "sha256": "8d9e60802033427a46de7f9f1f18f1d3d4dff00718ba9b159c014c157dbd0e86",
+      "bytes": 206
+    },
+    "docs/contracts/examples/resume-input.json": {
+      "sha256": "c0caaa5c8b7094cd169ed7cacd99d75f40c51bda01220b401bc176e8cfde1e08",
+      "bytes": 206
+    },
+    "docs/contracts/examples/resume-quote.json": {
+      "sha256": "ef4eef748f298b4854e455a26eb69a17efdacc3bc2bd55a3609f23158ee16164",
+      "bytes": 290
+    },
+    "docs/contracts/examples/staff-create-eight.json": {
+      "sha256": "15be3065fc6a7798b466a0dcc27981eb1c2daed14e841e981c2958ebc44c5284",
+      "bytes": 118
+    },
+    "docs/contracts/examples/staff-create-request.json": {
+      "sha256": "029261b612aebb4889c138e0fcddcc6707d2290cb637b7c61f77be6527a4babb",
+      "bytes": 139
+    },
+    "docs/contracts/openapi.yaml": {
+      "sha256": "12675a3acabae721266bd4d5708fc2fad9d7b485218ce663200e3f44eb36a05f",
+      "bytes": 272262
+    },
+    "h5-platform/app/Modules/Identity/Actions/CreateViewer.php": {
+      "sha256": "614c3f9d6db13cf311e82570c2a0e3ec469e9487c6148a2c845c84dd16faa3c7",
+      "bytes": 917
+    },
+    "h5-platform/app/Modules/Identity/Actions/ResetViewerPassword.php": {
+      "sha256": "52e35fd3919114436f256471320b5e6b66f027a545053ee4d6df2df0072c6a31",
+      "bytes": 788
+    },
+    "h5-platform/app/Modules/Identity/Console/CreateOwner.php": {
+      "sha256": "c990269bc31720d4189cc985f6bd9a481b8fc8bbe9cec701c93cd9e8e4b6ecce",
+      "bytes": 1455
+    },
+    "h5-platform/app/Modules/Identity/Filament/Pages/StaffAccounts.php": {
+      "sha256": "6776fcb33d722d6bc93b0375a3f33277ed60fce31c42dcec486a59ba2e85a664",
+      "bytes": 4414
+    },
+    "h5-platform/app/Modules/Identity/Filament/StaffLogin.php": {
+      "sha256": "6bd4a33d31196dc2a42d382ec51d3f64c9b2f0d458f18b17312c43d57f415ba9",
+      "bytes": 933
+    },
+    "h5-platform/app/Modules/Identity/Filament/StaffProfile.php": {
+      "sha256": "eb6019bf657dacf34740d7c5212b3e3c868a4a4bbe29741da79f11b2a180e8e9",
+      "bytes": 1467
+    },
+    "h5-platform/app/Modules/Identity/Http/AuthResponse.php": {
+      "sha256": "0e61a9a81233e119c459276803dc7fe2a5eb9af32eecf0340ef523fd2886a6b0",
+      "bytes": 835
+    },
+    "h5-platform/app/Modules/Identity/Http/IdentityController.php": {
+      "sha256": "3b230b802beaeaf4786a84cac61aba74cc96ad5be05334822fdae400ca8f2545",
+      "bytes": 5076
+    },
+    "h5-platform/app/Modules/Identity/Http/RememberReturn.php": {
+      "sha256": "04ec90c6dc5b1ec0eb5a2f31e00c16ab44030b4100e90b977d34d9ec137769c6",
+      "bytes": 423
+    },
+    "h5-platform/app/Modules/Identity/Http/RequestContext.php": {
+      "sha256": "d3ccc00dc922902c361bfa095c89543a0ff6075a867bafdea1ef43710238afaa",
+      "bytes": 2254
+    },
+    "h5-platform/app/Modules/Identity/Http/SessionProtection.php": {
+      "sha256": "e0eb7421228840c9b71ed881ba3fef85e10b3b475ab013fabfcff790610ef0c3",
+      "bytes": 1135
+    },
+    "h5-platform/app/Modules/Identity/Http/StaffController.php": {
+      "sha256": "3bb133f601486c19e93d3556e426a9505430aa0f85d85252d8fb3ce47e1cbd92",
+      "bytes": 806
+    },
+    "h5-platform/app/Modules/Identity/Http/StaffMfa.php": {
+      "sha256": "d70289c7d05271f5f70262c1413a881f7412414d8740c54c0b070a5cd321176d",
+      "bytes": 781
+    },
+    "h5-platform/app/Modules/Identity/Http/StaffPanelMfa.php": {
+      "sha256": "21b84ffdf66ffcca6c8ad15ef4cfc885817046cab38943821f820c9c141ce13a",
+      "bytes": 858
+    },
+    "h5-platform/app/Modules/Identity/Http/VerificationLogin.php": {
+      "sha256": "610a8cee1738052a5a182c1a82442229b63dac072e3ac6ab1b6b1bf69047bd64",
+      "bytes": 765
+    },
+    "h5-platform/app/Modules/Identity/IdentityServiceProvider.php": {
+      "sha256": "c5c92f47af018a29626035a66ff76ac1aa02e59f529170ff53a4da8e8f2ceb56",
+      "bytes": 4593
+    },
+    "h5-platform/app/Modules/Identity/Mail/PreviewTransport.php": {
+      "sha256": "5f489a0077393df5b821afd3fcf0defe50d32ec704db253ca571500e50e620b9",
+      "bytes": 1276
+    },
+    "h5-platform/app/Modules/Identity/Models/Staff.php": {
+      "sha256": "7148e38d69f7f7997dd4cdd3be4ce579ead3cbc1cc972d58456afdae186fb49b",
+      "bytes": 2035
+    },
+    "h5-platform/app/Modules/Identity/Models/Viewer.php": {
+      "sha256": "c87d092a6912a8b1b2c70ed4ec927e47a09ac2536f2ea818be67eb41f918eb2f",
+      "bytes": 958
+    },
+    "h5-platform/app/Modules/Identity/Services/CurrentIdentity.php": {
+      "sha256": "86c7faaef3abdec4f435b39de774271a6f09cb31b9e6bdcb5d540835c37fb839",
+      "bytes": 1971
+    },
+    "h5-platform/app/Modules/Identity/Services/DatabaseAuditRecorder.php": {
+      "sha256": "038dd3e6c3435e8bfd95b72fd632c97f184c31720c54b7e45256585f76f45859",
+      "bytes": 1472
+    },
+    "h5-platform/app/Modules/Identity/Services/Permissions.php": {
+      "sha256": "7b10080e098e885c15bca206a3b078a6ab47ef8232bbd09127b49c462f73f28b",
+      "bytes": 1184
+    },
+    "h5-platform/app/Modules/Identity/Services/SafeReturn.php": {
+      "sha256": "ea8e39751ff63f830fc5bf9056fb746f07a2a0000d263776cf105681c32b6ffa",
+      "bytes": 1323
+    },
+    "h5-platform/app/Modules/Identity/Services/StaffDirectory.php": {
+      "sha256": "e5b6d393d53f329ff7f86a1fe7896624f21ae5079ec41e1436d49db4a5a2d77b",
+      "bytes": 3581
+    },
+    "h5-platform/app/Modules/Identity/Services/StaffManager.php": {
+      "sha256": "f5edabe6651d57af2db9ce88658410df9045ab6d46f1f74cf2dcbe8e8d7ddf0d",
+      "bytes": 3264
+    },
+    "h5-platform/app/Modules/Identity/Services/StaffPassword.php": {
+      "sha256": "8025c83c713277673b7fda3bf2d172db0ff07468cbdff0143e24a1c4b7de88a9",
+      "bytes": 622
+    },
+    "h5-platform/app/Modules/Identity/Services/Verification.php": {
+      "sha256": "3fb923bfd169fe8757e51dc10c99fdb7c09c627e6c31b869d2bbced6592c8d4d",
+      "bytes": 2597
+    },
+    "h5-platform/app/Providers/Filament/AdminPanelProvider.php": {
+      "sha256": "5f6acd307f7ee55580117df0e7477995960c69fe7bfc8be2ca9553406c0fcf45",
+      "bytes": 2517
+    },
+    "h5-platform/app/Support/Admin/StaffAvatarProvider.php": {
+      "sha256": "05913e7778c3e4795c7787d26d918c6b37c1a91e5a50c312649c11a6a3c0f82b",
+      "bytes": 389
+    },
+    "h5-platform/app/Support/Admin/UsdAmount.php": {
+      "sha256": "87d754459ff2b532bacf880be52aa744c954a3bedcc898ef2969614b41cf6681",
+      "bytes": 1600
+    },
+    "h5-platform/config/h5.php": {
+      "sha256": "f0031bf89c15a5dc36265f864b45e0558f47ab08d5d226891f356070eb7b806e",
+      "bytes": 1419
+    },
+    "h5-platform/public/admin-ui/admin.css": {
+      "sha256": "e685fb5e672db19dfd1ab9b4344e1aa66dc62e1554995d8920bb9b1dfc9c1428",
+      "bytes": 6476
+    },
+    "h5-platform/public/admin-ui/admin.js": {
+      "sha256": "43112ddf752716d9be566e2ab159cb875ceae3fc1ae456e82ee4a14e918a3796",
+      "bytes": 10616
+    },
+    "h5-platform/public/admin-ui/staff-avatar.svg": {
+      "sha256": "0516482a90e5298fe0b871e326910586af1c6ca645e43169c3705422e9f7af40",
+      "bytes": 227
+    },
+    "h5-platform/resources/views/components/admin/assets.blade.php": {
+      "sha256": "9f0a35141df57b121fecb01c313a6ee700e30b5746f4cc778134a581fbfd9adf",
+      "bytes": 283
+    },
+    "h5-platform/resources/views/components/admin/dialog.blade.php": {
+      "sha256": "19e6f9e0b38b0ce03875ed05121598eb6763ea6218bbb780101314e6765e3183",
+      "bytes": 468
+    },
+    "h5-platform/resources/views/components/admin/panel.blade.php": {
+      "sha256": "ceeaf010312dc3170a27cdf07993b7a90c5b9a6ab4f3cc025853512410333d49",
+      "bytes": 300
+    },
+    "h5-platform/resources/views/components/admin/tabs.blade.php": {
+      "sha256": "91ae5fa2efb7b66be1f34b7a150e5b76d1dba37c6d82daafb9c1ab3691c22362",
+      "bytes": 1625
+    },
+    "h5-platform/resources/views/components/admin/workspace.blade.php": {
+      "sha256": "98bab4da6df7dc6a2215ea3527e04c99a4315476d5e896506314bec23a1a1041",
+      "bytes": 465
+    },
+    "h5-platform/resources/views/identity/account.blade.php": {
+      "sha256": "8dca0a65e673896310095be12d27885ef2f5bd53866a11c6d1c244356940a00b",
+      "bytes": 1333
+    },
+    "h5-platform/resources/views/identity/error.blade.php": {
+      "sha256": "4a547963569c7b33f22fac1911ae2e6af9e38133a63bf4236b861a0b9c2920e6",
+      "bytes": 276
+    },
+    "h5-platform/resources/views/identity/forgot.blade.php": {
+      "sha256": "a7bb0f8309f33f87ec50479c9e0caf293b754a07809c1ab5d6c1ea3253729df7",
+      "bytes": 435
+    },
+    "h5-platform/resources/views/identity/home.blade.php": {
+      "sha256": "17386adb9460f01a92323e113101f4d23405560122f062bc2401d86a9668132e",
+      "bytes": 590
+    },
+    "h5-platform/resources/views/identity/login.blade.php": {
+      "sha256": "bf551e05f278648a0e417abf6d041f887aa9f66c4dab0e00e4b90f21a914efc4",
+      "bytes": 674
+    },
+    "h5-platform/resources/views/identity/register.blade.php": {
+      "sha256": "076889b88fd47b9c044024fcff2df3a3c5d3205670810be4606417fccf1f92be",
+      "bytes": 884
+    },
+    "h5-platform/resources/views/identity/reset.blade.php": {
+      "sha256": "8bd2a4f7dccb2450bfcd4eb27572de9b292cc2cfb4d5d575b26724c5924a77c7",
+      "bytes": 821
+    },
+    "h5-platform/resources/views/identity/staff-accounts.blade.php": {
+      "sha256": "ef40dd06d2207a333327ac6d049a3f7cdfcfe1064c56693bc1a861a0edc282e6",
+      "bytes": 11032
+    },
+    "h5-platform/tests/Feature/Contracts/AcceptedAudienceTest.php": {
+      "sha256": "c30ff8ffe29f5bf6a9062d6f37344bdf0057cea85328ead6c5c3696607b4e4ee",
+      "bytes": 3023
+    },
+    "h5-platform/tests/Feature/Contracts/AcceptedBillingPlaybackTest.php": {
+      "sha256": "d0b0b5be3ea556325f28435d23a51e336ac41ae88f7c1a225da76593c3aa2104",
+      "bytes": 5434
+    },
+    "h5-platform/tests/Feature/Contracts/AcceptedBillingTest.php": {
+      "sha256": "98f06bf54d95577b8799175c40c513924b35d2e0ab716c73822f5767c250e01c",
+      "bytes": 4314
+    },
+    "h5-platform/tests/Feature/Contracts/AcceptedContentTest.php": {
+      "sha256": "f0a95293469d490780ade4d0aea46ee3c776fd4e0adfd10acdf6b2642bec04a1",
+      "bytes": 2822
+    },
+    "h5-platform/tests/Feature/Contracts/AcquisitionReadPortsTest.php": {
+      "sha256": "50c300d8aa53988e5b37695f1f440ecb5e2400d29eaa20f2971067432029cebc",
+      "bytes": 3537
+    },
+    "h5-platform/tests/Feature/Contracts/AdminPanelIntegrationTest.php": {
+      "sha256": "03e6a9ce1802a69689b131acc1fa61097e7607eb5a50da3a39b3d1c6f9d5fa5f",
+      "bytes": 3230
+    },
+    "h5-platform/tests/Feature/Contracts/AdminUiTest.php": {
+      "sha256": "b8f6cd76bb901d87c62fddb505bb23ff4ea028df03f564f17f99f35fabe13a13",
+      "bytes": 5540
+    },
+    "h5-platform/tests/Feature/Contracts/BillingLocalLoadingTest.php": {
+      "sha256": "21df13b483647a27facbeaa9169c4cdbd490811a82078d70103fef438ae8d400",
+      "bytes": 3199
+    },
+    "h5-platform/tests/Feature/Contracts/RuntimeEnvironmentGuardTest.php": {
+      "sha256": "f4b553136adc34a8b57c888c740c8aaf1065e43d49462dc052b26d2ca726d45b",
+      "bytes": 19160
+    },
+    "h5-platform/tests/Feature/Contracts/SharedContractsTest.php": {
+      "sha256": "af2de85531322dbbc98f6b71e1dbb42bb6d667173f7366c9373d270833f8d99d",
+      "bytes": 7714
+    },
+    "h5-platform/tests/Feature/Contracts/SharedInfrastructureTest.php": {
+      "sha256": "baa76038da6a0fcbca90ac189c464f3499202535d378d6bcf825c92dc8dc84cb",
+      "bytes": 6412
+    },
+    "h5-platform/tests/Feature/Contracts/Support/AdminUiLivewireFixture.php": {
+      "sha256": "6f05271f4ae9af0141d912d78ba1b7da8f712556e4a256cd42176c0f9ea5e932",
+      "bytes": 1679
+    },
+    "h5-platform/tests/Feature/Contracts/Support/admin-ui-fixture.php": {
+      "sha256": "9c8549fb3bdcbe2f777c62655c95bd223a625b0f3e4eb2758ccfc1d394cc4b0b",
+      "bytes": 3611
+    },
+    "h5-platform/tests/Feature/Contracts/Support/admin-ui-livewire-router.php": {
+      "sha256": "d8f77ffb3f6d16c45ea71912e1528be2c0cbe1f01ac44cd4c1a7c8e8f06bb969",
+      "bytes": 1818
+    },
+    "h5-platform/tests/Feature/Contracts/Support/admin-ui-livewire.browser.cjs": {
+      "sha256": "13817b4e11f95d923b8cf071cc2839a94f4e1158317eef2e94400c2b2548a75b",
+      "bytes": 4568
+    },
+    "h5-platform/tests/Feature/Contracts/Support/admin-ui.browser.cjs": {
+      "sha256": "ad81bc20e9e914b025b6382b9a8faad20618975cfce43c7151efa81ee8ee3921",
+      "bytes": 6069
+    },
+    "h5-platform/tests/Feature/Contracts/Support/runtime-guard-probe.php": {
+      "sha256": "abcc55f30fce4d065c9168a2094a9a7ee6680a9221d7a581172230afd8301bfb",
+      "bytes": 2028
+    },
+    "h5-platform/tests/Feature/Identity/AuthorizationTest.php": {
+      "sha256": "35fbacd23899ac9ac76500e704349a78cea487854c9cd448f0ec24732e74cf29",
+      "bytes": 5846
+    },
+    "h5-platform/tests/Feature/Identity/ContractsTest.php": {
+      "sha256": "38d3bd7bbb64c597a8b878f2e0f9408f533424e510ba999a4f918cba13563c98",
+      "bytes": 3489
+    },
+    "h5-platform/tests/Feature/Identity/MfaTest.php": {
+      "sha256": "301906a95de182fdf32184d6bdf47160453409c9b1dbfb3ea26f2262fe35ac15",
+      "bytes": 5112
+    },
+    "h5-platform/tests/Feature/Identity/StaffAccountsTest.php": {
+      "sha256": "37adb19a6c0cf4bbe572d0ccfcda755d8a2fcf90007582fcb9083e3293f0820d",
+      "bytes": 8221
+    },
+    "h5-platform/tests/Feature/Identity/StaffDirectoryTest.php": {
+      "sha256": "bb74ca2fd73ef19563393ee129c3e0fcf06443f1b0333e7d8e772157d6fd78dc",
+      "bytes": 14227
+    },
+    "h5-platform/tests/Feature/Identity/StaffPasswordTest.php": {
+      "sha256": "5d4669209d911ca960066f50e67414ba01b44b609043a1484684b321cfd4b85e",
+      "bytes": 6652
+    },
+    "h5-platform/tests/Feature/Identity/ViewerTest.php": {
+      "sha256": "4bbc6558ede256aa440f4e659b3407b8ad6ba9324a0be83822caf5b1a5b536c7",
+      "bytes": 9190
+    }
+  },
+  "composer_lock_sha256": "077219134203096b32abb3db2685c3defbab1c893ea89345f2882b2e7596ad48",
+  "audit_note": "Same locked dependencies as the same-day successful audit; no reinstall/update",
+  "focus_source": "7a48236c4ded237c1b55b57cfa43e4c52a9f2ee6",
+  "boundary": "Shared UI and Identity integration only; not full UI01-UI11 or external release",
+  "evidence_files": {
+    "contracts.txt": "aea6b6c9fdfa0feb860540ce88c4aeca0c1ab1782369759aaa0ffd7394020f66",
+    "dependency-audit.json": "3d68c4566587606c21e4bcd82b55d322ddb79158f657d9fb90bf0d24ab5bccdf",
+    "identity-integration-tests.txt": "0468a59320728414014dd6f50f75262aa37df046953067586e57729a735a5b92",
+    "livewire-browser.json": "5f862790da8c9e0dbb68f040a44d2e0b2e929ee9046fbbe6b6b1d6d088c87c9f",
+    "local-browser.json": "6ce77becd8d0e2e9ea8419aaeab6e6bae4e5d850af78c43d7e8cdcc75816dca5"
+  }
+}
