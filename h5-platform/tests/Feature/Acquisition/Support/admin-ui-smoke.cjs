@@ -153,6 +153,16 @@ async function login(page, identity) {
     await tab('pixels');await edit.click();await pixel.waitFor({state:'visible'});await measureDialog(pixel,label+'-pixel');await page.screenshot({path:out+'/'+capturePrefix+label+'-pixel-editor-actual-only.png'});await close(pixel);
     await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();await assignment.getByRole('checkbox').first().waitFor({state:'visible'});await measureDialog(assignment,label+'-assignment');await page.screenshot({path:out+'/'+capturePrefix+label+'-assignment-actual-only.png'});await close(assignment);
    }
+   // Real form at a short mobile viewport: exercise overflow without adding fake fields or staff.
+   for(const theme of ['light','dark']) {
+    await page.setViewportSize({width:375,height:500});await page.evaluate(theme=>document.documentElement.classList.toggle('dark',theme==='dark'),theme);
+    await tab('links');await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+    await measureDialog(link,'mobile-short-'+theme);
+    const metrics=geometry[geometry.length-1];check('mobile-short-'+theme+' real content scrolls within body',metrics.bodyScrollHeight>metrics.bodyClientHeight);
+    await link.locator('.h5-dialog-body').evaluate(body=>body.scrollTop=body.scrollHeight);
+    await page.screenshot({path:out+'/'+capturePrefix+'mobile-short-'+theme+'-scrolled-link-actual-only.png'});
+    await close(link);
+   }
    await prototype.close();
    await tab('links');await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
    await link.getByRole('button',{name:'关闭弹窗',exact:true}).click();await link.waitFor({state:'hidden'});
