@@ -13,109 +13,167 @@ function totp(secret) {
  const digest=crypto.createHmac('sha1',key).update(counter).digest(); const offset=digest[digest.length-1]&15;
  return String((digest.readUInt32BE(offset)&0x7fffffff)%1000000).padStart(6,'0');
 }
+async function login(page, identity) {
+ await page.goto(base + '/admin/login');
+ await page.getByLabel('邮箱地址').fill(identity.email);
+ await page.locator('input[type=password]').first().fill(identity.password);
+ await page.getByRole('button',{name:'登录',exact:true}).click();
+ await page.getByLabel(/6-digit code/).fill(totp(identity.totp_secret));
+ await page.getByRole('button',{name:'Confirm sign in'}).click();
+ await page.waitForURL(url => url.pathname === '/admin');
+}
 (async () => {
  const browser = await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});
  const page = await browser.newPage({viewport:{width:1280,height:900}});
+ const passed=[], errors=[], geometry=[];
+ page.on('pageerror', error => errors.push(error.message));
+ const check=(name,condition)=>{if(!condition)throw new Error(name);passed.push(name)};
+ const tab=async id=>{await page.locator(`[data-admin-tab="${id}"]`).click();await page.waitForFunction(id=>document.querySelector(`[data-admin-tab="${id}"]`)?.getAttribute('aria-selected')==='true',id)};
+ const close=async editor=>{await editor.getByRole('button',{name:'取消',exact:true}).click();await editor.waitFor({state:'hidden'})};
+ const prompt=()=>page.locator('dialog.h5-confirm-leave');
+ const measureDialog=async (editor,label)=>{
+  const metrics=await editor.evaluate((d,label)=>{
+   const header=d.querySelector('.h5-dialog-header'), body=d.querySelector('.h5-dialog-body'), first=body.firstElementChild, actions=d.querySelector('.h5-dialog-actions'), close=d.querySelector('.h5-dialog-close');
+   body.scrollTop=0; // Measure from content start after any prior scroll test.
+   const rect=e=>e.getBoundingClientRect();
+   const startGap=rect(first).top-rect(header).bottom;
+   body.scrollTop=body.scrollHeight;
+   const reachedBottom=Math.abs(body.scrollHeight-body.clientHeight-body.scrollTop)<=1;
+   const result={label, startGap, titleBottom:rect(header.querySelector('h2')).bottom,firstContentTop:rect(first).top+body.scrollTop,bodyTop:rect(body).top,closeBottom:rect(close).bottom, titleLineHeight:getComputedStyle(header.querySelector('h2')).lineHeight, closeWidth:rect(close).width,closeHeight:rect(close).height,iconWidth:rect(close.querySelector('svg')).width,bodyClientHeight:body.clientHeight,bodyScrollHeight:body.scrollHeight,reachedBottom,actionsBottom:rect(actions).bottom,viewportHeight:innerHeight,bodyFits:body.scrollWidth<=body.clientWidth};
+   body.scrollTop=0;return result;
+  },label);
+  geometry.push(metrics);
+  check(label+' shared dialog safe start and mobile scroll/actions',metrics.firstContentTop>=metrics.closeBottom-1&&metrics.bodyTop>=metrics.closeBottom-1&&Math.abs(metrics.firstContentTop-metrics.titleBottom-Math.max(5,metrics.closeBottom-metrics.titleBottom))<1&&metrics.titleLineHeight==='25.2px'&&metrics.closeWidth===44&&metrics.iconWidth===16&&metrics.reachedBottom&&metrics.actionsBottom<=metrics.viewportHeight&&metrics.bodyFits);
+ };
+ const measurePage=async label=>{
+  const metrics=await page.locator('#acquisition-workspace').evaluate(w=>{
+   const heading=w.querySelector(':scope > .h5-heading'),tabs=w.querySelector(':scope > .h5-tabs'),panel=w.querySelector(':scope > [role=tabpanel]:not([hidden])');
+   return {headingToTabs:tabs.getBoundingClientRect().top-heading.getBoundingClientRect().bottom,tabsToPanel:panel.getBoundingClientRect().top-tabs.getBoundingClientRect().bottom};
+  });
+  geometry.push({label,...metrics});check(label+' heading and tabs 22px gaps',Math.abs(metrics.headingToTabs-22)<1&&Math.abs(metrics.tabsToPanel-22)<1);
+ };
  try {
-  await page.goto(base + '/admin/login');
-  await page.getByLabel('邮箱地址').fill(account.email);
-  await page.locator('input[type=password]').first().fill(account.password);
-  await page.getByRole('button',{name:'登录'}).click();
-  await page.getByLabel(/6-digit code/).fill(totp(account.totp_secret));
-  await page.getByRole('button',{name:'Confirm sign in'}).click();
-  await page.waitForTimeout(1000);
-  if (new URL(page.url()).pathname === '/admin/login') throw new Error('Local preview MFA login failed');
-  await page.goto(base + '/admin/acquisition-desk');
-  await page.waitForTimeout(800);
-  const restoreProbe=await page.locator('[data-admin-ui]').evaluate(async root=>{const host=root.closest('[wire\\:id]');return await window.Livewire.find(host.getAttribute('wire:id')).call('restoreEditor','link')});
-  if(restoreProbe!==true) throw new Error('Livewire restore method did not return true: '+JSON.stringify(restoreProbe));
-  const passed=[];
-  const tabs=page.getByRole('tab');
-  if (await tabs.count() !== 5) throw new Error('Expected four staff tabs plus Owner assignment tab');
-  passed.push('Owner-only assignment tab visible for Owner');
-  if (await page.locator('[role=tabpanel]:not([hidden])').count() !== 1) throw new Error('Exactly one panel must be visible');
-  passed.push('one active panel on initial load');
+  await login(page,account);
+  const response=await page.goto(base + '/admin/acquisition-desk');
+  if(response.status()!==200)throw new Error('Acquisition page unavailable: HTTP '+response.status()+'; check Web H5_LOCAL_MODULES=acquisition');
+  check('A01/A02 exactly four authorized top-level tabs',await page.getByRole('tab').count()===4);
+  check('A01 list has no visible persistent editor',await page.locator('form[data-editor]:visible').count()===0);
+  check('external sending explicitly disabled',(await page.locator('[data-acquisition-environment]').innerText()).includes('外部发送：关闭'));
   await page.getByRole('tab',{name:'推广链接'}).focus();
-  for (const [key, id] of [['ArrowRight','pixels'], ['End','assignments'], ['Home','links'], ['ArrowLeft','assignments'], ['Home','links']]) {
+  for(const [key,id] of [['ArrowRight','pixels'],['End','deliveries'],['Home','links'],['ArrowLeft','deliveries'],['Home','links']]) {
    await page.keyboard.press(key);
-   await page.waitForFunction(id => {
-    const selected=document.querySelector('[data-admin-tab="'+id+'"]');
-    return selected?.getAttribute('aria-selected')==='true' && selected.getAttribute('aria-disabled')!=='true';
-   }, id);
-   const focus=await page.evaluate(()=>document.activeElement?.dataset.adminTab);
-   if(focus!==id) throw new Error('Continuous keyboard focus lost after '+key);
-   passed.push('continuous keyboard '+key+' retains focus on '+id);
+   await page.waitForFunction(id=>{const t=document.querySelector(`[data-admin-tab="${id}"]`);return t?.getAttribute('aria-selected')==='true'&&t.getAttribute('aria-disabled')!=='true'},id);
+   check('continuous keyboard '+key+' focuses '+id,await page.evaluate(()=>document.activeElement?.dataset.adminTab)===id);
   }
-  await page.getByLabel('推广名称').fill('Unsaved browser check');
-  await page.getByRole('tab',{name:'像素资产'}).click();
-  const prompt=page.getByRole('dialog'); await prompt.waitFor();
-  await prompt.getByRole('button',{name:'继续编辑'}).click();
-  if (await page.getByLabel('推广名称').inputValue() !== 'Unsaved browser check' || await page.getByRole('tab',{name:'推广链接'}).getAttribute('aria-selected') !== 'true') throw new Error('Continue editing must retain input and tab');
-  passed.push('unsaved tab change retains edits when staying');
-  await page.getByRole('tab',{name:'像素资产'}).click();
-  await page.getByRole('dialog').getByRole('button',{name:'放弃修改'}).click();
-  await page.locator('dialog.h5-confirm-leave').waitFor({state:'detached',timeout:5000});
-  await page.getByRole('tab',{name:'像素资产'}).waitFor({state:'visible'});
-  if (await page.getByRole('tab',{name:'像素资产'}).getAttribute('aria-selected') !== 'true') throw new Error('Discard did not continue: selected='+await page.locator('[role=tab][aria-selected=true]').innerText()+' input='+await page.getByLabel('推广名称').inputValue()+' dialogs='+await page.locator('dialog').count()+' alert='+await page.locator('dialog [role=alert]').textContent()+' component='+JSON.stringify(await page.locator('[data-admin-ui]').evaluate(e=>({wire:e.closest('[wire\\:id]')?.getAttribute('wire:id'), livewire:typeof window.Livewire, component:typeof window.Livewire?.find(e.closest('[wire\\:id]')?.getAttribute('wire:id'))?.call}))) );
-  passed.push('discard restores Livewire editor and continues');
-  await page.getByRole('button',{name:'编辑 / 启停'}).first().click();
-  await page.waitForFunction(() => document.querySelector('[wire\\:model="pixel.name"]').value !== '');
-  const originalName=await page.getByLabel('名称',{exact:true}).inputValue();
-  await page.getByLabel('名称',{exact:true}).fill('');
-  await page.getByRole('tab',{name:'推广链接'}).click();
-  await page.getByRole('dialog').getByRole('button',{name:'保存并继续'}).click();
-  await page.getByRole('dialog').getByRole('alert').waitFor({state:'visible'});
-  if(await page.getByRole('tab',{name:'像素资产'}).getAttribute('aria-selected')!=='true') throw new Error('Failed save left editor');
-  passed.push('server rejected save retains dirty editor and current tab');
-  await page.getByRole('dialog').getByRole('button',{name:'继续编辑'}).click();
-  await page.getByLabel('名称',{exact:true}).fill(originalName);
-  await page.getByRole('tab',{name:'推广链接'}).click();
-  await page.getByRole('dialog').getByRole('button',{name:'保存并继续'}).click();
-  await page.locator('dialog.h5-confirm-leave').waitFor({state:'detached'});
-  await page.waitForFunction(() => document.querySelector('[data-admin-tab="links"]').getAttribute('aria-selected') === 'true');
-  passed.push('confirmed server save continues tab navigation');
-  await page.getByRole('tab',{name:'像素资产'}).click();
-  await page.getByLabel('名称',{exact:true}).fill('Unsaved local fixture');
-  await page.getByRole('button',{name:'登记另一个'}).click();
-  await page.getByRole('dialog').getByRole('button',{name:'继续编辑'}).click();
-  if(await page.getByLabel('名称',{exact:true}).inputValue()!=='Unsaved local fixture') throw new Error('New pixel action lost edit');
-  passed.push('new asset action protects unsaved editor');
-  await page.getByRole('button',{name:'分配像素'}).first().click();
-  await page.getByRole('dialog').getByRole('button',{name:'放弃修改'}).click();
-  await page.locator('dialog.h5-confirm-leave').waitFor({state:'detached'});
-  await page.waitForFunction(() => document.querySelector('[data-admin-tab="assignments"]').getAttribute('aria-selected') === 'true');
-  passed.push('authorized assignment action restores editor and opens assignment tab');
-  for(const name of ['本站付款汇总','发送状态','负责人分配','推广链接']) { await page.getByRole('tab',{name}).click(); if(await page.locator('[role=tabpanel]:not([hidden])').count()!==1) throw new Error('Multiple panels visible after '+name); passed.push('tab '+name+' renders one panel'); }
-  await page.getByRole('tab',{name:'像素资产'}).click();
-  await page.waitForFunction(() => new URL(location.href).searchParams.get('tab') === 'pixels');
-  await page.reload();
-  await page.waitForFunction(() => document.querySelector('[data-admin-tab="pixels"]')?.getAttribute('aria-selected') === 'true');
-  passed.push('non-default authorized tab survives actual reload');
-  await page.goto(base + '/admin');
-  await page.goBack();
-  await page.waitForFunction(() => document.querySelector('[data-admin-tab="pixels"]')?.getAttribute('aria-selected') === 'true');
-  passed.push('browser Back restores authorized tab after leaving page');
-  await page.goto(base + '/admin/acquisition-desk?tab=unknown');
-  await page.waitForFunction(() => document.querySelector('[data-admin-tab="links"]')?.getAttribute('aria-selected') === 'true');
-  passed.push('unknown URL tab falls back to links');
+  const link=page.locator('#acquisition-link-editor'), pixel=page.locator('#acquisition-pixel-editor'), assignment=page.locator('#acquisition-assignment-editor');
+  await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+  check('A01 add link opens shared dialog with drama platform and pixel',await link.getByLabel('已发布剧目').count()===1&&await link.getByLabel(/^平台/).count()===1&&await link.getByLabel('授权像素').count()===1);
+  await link.getByLabel('推广名称').fill('F09 unsaved link');await page.keyboard.press('Escape');
+  await prompt().getByRole('button',{name:'继续编辑'}).click();
+  check('Escape stay preserves actual link edit',await link.getByLabel('推广名称').inputValue()==='F09 unsaved link');
+  await link.getByRole('button',{name:'取消',exact:true}).click();await prompt().getByRole('button',{name:'保存并继续'}).click();
+  await prompt().getByRole('alert').waitFor({state:'visible'});
+  check('rejected server save keeps editor and confirmation',await link.isVisible()&&await prompt().isVisible());
+  await prompt().getByRole('button',{name:'放弃修改'}).click();await prompt().waitFor({state:'detached'});await link.waitFor({state:'hidden'});
+  await page.waitForFunction(()=>document.activeElement?.dataset.editorAction==='newLink');passed.push('cancel restores focus to link opener');
+  await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+  check('discard restores server-backed new link model',await link.getByLabel('推广名称').inputValue()==='');await close(link);
+  await tab('pixels');
+  const edit=page.getByRole('button',{name:'编辑 / 启停'}).first();
+  if(await edit.count()===0)throw new Error('Prepare at least one own local test pixel before smoke');
+  await edit.click();await pixel.waitFor({state:'visible'});
+  const originalName=await pixel.getByLabel('名称',{exact:true}).inputValue();
+  check('A02 row edit opens selected asset dialog',originalName.length>0);
+  await pixel.getByLabel('名称',{exact:true}).fill(originalName+' temporary');
+  await pixel.getByRole('button',{name:'取消',exact:true}).click();await prompt().getByRole('button',{name:'放弃修改'}).click();await pixel.waitFor({state:'hidden'});
+  await edit.click();await pixel.waitFor({state:'visible'});
+  check('pixel discard leaves saved asset unchanged',await pixel.getByLabel('名称',{exact:true}).inputValue()===originalName);
+  await pixel.getByRole('button',{name:'保存像素',exact:true}).click();await pixel.waitFor({state:'hidden'});
+  passed.push('confirmed pixel save closes dialog and returns to asset list');
+  await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});
+  check('A02 assignment stays in selected pixel context',(await assignment.innerText()).includes(originalName)&&await page.locator('[data-admin-tab="pixels"]').getAttribute('aria-selected')==='true');
+  await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();
+  const choice=assignment.getByRole('checkbox').first();await choice.waitFor({state:'visible'});
+  const initial=await choice.isChecked();await choice.setChecked(!initial);
+  await assignment.getByRole('button',{name:'取消',exact:true}).click();await prompt().getByRole('button',{name:'放弃修改'}).click();await assignment.waitFor({state:'hidden'});
+  await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});
+  await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();await choice.waitFor({state:'visible'});
+  check('assignment discard leaves authorization unchanged',await choice.isChecked()===initial);
+  const candidateId=await choice.getAttribute('value');await choice.setChecked(!initial);
+  await assignment.getByRole('button',{name:'保存共享分配',exact:true}).click();await assignment.waitFor({state:'hidden'});
+  await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});
+  await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();
+  const sameCandidate=assignment.locator(`input[type="checkbox"][value="${candidateId}"]`);await sameCandidate.waitFor({state:'visible'});
+  check('assignment save persists selected asset authorization',await sameCandidate.isChecked()===!initial);
+  await sameCandidate.setChecked(initial);await assignment.getByRole('button',{name:'保存共享分配',exact:true}).click();await assignment.waitFor({state:'hidden'});
+  passed.push('assignment fixture authorization restored explicitly');
+  await page.reload();await page.waitForFunction(()=>document.querySelector('[data-admin-tab="pixels"]')?.getAttribute('aria-selected')==='true');passed.push('authorized tab survives reload');
+  await page.goto(base+'/admin');await page.goBack();await page.waitForFunction(()=>document.querySelector('[data-admin-tab="pixels"]')?.getAttribute('aria-selected')==='true');passed.push('browser Back restores asset tab');
+  await page.goto(base+'/admin/acquisition-desk?tab=assignments');await page.waitForFunction(()=>document.querySelector('[data-admin-tab="links"]')?.getAttribute('aria-selected')==='true');passed.push('removed fifth tab URL safely falls back for Owner');
+  const fixturePath=process.env.H5_ACQUISITION_F09_FIXTURE || '.runtime/acquisition-f09-fixture.json';
+  if(fs.existsSync(fixturePath)) {
+   const fixture=JSON.parse(fs.readFileSync(fixturePath,'utf8'));
+   const row=page.locator(`[data-editor-action="selectLink"][data-editor-id="${fixture.link_id}"]`);
+   await row.click();await link.waitFor({state:'visible'});
+   check('A01 specific link row restores its editor',await link.getByLabel('推广名称').inputValue()==='F09 本地测试链接');
+   await close(link);
+   await page.locator(`[data-editor-action="showSummary"][data-editor-id="${fixture.link_id}"]`).click();
+   await page.waitForFunction(()=>document.querySelector('[data-admin-tab="payments"]')?.getAttribute('aria-selected')==='true');
+   const summary=page.locator('#acquisition-tabs-panel-payments');
+   check('A03 test environment and exact USD remain visible',(await summary.innerText()).includes('测试')&&(await summary.innerText()).includes('$6.00 USD')&&(await summary.innerText()).includes('$12.00 USD'));
+  }
   const operator=JSON.parse(fs.readFileSync(process.env.H5_ACQUISITION_OPERATOR_ACCOUNT || '.runtime/acquisition-operator-preview-account.json','utf8'));
-  const operatorPage=await browser.newPage();
-  await operatorPage.goto(base + '/admin/login');
-  await operatorPage.getByLabel('邮箱地址').fill(operator.email);
-  await operatorPage.locator('input[type=password]').first().fill(operator.password);
-  await operatorPage.getByRole('button',{name:'登录'}).click();
-  await operatorPage.getByLabel(/6-digit code/).fill(totp(operator.totp_secret));
-  await operatorPage.getByRole('button',{name:'Confirm sign in'}).click();
-  await operatorPage.waitForURL(url => url.pathname !== '/admin/login');
-  await operatorPage.goto(base + '/admin/acquisition-desk?tab=assignments');
-  await operatorPage.waitForFunction(() => document.querySelector('[data-admin-tab="links"]')?.getAttribute('aria-selected') === 'true');
-  if(await operatorPage.getByRole('tab').count()!==4 || (await operatorPage.locator('body').innerText()).includes('负责人分配') || await operatorPage.locator('[data-editor="assignment"]').count()!==0) throw new Error('Operator URL exposed assignment UI');
-  passed.push('ordinary operator MFA session cannot restore Owner assignment tab');
-  await operatorPage.close();
-  await page.setViewportSize({width:375,height:667});
-  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth);
-  if(overflow) throw new Error('mobile page has horizontal overflow');
-  passed.push('mobile viewport has no horizontal overflow');
-  console.log(JSON.stringify({url:new URL(page.url()).pathname,passed,tabs:await tabs.allTextContents(),externalSending:await page.locator('.h5-alert strong').innerText()}));
- } finally { await browser.close(); }
-})().catch(e=>{console.error(e.message);process.exit(1)});
+  const other=await browser.newPage();await login(other,operator);await other.goto(base+'/admin/acquisition-desk?tab=assignments');
+  await other.waitForFunction(()=>document.querySelector('[data-admin-tab="links"]')?.getAttribute('aria-selected')==='true');
+  check('ordinary operator has four tabs and no assignment dialog',await other.getByRole('tab').count()===4&&await other.locator('#acquisition-assignment-editor').count()===0);await other.close();
+  if(process.env.H5_ACQUISITION_SCREENSHOTS) {
+   const out=process.env.H5_ACQUISITION_SCREENSHOTS,capturePrefix=process.env.H5_ACQUISITION_CAPTURE_PREFIX||'';fs.mkdirSync(out,{recursive:true});
+   const {pathToFileURL}=require('node:url');const path=require('node:path');
+   const prototype=await browser.newPage();await prototype.goto(pathToFileURL(path.resolve('docs/ui/08-admin-v2/index.html')).href);
+   const frame=prototype.frameLocator('#codex-visualization');await frame.locator('[data-module="acquisition"]').click();
+   for(const [label,width,height,theme] of [['desktop',1280,900,'light'],['mobile',375,812,'light'],['desktop-dark',1280,900,'dark'],['mobile-dark',375,812,'dark']]) {
+    await page.setViewportSize({width,height});await prototype.setViewportSize({width,height});
+    await prototype.emulateMedia({colorScheme:theme});await page.evaluate(theme=>document.documentElement.classList.toggle('dark',theme==='dark'),theme);
+    if(!process.env.H5_ACQUISITION_DIALOGS_ONLY) for(const [real,design] of [['links','links'],['pixels','pixels'],['payments','results'],['deliveries','delivery']]) {
+     await tab(real);await frame.locator(`[data-tab="${design}"][data-kind="acquisition"]`).click();
+     await page.evaluate(()=>window.scrollTo(0,0));await prototype.evaluate(()=>window.scrollTo(0,0));
+     await page.screenshot({path:out+'/'+capturePrefix+label+'-'+real+'-actual.png'});await prototype.screenshot({path:out+'/'+capturePrefix+label+'-'+real+'-approved.png'});
+    }
+    await tab('links');await measurePage(label);await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+    await measureDialog(link,label+'-new-link');
+    await page.screenshot({path:out+'/'+capturePrefix+label+'-new-link-actual-only.png'});
+    await link.getByLabel('推广名称').fill('F09 未保存');await link.getByRole('button',{name:'取消',exact:true}).click();
+    await prompt().getByRole('button',{name:'保存并继续'}).click();await prompt().getByRole('alert').waitFor({state:'visible'});
+    await page.screenshot({path:out+'/'+capturePrefix+label+'-rejected-save-actual-only.png'});
+    await prompt().getByRole('button',{name:'放弃修改'}).click();await link.waitFor({state:'hidden'});
+    if(fs.existsSync(fixturePath)) {
+     const f=JSON.parse(fs.readFileSync(fixturePath,'utf8'));
+     await page.locator(`[data-editor-action="selectLink"][data-editor-id="${f.link_id}"]`).click();await link.waitFor({state:'visible'});
+     await page.screenshot({path:out+'/'+capturePrefix+label+'-edit-link-actual-only.png'});await close(link);
+    }
+    await tab('pixels');await edit.click();await pixel.waitFor({state:'visible'});await measureDialog(pixel,label+'-pixel');await page.screenshot({path:out+'/'+capturePrefix+label+'-pixel-editor-actual-only.png'});await close(pixel);
+    await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();await assignment.getByRole('checkbox').first().waitFor({state:'visible'});await measureDialog(assignment,label+'-assignment');await page.screenshot({path:out+'/'+capturePrefix+label+'-assignment-actual-only.png'});await close(assignment);
+   }
+   // Real form at a short mobile viewport: exercise overflow without adding fake fields or staff.
+   for(const theme of ['light','dark']) {
+    await page.setViewportSize({width:375,height:500});await page.evaluate(theme=>document.documentElement.classList.toggle('dark',theme==='dark'),theme);
+    await tab('links');await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+    await measureDialog(link,'mobile-short-'+theme);
+    const metrics=geometry[geometry.length-1];check('mobile-short-'+theme+' real content scrolls within body',metrics.bodyScrollHeight>metrics.bodyClientHeight);
+    await link.locator('.h5-dialog-body').evaluate(body=>body.scrollTop=body.scrollHeight);
+    await page.screenshot({path:out+'/'+capturePrefix+'mobile-short-'+theme+'-scrolled-link-actual-only.png'});
+    await close(link);
+   }
+   await prototype.close();
+   await tab('links');await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
+   await link.getByRole('button',{name:'关闭弹窗',exact:true}).click();await link.waitFor({state:'hidden'});
+   await page.waitForFunction(()=>document.activeElement?.dataset.editorAction==='newLink');passed.push('clean close X restores opener focus');
+   await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});await page.keyboard.press('Escape');await link.waitFor({state:'hidden'});
+   await page.waitForFunction(()=>document.activeElement?.dataset.editorAction==='newLink');passed.push('clean Escape closes and restores opener focus');
+  }
+  await page.setViewportSize({width:375,height:812});
+  check('mobile page has no horizontal overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth));
+  check('no browser JavaScript errors',errors.length===0);
+  console.log(JSON.stringify({passed,geometry,browser:browser.version(),platform:process.platform,devicePixelRatio:await page.evaluate(()=>devicePixelRatio),zoom:1,base:new URL(base).origin,externalSending:'disabled',screenshots:process.env.H5_ACQUISITION_SCREENSHOTS||null,dialogsOnly:!!process.env.H5_ACQUISITION_DIALOGS_ONLY}));
+ } finally {await browser.close()}
+})().catch(error=>{console.error(error.message);process.exit(1)});

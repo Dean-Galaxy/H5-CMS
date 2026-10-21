@@ -13,7 +13,7 @@ use Livewire\Attributes\Url;
 
 final class AcquisitionDesk extends Page
 {
-    protected static ?string $title = '投流链接与像素';
+    protected static ?string $title = '投流管理';
 
     protected static ?string $slug = 'acquisition-desk';
 
@@ -41,7 +41,7 @@ final class AcquisitionDesk extends Page
 
     public ?string $catalogCursor = null;
 
-    public string $catalogMessage = '点击读取 Content 可投放片单';
+    public string $catalogMessage = '读取可投放的已发布剧目后选择';
 
     public string $shareType = 'pixel';
 
@@ -78,28 +78,25 @@ final class AcquisitionDesk extends Page
 
     private function normalizeTab(): void
     {
-        if (! in_array($this->tab, ['links', 'pixels', 'payments', 'deliveries', 'assignments'], true)
-            || ($this->tab === 'assignments' && app(IdentityContext::class)->staff()?->role !== Role::Owner)) {
+        if (! in_array($this->tab, ['links', 'pixels', 'payments', 'deliveries'], true)) {
             $this->tab = 'links';
         }
     }
 
     public function selectTab(string $tab): void
     {
-        if (! in_array($tab, ['links', 'pixels', 'payments', 'deliveries', 'assignments'], true)) {
-            return;
-        }
-
-        if ($tab === 'assignments' && app(IdentityContext::class)->staff()?->role !== Role::Owner) {
+        if (! in_array($tab, ['links', 'pixels', 'payments', 'deliveries'], true)) {
             return;
         }
 
         $this->tab = $tab;
     }
 
-    public function selectPixel(string $id): void
+    public function selectPixel(string $id): bool
     {
-        $this->attempt(function () use ($id) {
+        $this->resetValidation();
+
+        return $this->attempt(function () use ($id) {
             $data = app(AssetManager::class)->pixel($id);
             $this->pixelId = $id;
             $this->pixel = array_intersect_key($data, $this->pixel);
@@ -109,10 +106,14 @@ final class AcquisitionDesk extends Page
         });
     }
 
-    public function newPixel(): void
+    public function newPixel(): bool
     {
-        app(AssetAccess::class)->actor();
-        $this->reset('pixelId', 'pixel');
+        $this->resetValidation();
+
+        return $this->attempt(function () {
+            app(AssetAccess::class)->actor();
+            $this->reset('pixelId', 'pixel');
+        });
     }
 
     public function savePixel(): bool
@@ -142,15 +143,21 @@ final class AcquisitionDesk extends Page
         });
     }
 
-    public function newLink(): void
+    public function newLink(): bool
     {
-        app(AssetAccess::class)->actor();
-        $this->reset('linkId', 'link');
+        $this->resetValidation();
+
+        return $this->attempt(function () {
+            app(AssetAccess::class)->actor();
+            $this->reset('linkId', 'link');
+        });
     }
 
-    public function selectLink(string $id): void
+    public function selectLink(string $id): bool
     {
-        $this->attempt(function () use ($id) {
+        $this->resetValidation();
+
+        return $this->attempt(function () use ($id) {
             $data = app(AssetManager::class)->link($id);
             $this->linkId = $id;
             $this->link = array_intersect_key($data, $this->link);
@@ -208,9 +215,11 @@ final class AcquisitionDesk extends Page
         });
     }
 
-    public function selectAssignment(string $type, string $id): void
+    public function selectAssignment(string $type, string $id): bool
     {
-        $this->attempt(function () use ($type, $id) {
+        $this->resetValidation();
+
+        return $this->attempt(function () use ($type, $id) {
             $data = app(AssetManager::class)->assignment($type, $id);
             $this->reset('staffCandidates', 'staffCursor', 'staffMessage');
             $this->shareType = $type;
@@ -219,7 +228,6 @@ final class AcquisitionDesk extends Page
             $this->shareName = $data['name'];
             $this->staffIds = array_column($data['selected'], 'id');
             $this->staffCandidates = $data['selected'];
-            $this->tab = 'assignments';
         });
     }
 
@@ -255,10 +263,7 @@ final class AcquisitionDesk extends Page
 
         $owner = app(IdentityContext::class)->staff()?->role === Role::Owner;
         $tabs = [['id' => 'links', 'label' => '推广链接'], ['id' => 'pixels', 'label' => '像素资产'],
-            ['id' => 'payments', 'label' => '本站付款汇总'], ['id' => 'deliveries', 'label' => '发送状态']];
-        if ($owner) {
-            $tabs[] = ['id' => 'assignments', 'label' => '负责人分配'];
-        }
+            ['id' => 'payments', 'label' => '付款汇总'], ['id' => 'deliveries', 'label' => '发送记录']];
 
         return ['pixels' => $pixels['items'], 'links' => $links['items'], 'pixelOptions' => $options,
             'pixelPagination' => $pixels, 'linkPagination' => $links,
