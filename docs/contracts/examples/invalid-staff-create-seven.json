@@ -1,0 +1,6 @@
+{
+  "name": "Synthetic employee",
+  "email": "employee@example.test",
+  "password": "abcdef1",
+  "role": "support"
+}

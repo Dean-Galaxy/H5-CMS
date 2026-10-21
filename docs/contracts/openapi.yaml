@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "H5 common contracts",
-    "version": "1.0.4",
-    "description": "00兼容契约1.0.4：保留1.0.3的公开字段、DTO与业务方法；增加公共RuntimeEnvironmentGuard、严格非本地配置检查和直连入口约定。开关默认关闭；Billing受控staging接入、可信地区、D05及外部部署仍须独立接收。"
+    "version": "1.0.5",
+    "description": "00兼容契约1.0.5：落实获批员工后台规则，StaffCreate.password最小长度由12放宽为8，保留最大128及字母数字要求；观众密码仍12。其余HTTP路径、DTO、金额、权益、运行环境和外部准入边界沿用1.0.4。"
   },
   "servers": [
     {
@@ -8868,9 +8868,9 @@
           },
           "password": {
             "type": "string",
-            "minLength": 12,
+            "minLength": 8,
             "maxLength": 128,
-            "description": "至少 12 字符，含字母和数字，最多 128；确认值必须与 password 一致。"
+            "description": "员工密码为8至128字符，必须包含字母和数字。员工创建接口不要求password_confirmation字段。观众注册与重设密码规则不变。"
           },
           "role": {
             "$ref": "#/components/schemas/Role"
