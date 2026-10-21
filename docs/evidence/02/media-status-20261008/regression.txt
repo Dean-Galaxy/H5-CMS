@@ -1,0 +1,19 @@
+Content targeted regression on 2026-10-08, after ordinary merge candidate was prepared against main 8405f40.
+
+Command:
+H5_LOCAL_MODULES= python3 scripts/dev.py test
+
+Focused files:
+- CatalogTest.php
+- ManagementTest.php
+- MediaTest.php
+- PlaybackTest.php
+- PublicationTest.php
+- PromotableCatalogTest.php
+
+Result: 37 tests passed, 619 assertions, 6.34 seconds.
+Coverage includes 10/10/10/5 publication batches, processing/missing media blocking, pause/resume and stale plan protection, free episode 5 and membership gate at episode 6, protected HLS/subtitle access, cover and subtitle binding, and PromotableCatalog permissions/US scope/cursor/media checks.
+
+The independent queue command:
+php h5-platform/artisan content:process-media --limit=200
+completed with no output. The post-check still reports 62 ready video assets and 62 ready subtitle assets.

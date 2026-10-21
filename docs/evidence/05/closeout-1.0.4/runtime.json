@@ -1,0 +1,13 @@
+{
+    "environment": "local",
+    "contract": "1.0.4",
+    "acquisition_ready": true,
+    "staff_directory": "App\\Modules\\Identity\\Services\\StaffDirectory",
+    "promotable_catalog": "App\\Modules\\Content\\Services\\ContentPromotableCatalog",
+    "attribution_enabled": false,
+    "null_snapshot": null,
+    "transport": "disabled",
+    "external_enabled": false,
+    "platform_reviewed": false,
+    "credentials_configured": false
+}

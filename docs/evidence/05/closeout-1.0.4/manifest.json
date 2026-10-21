@@ -1,0 +1,32 @@
+{
+  "main_baseline": "8405f40d6dec372db3ce49b267559ed190da558a",
+  "merge_commit": "3902cfab7bda0d9f186cd0bca906e53437a5767d",
+  "contract": "1.0.4",
+  "acquisition_tests": "40 passed / 501 assertions",
+  "default_tests": "308 passed / 4844 assertions",
+  "contract_examples": "57 passed",
+  "runtime_checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "external_delivery": "disabled",
+  "attribution": "false/null",
+  "real_platform_requests": false,
+  "d05_frozen": false,
+  "scope_check": "only docs/handoffs/05.md and docs/evidence/05/closeout-1.0.4",
+  "files": {
+    "README.md": "e863748521f41d2b96a0addeb0cb165943ad09d8f351541da545735ef7f5c777",
+    "acquisition-tests.txt": "99ac1e3ed3fe2143e4a072a55179487078c36947fd0c0015e44e4244c6483436",
+    "contracts.txt": "7503796591c64d7ce1507331c5d439ded938323ffa4d85de3e16c8e99607ce3b",
+    "dispatch.txt": "5c04468e048f464279ced48f7f2d5a02196a0cf237997c46885aff3b0e531ce8",
+    "full-default-tests.txt": "0bb7b8c75ca8a445fb90176126a61e2c1aa3e5097e343503817547e86a62bed1",
+    "http-checks.json": "c24a396506810a365d88cef04df6a78e713012da1a9a2ddab48c5e1b52196b9e",
+    "migrations.txt": "8f50df7aae48b71a42d1e7176a3f620add01a46d7ae7b15d1f583215df371837",
+    "restart-status.json": "a976c5aa1adbdf73789ec4541ee8cef6fa09aab2e8b4dfef52a4bd37dc8a66e8",
+    "runtime.json": "fe76c239d2e62667b1a497aeebd7cf12dc8a47283ae87b918a3bf2d7a9f08a66",
+    "verification.json": "969f6b41fa2944c636e20432cc615f55ccf48429250db310b940995419793eb1"
+  }
+}
