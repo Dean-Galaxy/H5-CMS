@@ -1,0 +1,32 @@
+{"passed":1,"check":"owner: real password and MFA login"}
+{"passed":2,"check":"owner three tabs and one visible panel"}
+{"passed":3,"check":"paid order, original renewal and zero refund show exact USD"}
+{"passed":4,"check":"unconfigured official boundary visible"}
+{"passed":5,"check":"partial refund shows $1.25 USD"}
+{"passed":6,"check":"stored cents refill as dollar strings"}
+{"passed":7,"check":"continue editing retains amount and tab"}
+{"passed":8,"check":"failed precision validation cannot navigate or lose input"}
+{"passed":9,"check":"discard reloads confirmed price"}
+{"passed":10,"check":"successful save and refresh preserve precise dollars and tab"}
+{"passed":11,"check":"native refresh cancel keeps unsaved price"}
+{"passed":12,"check":"keyboard arrows Home End select real server tabs"}
+{"passed":13,"check":"mobile has no document horizontal overflow"}
+{"passed":14,"check":"mobile amount input remains usable"}
+{"passed":15,"check":"dark mode keeps visible price input"}
+{"waiting_for_login_rate_limit_ms":24172}
+{"passed":16,"check":"support: real password and MFA login"}
+{"passed":17,"check":"support cannot see price tab or recent-order list"}
+{"passed":18,"check":"support sees only assigned cases"}
+{"passed":19,"check":"unverified cancellation is disabled"}
+{"passed":20,"check":"case-navigation continue keeps note"}
+{"passed":21,"check":"real note save clears input"}
+{"passed":22,"check":"refresh retains case context and persisted note"}
+{"passed":23,"check":"foreign case URL reveals no detail or notes"}
+{"waiting_for_login_rate_limit_ms":28429}
+{"passed":24,"check":"content: real password and MFA login"}
+{"passed":25,"check":"content direct Billing page is forbidden"}
+{"waiting_for_login_rate_limit_ms":28940}
+{"passed":26,"check":"acquisition: real password and MFA login"}
+{"passed":27,"check":"acquisition direct Billing page is forbidden"}
+{"passed":28,"check":"no page script errors or server failures"}
+{"passed":29,"check":"no external browser requests completed"}

@@ -1,0 +1,54 @@
+{
+  "source_commit": "12a9d75a9eb959ead9a85baaa2c4922c0de7dc2f",
+  "public_baseline": "7a48236c4ded237c1b55b57cfa43e4c52a9f2ee6",
+  "business_contract": "1.0.4",
+  "internal_ui_contract": "admin-ui-v1",
+  "files": [
+    {
+      "path": "h5-platform/app/Modules/Billing/Filament/Pages/BillingDesk.php",
+      "sha256": "ea2ef3e80f2459373102012eca80808f8817cb8a7e08120c016ac12ce548f11d",
+      "bytes": 9731
+    },
+    {
+      "path": "h5-platform/app/Modules/Billing/Services/BillingAdministration.php",
+      "sha256": "e61ecb0979c39615cd04444ad586c2f51ded01361ed071f931be9d9ab966dac7",
+      "bytes": 12422
+    },
+    {
+      "path": "h5-platform/resources/views/billing/desk.blade.php",
+      "sha256": "739eda39295c68e84070f6e063f22091e6cecff215a4bb951434de1797430d12",
+      "bytes": 14615
+    },
+    {
+      "path": "h5-platform/resources/views/billing/partials/order-detail.blade.php",
+      "sha256": "4e44db5e72d48eaffa3971a87183b8d3027b3fc536808cb47c70bd20262b4876",
+      "bytes": 3382
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/BillingDeskTest.php",
+      "sha256": "875b3ce2a9a711444b453697962663f06de182fda5a346401b573bcf48845771",
+      "bytes": 17972
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/BillingUsdPriceTest.php",
+      "sha256": "b38244894241dc67a0b1944c80f636927f60b1f97b77ca5255846f516abe8abe",
+      "bytes": 11459
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/Support/admin-browser-fixture.php",
+      "sha256": "debcd49230b9db9f5fcd28a0b082d98b99d454a72e8994e792410fdcc68a4182",
+      "bytes": 20916
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/Support/admin-browser.cjs",
+      "sha256": "479b679034ee9ba3e0383521082dd1adc9907dfea953b260e1226916ca721cc2",
+      "bytes": 14176
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/Support/admin-browser.py",
+      "sha256": "27041302c8bdf0e907c50eb3ef9fcbca144281b733cb08926c19640535ebfe5a",
+      "bytes": 6424
+    }
+  ],
+  "composer_lock_sha256": "077219134203096b32abb3db2685c3defbab1c893ea89345f2882b2e7596ad48"
+}
