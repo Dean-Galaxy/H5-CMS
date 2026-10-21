@@ -17,7 +17,7 @@
         <button type="button" class="h5-tab" id="{{ $id }}-tab-{{ $item['id'] }}"
             data-admin-tab="{{ $item['id'] }}" role="tab" aria-controls="{{ $id }}-panel-{{ $item['id'] }}"
             aria-selected="{{ $active === $item['id'] ? 'true' : 'false' }}" tabindex="{{ $active === $item['id'] ? '0' : '-1' }}"
-            @if($method) wire:key="{{ $id }}-tab-{{ $item['id'] }}" wire:click="{{ $method }}('{{ $item['id'] }}')" wire:loading.attr="disabled" @endif>
+            @if($method) wire:key="{{ $id }}-tab-{{ $item['id'] }}" wire:click="{{ $method }}('{{ $item['id'] }}')" wire:loading.attr="aria-disabled" @endif>
             {{ $item['label'] }}@isset($item['count'])<span class="h5-count">{{ $item['count'] }}</span>@endisset
         </button>
     @endforeach

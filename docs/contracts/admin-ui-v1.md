@@ -25,6 +25,7 @@
 - `workspace`：可选 `title`、`description` 和 `actions` 插槽；通用属性原样传递，模块可带 `wire:ignore`。不要在共享壳显示原型剧名、固定日期、价格或成功动画。
 - `tabs`：必填唯一 `id`，`items` 为 `[['id'=>'orders','label'=>'订单查询','count'=>2], ...]`；`count` 可省略。`active` 必须是当前可见项，初始无效值回退首项。模块状态也必须验证白名单，隐藏标签不等于授权。
 - `method` 是可选的 **本页 Livewire 方法名**（例如 `selectTab`），不接受表达式。带 method 时调用 `selectTab('orders')`，等待服务器重新渲染，不抢先假装成功；方法应核验 tab 白名单。无 method 为纯前端模式，会显示对应 `panel`，派发 `h5-admin:tab-change`。
+- Livewire加载时标签使用`aria-disabled=true`，公共事件处理阻止重复点击和方向键动作，保留原焦点；不要改回原生`disabled`，否则Chrome会把焦点移到BODY。服务器响应不执行强制focus，因此不抢其他输入或弹窗的焦点，拒绝切换时也不伪造选中状态。真实Livewire HTTP夹具见Contracts/Support中的`admin-ui-livewire-*`。
 - `panel`：`group` 对应标签组 id、`name` 对应项目 id、`active` 是当前激活的 **字符串**；只显示匹配项。键盘左右键/Home/End可切换，使用标准 tab/tabpanel/aria 关系。嵌套标签组必须各有不同 id。
 - 模块维护 URL/返回上下文。Livewire 可用自己的 URL 属性；纯前端可监听 `tab-change` 按业务更新地址，浏览器返回也必须走未保存检查。
 - 公共样式类：`h5-card`、`h5-toolbar`、`h5-button h5-primary`、`h5-button h5-danger`、`h5-form-grid`、`h5-field`、`h5-input`、`h5-span`、`h5-table-wrap`/`h5-table`、`h5-badge`、`h5-alert`/`h5-error`/`h5-success`、`h5-muted`。都限于公共 workspace/dialog 内；窄屏表格横向滚动、表单双列改单列。不要改观众 CSS。

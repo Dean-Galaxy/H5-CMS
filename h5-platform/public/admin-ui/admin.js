@@ -7,6 +7,7 @@
     let asking = false;
     let promptId = 0;
     const element = value => typeof value === 'string' ? document.getElementById(value) : value;
+    const unavailable = button => button.disabled || button.getAttribute('aria-disabled') === 'true';
 
     function openDialog(value) {
         const dialog = element(value);
@@ -28,7 +29,7 @@
     }
 
     function activateTab(button) {
-        if (!(button instanceof HTMLButtonElement) || !button.isConnected || button.disabled) return;
+        if (!(button instanceof HTMLButtonElement) || !button.isConnected || unavailable(button)) return;
         acceptedTabs.add(button);
         button.click();
         acceptedTabs.delete(button);
@@ -55,7 +56,10 @@
         }
         const button = event.target.closest('button[data-admin-tab]');
         const group = button?.closest('[data-admin-tabs]');
-        if (!group || button.disabled) return;
+        if (!group) return;
+        if (unavailable(button)) {
+            event.preventDefault(); event.stopImmediatePropagation(); return;
+        }
         if (button.getAttribute('aria-selected') === 'true') {
             event.preventDefault(); event.stopImmediatePropagation(); return;
         }
@@ -77,10 +81,11 @@
         const button = event.target.closest('button[data-admin-tab]');
         const group = button?.closest('[data-admin-tabs]');
         if (!group || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-        const tabs = [...group.querySelectorAll('button[data-admin-tab]')].filter(tab => !tab.disabled);
+        event.preventDefault();
+        if (unavailable(button)) return;
+        const tabs = [...group.querySelectorAll('button[data-admin-tab]')].filter(tab => !unavailable(tab));
         const index = tabs.indexOf(button);
         let next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-        event.preventDefault();
         tabs[next]?.focus();
         tabs[next]?.click();
     });
