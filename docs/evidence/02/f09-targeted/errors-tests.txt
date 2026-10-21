@@ -1,0 +1,16 @@
+✔ mutation response lost after commit is unknown and never retried (1.049834ms)
+✔ malformed success response cannot be presented as saved (0.213958ms)
+✔ server failure also keeps result unknown (0.193666ms)
+✔ read failure asks to reread rather than pretending a save happened (0.460834ms)
+✔ stale response uses actionable Chinese instead of server English (0.214333ms)
+✔ media errors explain next action and retain diagnostic code (0.249458ms)
+✔ unknown English validation is not exposed as the only instruction (0.201917ms)
+✔ successful data is returned without extra calls (0.156041ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29.406875

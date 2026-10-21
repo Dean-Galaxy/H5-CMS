@@ -116,6 +116,29 @@ final class DesignWorkflowTest extends ContentTestCase
         $this->get($url, ['Range' => 'bytes=10-19'])->assertForbidden();
     }
 
+    public function test_default_preview_distinguishes_zero_sync_from_new_only_and_never_writes(): void
+    {
+        $settings = DB::table('content_settings')->first();
+        foreach (['new_only', 'sync'] as $scope) {
+            $this->postJson('/api/v1/admin/content/default-preview', ['free_count' => 7, 'scope' => $scope])
+                ->assertOk()->assertJsonPath('scope', $scope)->assertJsonPath('free_count', 7)
+                ->assertJsonPath('count', 0)->assertJsonPath('dramas', []);
+        }
+        $this->assertEquals($settings, DB::table('content_settings')->first());
+        $inherited = $this->createDrama();
+        $overridden = $this->createDrama();
+        $this->patchJson('/api/v1/admin/content/dramas/'.$overridden->id.'/free', ['version' => $overridden->version, 'free_count' => 5])->assertOk();
+        $before = DB::table('content_dramas')->orderBy('id')->get();
+        $settings = DB::table('content_settings')->first();
+        $this->postJson('/api/v1/admin/content/default-preview', ['free_count' => 7, 'scope' => 'sync'])
+            ->assertOk()->assertJsonPath('count', 1)->assertJsonPath('dramas.0.id', $inherited->id)
+            ->assertJsonPath('dramas.0.free_count', 5)->assertJsonPath('dramas.0.title_en', $inherited->title_en);
+        $this->postJson('/api/v1/admin/content/default-preview', ['free_count' => 7, 'scope' => 'new_only'])
+            ->assertOk()->assertJsonPath('count', 0)->assertJsonPath('dramas', []);
+        $this->assertEquals($before, DB::table('content_dramas')->orderBy('id')->get());
+        $this->assertEquals($settings, DB::table('content_settings')->first());
+    }
+
     public function test_global_settings_page_is_owner_only_and_list_does_not_leak_media_paths(): void
     {
         $d = $this->fixture(2);
