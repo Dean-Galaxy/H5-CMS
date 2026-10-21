@@ -1,0 +1,53 @@
+{
+  "status": "engineering_candidate_only_F09_open_07_paused",
+  "candidate": "3381fb9198ae6e9d2727c232ee56bf5d72e78e68",
+  "contract": "1.0.5",
+  "shared_commit": "8dc6197ecc259aedd5dd1b3e2d171b3a4e90e2e9",
+  "approved_design": "bc5a24d63b7e23126bad9bb5519ea0e9fa8825cf",
+  "manifest_verification": {
+    "01_and_03_entries": 76,
+    "02_entries": 195,
+    "05_entries": 141,
+    "mismatches": 0
+  },
+  "checks": [
+    {
+      "candidate": "aa5c5d8",
+      "suite": "Acquisition Desk + AdminUi + AdminPanelIntegration",
+      "passed": 19,
+      "assertions": 227
+    },
+    {
+      "candidate": "c65c98b",
+      "suite": "StaffAccounts + BillingDesk + BillingUsdPrice",
+      "passed": 33,
+      "assertions": 549
+    },
+    {
+      "candidate": "3381fb9",
+      "suite": "Content + Contracts",
+      "passed": 99,
+      "failed": 3,
+      "assertions": 1557,
+      "explanation": "Three default-loader tests require H5_LOCAL_MODULES empty; initial runner incorrectly set acquisition."
+    },
+    {
+      "candidate": "3381fb9",
+      "suite": "Three affected default-loader cases with correct environment",
+      "passed": 3,
+      "assertions": 34
+    },
+    {
+      "candidate": "3381fb9",
+      "suite": "OpenAPI structure and examples",
+      "passed": 59
+    }
+  ],
+  "pending": [
+    "05 dirty-state regression fix and localized validation",
+    "08 content design review",
+    "06 final fixed combined candidate verification",
+    "00 reception before 07 resume"
+  ],
+  "preserved": "07 3/11 records, drafts, media and 8206/8303 runtime untouched"
+}
