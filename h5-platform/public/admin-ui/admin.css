@@ -14,6 +14,8 @@
 :is(.h5-admin-workspace,.h5-admin-dialog) *{box-sizing:border-box}
 :is(.h5-admin-workspace,.h5-admin-dialog) [hidden]{display:none!important}
 .h5-admin-workspace{display:grid;gap:20px;isolation:isolate}
+/* P:24/32: the title and tab rows each leave 22px before their next row. */
+.h5-admin-workspace>.h5-heading,.h5-admin-workspace>.h5-tabs{margin-bottom:2px}
 :is(.h5-admin-workspace,.h5-admin-dialog) :is(h1,h2,h3,p){margin:0}
 :is(.h5-admin-workspace,.h5-admin-dialog) h2{font-size:18px;font-weight:600}
 :is(.h5-admin-workspace,.h5-admin-dialog) h3{font-size:15px;font-weight:600}
@@ -56,10 +58,10 @@
 .dark .h5-admin-dialog{box-shadow:0 16px 64px #0005}
 .dark .h5-admin-dialog::backdrop{background:#0009}
 .h5-admin-dialog .h5-dialog-header{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:0 0 5px;border:0;flex:none}
-.h5-admin-dialog .h5-dialog-header h2{padding-right:48px;min-height:37px}
-.h5-admin-dialog .h5-dialog-close{position:absolute;right:0;top:0;width:42px;height:42px;padding:8px 10px}
+.h5-admin-dialog .h5-dialog-header h2{padding-right:48px}
+.h5-admin-dialog .h5-dialog-close{position:absolute;right:0;top:0}
 .h5-dialog-close svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8}
-.h5-admin-dialog .h5-dialog-body{padding:0;overflow-y:auto;min-height:0;display:grid;gap:16px}
+.h5-admin-dialog .h5-dialog-body{padding:0;overflow-y:auto;min-height:0}
 .h5-admin-dialog .h5-dialog-actions{flex:none;border:0;padding:0;margin-top:20px;display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
 :is(.h5-admin-workspace,.h5-admin-dialog) h1{font-size:23px;font-weight:600;letter-spacing:-.5px}
 .h5-heading p{margin-top:5px!important;font-size:13px}
