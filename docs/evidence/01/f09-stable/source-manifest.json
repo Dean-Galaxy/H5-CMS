@@ -1,0 +1,56 @@
+{
+  "commit": "4cdbdcd0fc9645304bd2b99c671656650d9a41c2",
+  "files": [
+    {
+      "path": "h5-platform/app/Modules/Identity/Services/StaffAudit.php",
+      "sha256": "685d5b95d1ca58340b5e5484d3fe57d1ad0f630615076ace7b73a0909031f2d4",
+      "git_blob": "70c860684777fabea885b0788b6072d75ab91c8b"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/Filament/Pages/StaffAccounts.php",
+      "sha256": "cf322fb4ffa946f0c228f36bdfbf2f2e1cd7e5a52d725f970a245e955ffdfcf8",
+      "git_blob": "d5973c100087c9b439943af4745a2761e7d34517"
+    },
+    {
+      "path": "h5-platform/resources/views/identity/staff-accounts.blade.php",
+      "sha256": "2237224f9f69b811d8fe118e1e215d4dfa974fcf16a7b6254944cf5f9b033192",
+      "git_blob": "f573c3179bd03f714ca7f0ba39df1b0d334e09f4"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Identity/StaffAccountsTest.php",
+      "sha256": "483d141369918ffe816595aa772a225bf13bf5602861bdc9b2eb3147ff85da3a",
+      "git_blob": "c37f4c72d19d845f1d02d3cf45b0b67bc78b2ed3"
+    },
+    {
+      "path": "h5-platform/public/admin-ui/admin.css",
+      "sha256": "9f8dd19a8262839042f718f026068aa2f84bbdf6366c9a1fec026be64b797df0",
+      "git_blob": "c272f4356553f937936cc0dc323be38959c50586"
+    },
+    {
+      "path": "h5-platform/public/admin-ui/admin.js",
+      "sha256": "233b5652f8db837a6249c2470d209d338a0cf7cb1c035a9a4119ed5b4e14144b",
+      "git_blob": "c837fe1bd51c64050d55a551bbce950f6900c939"
+    },
+    {
+      "path": "h5-platform/resources/views/components/admin/dialog.blade.php",
+      "sha256": "9325d101d477875884b7dd8e149c2496439314a88c70c3ef04ad32a22870feba",
+      "git_blob": "bc04bb05d92ecf22c70a97e9badd8f1467253e2c"
+    },
+    {
+      "path": "h5-platform/resources/views/components/admin/workspace.blade.php",
+      "sha256": "74cf66b4ae005035a57cde1671190926661082371f50a64f7dc8576f69bf3eba",
+      "git_blob": "7f286ff54b825bb36472f4353d0960a306ab6a91"
+    },
+    {
+      "path": "docs/ui/08-admin-v2/index.html",
+      "sha256": "5dd3d41fd6e8e1f141c1da3e02762944e10141e02e73074f5aae85d9432c6b05",
+      "git_blob": "301a2de0c15a01d8a035c1a0672629b5de664bd0"
+    },
+    {
+      "path": "docs/ui/08-admin-v2/approved-fragment.html",
+      "sha256": "61491c1a40a21ed75e76e83387d2eb912de8b4862d118a0685aaa1fdc3a0c0e5",
+      "git_blob": "d00b7bf89171fe0b8d06dc09b14140c6d404f729"
+    }
+  ],
+  "shared_commit": "8dc6197ecc259aedd5dd1b3e2d171b3a4e90e2e9"
+}

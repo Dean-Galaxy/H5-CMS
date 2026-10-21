@@ -1,0 +1,23 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Identity\StaffAccountsTest
+  ✓ tabs restore from url and only render selected business table        0.24s  
+  ✓ create dialog keeps invalid input and clears secrets only after sav… 0.05s  
+  ✓ edit dialog revokes target sessions and detects concurrent updates   0.04s  
+  ✓ non owner direct page access is denied for each other role           0.03s  
+  ✓ missing mfa cannot load staff page                                   0.02s  
+  ✓ each public mutation rechecks owner permission                       0.01s  
+  ✓ editor target cannot be changed by a forged property update          0.02s  
+  ✓ current owner cannot disable or demote self through editor           0.03s  
+  ✓ audit renders beijing time and masked real staff without changing u… 0.02s  
+  ✓ audit does not invent or cross resolve missing viewer and unknown a… 0.02s  
+  ✓ audit distinguishes mail preview accepted request and simulation fr… 0.02s  
+  ✓ real verification preview is recorded and displayed without claimin… 0.08s  
+  ✓ audit missing unknown and aggregate mail modes remain uncertain      0.02s  
+  ✓ audit keeps latest thirty and rechecks owner and mfa before reading  0.03s  
+
+  Tests:    14 passed (112 assertions)
+  Duration: 0.75s
+
