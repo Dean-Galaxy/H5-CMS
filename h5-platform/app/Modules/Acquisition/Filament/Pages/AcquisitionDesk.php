@@ -9,6 +9,7 @@ use App\Modules\Acquisition\Services\AssetManager;
 use App\Support\ApiProblem;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Livewire\Attributes\Url;
 
 final class AcquisitionDesk extends Page
 {
@@ -28,6 +29,8 @@ final class AcquisitionDesk extends Page
 
     public ?string $summaryId = null;
 
+    // Replace the current URL so reload restores context and Back still returns to the prior page.
+    #[Url(as: 'tab', except: 'links')]
     public string $tab = 'links';
 
     public int $pixelPage = 1;
@@ -61,6 +64,24 @@ final class AcquisitionDesk extends Page
         $user = auth('staff')->user();
 
         return (bool) (config('h5.modules.acquisition.ready') && $user?->active && in_array($user->role, [Role::Owner, Role::Acquisition], true));
+    }
+
+    public function mount(): void
+    {
+        $this->normalizeTab();
+    }
+
+    public function updatedTab(): void
+    {
+        $this->normalizeTab();
+    }
+
+    private function normalizeTab(): void
+    {
+        if (! in_array($this->tab, ['links', 'pixels', 'payments', 'deliveries', 'assignments'], true)
+            || ($this->tab === 'assignments' && app(IdentityContext::class)->staff()?->role !== Role::Owner)) {
+            $this->tab = 'links';
+        }
     }
 
     public function selectTab(string $tab): void
@@ -214,6 +235,7 @@ final class AcquisitionDesk extends Page
 
     protected function getViewData(): array
     {
+        $this->normalizeTab();
         $manager = app(AssetManager::class);
         $pixels = $manager->assetPage('pixel', $this->pixelPage);
         $links = $manager->assetPage('link', $this->linkPage);

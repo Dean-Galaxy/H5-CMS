@@ -107,6 +107,21 @@ final class DeskTest extends AcquisitionTestCase
         Livewire::test(AcquisitionDesk::class)->call('selectTab', 'assignments')->assertSet('tab', 'links');
     }
 
+    public function test_url_tab_restores_only_authorized_context_and_invalid_input_falls_back(): void
+    {
+        $this->signIn($this->staff(Role::Owner));
+        foreach (['pixels', 'payments', 'deliveries', 'assignments'] as $tab) {
+            Livewire::withQueryParams(['tab' => $tab])->test(AcquisitionDesk::class)->assertSet('tab', $tab);
+        }
+        Livewire::withQueryParams(['tab' => 'unknown'])->test(AcquisitionDesk::class)->assertSet('tab', 'links');
+        $this->signIn();
+        Livewire::withQueryParams(['tab' => 'assignments'])->test(AcquisitionDesk::class)
+            ->assertSet('tab', 'links')->assertDontSee('负责人分配')
+            ->set('tab', 'assignments')->assertSet('tab', 'links')
+            ->set('tab', 'unknown')->assertSet('tab', 'links');
+        $this->get('/admin/acquisition-desk?tab=assignments')->assertOk()->assertDontSee('负责人分配');
+    }
+
     public function test_assignment_opens_authorized_tab_and_failed_save_preserves_editor(): void
     {
         $this->signIn($this->staff(Role::Owner));
