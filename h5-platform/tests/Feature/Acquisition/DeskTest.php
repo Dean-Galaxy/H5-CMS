@@ -92,8 +92,9 @@ final class DeskTest extends AcquisitionTestCase
 
     public function test_workspace_tabs_are_allowlisted_and_assignment_tab_is_owner_only(): void
     {
-        $this->signIn();
+        $this->signIn($this->staff(Role::Owner));
         Livewire::test(AcquisitionDesk::class)->assertOk()->assertSee('推广链接')->assertSee('像素资产')->assertSee('本站付款汇总')->assertSee('发送状态')
+            ->assertSee('负责人分配')
             ->assertSet('tab', 'links')
             ->call('selectTab', 'pixels')->assertSet('tab', 'pixels')
             ->call('selectTab', 'deliveries')->assertSet('tab', 'deliveries')
@@ -103,6 +104,23 @@ final class DeskTest extends AcquisitionTestCase
 
         $this->signIn($this->staff(Role::Acquisition));
         $this->get('/admin/acquisition-desk')->assertOk()->assertDontSee('负责人分配');
+        Livewire::test(AcquisitionDesk::class)->call('selectTab', 'assignments')->assertSet('tab', 'links');
+    }
+
+    public function test_assignment_opens_authorized_tab_and_failed_save_preserves_editor(): void
+    {
+        $this->signIn($this->staff(Role::Owner));
+        [$pixel] = $this->assets();
+        Livewire::test(AcquisitionDesk::class)->call('selectAssignment', 'pixel', $pixel['id'])
+            ->assertSet('tab', 'assignments')->assertSet('shareId', $pixel['id']);
+        $page = Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixel['id'])
+            ->set('pixel.name', '')->call('savePixel')->assertReturned(false)->assertSet('pixel.name', '')
+            ->call('restoreEditor', 'pixel')->assertReturned(true)->assertSet('pixel.name', $pixel['name']);
+        $this->signIn();
+        Livewire::test(AcquisitionDesk::class)->set('pixelId', $pixel['id'])
+            ->set('pixel.name', 'Unauthorized edit')->call('restoreEditor', 'pixel')->assertReturned(false)
+            ->assertSet('pixel.name', 'Unauthorized edit')->call('selectAssignment', 'pixel', $pixel['id'])
+            ->assertSet('tab', 'links')->assertSet('shareId', '');
     }
 
     public function test_payment_display_uses_shared_exact_usd_format_without_float_conversion(): void

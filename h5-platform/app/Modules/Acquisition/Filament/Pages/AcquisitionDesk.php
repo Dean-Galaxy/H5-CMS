@@ -69,6 +69,10 @@ final class AcquisitionDesk extends Page
             return;
         }
 
+        if ($tab === 'assignments' && app(IdentityContext::class)->staff()?->role !== Role::Owner) {
+            return;
+        }
+
         $this->tab = $tab;
     }
 
@@ -194,6 +198,7 @@ final class AcquisitionDesk extends Page
             $this->shareName = $data['name'];
             $this->staffIds = array_column($data['selected'], 'id');
             $this->staffCandidates = $data['selected'];
+            $this->tab = 'assignments';
         });
     }
 

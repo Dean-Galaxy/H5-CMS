@@ -21,7 +21,7 @@
                     </div>
                     <p class="h5-muted">{{ $catalogMessage }}。版本 {{ $link['version'] }}；落地目标、来源和像素变更规则待 D05。已选像素无权使用时仅可停用已有链接。</p>
                     @foreach($errors->all() as $error)<p class="h5-error" role="alert">{{ $error }}</p>@endforeach
-                    <button class="h5-button h5-primary" type="submit">保存并生成链接</button><button class="h5-button" type="button" wire:click="newLink">新建另一条</button>
+                    <button class="h5-button h5-primary" type="submit">保存并生成链接</button><button class="h5-button" type="button" data-editor-action="newLink">新建另一条</button>
                 </form>
             </section>
             <section class="h5-card"><h2>推广链接</h2>
@@ -29,7 +29,7 @@
                 @forelse($links as $entry)
                     <tr wire:key="link-{{ $entry['id'] }}"><td><strong>{{ $entry['name'] }}</strong><br>{{ $entry['drama_title'] }}<br>{{ ucfirst($entry['platform']) }} · 版本 {{ $entry['version'] }}</td>
                         <td><input class="h5-input" readonly value="{{ $entry['url'] }}" aria-label="推广链接" onclick="this.select()"><button type="button" class="h5-button" x-data="{ copied: false }" x-on:click="navigator.clipboard.writeText(@js($entry['url'])).then(() => copied = true)" x-text="copied ? '已复制' : '复制链接'">复制链接</button><br>{{ $entry['active'] ? '启用配置' : '停用' }} · 落地待 D05</td>
-                        <td><button class="h5-button" wire:click="selectLink('{{ $entry['id'] }}')">编辑 / 停用</button><button class="h5-button" wire:click="showSummary('{{ $entry['id'] }}')">查看本站汇总</button><button class="h5-button" wire:click="retry('{{ $entry['id'] }}')">重试待处理发送</button>@if($owner)<button class="h5-button" wire:click="selectAssignment('link', '{{ $entry['id'] }}')">分配链接</button>@endif</td></tr>
+                        <td><button class="h5-button" data-editor-action="selectLink" data-editor-id="{{ $entry['id'] }}">编辑 / 停用</button><button class="h5-button" data-editor-action="showSummary" data-editor-id="{{ $entry['id'] }}">查看本站汇总</button><button class="h5-button" wire:click="retry('{{ $entry['id'] }}')">重试待处理发送</button>@if($owner)<button class="h5-button" data-editor-action="selectAssignment" data-editor-type="link" data-editor-id="{{ $entry['id'] }}">分配链接</button>@endif</td></tr>
                 @empty<tr><td colspan="3">尚无可见推广链接。</td></tr>@endforelse
                 </tbody></table></div>
                 <p class="h5-muted">共 {{ $linkPagination['total'] }} 项 · 第 {{ $linkPagination['page'] }} / {{ $linkPagination['last_page'] }} 页</p>
@@ -48,12 +48,12 @@
                     <label class="h5-field">启用状态<select class="h5-input" wire:model="pixel.active"><option value="1">启用</option><option value="0">停用</option></select></label>
                 </div><p class="h5-muted">只登记平台已有资产；不会创建平台像素。不接受任意脚本或令牌。版本 {{ $pixel['version'] }}。</p>
                 @foreach($errors->all() as $error)<p class="h5-error" role="alert">{{ $error }}</p>@endforeach
-                <button class="h5-button h5-primary" type="submit">保存像素</button><button class="h5-button" type="button" wire:click="newPixel">登记另一个</button></form>
+                <button class="h5-button h5-primary" type="submit">保存像素</button><button class="h5-button" type="button" data-editor-action="newPixel">登记另一个</button></form>
             </section>
             <section class="h5-card"><h2>像素资产</h2><div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>资产</th><th>状态</th><th>验证与操作</th></tr></thead><tbody>
             @forelse($pixels as $asset)<tr wire:key="pixel-{{ $asset['id'] }}"><td><strong>{{ $asset['name'] }}</strong><br>{{ ucfirst($asset['platform']) }} · {{ $asset['external_id'] }}<br><span class="h5-badge">{{ $asset['environment'] === 'test' ? '测试' : '正式' }}</span> · 版本 {{ $asset['version'] }}</td>
                 <td>{{ $asset['active'] ? '启用' : '停用' }}<br>可见关联链接 {{ $asset['affected_links'] }} 个<br>共享人员 {{ count($asset['assigned_staff_ids']) }} 名</td>
-                <td>本站模拟：{{ $asset['local_status'] === 'simulated' ? '通过' : '未测试' }}<br>平台：待联调<br><button class="h5-button" wire:click="selectPixel('{{ $asset['id'] }}')">编辑 / 启停</button>@if($asset['environment'] === 'test')<button class="h5-button" wire:click="simulatePixel('{{ $asset['id'] }}')">本地模拟校验</button>@endif @if($owner)<button class="h5-button" wire:click="selectAssignment('pixel', '{{ $asset['id'] }}')">分配像素</button>@endif</td></tr>
+                <td>本站模拟：{{ $asset['local_status'] === 'simulated' ? '通过' : '未测试' }}<br>平台：待联调<br><button class="h5-button" data-editor-action="selectPixel" data-editor-id="{{ $asset['id'] }}">编辑 / 启停</button>@if($asset['environment'] === 'test')<button class="h5-button" wire:click="simulatePixel('{{ $asset['id'] }}')">本地模拟校验</button>@endif @if($owner)<button class="h5-button" data-editor-action="selectAssignment" data-editor-type="pixel" data-editor-id="{{ $asset['id'] }}">分配像素</button>@endif</td></tr>
             @empty<tr><td colspan="3">尚无可见像素，请登记你拥有或获授权的测试资产。</td></tr>@endforelse
             </tbody></table></div><p class="h5-muted">共 {{ $pixelPagination['total'] }} 项 · 第 {{ $pixelPagination['page'] }} / {{ $pixelPagination['last_page'] }} 页</p>
             @if($pixelPagination['page'] > 1)<button class="h5-button" wire:click="$set('pixelPage', {{ $pixelPagination['page'] - 1 }})">上一页像素</button>@endif
@@ -93,10 +93,6 @@
             const root = document.querySelector('[data-admin-ui="1"]');
             if (!root || root.dataset.acquisitionGuard === '1') return;
             root.dataset.acquisitionGuard = '1';
-            let pendingTab = null;
-            root.addEventListener('h5-admin:tab-request', event => {
-                if (event.detail.group === 'acquisition-tabs') pendingTab = event.detail.id;
-            });
             const dirty = () => [...root.querySelectorAll('form[data-editor]')].some(form => form.dataset.dirty === '1');
             root.addEventListener('input', event => { const form = event.target.closest('form[data-editor]'); if (form) form.dataset.dirty = '1'; });
             root.addEventListener('change', event => { const form = event.target.closest('form[data-editor]'); if (form) form.dataset.dirty = '1'; });
@@ -112,9 +108,6 @@
                 const saved = await component.call(form.dataset.save);
                 if (saved === true) {
                     form.dataset.dirty = '0';
-                    const tab = pendingTab;
-                    pendingTab = null;
-                    if (tab) await component.call('selectTab', tab);
                 }
                 return saved === true;
             };
@@ -125,12 +118,27 @@
                 const restored = await component.call('restoreEditor', form.dataset.editor);
                 if (restored === true) {
                     form.dataset.dirty = '0';
-                    const tab = pendingTab;
-                    pendingTab = null;
-                    if (tab) await component.call('selectTab', tab);
                 }
                 return restored === true;
             };
+            // Resolve the current component after confirmation: Livewire may replace the tab button.
+            root.addEventListener('h5-admin:tab-request', async event => {
+                if (event.detail.group !== 'acquisition-tabs' || !dirty()) return;
+                event.preventDefault();
+                if (await window.H5Admin.confirmUnsaved({ save, discard })) {
+                    await livewire()?.call('selectTab', event.detail.id);
+                }
+            });
+            root.addEventListener('click', async event => {
+                const button = event.target.closest('[data-editor-action]');
+                if (!button) return;
+                event.preventDefault();
+                const method = button.dataset.editorAction;
+                const args = method === 'selectAssignment' ? [button.dataset.editorType, button.dataset.editorId]
+                    : button.dataset.editorId ? [button.dataset.editorId] : [];
+                if (dirty() && !await window.H5Admin?.confirmUnsaved({ save, discard })) return;
+                await livewire()?.call(method, ...args);
+            });
             const attach = () => { if (window.H5Admin?.protect) window.H5Admin.protect(root, { isDirty: dirty, save, discard }); };
             attach();
             document.addEventListener('h5-admin:ready', attach, { once: true });
