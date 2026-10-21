@@ -2,7 +2,17 @@
 
 2026-10-21。模块交付候选，**待 00/08/06 复核，不是 F09 关闭或 07 恢复通知**。旧 3/11 人工结果及其他工作区数据未修改。
 
-## 本轮增量：公共 2e6dd1b（最新候选）
+## 最新稳定候选：公共 8dc6197 / 源码 70f5d92
+
+- 正常合并 `8dc6197ecc259aedd5dd1b3e2d171b3a4e90e2e9`（包括6f622b1字体/行高、G05安全占位），最终应用/脚本合并点 `70f5d92cd96f25691bff7cce9924983951346a4b`。模块视图不改公共样式，三类弹窗仍声明默认起距5px，由共享组件动态避让X。
+- **G05在05实际页面复验通过**：桌面首项/滚动body上沿/X下沿均124px，手机均78px。手机标题底61.1875px，实际首项离标题约16.81px，这是按钮安全占位，并非05自设18/20px。正文开始及滚动裁剪边界均不进入按钮区域。375×500真实表单body可视324px/内容527px，可滚到底，操作区底部464px；明暗两轮通过。
+- `browser-stable-70f5d92.json`：50项实际浏览器检查通过，新增正文与X矩形边界断言。关闭X/Esc、失败保存保留、放弃恢复、焦点、实际共享分配保存/恢复、四栏/URL/普通员工权限、金额显示、22px间距及无整页横向溢出均通过。旧50项没有X遮挡断言；两个轮次不能混为同一结果。
+- **全54张此次重新拍摄**：`stable-70f5d92/` 含四页桌面/手机明暗16组配对32张、20张弹窗及2张短屏滚动。共享标题/字体也发生变化，故旧基础图不再充当最新证据。当前 [comparison.csv](comparison.csv) 全部指向此目录。其余74张及两份旧manifest原样留历史，不改名冒充重拍。
+- 已人工查看最新桌面新增、手机长说明分配、手机失败确认、短屏暗色滚动，以及桌面付款/手机暗色链接配对图：此前长说明遮挡消失；短屏正文在header以下裁剪，按钮持续可见。原稿内部未画部分仍为B类，导出页16px边距/缺少未接入的全局设置等既有差异仍按后文说明；不声称所有页面逐像素一致。
+- 无本模块业务服务、页面PHP、DeskTest、依赖、迁移变更，旧9/99和51/628结果只保留其原版本，不重新标为本次测试。语法及diff检查、原型字节核对和所有截图摘要/索引检查通过。
+- 本候选交00串行复核，06组合复验后才可能关闭整体F09；07仍暂停。来源/像素快照待D05、网站接线、Meta/TikTok外部联调与外发均不因此放行。
+
+## 历史问题轮次：公共 2e6dd1b（已被最新稳定点替代）
 
 - 正常合并公共 `2e6dd1b4b7473a9ad542bb950e31ecc37e53a3c1`，最终源码/浏览器脚本 `89b3330823609413a8c9be8f7d343843ec53bf84`。三个弹窗均用公共默认5px起距；移除首项原有margin，不把原稿未画的内部空间写成18/20px设计要求。链接表单内位于说明和读取按钮之后的20px是内部字段间距，不是首项起距。
 - 仅重拍受影响弹窗：`dialogs-89b3330/` 共22张，20个原有扩展状态加2个375×500短手机真实长表单滚到底状态。旧32张页面配对保留原文件名；旧20张弹窗仅作历史，不能当本轮证据。当前索引54张，仓库历史共74张。
@@ -59,9 +69,8 @@ php h5-platform/tests/Feature/Acquisition/Support/f09-fixture.php
 H5_ACQUISITION_PREVIEW_URL=http://127.0.0.1:8205 \
 H5_ACQUISITION_PREVIEW_ACCOUNT=.runtime/acquisition-preview-account.json \
 H5_ACQUISITION_OPERATOR_ACCOUNT=.runtime/acquisition-operator-preview-account.json \
-H5_ACQUISITION_DIALOGS_ONLY=1 \
-H5_ACQUISITION_CAPTURE_PREFIX=89b3330- \
-H5_ACQUISITION_SCREENSHOTS=docs/evidence/05/f09/dialogs-89b3330 \
+H5_ACQUISITION_CAPTURE_PREFIX=70f5d92- \
+H5_ACQUISITION_SCREENSHOTS=docs/evidence/05/f09/stable-70f5d92 \
 H5_PLAYWRIGHT_MODULE=/path/to/existing/playwright \
 node h5-platform/tests/Feature/Acquisition/Support/admin-ui-smoke.cjs
 ```
