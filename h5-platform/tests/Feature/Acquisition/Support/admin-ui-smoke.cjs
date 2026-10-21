@@ -71,7 +71,21 @@ async function login(page, identity) {
   passed.push('confirmed pixel save closes dialog and returns to asset list');
   await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});
   check('A02 assignment stays in selected pixel context',(await assignment.innerText()).includes(originalName)&&await page.locator('[data-admin-tab="pixels"]').getAttribute('aria-selected')==='true');
-  await close(assignment);
+  await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();
+  const choice=assignment.getByRole('checkbox').first();await choice.waitFor({state:'visible'});
+  const initial=await choice.isChecked();await choice.setChecked(!initial);
+  await assignment.getByRole('button',{name:'取消',exact:true}).click();await prompt().getByRole('button',{name:'放弃修改'}).click();await assignment.waitFor({state:'hidden'});
+  await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});
+  await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();await choice.waitFor({state:'visible'});
+  check('assignment discard leaves authorization unchanged',await choice.isChecked()===initial);
+  const candidateId=await choice.getAttribute('value');await choice.setChecked(!initial);
+  await assignment.getByRole('button',{name:'保存共享分配',exact:true}).click();await assignment.waitFor({state:'hidden'});
+  await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});
+  await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();
+  const sameCandidate=assignment.locator(`input[type="checkbox"][value="${candidateId}"]`);await sameCandidate.waitFor({state:'visible'});
+  check('assignment save persists selected asset authorization',await sameCandidate.isChecked()===!initial);
+  await sameCandidate.setChecked(initial);await assignment.getByRole('button',{name:'保存共享分配',exact:true}).click();await assignment.waitFor({state:'hidden'});
+  passed.push('assignment fixture authorization restored explicitly');
   await page.reload();await page.waitForFunction(()=>document.querySelector('[data-admin-tab="pixels"]')?.getAttribute('aria-selected')==='true');passed.push('authorized tab survives reload');
   await page.goto(base+'/admin');await page.goBack();await page.waitForFunction(()=>document.querySelector('[data-admin-tab="pixels"]')?.getAttribute('aria-selected')==='true');passed.push('browser Back restores asset tab');
   await page.goto(base+'/admin/acquisition-desk?tab=assignments');await page.waitForFunction(()=>document.querySelector('[data-admin-tab="links"]')?.getAttribute('aria-selected')==='true');passed.push('removed fifth tab URL safely falls back for Owner');
@@ -92,7 +106,7 @@ async function login(page, identity) {
   await other.waitForFunction(()=>document.querySelector('[data-admin-tab="links"]')?.getAttribute('aria-selected')==='true');
   check('ordinary operator has four tabs and no assignment dialog',await other.getByRole('tab').count()===4&&await other.locator('#acquisition-assignment-editor').count()===0);await other.close();
   if(process.env.H5_ACQUISITION_SCREENSHOTS) {
-   const out=process.env.H5_ACQUISITION_SCREENSHOTS;fs.mkdirSync(out,{recursive:true});
+   const out=process.env.H5_ACQUISITION_SCREENSHOTS,capturePrefix=process.env.H5_ACQUISITION_CAPTURE_PREFIX||'';fs.mkdirSync(out,{recursive:true});
    const {pathToFileURL}=require('node:url');const path=require('node:path');
    const prototype=await browser.newPage();await prototype.goto(pathToFileURL(path.resolve('docs/ui/08-admin-v2/index.html')).href);
    const frame=prototype.frameLocator('#codex-visualization');await frame.locator('[data-module="acquisition"]').click();
@@ -101,27 +115,28 @@ async function login(page, identity) {
     await prototype.emulateMedia({colorScheme:theme});await page.evaluate(theme=>document.documentElement.classList.toggle('dark',theme==='dark'),theme);
     for(const [real,design] of [['links','links'],['pixels','pixels'],['payments','results'],['deliveries','delivery']]) {
      await tab(real);await frame.locator(`[data-tab="${design}"][data-kind="acquisition"]`).click();
-     await page.screenshot({path:out+'/'+label+'-'+real+'-actual.png'});await prototype.screenshot({path:out+'/'+label+'-'+real+'-approved.png'});
+     await page.evaluate(()=>window.scrollTo(0,0));await prototype.evaluate(()=>window.scrollTo(0,0));
+     await page.screenshot({path:out+'/'+capturePrefix+label+'-'+real+'-actual.png'});await prototype.screenshot({path:out+'/'+capturePrefix+label+'-'+real+'-approved.png'});
     }
     await tab('links');await page.getByRole('button',{name:'新增链接',exact:true}).click();await link.waitFor({state:'visible'});
-    await page.screenshot({path:out+'/'+label+'-new-link-actual-only.png'});
+    await page.screenshot({path:out+'/'+capturePrefix+label+'-new-link-actual-only.png'});
     await link.getByLabel('推广名称').fill('F09 未保存');await link.getByRole('button',{name:'取消',exact:true}).click();
     await prompt().getByRole('button',{name:'保存并继续'}).click();await prompt().getByRole('alert').waitFor({state:'visible'});
-    await page.screenshot({path:out+'/'+label+'-rejected-save-actual-only.png'});
+    await page.screenshot({path:out+'/'+capturePrefix+label+'-rejected-save-actual-only.png'});
     await prompt().getByRole('button',{name:'放弃修改'}).click();await link.waitFor({state:'hidden'});
     if(fs.existsSync(fixturePath)) {
      const f=JSON.parse(fs.readFileSync(fixturePath,'utf8'));
      await page.locator(`[data-editor-action="selectLink"][data-editor-id="${f.link_id}"]`).click();await link.waitFor({state:'visible'});
-     await page.screenshot({path:out+'/'+label+'-edit-link-actual-only.png'});await close(link);
+     await page.screenshot({path:out+'/'+capturePrefix+label+'-edit-link-actual-only.png'});await close(link);
     }
-    await tab('pixels');await edit.click();await pixel.waitFor({state:'visible'});await page.screenshot({path:out+'/'+label+'-pixel-editor-actual-only.png'});await close(pixel);
-    await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});await page.screenshot({path:out+'/'+label+'-assignment-actual-only.png'});await close(assignment);
+    await tab('pixels');await edit.click();await pixel.waitFor({state:'visible'});await page.screenshot({path:out+'/'+capturePrefix+label+'-pixel-editor-actual-only.png'});await close(pixel);
+    await page.getByRole('button',{name:'分配像素'}).first().click();await assignment.waitFor({state:'visible'});await assignment.getByRole('button',{name:'读取可分配人员',exact:true}).click();await assignment.getByRole('checkbox').first().waitFor({state:'visible'});await page.screenshot({path:out+'/'+capturePrefix+label+'-assignment-actual-only.png'});await close(assignment);
    }
    await prototype.close();
   }
   await page.setViewportSize({width:375,height:812});
   check('mobile page has no horizontal overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth));
   check('no browser JavaScript errors',errors.length===0);
-  console.log(JSON.stringify({passed,base:new URL(base).origin,externalSending:'disabled',screenshots:process.env.H5_ACQUISITION_SCREENSHOTS||null}));
+  console.log(JSON.stringify({passed,browser:browser.version(),platform:process.platform,devicePixelRatio:await page.evaluate(()=>devicePixelRatio),zoom:1,base:new URL(base).origin,externalSending:'disabled',screenshots:process.env.H5_ACQUISITION_SCREENSHOTS||null}));
  } finally {await browser.close()}
 })().catch(error=>{console.error(error.message);process.exit(1)});

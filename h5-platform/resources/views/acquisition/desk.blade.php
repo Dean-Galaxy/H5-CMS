@@ -52,8 +52,8 @@
         <p class="h5-muted" data-acquisition-environment>外部发送：{{ config('acquisition.transport') === 'disabled' ? '关闭' : config('acquisition.transport') }} · 来源与落地规则待确认；无来源不阻塞订阅。</p>
         <p class="h5-error" data-editor-error role="alert" hidden></p>
         <x-admin.dialog id="acquisition-link-editor" :title="$linkId ? '编辑推广链接' : '新增链接'" wire:ignore.self data-editor-dialog="link">
-                <p class="h5-muted">选择可投放的已发布剧目、平台与获授权的像素。</p><button class="h5-button" wire:click="loadCatalog">{{ $catalogCursor ? '读取下一页剧目' : '读取可投放剧目' }}</button>
-                <form id="acquisition-link-form" data-editor="link" data-save="saveLink">
+                <p class="h5-note">选择可投放的已发布剧目、平台与获授权的像素。</p><button class="h5-button" wire:click="loadCatalog">{{ $catalogCursor ? '读取下一页剧目' : '读取可投放剧目' }}</button>
+                <form id="acquisition-link-form" style="margin-top:20px" data-editor="link" data-save="saveLink">
                     <div class="h5-form-grid">
                         <label class="h5-field">推广名称<input class="h5-input" wire:model="link.name" maxlength="100" required></label>
                         <label class="h5-field">平台<select class="h5-input" wire:model="link.platform"><option value="meta">Meta</option><option value="tiktok">TikTok</option></select></label>
@@ -61,7 +61,7 @@
                         <label class="h5-field">授权像素<select class="h5-input" wire:model="link.pixel_id" required><option value="">请选择</option>@foreach($pixelOptions as $asset)<option value="{{ $asset['id'] }}">{{ $asset['name'] }} · {{ $asset['platform'] }}{{ $asset['active'] ? '' : '（停用）' }}</option>@endforeach</select></label>
                         <label class="h5-field">启用状态<select class="h5-input" wire:model="link.active"><option value="1">启用</option><option value="0">停用</option></select></label>
                     </div>
-                    <p class="h5-muted">{{ $catalogMessage }}。版本 {{ $link['version'] }}；落地与来源规则待确认。已选像素无权使用时仅可停用已有链接。</p>
+                    <p class="h5-note">{{ $catalogMessage }}。版本 {{ $link['version'] }}；落地与来源规则待确认。已选像素无权使用时仅可停用已有链接。</p>
                     @foreach($errors->all() as $error)<p class="h5-error" role="alert">{{ $error }}</p>@endforeach
 
                 </form>
@@ -69,23 +69,23 @@
             <x-slot:actions><button type="button" class="h5-button" data-admin-close>取消</button><button type="submit" form="acquisition-link-form" class="h5-button h5-primary">保存链接</button></x-slot:actions>
         </x-admin.dialog>
         <x-admin.dialog id="acquisition-pixel-editor" :title="$pixelId ? '编辑像素' : '登记像素'" wire:ignore.self data-editor-dialog="pixel">
-                <form id="acquisition-pixel-form" data-editor="pixel" data-save="savePixel"><div class="h5-form-grid">
+                <form id="acquisition-pixel-form" style="margin-top:20px" data-editor="pixel" data-save="savePixel"><div class="h5-form-grid">
                     <label class="h5-field">名称<input class="h5-input" wire:model="pixel.name" maxlength="100" required></label>
                     <label class="h5-field">平台<select class="h5-input" wire:model="pixel.platform"><option value="meta">Meta</option><option value="tiktok">TikTok</option></select></label>
                     <label class="h5-field">平台像素编号<input class="h5-input" wire:model="pixel.external_id" maxlength="64" required></label>
                     <label class="h5-field">资产用途<select class="h5-input" wire:model="pixel.environment"><option value="test">专用测试资产</option><option value="production">正式资产（默认不发送）</option></select></label>
                     <label class="h5-field">启用状态<select class="h5-input" wire:model="pixel.active"><option value="1">启用</option><option value="0">停用</option></select></label>
-                </div><p class="h5-muted">只登记平台已有资产；不会创建平台像素。不接受任意脚本或令牌。版本 {{ $pixel['version'] }}。</p>
+                </div><p class="h5-note">只登记平台已有资产；不会创建平台像素。不接受任意脚本或令牌。版本 {{ $pixel['version'] }}。</p>
                 @foreach($errors->all() as $error)<p class="h5-error" role="alert">{{ $error }}</p>@endforeach
 </form>
             <p class="h5-error" data-editor-error role="alert" hidden></p>
             <x-slot:actions><button type="button" class="h5-button" data-admin-close>取消</button><button type="submit" form="acquisition-pixel-form" class="h5-button h5-primary">保存像素</button></x-slot:actions>
         </x-admin.dialog>
         @if($owner)<x-admin.dialog id="acquisition-assignment-editor" title="负责人分配" wire:ignore.self data-editor-dialog="assignment">
-                <p>创建人保留资产访问权；Owner 可为资产分配多位员工。被移除人员访问权会重新核验。投流员工只查看自身或获分配资产及本站汇总，不查看用户联系方式或逐人订单。</p>
-                @if($shareId)<p>正在分配：{{ $shareName }} · {{ $shareType === 'pixel' ? '像素' : '链接' }} · 版本 {{ $shareVersion }}</p>
-                    <p class="h5-muted">{{ $staffMessage }}</p><button class="h5-button" wire:click="loadStaff">{{ $staffCursor ? '读取下一页人员' : '读取可分配人员' }}</button>
-                    <form id="acquisition-assignment-form" data-editor="assignment" data-save="share">@foreach($staffCandidates as $candidate)<label class="h5-field"><input type="checkbox" wire:model="staffIds" value="{{ $candidate['id'] }}"> {{ $candidate['name'] }}</label>@endforeach</form>
+                <p class="h5-note">创建人保留资产访问权；负责人 可为资产分配多位员工。被移除人员访问权会重新核验。投流员工只查看自身或获分配资产及本站汇总，不查看用户联系方式或逐人订单。</p>
+                @if($shareId)<p class="h5-note">正在分配：{{ $shareName }} · {{ $shareType === 'pixel' ? '像素' : '链接' }} · 版本 {{ $shareVersion }}</p>
+                    <p class="h5-note">{{ $staffMessage }}</p><button class="h5-button" wire:click="loadStaff">{{ $staffCursor ? '读取下一页人员' : '读取可分配人员' }}</button>
+                    <form id="acquisition-assignment-form" data-editor="assignment" data-save="share">@foreach($staffCandidates as $candidate)<label class="h5-choice"><input type="checkbox" wire:model="staffIds" value="{{ $candidate['id'] }}"> {{ $candidate['name'] }}</label>@endforeach</form>
                 @else<p class="h5-muted">从像素或链接列表选择“分配”以管理共享人员。</p>@endif
             <p class="h5-error" data-editor-error role="alert" hidden></p>
             <x-slot:actions><button type="button" class="h5-button" data-admin-close>取消</button><button type="submit" form="acquisition-assignment-form" class="h5-button h5-primary">保存共享分配</button></x-slot:actions>
