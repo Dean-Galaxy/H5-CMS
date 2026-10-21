@@ -8,6 +8,7 @@
             dispose: null,
             ready: false,
             onReady: null,
+            opener: null,
             init() {
                 this.onReady = () => {
                     this.dispose = H5Admin.protect(this.$el, {
@@ -24,8 +25,17 @@
                 this.dispose?.();
                 document.removeEventListener('h5-admin:ready', this.onReady);
             },
-            async open(id = null) {
+            restoreFocus() {
+                this.$nextTick(() => {
+                    const dialog = document.getElementById('identity-staff-editor');
+                    if (dialog && !dialog.open && this.opener?.isConnected) {
+                        this.opener.focus();
+                    }
+                });
+            },
+            async open(id = null, opener = null) {
                 if (this.busy || !this.ready) return;
+                this.opener = opener ?? document.activeElement;
                 this.busy = true;
                 try {
                     if (id === null) await $wire.openCreate();
@@ -43,7 +53,7 @@
                     this.dirty = false;
                     H5Admin.closeDialog('identity-staff-editor');
                     return true;
-                } finally { this.busy = false; }
+                } finally { this.busy = false; this.restoreFocus(); }
             },
             async discard() {
                 if (this.busy) return false;
@@ -53,13 +63,13 @@
                     this.dirty = false;
                     H5Admin.closeDialog('identity-staff-editor');
                     return true;
-                } finally { this.busy = false; }
+                } finally { this.busy = false; this.restoreFocus(); }
             }
         }"
     >
         @if($tab === 'accounts')
             <x-slot:actions>
-                <button type="button" class="h5-button h5-primary" x-on:click="open()" :disabled="busy || !ready">新增员工</button>
+                <button type="button" class="h5-button h5-primary" x-on:click="open(null, $event.currentTarget)" :disabled="busy || !ready">新增员工</button>
             </x-slot:actions>
         @endif
 
@@ -83,7 +93,7 @@
                                     @if($staff->id === auth('staff')->id())
                                         <span class="h5-muted">当前账号</span>
                                     @else
-                                        <button type="button" class="h5-button" x-on:click="open(@js($staff->id))" :disabled="busy || !ready" aria-label="管理 {{ $staff->name }}">管理</button>
+                                        <button type="button" class="h5-button" x-on:click="open(@js($staff->id), $event.currentTarget)" :disabled="busy || !ready" aria-label="管理 {{ $staff->name }}">管理</button>
                                     @endif
                                 </td>
                             </tr>
