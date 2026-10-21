@@ -11,10 +11,13 @@ use App\Data\ResourceScope;
 use App\Data\StaffIdentity;
 use App\Enums\Permission;
 use App\Enums\Role;
+use App\Support\Admin\UsdAmount;
 use App\Support\ApiProblem;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use InvalidArgumentException;
 
 final class BillingAdministration
 {
@@ -41,6 +44,44 @@ final class BillingAdministration
         $price = DB::table('billing_prices')->orderByDesc('version')->first();
 
         return $price ? (array) $price : null;
+    }
+
+    /** Staff presentation boundary only; all stored prices remain integer USD minor units. */
+    public function savePriceUsd(array $input): array
+    {
+        app(IdentityContext::class)->requireStaff(Permission::PriceManage);
+        $data = ['version' => $input['version'] ?? null, 'is_test' => $input['is_test'] ?? null];
+        $fields = ['regular_amount_usd' => 'regular_amount_minor', 'first_week_amount_usd' => 'first_week_amount_minor'];
+        $errors = [];
+        foreach ($fields as $usd => $minor) {
+            try {
+                $data[$minor] = UsdAmount::fromDecimal($input[$usd] ?? null);
+            } catch (InvalidArgumentException $exception) {
+                $errors[$usd] = $exception->getMessage();
+            }
+        }
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
+        }
+
+        try {
+            // Explicit construction ignores submitted legacy minor-unit fields,
+            // currency and identifiers. Existing authorization/version locking remain authoritative.
+            return $this->savePrice($data);
+        } catch (ValidationException $exception) {
+            foreach ($exception->errors() as $field => $messages) {
+                $usd = array_search($field, $fields, true);
+                $errors[$usd === false ? $field : $usd] = match ($field) {
+                    'regular_amount_minor' => '常规周价须为 $0.01 至 $999999.99。',
+                    'first_week_amount_minor' => '首周优惠价须至少为 $0.01，且不能高于常规周价。',
+                    'version' => '价格版本无效，请刷新后重新确认。',
+                    'is_test' => '请明确勾选保存为测试价格。',
+                    default => $messages,
+                };
+            }
+
+            throw ValidationException::withMessages($errors);
+        }
     }
 
     /** Append a version; never overwrite the price agreed by an existing subscriber. */

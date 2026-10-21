@@ -1,0 +1,47 @@
+{
+  "source_commit": "1b22eafa3aa0b8e573b8721095b0b891f0a3451b",
+  "original_billing_source": "12a9d75a9eb959ead9a85baaa2c4922c0de7dc2f",
+  "public_baseline": "46bd7cece7212a5db676056bc5cedac09fd2d8c3",
+  "merge_commit": "2d7487a25ec755e35e6fbc5f64f2770b30de024b",
+  "business_contract": "1.0.5",
+  "ui_contract": "admin-ui-v1",
+  "billing_app_and_views_unchanged": true,
+  "files": [
+    {
+      "path": "h5-platform/app/Modules/Billing/Filament/Pages/BillingDesk.php",
+      "sha256": "ea2ef3e80f2459373102012eca80808f8817cb8a7e08120c016ac12ce548f11d"
+    },
+    {
+      "path": "h5-platform/app/Modules/Billing/Services/BillingAdministration.php",
+      "sha256": "e61ecb0979c39615cd04444ad586c2f51ded01361ed071f931be9d9ab966dac7"
+    },
+    {
+      "path": "h5-platform/resources/views/billing/desk.blade.php",
+      "sha256": "739eda39295c68e84070f6e063f22091e6cecff215a4bb951434de1797430d12"
+    },
+    {
+      "path": "h5-platform/resources/views/billing/partials/order-detail.blade.php",
+      "sha256": "4e44db5e72d48eaffa3971a87183b8d3027b3fc536808cb47c70bd20262b4876"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/BillingDeskTest.php",
+      "sha256": "875b3ce2a9a711444b453697962663f06de182fda5a346401b573bcf48845771"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/BillingUsdPriceTest.php",
+      "sha256": "b38244894241dc67a0b1944c80f636927f60b1f97b77ca5255846f516abe8abe"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/Support/admin-browser-fixture.php",
+      "sha256": "debcd49230b9db9f5fcd28a0b082d98b99d454a72e8994e792410fdcc68a4182"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/Support/admin-browser.cjs",
+      "sha256": "c560e38cf75a1b0ae0184634db2ccb2265b48ce77ebcf01fc17d9e7074927deb"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Billing/Support/admin-browser.py",
+      "sha256": "27041302c8bdf0e907c50eb3ef9fcbca144281b733cb08926c19640535ebfe5a"
+    }
+  ]
+}

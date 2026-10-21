@@ -1,0 +1,47 @@
+{
+  "candidate": "be7bb4f7c5585418883b777ce2e6f2676690f5ff",
+  "contract": "1.0.5",
+  "database": "06 isolated _test; executed before 03 fixture reseed; no 8206 business database writes",
+  "suites": [
+    {
+      "file": "ManagementTest.php",
+      "passed": 6,
+      "assertions": 75,
+      "methods": [
+        "older_bound_assets_remain_editable_after_more_than_200_uploads",
+        "versions_and_episode_object_scope_prevent_overwrite",
+        "published_episode_media_replacement_requires_ready_contextual_candidate_and_keeps_episode_id",
+        "subtitle_candidate_upload_preserves_context_and_cancel_cannot_change_bound_media",
+        "replacement_rejects_wrong_context_timing_and_missing_files_without_mutation",
+        "draft_media_binding_cannot_be_replaced_by_generic_edit_before_candidate_confirmation"
+      ]
+    },
+    {
+      "file": "PlaybackTest.php",
+      "passed": 1,
+      "assertions": 18,
+      "methods": [
+        "video_replacement_retains_files_but_old_manifest_segment_and_range_grants_are_stale"
+      ]
+    },
+    {
+      "file": "PublicationTest.php",
+      "passed": 1,
+      "assertions": 21,
+      "methods": [
+        "manual_pause_resume_edit_and_withdraw_make_old_executions_obsolete"
+      ]
+    },
+    {
+      "file": "ConcurrencyTest.php",
+      "passed": 1,
+      "assertions": 16,
+      "methods": [
+        "launch_now_competes_with_scheduler_and_duplicate_confirmation_only_publishes_once"
+      ]
+    }
+  ],
+  "total_passed": 9,
+  "assertions": 130,
+  "note": "All targeted tests passed. The later 03-only strict-fixture reseed restored the isolated test database for 07; do not rerun database-refreshing tests against that fixture."
+}

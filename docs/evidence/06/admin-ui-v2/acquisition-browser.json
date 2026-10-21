@@ -1,0 +1,22 @@
+{
+  "source_commit": "be7bb4f7c5585418883b777ce2e6f2676690f5ff",
+  "checks": 22,
+  "errors": [],
+  "result": "passed",
+  "smoke_script": "private copy of h5-platform/tests/Feature/Acquisition/Support/admin-ui-smoke.cjs",
+  "fixture_adjustment": "10-second cooldown before operator login to respect account throttle; source module file unchanged",
+  "base_url": "http://127.0.0.1:8206",
+  "external_sending": "disabled",
+  "external_requests_completed": 0,
+  "pixels": "one synthetic local test fixture; no token or real platform asset",
+  "checks_summary": [
+    "Owner-only assignment tab",
+    "single visible panel",
+    "keyboard arrow/home/end",
+    "unsaved continue/discard/save failure",
+    "pixel edit persistence",
+    "tab refresh and browser back",
+    "operator cannot restore Owner assignment tab",
+    "375px viewport no horizontal overflow"
+  ]
+}

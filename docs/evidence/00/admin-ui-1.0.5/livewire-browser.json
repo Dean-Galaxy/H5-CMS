@@ -1,0 +1,20 @@
+{
+  "passed": 11,
+  "cases": [
+    "ArrowRight retains focus after real server update",
+    "End retains focus after real server update",
+    "Home retains focus after real server update",
+    "ArrowLeft retains focus after real server update",
+    "requests used the real Livewire endpoint",
+    "loading blocks an extra tab request",
+    "mouse response does not steal input focus",
+    "server response does not steal modal focus",
+    "server rejection leaves selection unchanged",
+    "rejection does not force focus elsewhere",
+    "no external request or script error"
+  ],
+  "responses": 8,
+  "external": [],
+  "errors": [],
+  "boundary": "Real Livewire fixture; no staff auth or business acceptance"
+}

@@ -1,0 +1,100 @@
+INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Acquisition\AssetTest
+  ✓ owner and assigned scope is enforced for reads writes probe summary… 4.22s
+  ✓ mfa disabled staff and wrong roles cannot read assets                0.02s
+  ✓ registration does not enable external delivery or accept script or…  0.11s
+  ✓ pixel versions and link versions reject stale updates and unfrozen…  0.05s
+  ✓ link requires accessible matching pixel and current content          0.02s
+  ✓ unfrozen attribution is explicitly unavailable and does not trust m… 1.19s
+
+   PASS  Tests\Feature\Acquisition\AssignmentTest
+  ✓ owner shares multiple people and removal revokes access without cha… 0.08s
+  ✓ selected person outside current page is repopulated and revalidated… 1.98s
+  ✓ unavailable read ports are explicit and never replaced with public…  0.02s
+
+   PASS  Tests\Feature\Acquisition\BillingBridgeTest
+  ✓ consumer failure leaves verified payment and membership intact and…  0.39s
+  ✓ real billing outbox reaches consumer once and unattributed does not… 0.06s
+
+   PASS  Tests\Feature\Acquisition\ConcurrencyTest
+  ✓ two postgresql connections contend and record one payment even with… 5.78s
+
+   PASS  Tests\Feature\Acquisition\DeliveryBoundaryTest
+  ✓ lost or expired lease during preparation never sends or changes the… 0.49s
+  ✓ sixth attempt is reserved with frozen payload and original first ti… 0.65s
+  ✓ late response cannot overwrite expired or replaced lease             0.05s
+  ✓ consent revoked during payload preparation blocks reservation and s… 0.02s
+
+   PASS  Tests\Feature\Acquisition\DeliveryProcessTest
+  ✓ real process takeover leaves resumed old preparer without transport… 1.54s
+  ✓ six sigkills inside http do not lose reservations or allow a sevent… 2.94s
+
+   PASS  Tests\Feature\Acquisition\DeliveryTest
+  ✓ both platforms have explicit local sending and no external requests  0.39s
+  ✓ disabled sender and unknown or revoked consent block real attempts   0.03s
+  ✓ test payments can never be sent to production assets                 0.03s
+  ✓ http adapters map integer usd stable ids and do not send contact or… 0.03s
+  ✓ failed retry uses frozen payload and stable event id then stops aft… 0.08s
+  ✓ http 200 errors and redirects are not marked accepted                0.05s
+  ✓ external review match context and event age are checked before http  0.03s
+  ✓ simulated context missing credentials and disabled pixel are blocke… 0.02s
+  ✓ active lease prevents duplicate sending and expired lease can recov… 0.02s
+  ✓ retry limit and production simulation boot guard                     0.02s
+  ✓ unknown remote outcome is not resent after the retry window even if… 0.04s
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.27s
+  ✓ form save reopen local probe link edit disable and summary           0.15s
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.14s
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.49s
+  ✓ workspace tabs are allowlisted and assignment tab is owner only      1.18s
+  ✓ url tab restores only authorized context and invalid input falls ba… 0.05s
+  ✓ assignment opens authorized tab and failed save preserves editor     0.11s
+  ✓ payment display uses shared exact usd format without float conversi… 0.05s
+
+   PASS  Tests\Feature\Acquisition\PaymentTest
+  ✓ event and payment deduplication preserve one receipt and one conver… 0.02s
+  ✓ same payment with changed facts is rejected without overwriting his… 0.02s
+  ✓ unknown source is not reinterpreted as current pixel and no source…  0.02s
+  ✓ first resubscription renewal and test real are separate but same ki… 0.04s
+  ✓ pixel and link edits do not rewrite already received attribution or… 0.03s
+
+   PASS  Tests\Feature\Acquisition\ReadProvidersIntegrationTest
+  ✓ real directories support both platforms sharing revocation and publ… 0.81s
+  ✓ workbench uses real cursor and repopulates saved choices before rev… 0.24s
+
+   PASS  Tests\Feature\Identity\StaffPasswordTest
+  ✓ staff creation api enforces staff password policy with data set "ei… 1.46s
+  ✓ staff creation api enforces staff password policy with data set "se… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "le… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "nu… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "ma… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "to… 0.02s
+  ✓ first owner command enforces the same policy with data set "eight"   0.22s
+  ✓ first owner command enforces the same policy with data set "seven"   0.02s
+  ✓ first owner command enforces the same policy with data set "letters… 0.02s
+  ✓ first owner command enforces the same policy with data set "numbers… 0.02s
+  ✓ first owner command enforces the same policy with data set "maximum… 0.02s
+  ✓ first owner command enforces the same policy with data set "too lon… 0.02s
+  ✓ staff self password change enforces same policy with data set "eigh… 1.11s
+  ✓ staff self password change enforces same policy with data set "seve… 0.04s
+  ✓ staff self password change enforces same policy with data set "lett… 0.04s
+  ✓ staff self password change enforces same policy with data set "numb… 0.04s
+  ✓ staff self password change enforces same policy with data set "maxi… 0.04s
+  ✓ staff self password change enforces same policy with data set "too…  0.04s
+  ✓ admin profile route uses staff policy and keeps mfa gate             0.04s
+  ✓ staff password change still requires current password and confirmat… 0.10s
+  ✓ viewer registration and reset keep twelve character minimum          0.55s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.01s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.03s
+  ✓ livewire tabs call the module method without using inline user code  0.05s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.30s
+  ✓ dialog has accessible title and real submit button can target its f… 0.04s
+
+  Tests:    71 passed (725 assertions)
+  Duration: 30.05s

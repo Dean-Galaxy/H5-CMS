@@ -1,0 +1,11 @@
+{
+  "candidate": "be7bb4f7c5585418883b777ce2e6f2676690f5ff",
+  "composer_lock_sha256": "077219134203096b32abb3db2685c3defbab1c893ea89345f2882b2e7596ad48",
+  "matches_same_day_03_source_manifest": true,
+  "same_day_02_03_dependency_audits": {
+    "advisories": [],
+    "abandoned": []
+  },
+  "package_lock": "not present in h5-platform",
+  "network_audit": "not rerun; records bound to unchanged composer.lock SHA"
+}

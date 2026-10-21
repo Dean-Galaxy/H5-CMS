@@ -1,13 +1,13 @@
 /* Shared staff UI only. Audience/identity.css and audience/site.css remain independent. */
-.h5-admin-workspace,.h5-admin-dialog {
-    --h5-bg:#f6f7f9;--h5-paper:#fff;--h5-text:#202733;--h5-muted:#647082;--h5-line:#dfe4eb;
+.fi-body,.h5-admin-workspace,.h5-admin-dialog {
+    --h5-bg:#f6f7f9;--h5-paper:#fff;--h5-text:#202733;--h5-muted:#647082;--h5-line:#e6e9ee;
     --h5-ink:#263547;--h5-inktext:#fff;--h5-soft:#eef2f7;--h5-orange:#985200;--h5-orangebg:#fff4e4;
     --h5-green:#17734c;--h5-greenbg:#eaf7f0;--h5-red:#b13434;--h5-redbg:#fff0ef;
     font:14px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
     color:var(--h5-text);min-width:0;box-sizing:border-box;
 }
-.dark .h5-admin-workspace,.dark .h5-admin-dialog {
-    --h5-bg:#15171c;--h5-paper:#1c2027;--h5-text:#ecedf1;--h5-muted:#aab2c1;--h5-line:#424b58;
+.dark .fi-body,.dark .h5-admin-workspace,.dark .h5-admin-dialog {
+    --h5-bg:#15171c;--h5-paper:#1c2027;--h5-text:#ecedf1;--h5-muted:#aab2c1;--h5-line:#333a46;
     --h5-ink:#e6eaf1;--h5-inktext:#18202c;--h5-soft:#2c3442;--h5-orange:#f2bb72;--h5-orangebg:#3b3024;
     --h5-green:#8ad8b3;--h5-greenbg:#223b31;--h5-red:#f5a2a2;--h5-redbg:#422a2d;
 }
@@ -15,21 +15,21 @@
 :is(.h5-admin-workspace,.h5-admin-dialog) [hidden]{display:none!important}
 .h5-admin-workspace{display:grid;gap:20px;isolation:isolate}
 :is(.h5-admin-workspace,.h5-admin-dialog) :is(h1,h2,h3,p){margin:0}
-:is(.h5-admin-workspace,.h5-admin-dialog) h2{font-size:20px;font-weight:650}
-:is(.h5-admin-workspace,.h5-admin-dialog) h3{font-size:16px;font-weight:600}
+:is(.h5-admin-workspace,.h5-admin-dialog) h2{font-size:18px;font-weight:600}
+:is(.h5-admin-workspace,.h5-admin-dialog) h3{font-size:15px;font-weight:600}
 :is(.h5-admin-workspace,.h5-admin-dialog) :is(button,input,select,textarea){font:inherit;max-width:100%}
 :is(.h5-admin-workspace,.h5-admin-dialog) :focus-visible{outline:3px solid #4883ba;outline-offset:3px}
 :is(.h5-admin-workspace,.h5-admin-dialog) button{cursor:pointer}
 :is(.h5-admin-workspace,.h5-admin-dialog) button:disabled{opacity:.5;cursor:not-allowed}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-muted{color:var(--h5-muted)}
-:is(.h5-admin-workspace,.h5-admin-dialog) .h5-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-:is(.h5-admin-workspace,.h5-admin-dialog) .h5-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid var(--h5-line);border-radius:7px;background:var(--h5-paper);color:var(--h5-text);text-decoration:none;white-space:normal}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:37px;padding:8px 13px;border:1px solid var(--h5-line);border-radius:7px;background:var(--h5-paper);color:var(--h5-text);text-decoration:none;white-space:normal}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-primary{background:var(--h5-ink);color:var(--h5-inktext);border-color:var(--h5-ink)}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-danger{color:var(--h5-red)}
-:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tabs{display:flex;gap:24px;overflow-x:auto;max-width:100%;border-bottom:1px solid var(--h5-line);padding:4px 3px 0;scrollbar-width:thin}
-:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tab{flex:none;border:0;border-bottom:2px solid transparent;padding:10px 2px 12px;background:transparent;color:var(--h5-muted);min-height:44px}
-:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tab[aria-selected=true]{border-bottom-color:var(--h5-ink);color:var(--h5-text);font-weight:650}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tabs{display:flex;flex-wrap:wrap;gap:23px;max-width:100%;border-bottom:1px solid var(--h5-line)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tab{flex:none;border:0;border-bottom:2px solid transparent;padding:0 0 12px;background:transparent;color:var(--h5-muted);white-space:nowrap}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-tab[aria-selected=true]{border-bottom-color:var(--h5-ink);color:var(--h5-text);font-weight:600}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-tab[aria-disabled=true]{opacity:.5;cursor:wait}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-count{margin-left:7px;font-size:12px;border-radius:5px;padding:2px 6px;background:var(--h5-soft)}
 .h5-admin-workspace .h5-tab-panel{display:grid;gap:18px;min-width:0}
@@ -42,22 +42,83 @@
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-span{grid-column:1/-1}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-table-wrap{max-width:100%;overflow-x:auto;border:1px solid var(--h5-line);border-radius:10px;background:var(--h5-paper)}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-table{border-collapse:collapse;width:100%;text-align:left}
-:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table :is(th,td){padding:14px 12px;border-bottom:1px solid var(--h5-line);vertical-align:top}
-:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table th{font-size:12px;font-weight:600;color:var(--h5-muted);background:var(--h5-bg);white-space:nowrap}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table :is(th,td){padding:15px 12px;border-bottom:1px solid var(--h5-line);vertical-align:middle}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table th{font-size:12px;font-weight:500;color:var(--h5-muted);background:var(--h5-bg);white-space:nowrap}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-badge{display:inline-block;padding:3px 7px;border-radius:5px;font-size:12px;background:var(--h5-soft)}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-alert{padding:12px 14px;border-radius:8px;background:var(--h5-orangebg);color:var(--h5-orange);overflow-wrap:anywhere}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-error{background:var(--h5-redbg);color:var(--h5-red);padding:12px;border-radius:8px}
 :is(.h5-admin-workspace,.h5-admin-dialog) .h5-success{background:var(--h5-greenbg);color:var(--h5-green);padding:12px;border-radius:8px}
-.h5-admin-dialog{padding:0;border:1px solid var(--h5-line);border-radius:12px;margin:auto;width:min(760px,calc(100% - 24px));max-width:calc(100% - 24px);max-height:calc(100dvh - 32px);background:var(--h5-paper);box-shadow:0 18px 70px #0004}
+/* P:80–93: all approved dialogs use the same 640px continuous surface.
+   Native modal/focus and bounded body scrolling are retained for real forms. */
+.h5-admin-dialog{padding:24px;border:1px solid var(--h5-line);border-radius:12px;inset:0 0 auto;margin:62px auto 20px;width:640px;max-width:calc(100% - 40px);max-height:calc(100dvh - 82px);background:var(--h5-paper);box-shadow:0 16px 64px #0002}
 .h5-admin-dialog[open]{display:flex;flex-direction:column}
-.h5-admin-dialog::backdrop{background:#11182780}
-.h5-admin-dialog .h5-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 20px;border-bottom:1px solid var(--h5-line);flex:none}
-.h5-admin-dialog .h5-dialog-body{padding:20px;overflow-y:auto;min-height:0;display:grid;gap:16px}
-.h5-admin-dialog .h5-dialog-actions{flex:none;border-top:1px solid var(--h5-line);padding:14px 20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.h5-admin-dialog.h5-confirm-leave{width:min(520px,calc(100% - 24px))}
-@media(max-width:640px){
-    :is(.h5-admin-workspace,.h5-admin-dialog) .h5-form-grid{grid-template-columns:minmax(0,1fr)}
-    :is(.h5-admin-workspace,.h5-admin-dialog) .h5-card{padding:14px}
-    .h5-admin-dialog .h5-dialog-actions .h5-button{flex:1 1 auto}
-    .h5-admin-dialog :is(.h5-dialog-header,.h5-dialog-body,.h5-dialog-actions){padding:14px}
+.h5-admin-dialog::backdrop{background:#26354766}
+.dark .h5-admin-dialog{box-shadow:0 16px 64px #0005}
+.dark .h5-admin-dialog::backdrop{background:#0009}
+.h5-admin-dialog .h5-dialog-header{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:0 0 5px;border:0;flex:none}
+.h5-admin-dialog .h5-dialog-header h2{padding-right:48px;min-height:37px}
+.h5-admin-dialog .h5-dialog-close{position:absolute;right:0;top:0;width:42px;height:42px;padding:8px 10px}
+.h5-dialog-close svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8}
+.h5-admin-dialog .h5-dialog-body{padding:0;overflow-y:auto;min-height:0;display:grid;gap:16px}
+.h5-admin-dialog .h5-dialog-actions{flex:none;border:0;padding:0;margin-top:20px;display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+:is(.h5-admin-workspace,.h5-admin-dialog) h1{font-size:23px;font-weight:600;letter-spacing:-.5px}
+.h5-heading p{margin-top:5px!important;font-size:13px}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-link{padding:4px 0;background:transparent;border:0;color:var(--h5-orange);text-align:left;text-decoration:none}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-ok{color:var(--h5-green);background:var(--h5-greenbg)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-warn{color:var(--h5-orange);background:var(--h5-orangebg)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-bad{color:var(--h5-red);background:var(--h5-redbg)}
+:is(.h5-admin-workspace,.h5-admin-dialog) .h5-table tr:last-child td{border-bottom:0}
+.h5-environment{font-size:12px;color:var(--h5-orange);background:var(--h5-orangebg);padding:4px 9px;border-radius:5px}
+/* Restyle the existing authorized Filament shell; no second navigation tree. */
+.fi-body{background:var(--h5-bg);color:var(--h5-text)}
+.fi-body .fi-topbar{min-height:64px;padding:14px 22px;background:var(--h5-paper);border-bottom:1px solid var(--h5-line);box-shadow:none;gap:16px}
+.fi-body .fi-topbar-start{display:flex;margin:0;gap:16px}
+.fi-body .fi-topbar-start .fi-logo{margin:0}
+.h5-staff-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--h5-text);white-space:nowrap}
+.h5-staff-mark{display:grid;place-items:center;width:31px;height:31px;border-radius:9px;background:var(--h5-ink);color:var(--h5-inktext);font-size:12px;letter-spacing:1px}
+.fi-body .fi-topbar :is(.fi-topbar-open-sidebar-btn,.fi-topbar-close-sidebar-btn){display:none!important}
+.fi-body .fi-sidebar-close-overlay{display:none!important}
+.fi-body .fi-layout{display:grid;grid-template-columns:164px minmax(0,1fr);align-items:start;overflow-x:clip;min-height:calc(100dvh - 64px)}
+.fi-body .fi-layout>.fi-main-ctn{min-width:0;width:100%}
+.fi-body .fi-sidebar.fi-main-sidebar{position:sticky!important;top:64px!important;width:164px!important;height:calc(100dvh - 64px)!important;transform:none!important;translate:0!important;background:var(--h5-paper);border-right:1px solid var(--h5-line);box-shadow:none;transition:none;z-index:20}
+.fi-body .fi-sidebar-header-ctn{display:none}
+.fi-body .fi-sidebar-nav{padding:22px 12px;gap:7px;scrollbar-gutter:auto}
+.fi-body .fi-sidebar-nav-groups{margin:0;gap:7px}
+.fi-body .fi-sidebar-group-items{gap:7px}
+.fi-body .fi-sidebar-item-btn{padding:12px;border-radius:7px;gap:10px;color:var(--h5-text)}
+.fi-body .fi-sidebar-item-btn>.fi-sidebar-item-label{color:var(--h5-text);font-size:14px;font-weight:500;line-height:1.55;white-space:normal;overflow:visible}
+.fi-body .fi-sidebar-item-btn>.fi-icon{width:17px;height:17px;color:var(--h5-text)}
+.fi-body .fi-sidebar-item.fi-active>.fi-sidebar-item-btn{background:var(--h5-soft)}
+.h5-side-foot{margin-top:auto;padding:36px 12px 6px;font-size:12px;color:var(--h5-muted)}
+.h5-side-foot p{margin:12px 0 0}
+.h5-side-role{display:flex;align-items:center;gap:6px}
+.h5-side-role img{width:28px;height:28px;border-radius:50%;background:var(--h5-soft)}
+.fi-body .fi-main{max-width:none;padding:25px 26px 20px}
+.fi-body .fi-page-header-main-ctn{padding:0;gap:22px}
+.fi-body .fi-page-content{gap:20px}
+.fi-body .fi-header-heading{font-size:23px;font-weight:600;letter-spacing:-.5px;color:var(--h5-text)}
+.fi-page:has(.h5-workspace-title)>.fi-page-header-main-ctn>.fi-header{display:none}
+@media(max-width:800px){
+ .fi-body .fi-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;align-content:start}
+ .fi-body .fi-sidebar.fi-main-sidebar{position:relative!important;top:0!important;width:100%!important;height:auto!important;border-right:0;border-bottom:1px solid var(--h5-line)}
+ .fi-body .fi-sidebar-nav{padding:10px 16px;overflow:visible}
+ .fi-body .fi-sidebar-group-items{flex-direction:row;flex-wrap:wrap;gap:7px}
+ .fi-body .fi-sidebar-item-btn{padding:7px 10px}
+ .fi-body .fi-sidebar-item-btn>.fi-sidebar-item-label{font-size:12px}
+ .h5-side-foot{display:none}
+ .fi-body .fi-main{padding:22px 18px}
+ .fi-body .fi-topbar{padding-left:18px}
+}
+@media(max-width:580px){
+ :is(.h5-admin-workspace,.h5-admin-dialog) .h5-form-grid{grid-template-columns:minmax(0,1fr)}
+ :is(.h5-admin-workspace,.h5-admin-dialog) .h5-card{padding:15px}
+ :is(.h5-admin-workspace,.h5-admin-dialog) .h5-button{min-height:42px}
+ :is(.h5-admin-workspace,.h5-admin-dialog) .h5-tabs{gap:16px 18px}
+ :is(.h5-admin-workspace,.h5-admin-dialog) h1,.fi-body .fi-header-heading{font-size:21px}
+ .h5-admin-dialog{padding:17px;max-width:calc(100% - 20px);margin-top:18px;max-height:calc(100dvh - 36px)}
+ .fi-body .fi-main{padding:18px 12px}
+ .fi-body .fi-topbar{gap:6px;padding-right:12px;flex-wrap:wrap}
+ :is(.h5-admin-workspace,.h5-admin-dialog) .h5-table{min-width:580px}
+ .fi-body .fi-sidebar-item-btn{min-height:42px}
+ .h5-environment{font-size:11px}
 }

@@ -1,0 +1,10 @@
+{"passed":1,"check":"owner: real password and MFA login"}
+{"passed":2,"check":"same-origin staff avatar loads successfully"}
+{"passed":3,"check":"owner still sees three authorized tabs"}
+{"passed":4,"check":"shared patch preserves continuous real Livewire keyboard navigation"}
+{"passed":5,"check":"previously saved dollar price remains exact"}
+{"passed":6,"check":"shared patch preserves failed-save input and active tab"}
+{"passed":7,"check":"shared patch discard restores original price without new version"}
+{"passed":8,"check":"shared patch mobile has no document horizontal overflow"}
+{"passed":9,"check":"shared patch has no external avatar or other external requests"}
+{"passed":10,"check":"shared patch has no page errors or HTTP 5xx"}

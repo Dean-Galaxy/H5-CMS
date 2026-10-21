@@ -7,6 +7,8 @@ use App\Modules\Identity\Filament\StaffProfile;
 use App\Modules\Identity\Http\SessionProtection;
 use App\Modules\Identity\Http\StaffPanelMfa;
 use App\Support\Admin\StaffAvatarProvider;
+use App\Support\Admin\StaffNavigation;
+use Filament\Navigation\NavigationBuilder;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -29,6 +31,11 @@ class AdminPanelProvider extends PanelProvider
     {
         $panel->default()->id('admin')->path('admin')->brandName('H5 员工后台')->login(StaffLogin::class)->authGuard('staff')->profile(StaffProfile::class)
             ->defaultAvatarProvider(StaffAvatarProvider::class)
+            ->brandLogo(fn () => view('components.admin.brand'))
+            ->sidebarWidth('164px')
+            ->navigation(fn (NavigationBuilder $builder) => StaffNavigation::build($builder))
+            ->renderHook(PanelsRenderHook::TOPBAR_LOGO_AFTER, fn () => view('components.admin.environment'))
+            ->renderHook(PanelsRenderHook::SIDEBAR_NAV_END, fn () => view('components.admin.sidebar-footer'))
             ->renderHook(PanelsRenderHook::HEAD_END, fn () => view('components.admin.assets'))
             ->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true)
             ->pages([Dashboard::class])

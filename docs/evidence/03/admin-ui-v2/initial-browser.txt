@@ -1,0 +1,12 @@
+{"passed":1,"check":"owner: real password and MFA login"}
+{"passed":2,"check":"owner three tabs and one visible panel"}
+{"passed":3,"check":"paid order, original renewal and zero refund show exact USD"}
+{"passed":4,"check":"unconfigured official boundary visible"}
+{"passed":5,"check":"partial refund shows $1.25 USD"}
+{"passed":6,"check":"stored cents refill as dollar strings"}
+{"passed":7,"check":"continue editing retains amount and tab"}
+{"passed":8,"check":"failed precision validation cannot navigate or lose input"}
+{"passed":9,"check":"discard reloads confirmed price"}
+{"passed":10,"check":"successful save and refresh preserve precise dollars and tab"}
+{"passed":11,"check":"native refresh cancel keeps unsaved price"}
+{"failed_step":"owner-mobile-keyboard","error":"page.waitForFunction: Timeout 30000ms exceeded."}

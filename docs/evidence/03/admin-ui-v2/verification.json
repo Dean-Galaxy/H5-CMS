@@ -1,0 +1,56 @@
+{
+  "source_commit": "12a9d75a9eb959ead9a85baaa2c4922c0de7dc2f",
+  "public_baseline": "7a48236c4ded237c1b55b57cfa43e4c52a9f2ee6",
+  "scope": "03 staff Billing UI v2 and USD boundary",
+  "core_regression": {
+    "passed": 112,
+    "assertions": 2396,
+    "duration_seconds": 10.97,
+    "phase": "Before public UI merge; affected Billing core implementation unchanged afterward; excluded Desk and USD tests."
+  },
+  "final_focused": {
+    "passed": 25,
+    "assertions": 509,
+    "duration_seconds": 0.99,
+    "phase": "After public focus fix, final Billing page/service/views/tests."
+  },
+  "browser": {
+    "passed": 29,
+    "real_password_and_mfa_roles": [
+      "owner",
+      "support",
+      "content",
+      "acquisition"
+    ],
+    "page_errors": 0,
+    "server_failures": 0,
+    "blocked_external_hosts": [
+      "ui-avatars.com"
+    ],
+    "completed_external_requests": 0,
+    "synthetic_payments": true,
+    "test_server_stopped": true
+  },
+  "read_only_storage_checks": {
+    "passed": 8,
+    "regular_amount_minor": 1234,
+    "first_week_amount_minor": 321,
+    "original_ledger_hashes_unchanged": true
+  },
+  "contracts": {
+    "version": "1.0.4",
+    "examples": 57
+  },
+  "dependency_audit": {
+    "advisories": 0,
+    "abandoned": 0,
+    "lockfile_unchanged": true
+  },
+  "new_migrations": 0,
+  "private_configuration_unchanged": true,
+  "official_stripe": "not_configured_not_verified",
+  "external_deployment": false,
+  "production_charging": false,
+  "coordinator_acceptance": "pending",
+  "combination_acceptance": "pending"
+}

@@ -1,0 +1,121 @@
+INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Identity\AuthorizationTest
+  ✓ fixed roles and resource scopes match business rules                 2.10s
+  ✓ staff api rejects non owner direct requests and audits denial        2.22s
+  ✓ owner can create change and disable staff with version control       0.65s
+  ✓ missing mfa proof does not unlock staff api                          0.01s
+  ✓ disabled account and old version session are revoked                 0.03s
+  ✓ audit uses allowlisted changes and request ids                       0.05s
+
+   PASS  Tests\Feature\Identity\ContractsTest
+  ✓ business samples roundtrip through typed php consumers               0.44s
+  ✓ missing provider never fabricates business success                   0.11s
+  ✓ controlled return rejects open redirect encodings                    0.05s
+  ✓ openapi routes and enums match runtime                               0.01s
+
+   PASS  Tests\Feature\Identity\MfaTest
+  ✓ password alone and empty recovery code cannot bypass mfa             2.80s
+  ✓ real totp challenge authenticates and sets session proof             0.58s
+  ✓ totp and recovery codes cannot be replayed                           0.06s
+  ✓ mfa secrets are encrypted and hidden                                 0.01s
+  ✓ disabled employee cannot reach challenge or login                    0.23s
+  ✓ first staff login requires enrollment before dashboard               0.29s
+  ✓ configured staff without challenge proof cannot open any panel page  0.02s
+  ✓ generic staff login event does not grant mfa proof                   0.01s
+  ✓ staff password change invalidates old session version                0.01s
+
+   PASS  Tests\Feature\Identity\StaffAccountsTest
+  ✓ tabs restore from url and only render selected business table        0.20s
+  ✓ create dialog keeps invalid input and clears secrets only after sav… 0.29s
+  ✓ edit dialog revokes target sessions and detects concurrent updates   0.04s
+  ✓ non owner direct page access is denied for each other role           0.18s
+  ✓ missing mfa cannot load staff page                                   0.01s
+  ✓ each public mutation rechecks owner permission                       0.01s
+  ✓ editor target cannot be changed by a forged property update          0.06s
+  ✓ current owner cannot disable or demote self through editor           0.03s
+
+   PASS  Tests\Feature\Identity\StaffDirectoryTest
+  ✓ real provider returns only active acquisition staff and minimal fie… 0.05s
+  ✓ real empty directory does not offer the owner as an assignment       0.02s
+  ✓ guest and viewer are denied before input or candidate information    0.07s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s
+  ✓ owner needs configured mfa and the current staff proof on both meth… 0.02s
+  ✓ disabled revoked and demoted actors lose read access                 0.03s
+  ✓ saved cursor does not replace permission or mfa checks               0.02s
+  ✓ unknown inactive and wrong role candidates share the same not found… 0.02s
+  ✓ selected staff outside the current page can be read and is rechecke… 0.02s
+  ✓ default limit and keyset pagination are stable for duplicate names   0.08s
+  ✓ renames and ineligible boundary rows do not break cursor continuati… 0.02s
+  ✓ invalid limits and staff id formats are validation errors for an au… 0.02s
+  ✓ tampered malformed and cross purpose cursors are rejected            0.04s
+  ✓ internal empty cursor is not silently treated as the first page      0.01s
+
+   PASS  Tests\Feature\Identity\StaffPasswordTest
+  ✓ staff creation api enforces staff password policy with data set "ei… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "se… 0.01s
+  ✓ staff creation api enforces staff password policy with data set "le… 0.01s
+  ✓ staff creation api enforces staff password policy with data set "nu… 0.01s
+  ✓ staff creation api enforces staff password policy with data set "ma… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "to… 0.01s
+  ✓ first owner command enforces the same policy with data set "eight"   0.27s
+  ✓ first owner command enforces the same policy with data set "seven"   0.01s
+  ✓ first owner command enforces the same policy with data set "letters… 0.01s
+  ✓ first owner command enforces the same policy with data set "numbers… 0.01s
+  ✓ first owner command enforces the same policy with data set "maximum… 0.01s
+  ✓ first owner command enforces the same policy with data set "too lon… 0.01s
+  ✓ staff self password change enforces same policy with data set "eigh… 0.51s
+  ✓ staff self password change enforces same policy with data set "seve… 0.03s
+  ✓ staff self password change enforces same policy with data set "lett… 0.03s
+  ✓ staff self password change enforces same policy with data set "numb… 0.03s
+  ✓ staff self password change enforces same policy with data set "maxi… 0.04s
+  ✓ staff self password change enforces same policy with data set "too…  0.03s
+  ✓ staff password change still requires current password and confirmat… 0.05s
+  ✓ viewer registration and reset keep twelve character minimum          0.24s
+
+   PASS  Tests\Feature\Identity\ViewerTest
+  ✓ password reset email origin does not trust request host              0.38s
+  ✓ guest identity entry is public and business boundaries are enforced  0.12s
+  ✓ registration uses fortify and cannot create staff                    0.24s
+  ✓ verification checkout gate and link replay                           0.05s
+  ✓ expired and tampered verification are rejected                       0.06s
+  ✓ correct email invalidates old link and cannot alter verified accoun… 0.03s
+  ✓ email resend is limited with retry after                             0.08s
+  ✓ reset link is single use and revokes old session                     0.03s
+  ✓ expired reset does not change password                               0.24s
+  ✓ password recovery does not enumerate accounts                        0.43s
+  ✓ login rate limit and controlled return                               0.93s
+  ✓ guest verification continues after login                             0.03s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.04s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.06s
+  ✓ livewire tabs call the module method without using inline user code  0.04s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.17s
+  ✓ dialog has accessible title and real submit button can target its f… 0.02s
+
+   PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
+  ✓ actual staff profile route uses staff policy and same origin avatar  0.52s
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.01s
+  ✓ staff contract is relaxed without changing viewer passwords          0.01s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.01s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+   PASS  Tests\Feature\Contracts\AcceptedAudienceTest
+  ✓ default website and progress use the accepted provider without loca… 0.04s
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.31s
+  ✓ fresh progress is empty and a guest cannot write account progress    0.02s
+
+  Tests:    94 passed (746 assertions)
+  Duration: 22.66s
