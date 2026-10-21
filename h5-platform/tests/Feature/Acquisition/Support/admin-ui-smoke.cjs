@@ -35,6 +35,17 @@ function totp(secret) {
   passed.push('Owner-only assignment tab visible for Owner');
   if (await page.locator('[role=tabpanel]:not([hidden])').count() !== 1) throw new Error('Exactly one panel must be visible');
   passed.push('one active panel on initial load');
+  await page.getByRole('tab',{name:'推广链接'}).focus();
+  for (const [key, id] of [['ArrowRight','pixels'], ['End','assignments'], ['Home','links'], ['ArrowLeft','assignments'], ['Home','links']]) {
+   await page.keyboard.press(key);
+   await page.waitForFunction(id => {
+    const selected=document.querySelector('[data-admin-tab="'+id+'"]');
+    return selected?.getAttribute('aria-selected')==='true' && selected.getAttribute('aria-disabled')!=='true';
+   }, id);
+   const focus=await page.evaluate(()=>document.activeElement?.dataset.adminTab);
+   if(focus!==id) throw new Error('Continuous keyboard focus lost after '+key);
+   passed.push('continuous keyboard '+key+' retains focus on '+id);
+  }
   await page.getByLabel('推广名称').fill('Unsaved browser check');
   await page.getByRole('tab',{name:'像素资产'}).click();
   const prompt=page.getByRole('dialog'); await prompt.waitFor();
