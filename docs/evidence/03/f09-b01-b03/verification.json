@@ -1,0 +1,43 @@
+{
+  "application_commit": "b7821ad5d9618db70062034d271b24332f7df6ee",
+  "capture_worktree_clean": true,
+  "focused": {
+    "source_commit": "1a49d048c5801a3b5fa01f9920196ab66b18d843",
+    "tests": 29,
+    "assertions": 565,
+    "later_changes": "Only module spacing, public dialog layout and browser tooling; Billing service unchanged"
+  },
+  "full_browser": {
+    "source_commit": "a021c5e19f1687bd55dc814c64e0a071d30152b7",
+    "passed": 29,
+    "application_files_identical_to_final": true
+  },
+  "f09_browser": {
+    "passed": 16,
+    "pairs": 6,
+    "tab_panel_gap_px": 22,
+    "price_pairs_equal_data": 2,
+    "entry_pairs_with_unmatched_extension_data": 4,
+    "page_errors": 0,
+    "server_failures": 0,
+    "external_requests": 0
+  },
+  "storage": {
+    "checks": 8,
+    "old_payment_entitlement_outbox_hashes_unchanged": true
+  },
+  "contracts": {
+    "version": "1.0.5",
+    "examples": 59
+  },
+  "new_migrations": 0,
+  "normal_migrations_all_ran": true,
+  "private_configuration_unchanged": true,
+  "test_server_port": 8403,
+  "test_server_stopped": true,
+  "normal_environment": "8203/5603",
+  "official_stripe": "not_configured_not_verified",
+  "design_acceptance": "pending_08_06_00",
+  "F09": "open",
+  "production_charging": false
+}

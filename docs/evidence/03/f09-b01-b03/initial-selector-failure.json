@@ -1,0 +1,16 @@
+{
+  "step": "owner-orders",
+  "passed": 3,
+  "checks": [
+    "owner: real password and MFA login",
+    "owner three tabs and one visible panel",
+    "paid order, original renewal and zero refund show exact USD"
+  ],
+  "errors": [],
+  "server_failures": [],
+  "blocked_external_hosts": [],
+  "completed_external_hosts": [],
+  "is_test": true,
+  "official_payment_verified": false,
+  "boundary": "Real Chrome password+MFA and HTTP UI; synthetic payment facts in this workspace testing database only."
+}
