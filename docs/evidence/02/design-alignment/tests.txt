@@ -1,0 +1,145 @@
+INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Content\CatalogTest
+  ✓ real home category banner language and actual published counts       0.33s
+  ✓ visibility expiry drafts unknown region and empty category           0.05s
+  ✓ cursor is stable signed and bound to filter locale region sort vers… 0.07s
+
+   PASS  Tests\Feature\Content\ConcurrencyTest
+  ✓ separate processes cannot publish an occurrence twice                0.33s
+  ✓ manual publish edit and withdraw serialize with scheduler            0.73s
+  ✓ slow startup has its own budget and still contends on real locks    12.40s
+  ✓ failed startup reports the phase and cleans children before unlocki… 0.79s
+  ✓ launch now competes with scheduler and duplicate confirmation only…  0.56s
+
+   PASS  Tests\Feature\Content\DesignWorkflowTest
+  ✓ active proposed preview is read only and only explicit pause allows… 0.20s
+  ✓ draft timing migration preserves existing running paused and schedu… 0.08s
+  ✓ operation actor comes from frozen identity context and old rows sta… 0.06s
+  ✓ now draft saves intent without publishing or activating              0.05s
+  ✓ failed final schedule rolls back draft and its audit projection      0.07s
+  ✓ processed asset preview requires staff permission even for range an… 0.05s
+  ✓ global settings page is owner only and list does not leak media pat… 0.13s
+
+   PASS  Tests\Feature\Content\ManagementTest
+  ✓ new drama snapshots defaults and fixed beijing tomorrow              0.05s
+  ✓ license offsets round trip without beijing drift                     0.04s
+  ✓ manual same value is override and sync requires current impact       0.11s
+  ✓ content permissions mfa and viewer staff separation                  0.10s
+  ✓ older bound assets remain editable after more than 200 uploads       0.15s
+  ✓ edit keeps original identity and rejects conflict without changing…  0.05s
+  ✓ versions and episode object scope prevent overwrite                  0.04s
+  ✓ content workspace renders module owned navigation and release contr… 0.03s
+  ✓ published episode media replacement requires ready contextual candi… 0.04s
+  ✓ subtitle candidate upload preserves context and cancel cannot chang… 0.07s
+  ✓ replacement rejects wrong context timing and missing files without…  0.04s
+  ✓ draft media binding cannot be replaced by generic edit before candi… 0.03s
+
+   PASS  Tests\Feature\Content\MediaTest
+  ✓ upload is private sequential owned and rejects traversal type size   0.14s
+  ✓ cancel is owned and a canceled partial upload cannot finish          0.03s
+  ✓ subtitles reorder without retiming and reject markup bad utf8 or ti… 0.04s
+  ✓ actual small h264 aac is decoded and packaged privately              0.33s
+  ✓ real image is reencoded and subtitle out of duration blocks publish  0.10s
+  ✓ draft preview and private range require mfa and content permission   0.09s
+
+   PASS  Tests\Feature\Content\PlaybackTest
+  ✓ free fifth paid sixth and no raw media or forged grant access        0.10s
+  ✓ hls subtitle map and every caption request are protected             0.08s
+  ✓ head and invalid range do not start a session and missing hls block… 0.08s
+  ✓ n change only protects started same episode with finite window       0.11s
+  ✓ refund membership loss is checked on every manifest segment range a… 0.12s
+  ✓ expiry region withdrawal and other identity cannot reuse grants      0.10s
+  ✓ video replacement retains files but old manifest segment and range…  0.10s
+
+   PASS  Tests\Feature\Content\PromotableCatalogTest
+  ✓ provider returns minimal dtos from real publication facts and exist… 0.07s
+  ✓ both methods require current staff mfa and published catalog permis… 0.09s
+  ✓ inventory is us scoped without reading or changing viewer region or… 0.05s
+  ✓ us licence uses current half open interval and each read revalidate… 0.07s
+  ✓ only currently published episodes with usable media qualify          0.08s
+  ✓ missing or unsafe media and subtitle files are rechecked on every c… 0.09s
+  ✓ keyset pagination skips unusable batches and single lookup fills an… 0.12s
+  ✓ cursor integrity purpose country locale order and version are bound  0.07s
+  ✓ empty inventory and invalid inputs do not fabricate candidates       0.03s
+
+   PASS  Tests\Feature\Content\PublicationTest
+  ✓ 35 episodes publish 10 10 10 5 and each occurrence is idempotent     0.08s
+  ✓ completed requires all and missing or processing blocks whole batch  0.09s
+  ✓ missing packaged segment blocks the entire scheduled batch           0.04s
+  ✓ manual pause resume edit and withdraw make old executions obsolete   0.11s
+  ✓ saving plan invalidates old job and activation requires preview and… 0.09s
+  ✓ unapproved missed schedule is held and not silently caught up        0.05s
+  ✓ immediate updating launch and early next batch preserve cursor and…  0.08s
+  ✓ immediate completed launch blocks incomplete total without partial…  0.05s
+
+   PASS  Tests\Feature\Contracts\AcceptedAudienceTest
+  ✓ default website and progress use the accepted provider without loca… 0.02s
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.03s
+  ✓ fresh progress is empty and a guest cannot write account progress    0.02s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund   0.15s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 0.02s
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.03s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.02s
+  ✓ public content still requires a trusted region then reads its own d… 0.03s
+
+   PASS  Tests\Feature\Contracts\AcquisitionReadPortsTest
+  ✓ consumers read typed minimal pages without private staff or media f… 0.01s
+  ✓ absent read providers do not turn into successful empty lists or sa… 0.01s
+
+   PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
+  ✓ actual staff profile route uses staff policy and same origin avatar  0.10s
+  ✓ design navigation keeps role permissions and optional module gate    0.02s
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.02s
+  ✓ staff contract is relaxed without changing viewer passwords          0.02s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.01s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.01s
+  ✓ livewire tabs call the module method without using inline user code  0.01s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.01s
+  ✓ dialog has accessible title and real submit button can target its f… 0.01s
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.02s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.02s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.02s
+
+   PASS  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
+  ✓ default off does not release an origin and every call rechecks       0.01s
+  ✓ boolean environment and nonlocal overrides fail closed               0.01s
+  ✓ opt in never enables production or local and local mail remains ava… 0.01s
+  ✓ origin cannot contain unsafe components or non domain hosts          0.01s
+  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.01s
+  ✓ approved smtp configuration builds real tls transport without conne… 0.01s
+  ✓ direct connection discards previous proxy trust and hosting auto de… 0.01s
+  ✓ nonlocal http requires direct tls canonical host and default port    0.01s
+  ✓ real staging boot and cached configuration are checked without netw… 0.88s
+  ✓ real uncached environment loading preserves invalid booleans         1.20s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.02s
+  ✓ home consumer can follow a category and banner without media or ext… 0.02s
+  ✓ new ports require the real provider even when empty examples exist   0.02s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.02s
+  ✓ resume quote and submission require an audience session              0.02s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.01s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+  Tests:    102 passed (1589 assertions)
+  Duration: 22.35s
