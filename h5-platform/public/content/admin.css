@@ -57,3 +57,6 @@
 
 #content-app .ct-icon{width:17px;height:17px;flex:none}
 #content-app .ct-tools>span>.ct-icon{display:block}
+
+#content-app #content-list-screen,#content-app #content-detail-screen,#content-app [id^="content-detail-"],#content-app [id^="content-view-"]{min-width:0}
+#content-app .ct-choice-note,#content-settings .ct-choice-note{display:block}
