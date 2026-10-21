@@ -2,12 +2,14 @@
 
 namespace App\Modules\Acquisition\Filament\Pages;
 
+use App\Contracts\IdentityContext;
 use App\Enums\Role;
 use App\Modules\Acquisition\Services\AssetAccess;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Support\ApiProblem;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Livewire\Attributes\Url;
 
 final class AcquisitionDesk extends Page
 {
@@ -26,6 +28,10 @@ final class AcquisitionDesk extends Page
     public array $link = ['name' => '', 'platform' => 'meta', 'drama_id' => '', 'pixel_id' => '', 'active' => 1, 'version' => 0];
 
     public ?string $summaryId = null;
+
+    // Replace the current URL so reload restores context and Back still returns to the prior page.
+    #[Url(as: 'tab', except: 'links')]
+    public string $tab = 'links';
 
     public int $pixelPage = 1;
 
@@ -60,6 +66,37 @@ final class AcquisitionDesk extends Page
         return (bool) (config('h5.modules.acquisition.ready') && $user?->active && in_array($user->role, [Role::Owner, Role::Acquisition], true));
     }
 
+    public function mount(): void
+    {
+        $this->normalizeTab();
+    }
+
+    public function updatedTab(): void
+    {
+        $this->normalizeTab();
+    }
+
+    private function normalizeTab(): void
+    {
+        if (! in_array($this->tab, ['links', 'pixels', 'payments', 'deliveries', 'assignments'], true)
+            || ($this->tab === 'assignments' && app(IdentityContext::class)->staff()?->role !== Role::Owner)) {
+            $this->tab = 'links';
+        }
+    }
+
+    public function selectTab(string $tab): void
+    {
+        if (! in_array($tab, ['links', 'pixels', 'payments', 'deliveries', 'assignments'], true)) {
+            return;
+        }
+
+        if ($tab === 'assignments' && app(IdentityContext::class)->staff()?->role !== Role::Owner) {
+            return;
+        }
+
+        $this->tab = $tab;
+    }
+
     public function selectPixel(string $id): void
     {
         $this->attempt(function () use ($id) {
@@ -78,9 +115,9 @@ final class AcquisitionDesk extends Page
         $this->reset('pixelId', 'pixel');
     }
 
-    public function savePixel(): void
+    public function savePixel(): bool
     {
-        $this->attempt(function () {
+        return $this->attempt(function () {
             $data = app(AssetManager::class)->savePixel($this->pixelId, $this->pixel);
             $this->selectPixel($data['id']);
             Notification::make()->title('像素登记已保存；平台授权与接收仍待联调')->success()->send();
@@ -124,12 +161,24 @@ final class AcquisitionDesk extends Page
         });
     }
 
-    public function saveLink(): void
+    public function saveLink(): bool
     {
-        $this->attempt(function () {
+        return $this->attempt(function () {
             $data = app(AssetManager::class)->saveLink($this->linkId, $this->link);
             $this->selectLink($data['id']);
             Notification::make()->title('链接已保存；落地与来源启用等待 D05 接收')->success()->send();
+        });
+    }
+
+    public function restoreEditor(string $editor): bool
+    {
+        return $this->attempt(function () use ($editor) {
+            match ($editor) {
+                'pixel' => $this->restorePixel(),
+                'link' => $this->restoreLink(),
+                'assignment' => $this->restoreAssignment(),
+                default => throw new ApiProblem('VALIDATION_FAILED', 422, '编辑区无效'),
+            };
         });
     }
 
@@ -138,6 +187,7 @@ final class AcquisitionDesk extends Page
         $this->attempt(function () use ($id) {
             app(AssetManager::class)->summary($id);
             $this->summaryId = $id;
+            $this->tab = 'payments';
         });
     }
 
@@ -149,9 +199,9 @@ final class AcquisitionDesk extends Page
         });
     }
 
-    public function share(): void
+    public function share(): bool
     {
-        $this->attempt(function () {
+        return $this->attempt(function () {
             app(AssetManager::class)->share($this->shareType, $this->shareId, $this->shareVersion, $this->staffIds);
             $this->selectAssignment($this->shareType, $this->shareId);
             Notification::make()->title('共享分配已保存；被移除人员的访问权立即重新核验')->success()->send();
@@ -169,6 +219,7 @@ final class AcquisitionDesk extends Page
             $this->shareName = $data['name'];
             $this->staffIds = array_column($data['selected'], 'id');
             $this->staffCandidates = $data['selected'];
+            $this->tab = 'assignments';
         });
     }
 
@@ -184,6 +235,7 @@ final class AcquisitionDesk extends Page
 
     protected function getViewData(): array
     {
+        $this->normalizeTab();
         $manager = app(AssetManager::class);
         $pixels = $manager->assetPage('pixel', $this->pixelPage);
         $links = $manager->assetPage('link', $this->linkPage);
@@ -201,18 +253,68 @@ final class AcquisitionDesk extends Page
             }
         }
 
+        $owner = app(IdentityContext::class)->staff()?->role === Role::Owner;
+        $tabs = [['id' => 'links', 'label' => '推广链接'], ['id' => 'pixels', 'label' => '像素资产'],
+            ['id' => 'payments', 'label' => '本站付款汇总'], ['id' => 'deliveries', 'label' => '发送状态']];
+        if ($owner) {
+            $tabs[] = ['id' => 'assignments', 'label' => '负责人分配'];
+        }
+
         return ['pixels' => $pixels['items'], 'links' => $links['items'], 'pixelOptions' => $options,
             'pixelPagination' => $pixels, 'linkPagination' => $links,
             'summary' => $this->summaryId ? $manager->summary($this->summaryId) : null,
-            'owner' => auth('staff')->user()?->role === Role::Owner];
+            'owner' => $owner, 'tabs' => $tabs];
     }
 
-    private function attempt(callable $action): void
+    private function attempt(callable $action): bool
     {
         try {
             $action();
+
+            return true;
         } catch (ApiProblem $e) {
             Notification::make()->title($e->getMessage())->danger()->send();
+
+            return false;
         }
+    }
+
+    private function restorePixel(): void
+    {
+        if (! $this->pixelId) {
+            $this->reset('pixel');
+
+            return;
+        }
+        $data = app(AssetManager::class)->pixel($this->pixelId);
+        $this->pixel = array_intersect_key($data, $this->pixel);
+        $this->pixel['active'] = (int) (bool) $data['active'];
+    }
+
+    private function restoreLink(): void
+    {
+        if (! $this->linkId) {
+            $this->reset('link');
+
+            return;
+        }
+        $data = app(AssetManager::class)->link($this->linkId);
+        $this->link = array_intersect_key($data, $this->link);
+        $this->link['active'] = (int) (bool) $data['active'];
+    }
+
+    private function restoreAssignment(): void
+    {
+        if (! $this->shareId) {
+            $this->reset('shareType', 'shareId', 'shareVersion', 'staffIds');
+
+            return;
+        }
+        $data = app(AssetManager::class)->assignment($this->shareType, $this->shareId);
+        $this->shareVersion = $data['version'];
+        $this->shareName = $data['name'];
+        $this->staffIds = array_column($data['selected'], 'id');
+        $this->staffCandidates = $data['selected'];
+        $this->staffCursor = null;
     }
 }
