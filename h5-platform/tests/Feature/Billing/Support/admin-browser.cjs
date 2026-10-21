@@ -12,7 +12,8 @@ assert(credentials.root === root && credentials.is_test === true && server.root 
 assert(credentials.database === server.database && credentials.database.endsWith('_test'));
 const base = `http://127.0.0.1:${server.port}`;
 const sharedSmoke = process.argv.includes('--shared-smoke');
-const out = path.join(runtime, sharedSmoke ? '03-admin-shared-browser' : '03-admin-ui-browser');
+const fidelity = process.argv.includes('--f09');
+const out = path.join(runtime, fidelity ? '03-admin-f09-browser' : sharedSmoke ? '03-admin-shared-browser' : '03-admin-ui-browser');
 fs.mkdirSync(out, { recursive: true, mode: 0o700 });
 const checks = [];
 const errors = [];
@@ -73,6 +74,14 @@ async function login(ctx, role) {
     try {
         const ownerContext = await context();
         const page = await login(ownerContext, 'owner');
+        if (fidelity) {
+            step = 'f09-design-pairs';
+            await require('./admin-fidelity.cjs')({ page, browser, root, out, base, credentials, check, mark, selected, tab, snapshot });
+            check('F09 no application script errors or server failures', errors.length === 0 && unexpected.length === 0);
+            check('F09 application has no external browser requests', external.size === 0 && externalFinished.size === 0);
+            step = 'complete';
+            return;
+        }
         if (sharedSmoke) {
             step = 'shared-1.0.5';
             await page.goto(base + '/admin/billing-desk'); await selected(page, '订单查询');

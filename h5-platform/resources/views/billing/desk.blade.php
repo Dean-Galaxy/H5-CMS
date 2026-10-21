@@ -1,15 +1,13 @@
 <x-filament-panels::page>
-    <x-admin.workspace id="billing-workspace" :description="$is_owner ? '查询订单，管理会员价格与客服记录' : '查询订单，处理本人经办的客服记录'">
+    <x-admin.workspace id="billing-workspace" title="订单与会员" description="测试环境 · 全部金额以美元（USD）展示">
+        <x-slot:actions><span class="h5-badge h5-warn" role="status">{{ $stripe_configured ? 'Stripe 测试配置齐备；官方测试未验证' : 'Stripe 未配置；官方测试未验证' }} · 不开放真实收费</span></x-slot:actions>
         <div class="billing-workspace" data-billing-workspace>
             <style>
                 .billing-workspace{display:grid;gap:1.25rem}.billing-workspace p{margin:.5rem 0}.billing-workspace h3{margin-top:1rem}.billing-workspace .billing-form{display:flex;align-items:end;flex-wrap:wrap;gap:1rem;margin:1rem 0}.billing-workspace .billing-form>.h5-field{flex:1 1 16rem}.billing-workspace .billing-check{display:flex;align-items:start;gap:.55rem}.billing-workspace .billing-check input{margin-top:.2rem}.billing-workspace .billing-id{font-family:monospace;overflow-wrap:anywhere}.billing-workspace .billing-amount{font-variant-numeric:tabular-nums;white-space:nowrap}.billing-workspace .billing-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1rem 0}.billing-workspace .billing-facts dt{font-size:.85rem;color:var(--h5-muted)}.billing-workspace .billing-facts dd{margin-top:.25rem;overflow-wrap:anywhere}.billing-workspace .billing-stack{display:grid;gap:1rem}.billing-workspace .billing-note{border-top:1px solid var(--h5-line);padding-top:.8rem;white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:640px){.billing-workspace .billing-form{align-items:stretch}.billing-workspace .billing-form button{width:100%}.billing-workspace .billing-facts{grid-template-columns:1fr}}
+                .billing-workspace .billing-price-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:18px}.billing-workspace .billing-price-head p{margin:0}.billing-workspace .billing-money{position:relative}.billing-workspace .billing-money>span{position:absolute;left:12px;top:10px;color:var(--h5-muted)}.billing-workspace .billing-money input{padding-left:28px}.billing-workspace .billing-price-feedback{min-height:20px;margin-top:10px}.billing-workspace .billing-price-preview{padding:18px 0}.billing-workspace .billing-price-preview h3{margin:0}.billing-workspace .billing-price-preview p{margin:7px 0 0}.billing-workspace .billing-price-actions{border-top:1px solid var(--h5-line);margin-top:22px;padding-top:17px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.billing-workspace .billing-price-rules{font-size:12px}.billing-workspace .billing-price-actions .billing-check{font-size:12px;color:var(--h5-muted)}.billing-workspace .billing-query{max-width:245px}.billing-workspace .billing-query input{width:100%}
             </style>
-            <div class="h5-alert" role="status">
-                <p>{{ $stripe_configured ? 'Stripe 测试配置齐备；官方测试未验证' : 'Stripe 未配置；官方测试未验证' }}。当前不开放真实收费。</p>
-                <p class="h5-muted">美国 · USD · 全站周订阅。所有金额以美元显示，时间为北京时间。</p>
-            </div>
             <x-admin.tabs id="billing-tabs" :items="$tabs" :active="$activeTab" method="selectTab" />
-            @if ($errors->any())
+            @if ($errors->any() && $activeTab !== 'prices')
                 <div role="alert" class="h5-error">@foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>
             @endif
             <p data-billing-navigation-error role="alert" class="h5-error" hidden></p>
@@ -17,10 +15,10 @@
             @if ($activeTab === 'orders')
                 <x-admin.panel group="billing-tabs" name="orders" :active="$activeTab">
                     <section class="h5-card">
-                        <h2>订单查询</h2>
+                        <h2>查询订单</h2>
                         <p class="h5-muted">输入用户提供的完整站内订单号，查询会建立或打开本人的客服记录。</p>
                         <form class="billing-form" data-billing-query>
-                            <label class="h5-field" for="billing-order-id">完整站内订单号<input class="h5-input" id="billing-order-id" wire:model="orderId" type="text" maxlength="36" placeholder="请输入完整订单号" required></label>
+                            <label class="h5-field billing-query" for="billing-order-id">完整站内订单号<input class="h5-input" id="billing-order-id" wire:model="orderId" type="text" maxlength="36" placeholder="请输入完整订单号" required></label>
                             <button class="h5-button h5-primary" type="submit" wire:loading.attr="disabled">查询订单</button>
                         </form>
                     </section>
@@ -31,9 +29,9 @@
                     @if ($is_owner)
                         <section class="h5-card">
                             <h2>最近 50 笔站内订单</h2>
-                            <div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>订单号</th><th>金额</th><th>状态</th><th>价格版本</th><th>操作</th></tr></thead><tbody>
+                            <div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>订单号</th><th>订单约定金额</th><th>状态</th><th>价格版本</th><th>操作</th></tr></thead><tbody>
                                 @forelse ($orders as $order)
-                                    <tr wire:key="billing-order-{{ $order->id }}"><td class="billing-id">{{ $order->id }}<p class="h5-muted">{{ $order->is_test ? '测试订单' : '正式订单' }}</p></td><td class="billing-amount">{{ \App\Support\Admin\UsdAmount::format($order->amount_minor) }}</td><td>{{ $order->state }} / {{ $order->payment_state }}</td><td>{{ $order->price_version }}</td><td><button class="h5-button" type="button" data-billing-order="{{ $order->id }}" wire:loading.attr="disabled">查看</button></td></tr>
+                                    <tr wire:key="billing-order-{{ $order->id }}"><td class="billing-id">{{ $order->id }}<p class="h5-muted">{{ $order->is_test ? '测试订单' : '正式订单' }}</p></td><td class="billing-amount">{{ \App\Support\Admin\UsdAmount::format($order->amount_minor) }}</td><td>{{ $order->state }} / {{ $order->payment_state }}</td><td>{{ $order->price_version }}</td><td><button class="h5-link" type="button" data-billing-order="{{ $order->id }}" wire:loading.attr="disabled">查看</button></td></tr>
                                 @empty
                                     <tr><td colspan="5">尚无订单。</td></tr>
                                 @endforelse
@@ -43,28 +41,57 @@
                 </x-admin.panel>
             @elseif ($activeTab === 'prices' && $is_owner)
                 <x-admin.panel group="billing-tabs" name="prices" :active="$activeTab">
-                <section class="h5-card">
-                    <h2>会员价格</h2>
-                    <p>当前价格版本：{{ $price['version'] }}。{{ $price['version'] ? '保存后生成新版本，保留已有订阅约定价。' : '尚未配置生效价格，请明确填写测试金额。' }}</p>
-                    <p class="h5-muted">美元金额最多两位小数；常规价和首周价均至少 $0.01 USD，首周价不能高于常规价。测试价格尚非最终售价。</p>
-                    <form class="billing-form" wire:submit="savePrice">
-                        <label class="h5-field" for="billing-regular-usd">常规周价（USD）<input class="h5-input" id="billing-regular-usd" wire:model="price.regular_amount_usd" type="text" inputmode="decimal" maxlength="32" autocomplete="off" required></label>
-                        <label class="h5-field" for="billing-first-week-usd">首周优惠价（USD）<input class="h5-input" id="billing-first-week-usd" wire:model="price.first_week_amount_usd" type="text" inputmode="decimal" maxlength="32" autocomplete="off" required></label>
-                        <label class="billing-check"><input wire:model="price.is_test" type="checkbox" required>明确保存为测试价格</label>
-                        <button class="h5-button h5-primary" type="submit" wire:loading.attr="disabled">保存新的测试价格版本</button>
-                    </form>
-                    <p class="h5-muted">调价只影响之后的新订阅。已有持续订阅及可恢复的原订阅保留原约定续费价；结束后再订阅用当前常规价，已用首周优惠不恢复。</p>
-                </section>
+                <form class="h5-card" wire:submit="savePrice" data-billing-pricing
+                    x-data="{
+                        amount(value) {
+                            if (typeof value !== 'string' || !/^[0-9]+(\.[0-9]{1,2})?$/.test(value)) return null;
+                            const parts = value.split('.');
+                            const whole = parts[0].replace(/^0+/, '') || '0';
+                            if (whole.length > 6) return null;
+                            const cents = Number(whole) * 100 + Number((parts[1] || '').padEnd(2, '0'));
+                            return cents > 0 &amp;&amp; cents &lt;= 99999999 ? { cents, text: whole + '.' + (parts[1] || '').padEnd(2, '0') } : null;
+                        },
+                        get preview() {
+                            const regular = this.amount($wire.price.regular_amount_usd);
+                            const first = this.amount($wire.price.first_week_amount_usd);
+                            return regular &amp;&amp; first &amp;&amp; first.cents &lt;= regular.cents
+                                ? '首周 $' + first.text + '，之后 $' + regular.text + ' / 周'
+                                : '请输入有效美元金额；首周价不能高于常规价。';
+                        }
+                    }">
+                    <div class="billing-price-head">
+                        <div><h2>全站周会员</h2><p class="h5-muted billing-price-rules">测试价格 · 尚非正式售价 · 当前版本 {{ $price['version'] }}</p></div>
+                        <span class="h5-badge">每周自动续费</span>
+                    </div>
+                    <div class="h5-form-grid billing-price-fields">
+                        <label class="h5-field" for="billing-regular-usd">常规周价（USD）<div class="billing-money"><span aria-hidden="true">$</span><input class="h5-input" id="billing-regular-usd" wire:model="price.regular_amount_usd" type="text" inputmode="decimal" maxlength="32" autocomplete="off" required></div></label>
+                        <label class="h5-field" for="billing-first-week-usd">首周优惠价（USD）<div class="billing-money"><span aria-hidden="true">$</span><input class="h5-input" id="billing-first-week-usd" wire:model="price.first_week_amount_usd" type="text" inputmode="decimal" maxlength="32" autocomplete="off" required></div></label>
+                    </div>
+                    <div class="billing-price-feedback">
+                        @if ($errors->any())<div class="h5-error" role="alert">@foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach</div>@endif
+                    </div>
+                    <div class="billing-price-preview">
+                        <h3>订阅页将这样展示</h3>
+                        <p data-billing-price-preview aria-live="polite" x-text="preview">请输入有效美元金额。</p>
+                        <p class="h5-muted billing-price-rules">输入预览，不代表已保存或服务端报价。{{ $price['version'] ? '' : '尚未配置生效价格。' }}</p>
+                    </div>
+                    <p class="h5-muted billing-price-rules">新价格适用于后续新订阅；已有持续订阅及可恢复的原订阅按原约定价格续费。结束后再订阅用当前常规价，已用首周优惠不恢复。</p>
+                    <div class="billing-price-actions">
+                        <div><span class="h5-muted billing-price-rules">最多两位小数，至少 $0.01 USD</span><label class="billing-check"><input wire:model="price.is_test" type="checkbox" required>明确保存为测试价格</label></div>
+                        <button class="h5-button h5-primary" type="submit" wire:loading.attr="disabled">保存测试价格</button>
+                    </div>
+                </form>
                 </x-admin.panel>
             @elseif ($activeTab === 'support')
                 <x-admin.panel group="billing-tabs" name="support" :active="$activeTab">
                     <section class="h5-card">
                         <h2>客服记录</h2>
+                        <p class="h5-muted">查询订单后建立记录，备注、核实身份与代取消续费在该订单内完成。</p>
                         <p class="h5-muted">{{ $is_owner ? '负责人可查看全部经办记录。' : '仅显示自己经办的记录。' }}每次查看、备注、核实及代取消均留审计。</p>
                         <button class="h5-button" type="button" data-billing-tab="orders">按订单号查询</button>
                         <div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>站内订单</th><th>核实状态</th><th>建立时间</th><th>操作</th></tr></thead><tbody>
                             @forelse ($cases as $case)
-                                <tr wire:key="billing-case-{{ $case->id }}"><td class="billing-id">{{ $case->order_id }}</td><td>{{ $case->identity_verified && $case->cancel_requested && $case->verified_at ? '身份与取消意愿已核实' : '尚未核实取消请求' }}</td><td>{{ \Carbon\CarbonImmutable::parse($case->created_at)->setTimezone('Asia/Shanghai')->format('Y-m-d H:i:s') }}</td><td><button class="h5-button" type="button" data-billing-case="{{ $case->id }}" wire:loading.attr="disabled">打开</button></td></tr>
+                                <tr wire:key="billing-case-{{ $case->id }}"><td class="billing-id">{{ $case->order_id }}</td><td>{{ $case->identity_verified && $case->cancel_requested && $case->verified_at ? '身份与取消意愿已核实' : '尚未核实取消请求' }}</td><td>{{ \Carbon\CarbonImmutable::parse($case->created_at)->setTimezone('Asia/Shanghai')->format('Y-m-d H:i:s') }}</td><td><button class="h5-link" type="button" data-billing-case="{{ $case->id }}" wire:loading.attr="disabled">打开</button></td></tr>
                             @empty
                                 <tr><td colspan="4">尚无客服记录。请先按用户提供的完整订单号查询。</td></tr>
                             @endforelse
