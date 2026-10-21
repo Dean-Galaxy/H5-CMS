@@ -82,52 +82,56 @@
 
         @if($tab === 'accounts')
             <section id="identity-staff-tabs-panel-accounts" role="tabpanel" aria-labelledby="identity-staff-tabs-tab-accounts" class="h5-tab-panel" tabindex="0">
-                <div class="h5-table-wrap">
-                    <table class="h5-table">
-                        <thead><tr><th scope="col">员工</th><th scope="col">角色</th><th scope="col">账号状态</th><th scope="col">二次验证</th><th scope="col">操作</th></tr></thead>
-                        <tbody>
-                        @forelse($staffAccounts as $staff)
-                            <tr wire:key="staff-{{ $staff->id }}">
-                                <td>{{ $staff->name }}<br><span class="h5-muted">{{ $staff->email }}</span></td>
-                                <td>{{ $staff->role->label() }}</td>
-                                <td><span class="h5-badge {{ $staff->active ? 'h5-ok' : '' }}">{{ $staff->active ? '启用' : '已停用' }}</span></td>
-                                <td>{{ filled($staff->getAppAuthenticationSecret()) ? '已设置' : '待本人配置' }}</td>
-                                <td>
-                                    @if($staff->id === auth('staff')->id())
-                                        <span class="h5-muted">当前账号</span>
-                                    @else
-                                        <button type="button" class="h5-link" x-on:click="open(@js($staff->id), $event.currentTarget)" :disabled="busy || !ready" aria-label="管理 {{ $staff->name }}">管理</button>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="5">暂无员工账号。</td></tr>
-                        @endforelse
-                        </tbody>
-                    </table>
+                <div class="h5-table-with-note">
+                    <div class="h5-table-wrap">
+                        <table class="h5-table">
+                            <thead><tr><th scope="col">员工</th><th scope="col">角色</th><th scope="col">账号状态</th><th scope="col">二次验证</th><th scope="col">操作</th></tr></thead>
+                            <tbody>
+                            @forelse($staffAccounts as $staff)
+                                <tr wire:key="staff-{{ $staff->id }}">
+                                    <td>{{ $staff->name }}<br><span class="h5-muted">{{ $staff->email }}</span></td>
+                                    <td>{{ $staff->role->label() }}</td>
+                                    <td><span class="h5-badge {{ $staff->active ? 'h5-ok' : '' }}">{{ $staff->active ? '启用' : '已停用' }}</span></td>
+                                    <td>{{ filled($staff->getAppAuthenticationSecret()) ? '已设置' : '待本人配置' }}</td>
+                                    <td>
+                                        @if($staff->id === auth('staff')->id())
+                                            <span class="h5-muted">当前账号</span>
+                                        @else
+                                            <button type="button" class="h5-link" x-on:click="open(@js($staff->id), $event.currentTarget)" :disabled="busy || !ready" aria-label="管理 {{ $staff->name }}">管理</button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="5">暂无员工账号。</td></tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="h5-note">新增员工后由本人配置二次验证。权限或状态变更会撤销旧会话；不能停用或降级当前账号。</p>
                 </div>
-                <p class="h5-note">新增员工后由本人配置二次验证。权限或状态变更会撤销旧会话；不能停用或降级当前账号。</p>
             </section>
         @else
             <section id="identity-staff-tabs-panel-audit" role="tabpanel" aria-labelledby="identity-staff-tabs-tab-audit" class="h5-tab-panel" tabindex="0">
-                <div class="h5-table-wrap">
-                    <table class="h5-table">
-                        <thead><tr><th scope="col">时间（北京时间）</th><th scope="col">操作</th><th scope="col">结果</th><th scope="col">操作人</th></tr></thead>
-                        <tbody>
-                        @forelse($auditEvents as $event)
-                            <tr wire:key="audit-{{ $event['id'] }}">
-                                <td>{{ $event['time'] }}</td>
-                                <td>{{ $event['action'] }}<details class="h5-muted"><summary>排查编号</summary><small>{{ $event['request_id'] }}</small></details></td>
-                                <td>{{ $event['result'] }}</td>
-                                <td>{{ $event['actor'] }}</td>
-                            </tr>
-                        @empty
-                            <tr><td colspan="4">暂无审计记录。</td></tr>
-                        @endforelse
-                        </tbody>
-                    </table>
+                <div class="h5-table-with-note">
+                    <div class="h5-table-wrap">
+                        <table class="h5-table">
+                            <thead><tr><th scope="col">时间（北京时间）</th><th scope="col">操作</th><th scope="col">结果</th><th scope="col">操作人</th></tr></thead>
+                            <tbody>
+                            @forelse($auditEvents as $event)
+                                <tr wire:key="audit-{{ $event['id'] }}">
+                                    <td>{{ $event['time'] }}</td>
+                                    <td>{{ $event['action'] }}<details class="h5-muted"><summary>排查编号</summary><small>{{ $event['request_id'] }}</small></details></td>
+                                    <td>{{ $event['result'] }}</td>
+                                    <td>{{ $event['actor'] }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="4">暂无审计记录。</td></tr>
+                            @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="h5-note">最近 30 条脱敏记录，时间以北京时间显示。员工姓名按当前账号脱敏展示。</p>
                 </div>
-                <p class="h5-note">最近 30 条脱敏记录，时间以北京时间显示。员工姓名按当前账号脱敏展示。</p>
             </section>
         @endif
 
