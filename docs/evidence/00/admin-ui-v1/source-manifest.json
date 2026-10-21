@@ -1,0 +1,91 @@
+{
+  "source_commit": "b827aefeec9c2bd16c16de69a112130d28c78e1d",
+  "business_contract": "1.0.4",
+  "ui_contract": "admin-ui-v1",
+  "created_at": "2026-10-21T04:54:08.160532+00:00",
+  "source_files": {
+    "h5-platform/app/Providers/Filament/AdminPanelProvider.php": {
+      "sha256": "57fb61385d6bdd50ec5dd34d6b1d82e456f000950e38ff9637a1ed2e38d906ba",
+      "bytes": 2343
+    },
+    "h5-platform/app/Support/Admin/UsdAmount.php": {
+      "sha256": "87d754459ff2b532bacf880be52aa744c954a3bedcc898ef2969614b41cf6681",
+      "bytes": 1600
+    },
+    "h5-platform/public/admin-ui/admin.css": {
+      "sha256": "e4aef1dd63352c0a7e3d572d0cb4cc9a4e0116911a688c9d93654b4ad3193005",
+      "bytes": 6382
+    },
+    "h5-platform/public/admin-ui/admin.js": {
+      "sha256": "ba7e433953b4f62915e91d516989028ed9150be7e0d40dc399ef1148b5acfe6b",
+      "bytes": 10361
+    },
+    "h5-platform/resources/views/components/admin/assets.blade.php": {
+      "sha256": "9f0a35141df57b121fecb01c313a6ee700e30b5746f4cc778134a581fbfd9adf",
+      "bytes": 283
+    },
+    "h5-platform/resources/views/components/admin/dialog.blade.php": {
+      "sha256": "19e6f9e0b38b0ce03875ed05121598eb6763ea6218bbb780101314e6765e3183",
+      "bytes": 468
+    },
+    "h5-platform/resources/views/components/admin/panel.blade.php": {
+      "sha256": "ceeaf010312dc3170a27cdf07993b7a90c5b9a6ab4f3cc025853512410333d49",
+      "bytes": 300
+    },
+    "h5-platform/resources/views/components/admin/tabs.blade.php": {
+      "sha256": "fa88676c4f71e9c04889f36e46bf28c7b109c8785de737090297b31c4f0f5c3e",
+      "bytes": 1620
+    },
+    "h5-platform/resources/views/components/admin/workspace.blade.php": {
+      "sha256": "98bab4da6df7dc6a2215ea3527e04c99a4315476d5e896506314bec23a1a1041",
+      "bytes": 465
+    },
+    "h5-platform/tests/Feature/Contracts/AdminUiTest.php": {
+      "sha256": "f1a1c264494dac18d8693d797da2026a5231be13a01a06428a95e4eb634ff9d6",
+      "bytes": 5368
+    },
+    "h5-platform/tests/Feature/Contracts/Support/admin-ui-fixture.php": {
+      "sha256": "9c8549fb3bdcbe2f777c62655c95bd223a625b0f3e4eb2758ccfc1d394cc4b0b",
+      "bytes": 3611
+    },
+    "h5-platform/tests/Feature/Contracts/Support/admin-ui.browser.cjs": {
+      "sha256": "ad81bc20e9e914b025b6382b9a8faad20618975cfce43c7151efa81ee8ee3921",
+      "bytes": 6069
+    }
+  },
+  "evidence_files": {
+    "README.md": {
+      "sha256": "b47950c4a1014643f564760c0c715ecff9e753848238da0d462fdc874dbdb604",
+      "bytes": 2233
+    },
+    "browser.json": {
+      "sha256": "a75437cf7aaa4153106e02c14764b1a97a5e031718563216f0de7090ca3fbeb8",
+      "bytes": 789
+    },
+    "contracts.txt": {
+      "sha256": "7503796591c64d7ce1507331c5d439ded938323ffa4d85de3e16c8e99607ce3b",
+      "bytes": 1958
+    },
+    "dependency-audit.json": {
+      "sha256": "3d68c4566587606c21e4bcd82b55d322ddb79158f657d9fb90bf0d24ab5bccdf",
+      "bytes": 64
+    },
+    "migrations.txt": {
+      "sha256": "c141ec62041e6629c168c0f2e1f696e52e194e7f9f0f8cd28cca2eb669d2363c",
+      "bytes": 1025
+    },
+    "mobile-dialog.png": {
+      "sha256": "52f209f56f8a77c7d7aec4254668272510355be59a9d0a831ffad728b8a2563f",
+      "bytes": 19026
+    },
+    "style.txt": {
+      "sha256": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
+      "bytes": 34
+    },
+    "targeted-tests.txt": {
+      "sha256": "ff6b65a256360d035f5c3e92cc559152037f4fd28d1ecf9eac66e43551d09404",
+      "bytes": 1483
+    }
+  },
+  "evidence_normalization": "ANSI styling removed; trailing whitespace and outer blank lines removed; test content unchanged"
+}

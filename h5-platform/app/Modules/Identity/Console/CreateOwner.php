@@ -4,9 +4,9 @@ namespace App\Modules\Identity\Console;
 
 use App\Enums\Role;
 use App\Modules\Identity\Models\Staff;
+use App\Modules\Identity\Services\StaffPassword;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Password;
 
 final class CreateOwner extends Command
 {
@@ -21,8 +21,8 @@ final class CreateOwner extends Command
 
             return self::FAILURE;
         }
-        $values = ['name' => $this->ask('负责人姓名'), 'email' => mb_strtolower(trim($this->ask('负责人邮箱'))), 'password' => $this->secret('密码（至少 12 位，含字母和数字，输入不显示）')];
-        $validator = Validator::make($values, ['name' => ['required', 'max:80'], 'email' => ['required', 'email', 'max:254', 'unique:identity_staff,email'], 'password' => ['required', Password::min(12)->letters()->numbers(), 'max:128']]);
+        $values = ['name' => $this->ask('负责人姓名'), 'email' => mb_strtolower(trim($this->ask('负责人邮箱'))), 'password' => $this->secret(StaffPassword::OWNER_PROMPT)];
+        $validator = Validator::make($values, ['name' => ['required', 'max:80'], 'email' => ['required', 'email', 'max:254', 'unique:identity_staff,email'], 'password' => StaffPassword::requiredRules()]);
         if ($validator->fails()) {
             foreach ($validator->errors()->all() as $message) {
                 $this->error($message);

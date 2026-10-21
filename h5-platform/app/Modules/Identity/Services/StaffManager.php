@@ -11,7 +11,6 @@ use App\Support\ApiProblem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 final class StaffManager
 {
@@ -20,7 +19,7 @@ final class StaffManager
         $actor = app(IdentityContext::class)->requireStaff(Permission::StaffManage);
         $input['email'] = mb_strtolower(trim($input['email'] ?? ''));
         $values = Validator::make($input, ['name' => ['required', 'string', 'max:80'], 'email' => ['required', 'email', 'max:254', 'unique:identity_staff,email'],
-            'password' => ['required', 'string', Password::min(12)->letters()->numbers(), 'max:128'], 'role' => ['required', Rule::enum(Role::class)]])->validate();
+            'password' => StaffPassword::requiredRules(), 'role' => ['required', Rule::enum(Role::class)]])->validate();
 
         return DB::transaction(function () use ($values, $actor) {
             $currentActor = Staff::query()->lockForUpdate()->findOrFail($actor->id);

@@ -60,6 +60,8 @@ class AdminUiTest extends TestCase
         $html = Blade::render('<x-admin.tabs id="billing-tabs" :items="$items" active="orders" method="selectTab" />', ['items' => [['id' => 'orders', 'label' => '订单'], ['id' => 'price', 'label' => '价格']]]);
         $this->assertStringContainsString('data-admin-mode="livewire"', $html);
         $this->assertStringContainsString('wire:click="selectTab(\'price\')"', html_entity_decode($html, ENT_QUOTES));
+        $this->assertStringContainsString('wire:loading.attr="aria-disabled"', $html);
+        $this->assertStringNotContainsString('wire:loading.attr="disabled"', $html);
         try {
             Blade::render('<x-admin.tabs id="billing-tabs" :items="$items" :method="$method" />', ['items' => [['id' => 'orders', 'label' => '订单']], 'method' => "selectTab(); alert('bad')"]);
             $this->fail('An arbitrary expression must not be accepted as a module method.');
