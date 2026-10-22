@@ -1,0 +1,24 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Identity\StaffAppAuthenticationTest
+  ✓ current real renderer without imagick produces one layer of valid s… 0.11s  
+  ✓ raw svg is wrapped once and preserves provider and qr configuration  0.01s  
+  ✓ existing svg data uri is returned unchanged                          0.01s  
+  ✓ existing png data uri is not relabelled as svg                       0.01s  
+
+   PASS  Tests\Feature\Identity\MfaTest
+  ✓ password alone and empty recovery code cannot bypass mfa             0.66s  
+  ✓ real totp challenge authenticates and sets session proof             0.45s  
+  ✓ totp and recovery codes cannot be replayed                           0.02s  
+  ✓ mfa secrets are encrypted and hidden                                 0.01s  
+  ✓ disabled employee cannot reach challenge or login                    0.23s  
+  ✓ first staff login requires enrollment before dashboard               0.03s  
+  ✓ configured staff without challenge proof cannot open any panel page  0.01s  
+  ✓ generic staff login event does not grant mfa proof                   0.01s  
+  ✓ staff password change invalidates old session version                0.02s  
+
+  Tests:    13 passed (50 assertions)
+  Duration: 1.71s
+

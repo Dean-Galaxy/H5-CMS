@@ -1,0 +1,46 @@
+{
+  "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "checkout": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "contract": "1.0.5",
+  "createdAtUtc": "2026-10-22T04:57:19.655673+00:00",
+  "workspace": "/Users/hejunxiang/.codex/worktrees/h5-06-mfa-qa01/H5",
+  "webPort": 8391,
+  "postgresPort": 5891,
+  "database": "h5_f4df6d358f",
+  "imagick": false,
+  "dependencies": "Fresh locked installation; reused only SHA-verified Composer installer binary, no copied vendor or runtime.",
+  "productionDiffAgainstCandidate": "empty",
+  "applicationChangesFromE4": [
+    "h5-platform/app/Modules/Identity/Filament/Auth/StaffAppAuthentication.php",
+    "h5-platform/app/Providers/Filament/AdminPanelProvider.php"
+  ],
+  "migrationCount": 15,
+  "evidenceMethod": "Normal CLI first synthetic Owner; normal staff UI creates subsequent synthetic Owners. No MFA preseed/reset; read-only state helper.",
+  "sameAccountProof": {
+    "enrollment": "run-1792644641264",
+    "enrollmentChecksCompleted": 11,
+    "enrollmentWholeRun": "failed later at old unpaced password reentry",
+    "continuation": "run-1792644864369",
+    "continuationResult": "passed",
+    "continuationChecks": 8,
+    "continuationBaselineRecoveryCodes": 8,
+    "continuationFinalRecoveryCodes": 7
+  },
+  "timingCorrection": "Latest continuation observed 4 of 5 IP-window attempts and waited remaining 23 seconds plus one naturally before reserving two authentication calls. No cache clear or limiter bypass. Earlier timeouts did not capture live counters and are not individually proven to be throttling.",
+  "toolExecutionBoundary": {
+    "qa-f09-01-login.cjs": "Final source executed successfully for continuation.",
+    "qa-f09-01-mfa.cjs": "Enrollment original full-flow source is archived. Delivered script now reuses the successful continuation pacing helper, syntax-checked only; not rerun end-to-end.",
+    "mfa_state.php": "Rate counter reading added after initial enrollment and exercised by final successful continuation; MFA state reads unchanged."
+  },
+  "sources": {
+    "h5-platform/tests/Browser/qa-f09-01-mfa.cjs": "b5c84874f748434641521c4629f9786e528c8c3721a90a9c39c156a1eb39f5a4",
+    "h5-platform/tests/Browser/qa-f09-01-login.cjs": "add95e532d5391e0ae67645e5d1467e587952781f03893661658d4bc3b01da24",
+    "scripts/ops/mfa_state.php": "76430610de642a2dbef82cdcf674cbd2c724f5149fc6aaada665e931dcc47565"
+  },
+  "privacy": "No QR/image/secret/recovery-code screenshots, traces, HAR, page HTML or values in evidence; synthetic secrets remain in own 0700/0600 private runtime.",
+  "limits": [
+    "Rendering decode is not an actual phone authenticator scan. TOTP is generated from the normal UI manual-entry key.",
+    "No rollout to existing 8377/5877, old8206/8303 or8378.",
+    "No official payment, mail, external region, public deployment or business-rule change."
+  ]
+}

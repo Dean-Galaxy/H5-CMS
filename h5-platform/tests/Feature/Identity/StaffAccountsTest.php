@@ -10,6 +10,7 @@ use App\Modules\Identity\Services\StaffAudit;
 use App\Modules\Identity\Services\StaffManager;
 use App\Modules\Identity\Services\Verification;
 use App\Support\ApiProblem;
+use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -279,6 +280,8 @@ class StaffAccountsTest extends TestCase
 
     public function test_audit_keeps_latest_thirty_and_rechecks_owner_and_mfa_before_reading(): void
     {
+        // Keep login/account audit events earlier than the 16:05 fixtures, regardless of today.
+        $this->travelTo(CarbonImmutable::parse('2026-10-21 16:00:00 UTC'));
         $owner = $this->employee();
         $this->signIn($owner);
         $ids = [];

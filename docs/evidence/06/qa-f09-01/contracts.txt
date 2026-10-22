@@ -1,0 +1,2 @@
+OpenAPI 1.0.5 structure and 59 examples passed.
+Extracted terminal completion line from this new workspace bootstrap log; no full test replay implied.
