@@ -9,7 +9,7 @@ use App\Modules\Identity\Http\StaffPanelMfa;
 use App\Support\Admin\StaffAvatarProvider;
 use App\Support\Admin\StaffNavigation;
 use Filament\Navigation\NavigationBuilder;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
+use App\Modules\Identity\Filament\Auth\StaffAppAuthentication as AppAuthentication;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
