@@ -1,0 +1,28 @@
+{
+  "recordedAtUtc": "2026-10-22T07:03:08.294483+00:00",
+  "approvedTarget": "991d985b7b60d905338ac7f87e4f75930b686f04",
+  "applicationCandidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "runningCheckout": "c9da6746105a219a4ae8b92a887dfa9d78567099",
+  "previousApplication": "e4a6c65bac6c2005feff00b289f733faea29c583",
+  "contract": "1.0.5",
+  "window": "00 explicit serial window, only existing 8377/5877",
+  "merge": "Normal no-ff merge; no conflicts; no reset",
+  "migrations": "Start reported Nothing to migrate; unchanged migrations table and 15 Ran entries",
+  "dataMethod": "Stop all three writers; repeatable-read READ ONLY snapshot of all 48 public tables; private hashes; then pg_dump; restart and compare. 42 business tables unchanged; only sessions changed. 490 media files and environment/key files unchanged.",
+  "backup": "Actual private custom-format dump, readable archive inventory. No restore executed in this window; never overwrite new payment facts.",
+  "runtimeMethod": "Actual new process environments checked, anonymous HTTP and Chrome login rendering, same-checkout CLI registered panel inspection; no user account used. CLI region remains ZZ/unresolved as expected; local request-only test flag enabled.",
+  "diagnosticFailure": "Initial raw HTML password input assertion failed because actual input type is dynamically rendered. Preserved as probe-method limitation; actual Chrome hydrated email/password controls visible, no page errors. No app repair made.",
+  "sources": {
+    "scripts/ops/qa_mfa_rollout_snapshot.py": "caed2de04b5ed39160be2db9545f1298498f5c485b0d7fac1e1116098f1035bb",
+    "scripts/ops/qa_mfa_rollout_probe.py": "527e2fb730ab37a9a2b94da6e6f2dace0e4762afb1554e30434cd796948fd6f4",
+    "scripts/ops/qa_mfa_rollout_runtime.php": "dc14e00a37972b1b005027d73e182e9414b5f66f925e1ee876e380461cc7d5be"
+  },
+  "limits": [
+    "No phone authenticator scan",
+    "No new user or MFA changes",
+    "No database tests or seeds",
+    "No official payment/SMTP/trusted region/HTTPS external deployment",
+    "Existing 8391/5891 stayed stopped; old8206/8303/8378 untouched",
+    "07 resumes only after 00 reception"
+  ]
+}

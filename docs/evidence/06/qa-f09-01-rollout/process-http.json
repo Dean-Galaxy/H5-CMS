@@ -1,0 +1,45 @@
+{
+  "checkout": "c9da6746105a219a4ae8b92a887dfa9d78567099",
+  "applicationCandidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "productionTreeMatches": true,
+  "processes": {
+    "web": {
+      "alive": true,
+      "expectedEnvironmentMatches": {
+        "H5_LOCAL_MODULES": true,
+        "H5_LOCAL_US_TEST_REGION": true,
+        "ACQUISITION_TRANSPORT": true,
+        "ACQUISITION_EXTERNAL_ENABLED": true
+      }
+    },
+    "queue": {
+      "alive": true,
+      "expectedEnvironmentMatches": {
+        "H5_LOCAL_MODULES": true,
+        "H5_LOCAL_US_TEST_REGION": true,
+        "ACQUISITION_TRANSPORT": true,
+        "ACQUISITION_EXTERNAL_ENABLED": true
+      }
+    },
+    "scheduler": {
+      "alive": true,
+      "expectedEnvironmentMatches": {
+        "H5_LOCAL_MODULES": true,
+        "H5_LOCAL_US_TEST_REGION": true,
+        "ACQUISITION_TRANSPORT": true,
+        "ACQUISITION_EXTERNAL_ENABLED": true
+      }
+    }
+  },
+  "http": {
+    "/health": {
+      "status": 200,
+      "urlUnchanged": true
+    },
+    "/admin/login": {
+      "status": 200,
+      "urlUnchanged": true
+    }
+  },
+  "method": "Fresh processes after scheduled stop/start; anonymous HTTP only. Panel registration separately checked by same-checkout CLI bootstrap. No user login or MFA manipulation."
+}
