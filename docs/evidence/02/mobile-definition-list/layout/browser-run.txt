@@ -1,0 +1,100 @@
+PASS release-confirm desktop approved secondary text
+PASS release-confirm desktop no horizontal overflow
+PASS release-confirm desktop label and value stay in two columns with original gaps
+PASS release-confirm desktop close and footer stay reachable
+PASS release-confirm desktop return preserves unsaved form and all server facts
+PASS release-confirm mobile-light approved secondary text
+PASS release-confirm mobile-light no horizontal overflow
+PASS release-confirm mobile-light label and value stay in two columns with original gaps
+PASS release-confirm mobile-light close and footer stay reachable
+PASS release-confirm mobile-light return preserves unsaved form and all server facts
+PASS release-confirm mobile-dark approved secondary text
+PASS release-confirm mobile-dark no horizontal overflow
+PASS release-confirm mobile-dark label and value stay in two columns with original gaps
+PASS release-confirm mobile-dark close and footer stay reachable
+PASS release-confirm mobile-dark return preserves unsaved form and all server facts
+PASS release-confirm short-light approved secondary text
+PASS release-confirm short-light no horizontal overflow
+PASS release-confirm short-light label and value stay in two columns with original gaps
+PASS release-confirm short-light close and footer stay reachable
+PASS release-confirm short-light scrolled body stays below close
+PASS release-confirm short-light return preserves unsaved form and all server facts
+PASS release-confirm short-dark approved secondary text
+PASS release-confirm short-dark no horizontal overflow
+PASS release-confirm short-dark label and value stay in two columns with original gaps
+PASS release-confirm short-dark close and footer stay reachable
+PASS release-confirm short-dark scrolled body stays below close
+PASS release-confirm short-dark return preserves unsaved form and all server facts
+PASS fixture actually published ten and plan is active
+PASS release-ten desktop no horizontal overflow
+PASS release-ten desktop label and value stay in two columns with original gaps
+PASS release-ten mobile-light no horizontal overflow
+PASS release-ten mobile-light label and value stay in two columns with original gaps
+PASS release-ten mobile-dark no horizontal overflow
+PASS release-ten mobile-dark label and value stay in two columns with original gaps
+PASS release-ten short-light no horizontal overflow
+PASS release-ten short-light label and value stay in two columns with original gaps
+PASS release-ten short-light page actions reachable by scrolling
+PASS release-ten short-dark no horizontal overflow
+PASS release-ten short-dark label and value stay in two columns with original gaps
+PASS release-ten short-dark page actions reachable by scrolling
+PASS unrelated pause confirmation still says cancel
+PASS fixture paused with ten published
+PASS release-paused desktop no horizontal overflow
+PASS release-paused desktop label and value stay in two columns with original gaps
+PASS release-paused mobile-light no horizontal overflow
+PASS release-paused mobile-light label and value stay in two columns with original gaps
+PASS release-paused mobile-dark no horizontal overflow
+PASS release-paused mobile-dark label and value stay in two columns with original gaps
+PASS release-paused short-light no horizontal overflow
+PASS release-paused short-light label and value stay in two columns with original gaps
+PASS release-paused short-light page actions reachable by scrolling
+PASS release-paused short-dark no horizontal overflow
+PASS release-paused short-dark label and value stay in two columns with original gaps
+PASS release-paused short-dark page actions reachable by scrolling
+PASS long-preview desktop no horizontal overflow
+PASS long-preview desktop label and value stay in two columns with original gaps
+PASS long-preview desktop close and footer stay reachable
+PASS long-preview mobile-light no horizontal overflow
+PASS long-preview mobile-light label and value stay in two columns with original gaps
+PASS long-preview mobile-light long filenames wrap inside value column
+PASS long-preview mobile-light close and footer stay reachable
+PASS long-preview mobile-dark no horizontal overflow
+PASS long-preview mobile-dark label and value stay in two columns with original gaps
+PASS long-preview mobile-dark long filenames wrap inside value column
+PASS long-preview mobile-dark close and footer stay reachable
+PASS long-preview short-light no horizontal overflow
+PASS long-preview short-light label and value stay in two columns with original gaps
+PASS long-preview short-light long filenames wrap inside value column
+PASS long-preview short-light close and footer stay reachable
+PASS long-preview short-light scrolled body stays below close
+PASS long-preview short-dark no horizontal overflow
+PASS long-preview short-dark label and value stay in two columns with original gaps
+PASS long-preview short-dark long filenames wrap inside value column
+PASS long-preview short-dark close and footer stay reachable
+PASS long-preview short-dark scrolled body stays below close
+PASS media previews leave paused plan and publication facts unchanged
+PASS global-confirm desktop approved secondary text
+PASS global-confirm desktop no horizontal overflow
+PASS global-confirm desktop close and footer stay reachable
+PASS global-confirm desktop return preserves input default impact and published facts
+PASS global-confirm mobile-light approved secondary text
+PASS global-confirm mobile-light no horizontal overflow
+PASS global-confirm mobile-light close and footer stay reachable
+PASS global-confirm mobile-light return preserves input default impact and published facts
+PASS global-confirm mobile-dark approved secondary text
+PASS global-confirm mobile-dark no horizontal overflow
+PASS global-confirm mobile-dark close and footer stay reachable
+PASS global-confirm mobile-dark return preserves input default impact and published facts
+PASS global-confirm short-light approved secondary text
+PASS global-confirm short-light no horizontal overflow
+PASS global-confirm short-light close and footer stay reachable
+PASS global-confirm short-light scrolled body stays below close
+PASS global-confirm short-light return preserves input default impact and published facts
+PASS global-confirm short-dark approved secondary text
+PASS global-confirm short-dark no horizontal overflow
+PASS global-confirm short-dark close and footer stay reachable
+PASS global-confirm short-dark scrolled body stays below close
+PASS global-confirm short-dark return preserves input default impact and published facts
+PASS no script or native-dialog errors
+PASS only own synthetic fixture is withdrawn after checks

@@ -1,0 +1,2897 @@
+[
+  {
+    "state": "release-confirm",
+    "variant": "desktop",
+    "viewport": [
+      1100,
+      1000
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 230,
+      "y": 62,
+      "width": 640,
+      "height": 600.703125,
+      "right": 870,
+      "bottom": 662.703125
+    },
+    "grid": {
+      "columns": "57.125px 514.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 255,
+        "y": 160.59375,
+        "width": 590,
+        "height": 144.4375,
+        "right": 845,
+        "bottom": 305.03125
+      },
+      "rows": [
+        {
+          "label": "首批上线",
+          "value": "第 1–10 集2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 255,
+            "y": 160.59375,
+            "width": 57.125,
+            "height": 43.375,
+            "right": 312.125,
+            "bottom": 203.96875
+          },
+          "dd": {
+            "x": 330.125,
+            "y": 160.59375,
+            "width": 514.875,
+            "height": 43.375,
+            "right": 845,
+            "bottom": 203.96875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "剩余集数",
+          "value": "第 11–35 集",
+          "dt": {
+            "x": 255,
+            "y": 215.96875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 312.125,
+            "bottom": 237.65625
+          },
+          "dd": {
+            "x": 330.125,
+            "y": 215.96875,
+            "width": 514.875,
+            "height": 21.6875,
+            "right": 845,
+            "bottom": 237.65625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新规则",
+          "value": "每 1 天 10 集，最后一批发布剩余集数",
+          "dt": {
+            "x": 255,
+            "y": 249.65625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 312.125,
+            "bottom": 271.34375
+          },
+          "dd": {
+            "x": 330.125,
+            "y": 249.65625,
+            "width": 514.875,
+            "height": 21.6875,
+            "right": 845,
+            "bottom": 271.34375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "免费范围",
+          "value": "前 5 集；其余需要有效会员",
+          "dt": {
+            "x": 255,
+            "y": 283.34375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 312.125,
+            "bottom": 305.03125
+          },
+          "dd": {
+            "x": 330.125,
+            "y": 283.34375,
+            "width": 514.875,
+            "height": 21.6875,
+            "right": 845,
+            "bottom": 305.03125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 255,
+        "y": 124,
+        "width": 590,
+        "height": 454.015625,
+        "right": 845,
+        "bottom": 578.015625
+      },
+      "close": {
+        "x": 801,
+        "y": 87,
+        "width": 44,
+        "height": 37,
+        "right": 845,
+        "bottom": 124
+      },
+      "actions": {
+        "x": 255,
+        "y": 598.015625,
+        "width": 590,
+        "height": 39.6875,
+        "right": 845,
+        "bottom": 637.703125
+      },
+      "bodyWidth": 590,
+      "scrollWidth": 590
+    }
+  },
+  {
+    "state": "release-confirm",
+    "variant": "mobile-light",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 612.609375,
+      "right": 365,
+      "bottom": 630.609375
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 114.59375,
+        "width": 319,
+        "height": 144.4375,
+        "right": 347,
+        "bottom": 259.03125
+      },
+      "rows": [
+        {
+          "label": "首批上线",
+          "value": "第 1–10 集2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 28,
+            "y": 114.59375,
+            "width": 57.125,
+            "height": 43.375,
+            "right": 85.125,
+            "bottom": 157.96875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 114.59375,
+            "width": 243.875,
+            "height": 43.375,
+            "right": 347,
+            "bottom": 157.96875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "剩余集数",
+          "value": "第 11–35 集",
+          "dt": {
+            "x": 28,
+            "y": 169.96875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 191.65625
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 169.96875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 191.65625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新规则",
+          "value": "每 1 天 10 集，最后一批发布剩余集数",
+          "dt": {
+            "x": 28,
+            "y": 203.65625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 225.34375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 203.65625,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 225.34375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "免费范围",
+          "value": "前 5 集；其余需要有效会员",
+          "dt": {
+            "x": 28,
+            "y": 237.34375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 259.03125
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 237.34375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 259.03125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 78,
+        "width": 319,
+        "height": 472.609375,
+        "right": 347,
+        "bottom": 550.609375
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 570.609375,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 612.609375
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "release-confirm",
+    "variant": "mobile-dark",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 612.609375,
+      "right": 365,
+      "bottom": 630.609375
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 114.59375,
+        "width": 319,
+        "height": 144.4375,
+        "right": 347,
+        "bottom": 259.03125
+      },
+      "rows": [
+        {
+          "label": "首批上线",
+          "value": "第 1–10 集2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 28,
+            "y": 114.59375,
+            "width": 57.125,
+            "height": 43.375,
+            "right": 85.125,
+            "bottom": 157.96875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 114.59375,
+            "width": 243.875,
+            "height": 43.375,
+            "right": 347,
+            "bottom": 157.96875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "剩余集数",
+          "value": "第 11–35 集",
+          "dt": {
+            "x": 28,
+            "y": 169.96875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 191.65625
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 169.96875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 191.65625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新规则",
+          "value": "每 1 天 10 集，最后一批发布剩余集数",
+          "dt": {
+            "x": 28,
+            "y": 203.65625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 225.34375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 203.65625,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 225.34375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "免费范围",
+          "value": "前 5 集；其余需要有效会员",
+          "dt": {
+            "x": 28,
+            "y": 237.34375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 259.03125
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 237.34375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 259.03125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 78,
+        "width": 319,
+        "height": 472.609375,
+        "right": 347,
+        "bottom": 550.609375
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 570.609375,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 612.609375
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "release-confirm",
+    "variant": "short-light",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 464,
+      "right": 365,
+      "bottom": 482
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 114.59375,
+        "width": 319,
+        "height": 144.4375,
+        "right": 347,
+        "bottom": 259.03125
+      },
+      "rows": [
+        {
+          "label": "首批上线",
+          "value": "第 1–10 集2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 28,
+            "y": 114.59375,
+            "width": 57.125,
+            "height": 43.375,
+            "right": 85.125,
+            "bottom": 157.96875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 114.59375,
+            "width": 243.875,
+            "height": 43.375,
+            "right": 347,
+            "bottom": 157.96875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "剩余集数",
+          "value": "第 11–35 集",
+          "dt": {
+            "x": 28,
+            "y": 169.96875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 191.65625
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 169.96875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 191.65625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新规则",
+          "value": "每 1 天 10 集，最后一批发布剩余集数",
+          "dt": {
+            "x": 28,
+            "y": 203.65625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 225.34375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 203.65625,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 225.34375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "免费范围",
+          "value": "前 5 集；其余需要有效会员",
+          "dt": {
+            "x": 28,
+            "y": 237.34375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 259.03125
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 237.34375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 259.03125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 78,
+        "width": 319,
+        "height": 324,
+        "right": 347,
+        "bottom": 402
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 422,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 464
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "release-confirm",
+    "variant": "short-dark",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 464,
+      "right": 365,
+      "bottom": 482
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 114.59375,
+        "width": 319,
+        "height": 144.4375,
+        "right": 347,
+        "bottom": 259.03125
+      },
+      "rows": [
+        {
+          "label": "首批上线",
+          "value": "第 1–10 集2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 28,
+            "y": 114.59375,
+            "width": 57.125,
+            "height": 43.375,
+            "right": 85.125,
+            "bottom": 157.96875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 114.59375,
+            "width": 243.875,
+            "height": 43.375,
+            "right": 347,
+            "bottom": 157.96875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "剩余集数",
+          "value": "第 11–35 集",
+          "dt": {
+            "x": 28,
+            "y": 169.96875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 191.65625
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 169.96875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 191.65625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新规则",
+          "value": "每 1 天 10 集，最后一批发布剩余集数",
+          "dt": {
+            "x": 28,
+            "y": 203.65625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 225.34375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 203.65625,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 225.34375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "免费范围",
+          "value": "前 5 集；其余需要有效会员",
+          "dt": {
+            "x": 28,
+            "y": 237.34375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 259.03125
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 237.34375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 259.03125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 78,
+        "width": 319,
+        "height": 324,
+        "right": 347,
+        "bottom": 402
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 422,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 464
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "release-ten",
+    "variant": "desktop",
+    "viewport": [
+      1100,
+      1000
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 190,
+      "y": 266.078125,
+      "width": 884,
+      "height": 590.609375,
+      "right": 1074,
+      "bottom": 856.6875
+    },
+    "grid": {
+      "columns": "57.125px 766.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 211,
+        "y": 330.265625,
+        "width": 842,
+        "height": 122.75,
+        "right": 1053,
+        "bottom": 453.015625
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 211,
+            "y": 330.265625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 268.125,
+            "bottom": 351.953125
+          },
+          "dd": {
+            "x": 286.125,
+            "y": 330.265625,
+            "width": 766.875,
+            "height": 21.6875,
+            "right": 1053,
+            "bottom": 351.953125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 211,
+            "y": 363.953125,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 268.125,
+            "bottom": 385.640625
+          },
+          "dd": {
+            "x": 286.125,
+            "y": 363.953125,
+            "width": 766.875,
+            "height": 21.6875,
+            "right": 1053,
+            "bottom": 385.640625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 211,
+            "y": 397.640625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 268.125,
+            "bottom": 419.328125
+          },
+          "dd": {
+            "x": 286.125,
+            "y": 397.640625,
+            "width": 766.875,
+            "height": 21.6875,
+            "right": 1053,
+            "bottom": 419.328125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 211,
+            "y": 431.328125,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 268.125,
+            "bottom": 453.015625
+          },
+          "dd": {
+            "x": 286.125,
+            "y": 431.328125,
+            "width": 766.875,
+            "height": 21.6875,
+            "right": 1053,
+            "bottom": 453.015625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-ten",
+    "variant": "mobile-light",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 12,
+      "y": 474.109375,
+      "width": 351,
+      "height": 645.515625,
+      "right": 363,
+      "bottom": 1119.625
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 533.296875,
+        "width": 319,
+        "height": 122.75,
+        "right": 347,
+        "bottom": 656.046875
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 28,
+            "y": 533.296875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 554.984375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 533.296875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 554.984375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 28,
+            "y": 566.984375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 588.671875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 566.984375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 588.671875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 28,
+            "y": 600.671875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 622.359375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 600.671875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 622.359375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 28,
+            "y": 634.359375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 656.046875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 634.359375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 656.046875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-ten",
+    "variant": "mobile-dark",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 12,
+      "y": 474.109375,
+      "width": 351,
+      "height": 645.515625,
+      "right": 363,
+      "bottom": 1119.625
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 533.296875,
+        "width": 319,
+        "height": 122.75,
+        "right": 347,
+        "bottom": 656.046875
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 28,
+            "y": 533.296875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 554.984375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 533.296875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 554.984375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 28,
+            "y": 566.984375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 588.671875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 566.984375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 588.671875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 28,
+            "y": 600.671875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 622.359375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 600.671875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 622.359375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 28,
+            "y": 634.359375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 656.046875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 634.359375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 656.046875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-ten",
+    "variant": "short-light",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 12,
+      "y": 474.109375,
+      "width": 351,
+      "height": 645.515625,
+      "right": 363,
+      "bottom": 1119.625
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 533.296875,
+        "width": 319,
+        "height": 122.75,
+        "right": 347,
+        "bottom": 656.046875
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 28,
+            "y": 533.296875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 554.984375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 533.296875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 554.984375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 28,
+            "y": 566.984375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 588.671875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 566.984375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 588.671875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 28,
+            "y": 600.671875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 622.359375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 600.671875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 622.359375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 28,
+            "y": 634.359375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 656.046875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 634.359375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 656.046875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-ten",
+    "variant": "short-dark",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 12,
+      "y": 474.109375,
+      "width": 351,
+      "height": 645.515625,
+      "right": 363,
+      "bottom": 1119.625
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 533.296875,
+        "width": 319,
+        "height": 122.75,
+        "right": 347,
+        "bottom": 656.046875
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 28,
+            "y": 533.296875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 554.984375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 533.296875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 554.984375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 28,
+            "y": 566.984375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 588.671875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 566.984375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 588.671875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "2026-10-25 11:15 北京时间",
+          "dt": {
+            "x": 28,
+            "y": 600.671875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 622.359375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 600.671875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 622.359375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 28,
+            "y": 634.359375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 656.046875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 634.359375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 656.046875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-paused",
+    "variant": "desktop",
+    "viewport": [
+      1100,
+      1000
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 190,
+      "y": 266.078125,
+      "width": 884,
+      "height": 590.609375,
+      "right": 1074,
+      "bottom": 856.6875
+    },
+    "grid": {
+      "columns": "57.125px 766.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 211,
+        "y": 330.265625,
+        "width": 842,
+        "height": 122.75,
+        "right": 1053,
+        "bottom": 453.015625
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 211,
+            "y": 330.265625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 268.125,
+            "bottom": 351.953125
+          },
+          "dd": {
+            "x": 286.125,
+            "y": 330.265625,
+            "width": 766.875,
+            "height": 21.6875,
+            "right": 1053,
+            "bottom": 351.953125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 211,
+            "y": 363.953125,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 268.125,
+            "bottom": 385.640625
+          },
+          "dd": {
+            "x": 286.125,
+            "y": 363.953125,
+            "width": 766.875,
+            "height": 21.6875,
+            "right": 1053,
+            "bottom": 385.640625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "恢复更新时确认",
+          "dt": {
+            "x": 211,
+            "y": 397.640625,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 268.125,
+            "bottom": 419.328125
+          },
+          "dd": {
+            "x": 286.125,
+            "y": 397.640625,
+            "width": 766.875,
+            "height": 21.6875,
+            "right": 1053,
+            "bottom": 419.328125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 211,
+            "y": 431.328125,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 268.125,
+            "bottom": 453.015625
+          },
+          "dd": {
+            "x": 286.125,
+            "y": 431.328125,
+            "width": 766.875,
+            "height": 21.6875,
+            "right": 1053,
+            "bottom": 453.015625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-paused",
+    "variant": "mobile-light",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 12,
+      "y": 474.109375,
+      "width": 351,
+      "height": 603.828125,
+      "right": 363,
+      "bottom": 1077.9375
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 533.296875,
+        "width": 319,
+        "height": 122.75,
+        "right": 347,
+        "bottom": 656.046875
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 28,
+            "y": 533.296875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 554.984375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 533.296875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 554.984375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 28,
+            "y": 566.984375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 588.671875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 566.984375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 588.671875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "恢复更新时确认",
+          "dt": {
+            "x": 28,
+            "y": 600.671875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 622.359375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 600.671875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 622.359375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 28,
+            "y": 634.359375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 656.046875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 634.359375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 656.046875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-paused",
+    "variant": "mobile-dark",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 12,
+      "y": 474.109375,
+      "width": 351,
+      "height": 603.828125,
+      "right": 363,
+      "bottom": 1077.9375
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 533.296875,
+        "width": 319,
+        "height": 122.75,
+        "right": 347,
+        "bottom": 656.046875
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 28,
+            "y": 533.296875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 554.984375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 533.296875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 554.984375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 28,
+            "y": 566.984375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 588.671875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 566.984375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 588.671875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "恢复更新时确认",
+          "dt": {
+            "x": 28,
+            "y": 600.671875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 622.359375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 600.671875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 622.359375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 28,
+            "y": 634.359375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 656.046875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 634.359375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 656.046875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-paused",
+    "variant": "short-light",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 12,
+      "y": 474.109375,
+      "width": 351,
+      "height": 603.828125,
+      "right": 363,
+      "bottom": 1077.9375
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 533.296875,
+        "width": 319,
+        "height": 122.75,
+        "right": 347,
+        "bottom": 656.046875
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 28,
+            "y": 533.296875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 554.984375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 533.296875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 554.984375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 28,
+            "y": 566.984375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 588.671875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 566.984375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 588.671875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "恢复更新时确认",
+          "dt": {
+            "x": 28,
+            "y": 600.671875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 622.359375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 600.671875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 622.359375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 28,
+            "y": 634.359375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 656.046875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 634.359375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 656.046875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "release-paused",
+    "variant": "short-dark",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 12,
+      "y": 474.109375,
+      "width": 351,
+      "height": 603.828125,
+      "right": 363,
+      "bottom": 1077.9375
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 533.296875,
+        "width": 319,
+        "height": 122.75,
+        "right": 347,
+        "bottom": 656.046875
+      },
+      "rows": [
+        {
+          "label": "已公开",
+          "value": "10 / 35 集",
+          "dt": {
+            "x": 28,
+            "y": 533.296875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 554.984375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 533.296875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 554.984375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下一批",
+          "value": "第 11–20 集",
+          "dt": {
+            "x": 28,
+            "y": 566.984375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 588.671875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 566.984375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 588.671875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "下次时间",
+          "value": "恢复更新时确认",
+          "dt": {
+            "x": 28,
+            "y": 600.671875,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 622.359375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 600.671875,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 622.359375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "更新方式",
+          "value": "每 1 天更新 10 集",
+          "dt": {
+            "x": 28,
+            "y": 634.359375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 656.046875
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 634.359375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 656.046875
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    }
+  },
+  {
+    "state": "long-preview",
+    "variant": "desktop",
+    "viewport": [
+      1100,
+      1000
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 230,
+      "y": 62,
+      "width": 640,
+      "height": 560.78125,
+      "right": 870,
+      "bottom": 622.78125
+    },
+    "grid": {
+      "columns": "57.125px 514.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 255,
+        "y": 304,
+        "width": 590,
+        "height": 197.5,
+        "right": 845,
+        "bottom": 501.5
+      },
+      "rows": [
+        {
+          "label": "视频",
+          "value": "01_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_.mp4",
+          "dt": {
+            "x": 255,
+            "y": 304,
+            "width": 57.125,
+            "height": 65.0625,
+            "right": 312.125,
+            "bottom": 369.0625
+          },
+          "dd": {
+            "x": 330.125,
+            "y": 304,
+            "width": 514.875,
+            "height": 65.0625,
+            "right": 845,
+            "bottom": 369.0625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "字幕",
+          "value": "英文 · 01_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_.srt",
+          "dt": {
+            "x": 255,
+            "y": 381.0625,
+            "width": 57.125,
+            "height": 86.75,
+            "right": 312.125,
+            "bottom": 467.8125
+          },
+          "dd": {
+            "x": 330.125,
+            "y": 381.0625,
+            "width": 514.875,
+            "height": 86.75,
+            "right": 845,
+            "bottom": 467.8125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "发布状态",
+          "value": "已公开",
+          "dt": {
+            "x": 255,
+            "y": 479.8125,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 312.125,
+            "bottom": 501.5
+          },
+          "dd": {
+            "x": 330.125,
+            "y": 479.8125,
+            "width": 514.875,
+            "height": 21.6875,
+            "right": 845,
+            "bottom": 501.5
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 255,
+        "y": 124,
+        "width": 590,
+        "height": 414.09375,
+        "right": 845,
+        "bottom": 538.09375
+      },
+      "close": {
+        "x": 801,
+        "y": 87,
+        "width": 44,
+        "height": 37,
+        "right": 845,
+        "bottom": 124
+      },
+      "actions": {
+        "x": 255,
+        "y": 558.09375,
+        "width": 590,
+        "height": 39.6875,
+        "right": 845,
+        "bottom": 597.78125
+      },
+      "bodyWidth": 590,
+      "scrollWidth": 590
+    }
+  },
+  {
+    "state": "long-preview",
+    "variant": "mobile-light",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 658.21875,
+      "right": 365,
+      "bottom": 676.21875
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 275.375,
+        "width": 319,
+        "height": 284.25,
+        "right": 347,
+        "bottom": 559.625
+      },
+      "rows": [
+        {
+          "label": "视频",
+          "value": "01_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_.mp4",
+          "dt": {
+            "x": 28,
+            "y": 275.375,
+            "width": 57.125,
+            "height": 108.4375,
+            "right": 85.125,
+            "bottom": 383.8125
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 275.375,
+            "width": 243.875,
+            "height": 108.4375,
+            "right": 347,
+            "bottom": 383.8125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "字幕",
+          "value": "英文 · 01_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_.srt",
+          "dt": {
+            "x": 28,
+            "y": 395.8125,
+            "width": 57.125,
+            "height": 130.125,
+            "right": 85.125,
+            "bottom": 525.9375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 395.8125,
+            "width": 243.875,
+            "height": 130.125,
+            "right": 347,
+            "bottom": 525.9375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "发布状态",
+          "value": "已公开",
+          "dt": {
+            "x": 28,
+            "y": 537.9375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 559.625
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 537.9375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 559.625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 86.375,
+        "width": 319,
+        "height": 509.84375,
+        "right": 347,
+        "bottom": 596.21875
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 616.21875,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 658.21875
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "long-preview",
+    "variant": "mobile-dark",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 658.21875,
+      "right": 365,
+      "bottom": 676.21875
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 275.375,
+        "width": 319,
+        "height": 284.25,
+        "right": 347,
+        "bottom": 559.625
+      },
+      "rows": [
+        {
+          "label": "视频",
+          "value": "01_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_.mp4",
+          "dt": {
+            "x": 28,
+            "y": 275.375,
+            "width": 57.125,
+            "height": 108.4375,
+            "right": 85.125,
+            "bottom": 383.8125
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 275.375,
+            "width": 243.875,
+            "height": 108.4375,
+            "right": 347,
+            "bottom": 383.8125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "字幕",
+          "value": "英文 · 01_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_.srt",
+          "dt": {
+            "x": 28,
+            "y": 395.8125,
+            "width": 57.125,
+            "height": 130.125,
+            "right": 85.125,
+            "bottom": 525.9375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 395.8125,
+            "width": 243.875,
+            "height": 130.125,
+            "right": 347,
+            "bottom": 525.9375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "发布状态",
+          "value": "已公开",
+          "dt": {
+            "x": 28,
+            "y": 537.9375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 559.625
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 537.9375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 559.625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 86.375,
+        "width": 319,
+        "height": 509.84375,
+        "right": 347,
+        "bottom": 596.21875
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 616.21875,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 658.21875
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "long-preview",
+    "variant": "short-light",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 464,
+      "right": 365,
+      "bottom": 482
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 275.375,
+        "width": 319,
+        "height": 284.25,
+        "right": 347,
+        "bottom": 559.625
+      },
+      "rows": [
+        {
+          "label": "视频",
+          "value": "01_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_.mp4",
+          "dt": {
+            "x": 28,
+            "y": 275.375,
+            "width": 57.125,
+            "height": 108.4375,
+            "right": 85.125,
+            "bottom": 383.8125
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 275.375,
+            "width": 243.875,
+            "height": 108.4375,
+            "right": 347,
+            "bottom": 383.8125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "字幕",
+          "value": "英文 · 01_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_.srt",
+          "dt": {
+            "x": 28,
+            "y": 395.8125,
+            "width": 57.125,
+            "height": 130.125,
+            "right": 85.125,
+            "bottom": 525.9375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 395.8125,
+            "width": 243.875,
+            "height": 130.125,
+            "right": 347,
+            "bottom": 525.9375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "发布状态",
+          "value": "已公开",
+          "dt": {
+            "x": 28,
+            "y": 537.9375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 559.625
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 537.9375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 559.625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 86.375,
+        "width": 319,
+        "height": 315.625,
+        "right": 347,
+        "bottom": 402
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 422,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 464
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "long-preview",
+    "variant": "short-dark",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 464,
+      "right": 365,
+      "bottom": 482
+    },
+    "grid": {
+      "columns": "57.125px 243.875px",
+      "rowGap": "12px",
+      "columnGap": "18px",
+      "box": {
+        "x": 28,
+        "y": 275.375,
+        "width": 319,
+        "height": 284.25,
+        "right": 347,
+        "bottom": 559.625
+      },
+      "rows": [
+        {
+          "label": "视频",
+          "value": "01_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_long_unbroken_preview_filename_.mp4",
+          "dt": {
+            "x": 28,
+            "y": 275.375,
+            "width": 57.125,
+            "height": 108.4375,
+            "right": 85.125,
+            "bottom": 383.8125
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 275.375,
+            "width": 243.875,
+            "height": 108.4375,
+            "right": 347,
+            "bottom": 383.8125
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "字幕",
+          "value": "英文 · 01_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_long_unbroken_subtitle_filename_.srt",
+          "dt": {
+            "x": 28,
+            "y": 395.8125,
+            "width": 57.125,
+            "height": 130.125,
+            "right": 85.125,
+            "bottom": 525.9375
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 395.8125,
+            "width": 243.875,
+            "height": 130.125,
+            "right": 347,
+            "bottom": 525.9375
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        },
+        {
+          "label": "发布状态",
+          "value": "已公开",
+          "dt": {
+            "x": 28,
+            "y": 537.9375,
+            "width": 57.125,
+            "height": 21.6875,
+            "right": 85.125,
+            "bottom": 559.625
+          },
+          "dd": {
+            "x": 103.125,
+            "y": 537.9375,
+            "width": 243.875,
+            "height": 21.6875,
+            "right": 347,
+            "bottom": 559.625
+          },
+          "marginBottom": "0px",
+          "overflow": false,
+          "lineHeight": 21.7
+        }
+      ]
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 86.375,
+        "width": 319,
+        "height": 315.625,
+        "right": 347,
+        "bottom": 402
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 422,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 464
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "global-confirm",
+    "variant": "desktop",
+    "viewport": [
+      1100,
+      1000
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 230,
+      "y": 62,
+      "width": 640,
+      "height": 797.3125,
+      "right": 870,
+      "bottom": 859.3125
+    },
+    "dialog": {
+      "body": {
+        "x": 255,
+        "y": 124,
+        "width": 590,
+        "height": 650.625,
+        "right": 845,
+        "bottom": 774.625
+      },
+      "close": {
+        "x": 801,
+        "y": 87,
+        "width": 44,
+        "height": 37,
+        "right": 845,
+        "bottom": 124
+      },
+      "actions": {
+        "x": 255,
+        "y": 794.625,
+        "width": 590,
+        "height": 39.6875,
+        "right": 845,
+        "bottom": 834.3125
+      },
+      "bodyWidth": 590,
+      "scrollWidth": 590
+    }
+  },
+  {
+    "state": "global-confirm",
+    "variant": "mobile-light",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 776,
+      "right": 365,
+      "bottom": 794
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 78,
+        "width": 319,
+        "height": 636,
+        "right": 347,
+        "bottom": 714
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 734,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 776
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "global-confirm",
+    "variant": "mobile-dark",
+    "viewport": [
+      375,
+      812
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 776,
+      "right": 365,
+      "bottom": 794
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 78,
+        "width": 319,
+        "height": 636,
+        "right": 347,
+        "bottom": 714
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 734,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 776
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "global-confirm",
+    "variant": "short-light",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": false,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 464,
+      "right": 365,
+      "bottom": 482
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 78,
+        "width": 319,
+        "height": 324,
+        "right": 347,
+        "bottom": 402
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 422,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 464
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  },
+  {
+    "state": "global-confirm",
+    "variant": "short-dark",
+    "viewport": [
+      375,
+      500
+    ],
+    "dark": true,
+    "pageOverflow": false,
+    "scope": {
+      "x": 10,
+      "y": 18,
+      "width": 355,
+      "height": 464,
+      "right": 365,
+      "bottom": 482
+    },
+    "dialog": {
+      "body": {
+        "x": 28,
+        "y": 78,
+        "width": 319,
+        "height": 324,
+        "right": 347,
+        "bottom": 402
+      },
+      "close": {
+        "x": 303,
+        "y": 36,
+        "width": 44,
+        "height": 42,
+        "right": 347,
+        "bottom": 78
+      },
+      "actions": {
+        "x": 28,
+        "y": 422,
+        "width": 319,
+        "height": 42,
+        "right": 347,
+        "bottom": 464
+      },
+      "bodyWidth": 319,
+      "scrollWidth": 319
+    }
+  }
+]
