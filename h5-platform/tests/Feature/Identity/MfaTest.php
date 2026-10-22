@@ -3,9 +3,9 @@
 namespace Tests\Feature\Identity;
 
 use App\Enums\Role;
+use App\Modules\Identity\Filament\Auth\StaffAppAuthentication as AppAuthentication;
 use App\Modules\Identity\Filament\StaffLogin;
 use App\Modules\Identity\Models\Staff;
-use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +19,10 @@ class MfaTest extends TestCase
 
     private function employee(bool $configured = true): Staff
     {
-        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        // Test-only integration; the shared production panel is wired by task 00.
+        $panel = Filament::getPanel('admin');
+        $panel->multiFactorAuthentication([AppAuthentication::make()->recoverable()], isRequired: true);
+        Filament::setCurrentPanel($panel);
         $staff = Staff::create(['name' => 'Owner', 'email' => 'owner@example.test', 'password' => 'LongPassword1234', 'role' => Role::Owner]);
         if ($configured) {
             $staff->saveAppAuthenticationSecret(app(AppAuthentication::class)->generateSecret());

@@ -1,0 +1,16 @@
+{
+  "baseline": "185bb2b",
+  "test_provider": "StaffAppAuthentication initially inherited the upstream QR method unchanged",
+  "php": "8.4.26",
+  "imagick": false,
+  "passed": 1,
+  "failed": 3,
+  "assertions": 14,
+  "cases": {
+    "actual_no_imagick_renderer": "failed: decoded payload was another data URI",
+    "raw_svg_and_configuration": "passed",
+    "complete_svg_data_uri": "failed: output changed",
+    "complete_png_data_uri": "failed: output changed"
+  },
+  "privacy": "Only outcomes recorded; no QR payload, secret, recovery code or screenshot retained in evidence."
+}
