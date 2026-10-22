@@ -1,0 +1,14 @@
+{
+  "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "checkoutHead": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "scenario": "acquisition-errors",
+  "base": "http://127.0.0.1:8377",
+  "source": "h5-platform/tests/Feature/Acquisition/Support/admin-ui-smoke.cjs",
+  "sourceSha256": "c0a5d1dd40c6538bd7b51d7313d746ca00e5fb287dafbd240552586b926f02b3",
+  "adapterSha256": "407de7a2380387379385ff71f64ba1d599522a72f740bbbada4e45c122c1cd2d",
+  "changes": [
+    "Exact dotted MFA id; accept successful intended admin path, reject login/setup. No auth bypass.",
+    "Render full original srcdoc at actual viewport without export-only 16px shell."
+  ],
+  "exitCode": 0
+}

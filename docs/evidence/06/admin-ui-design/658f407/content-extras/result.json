@@ -1,0 +1,17 @@
+{
+  "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "checks": [
+    "twelve actual synthetic inactive categories",
+    "narrow category table has its own horizontal overflow",
+    "scrolled final row opens correct category",
+    "cancel leaves all category versions and fields unchanged",
+    "cancel returns focus to edited row"
+  ],
+  "table": {
+    "client": 349,
+    "scroll": 580
+  },
+  "categories": 12,
+  "active": false,
+  "boundary": "Actual own DB category fixtures. Long list has no identical prototype dataset; functional extension only, no pixel equivalence claim."
+}

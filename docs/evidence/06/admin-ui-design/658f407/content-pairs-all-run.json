@@ -1,0 +1,13 @@
+{
+  "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "checkoutHead": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "scenario": "content-pairs-all",
+  "base": "http://127.0.0.1:8377",
+  "source": "h5-platform/tests/Feature/Content/Support/visual-pairs.browser.cjs",
+  "sourceSha256": "0b6f823eab57d74110e8563e52a546358be72b1f634776562fc5f06d89d11a25",
+  "adapterSha256": "81331e83392c60d064b3c16d6a86c586d29cd0aaf402683f426bde187f81f289",
+  "changes": [
+    "Same state photographed at 1100x1000 and 375x812 light/dark; shown dialogs additionally 375x500 light/dark. Viewport/theme restored after capture. No business/fixture changes."
+  ],
+  "exitCode": 0
+}

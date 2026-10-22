@@ -1,0 +1,316 @@
+{
+  "result": "passed",
+  "code_commit": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "contract": "1.0.5",
+  "source_port": 5877,
+  "source_database": "h5_e5d3fdcfd4_recovery_87a05d3c_test",
+  "restore_port": 6506,
+  "restore_database": "h5_e5d3fdcfd4_recovery_87a05d3c_test",
+  "independent_pg_instance": true,
+  "tables": {
+    "acquisition_assignments": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_deliveries": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_event_ids": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_links": {
+      "rows": 1,
+      "sha256": "01ab7c6e7d43072c8a64a40ecf2f1e923dcb4e29fb85680457bd33d7efcbb121"
+    },
+    "acquisition_pixel_versions": {
+      "rows": 17,
+      "sha256": "7e680bcf895e30d8db8c65bde58fa8681571488935ddee739b4aede1af7edaf2"
+    },
+    "acquisition_pixels": {
+      "rows": 1,
+      "sha256": "eccfe4f7b5b4a6c522cd781c6c5b982ca902bf73f6c72235aae9ad9ed57316b2"
+    },
+    "acquisition_receipts": {
+      "rows": 3,
+      "sha256": "84a60484f88e74db38e6a1160376eaa30ed3602fbd5ba8d884ed1e6c5278eb1a"
+    },
+    "acquisition_simulations": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "acquisition_sources": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "audience_playback_sessions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "audience_progress": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_accounts": {
+      "rows": 4,
+      "sha256": "d2a37b3bcd7ab0f6530dbd2aa391e3ad833e4f30b8ddc5fb3fc8a2baf5352410"
+    },
+    "billing_cases": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_entitlements": {
+      "rows": 1,
+      "sha256": "932617269babc9c79010d58bb65e97569fdcdcdc064eb943788285ee2bd10cea"
+    },
+    "billing_inbox": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_notes": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_offers": {
+      "rows": 1,
+      "sha256": "18848d316c5c45ae2057a9cf59474b2eb55148bbf98da13f36129a03a9d883e7"
+    },
+    "billing_operations": {
+      "rows": 1,
+      "sha256": "0f4dbb3d1c8bcf7f41f913760dabe2ba877f69e63c1b35965ae75549d1c14547"
+    },
+    "billing_orders": {
+      "rows": 1,
+      "sha256": "3ddb2fc4bd43b4ad3c76f6e587cb2fa64ed98522ec3c71fa4cc103c761e77410"
+    },
+    "billing_outbox": {
+      "rows": 1,
+      "sha256": "c77f766ddf6a55c2cc2783d171f307bdf7769c7b92eddbb2b1f685bd2e2f8f21"
+    },
+    "billing_payments": {
+      "rows": 1,
+      "sha256": "034a4ea61f676b8b59a92c1f58b335421ac6f96edfbbeb1a6a94604c68c25629"
+    },
+    "billing_prices": {
+      "rows": 1,
+      "sha256": "e422bbb1b264a4b91cdff212a3e287ef623ba21dacee6f427e6a2892575802f2"
+    },
+    "billing_refunds": {
+      "rows": 1,
+      "sha256": "5b9a22afb89c7c3cc0f9ea31ae62c10d8e1c29465d9289d95755f822d14bb04e"
+    },
+    "billing_resume_quotes": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "billing_subscriptions": {
+      "rows": 1,
+      "sha256": "e879d86215130f90e49c43bb6593e430b3b7e6a0d4ef460ae11a4d5a8346260d"
+    },
+    "cache": {
+      "rows": 12,
+      "sha256": "9f5098af7e210632cf180d881b4515dad2ba1d7f64fe2dd6c29173cb50b81df7"
+    },
+    "cache_locks": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_assets": {
+      "rows": 87,
+      "sha256": "2f667431700aad57bde34ea04662aa40385d82e7feb24bdfdc71f55ed9af7309"
+    },
+    "content_banners": {
+      "rows": 2,
+      "sha256": "212361327da5255c065be3a82b714336762a4c523f11935d9a4fa957487db995"
+    },
+    "content_categories": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_drama_categories": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_dramas": {
+      "rows": 3,
+      "sha256": "98aa8c06597418ed898f537d4df7361486608c934ca67868eb3e8086c03c51ca"
+    },
+    "content_episodes": {
+      "rows": 70,
+      "sha256": "fcf75f19fa555aa1df9609c477ce22e95720451bf783413dad83fc5049f3923c"
+    },
+    "content_grants": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_operations": {
+      "rows": 111,
+      "sha256": "36be7ff68ae928ae94d53b740457b28fa862320bd8397eddbdd9ead1c9b758b5"
+    },
+    "content_plans": {
+      "rows": 3,
+      "sha256": "bc538c9387f0a5dd68a80ad6a073401320f3c844681db9592b081f403bff235a"
+    },
+    "content_play_sessions": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "content_publications": {
+      "rows": 5,
+      "sha256": "d5c0c2f72b2e73a159fbb2c0929476beed1679ce922936c81cdcff1dab20f9cf"
+    },
+    "content_settings": {
+      "rows": 1,
+      "sha256": "3e9afb0140f45b014c48ad34b0b41be9367bdaa6f330016255114425eb6ccd96"
+    },
+    "failed_jobs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity_audit_events": {
+      "rows": 239,
+      "sha256": "52faf008e1e9fc77d0433238f614c9566744251621c760b96a6be48175e6422e"
+    },
+    "identity_password_reset_tokens": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "identity_staff": {
+      "rows": 4,
+      "sha256": "d05769e357d53ee1ca3b279220d874c40a8c6be4498f70aa56eb4c073e44feb7"
+    },
+    "identity_viewers": {
+      "rows": 4,
+      "sha256": "542ab001bf69b5b01278bcd67613dcdebf82a82874665fc8730f14d5c21302fd"
+    },
+    "job_batches": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "jobs": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "migrations": {
+      "rows": 15,
+      "sha256": "31a91c5491fbbbdfb4a879d9e75c96e1a24c21e01d398c24515debfc7c060311"
+    },
+    "sessions": {
+      "rows": 27,
+      "sha256": "b06fd8cb2db0561cb609d463d5a12e328f76560de23a43693c99128f153f5782"
+    }
+  },
+  "media_files": 248,
+  "media_sha256_match": true,
+  "dump_sha256": "72e8c430866d6b418e8707c0e4e8c9d2b009134d860f7e3712fdbaf4b0030ced",
+  "manifest_sha256": "acc7453784d358ea51161211b32835316c6bdf87685f3836196edfc4b77ac132",
+  "added_unpaid_accounts": 3,
+  "same_target_ids_after_restore": true,
+  "unrelated_accounts_unchanged": true,
+  "seed": {
+    "contract": "1.0.5",
+    "targets": {
+      "viewer_id": "01a16186-87a2-73fe-823c-fc4cbf90bcd9",
+      "offer_id": "01a16186-8846-71a6-8518-05d1d6851e27",
+      "order_id": "01a16186-8850-7052-ba2e-f012b4cdbed1",
+      "subscription_id": "01a16186-8850-7052-ba2e-f012b5137cf4",
+      "payment_id": "01a16186-885d-7353-a0de-ded3967698fb",
+      "entitlement_id": "01a16186-885e-710a-a5f8-db90de967aaf",
+      "refund_id": "re_restore06_01a16186-8850-7052-ba2e-f012b4cdbed1",
+      "outbox_id": "01a16186-885e-710a-a5f8-db90debea2e4",
+      "staff_id": "01a16186-890c-732a-873a-712415f315fc",
+      "drama_id": "01a16186-890f-7372-bb30-6ccf2266d4c1",
+      "plan_id": "01a16186-8910-7114-be69-10468a0fcbe9"
+    },
+    "orders": 1,
+    "payments": 1,
+    "entitlements": 1,
+    "refunds": 1,
+    "outbox": 1,
+    "access_active": true,
+    "renewal_enabled": false,
+    "public_episodes": 45,
+    "publications": 5,
+    "published_publications": 5,
+    "target_publication_results": [],
+    "target_plan_state": "active",
+    "target_drama_state": "draft",
+    "mfa_ciphertext_decrypts": true,
+    "unrelated_accounts": 3,
+    "unrelated_accounts_unchanged": true,
+    "unrelated_snapshot_sha256": "3ee53d0b419c5425b1072913ebfc74a42a0aff6dc6be2b03c798ce7b3f13e436"
+  },
+  "after_restart": {
+    "contract": "1.0.5",
+    "targets": {
+      "viewer_id": "01a16186-87a2-73fe-823c-fc4cbf90bcd9",
+      "offer_id": "01a16186-8846-71a6-8518-05d1d6851e27",
+      "order_id": "01a16186-8850-7052-ba2e-f012b4cdbed1",
+      "subscription_id": "01a16186-8850-7052-ba2e-f012b5137cf4",
+      "payment_id": "01a16186-885d-7353-a0de-ded3967698fb",
+      "entitlement_id": "01a16186-885e-710a-a5f8-db90de967aaf",
+      "refund_id": "re_restore06_01a16186-8850-7052-ba2e-f012b4cdbed1",
+      "outbox_id": "01a16186-885e-710a-a5f8-db90debea2e4",
+      "staff_id": "01a16186-890c-732a-873a-712415f315fc",
+      "drama_id": "01a16186-890f-7372-bb30-6ccf2266d4c1",
+      "plan_id": "01a16186-8910-7114-be69-10468a0fcbe9"
+    },
+    "orders": 1,
+    "payments": 1,
+    "entitlements": 1,
+    "refunds": 1,
+    "outbox": 1,
+    "access_active": true,
+    "renewal_enabled": false,
+    "public_episodes": 45,
+    "publications": 5,
+    "published_publications": 5,
+    "target_publication_results": [],
+    "target_plan_state": "active",
+    "target_drama_state": "draft",
+    "mfa_ciphertext_decrypts": true,
+    "unrelated_accounts": 3,
+    "unrelated_accounts_unchanged": true,
+    "unrelated_snapshot_sha256": "3ee53d0b419c5425b1072913ebfc74a42a0aff6dc6be2b03c798ce7b3f13e436"
+  },
+  "after_two_publish_runs": {
+    "contract": "1.0.5",
+    "targets": {
+      "viewer_id": "01a16186-87a2-73fe-823c-fc4cbf90bcd9",
+      "offer_id": "01a16186-8846-71a6-8518-05d1d6851e27",
+      "order_id": "01a16186-8850-7052-ba2e-f012b4cdbed1",
+      "subscription_id": "01a16186-8850-7052-ba2e-f012b5137cf4",
+      "payment_id": "01a16186-885d-7353-a0de-ded3967698fb",
+      "entitlement_id": "01a16186-885e-710a-a5f8-db90de967aaf",
+      "refund_id": "re_restore06_01a16186-8850-7052-ba2e-f012b4cdbed1",
+      "outbox_id": "01a16186-885e-710a-a5f8-db90debea2e4",
+      "staff_id": "01a16186-890c-732a-873a-712415f315fc",
+      "drama_id": "01a16186-890f-7372-bb30-6ccf2266d4c1",
+      "plan_id": "01a16186-8910-7114-be69-10468a0fcbe9"
+    },
+    "orders": 1,
+    "payments": 1,
+    "entitlements": 1,
+    "refunds": 1,
+    "outbox": 1,
+    "access_active": true,
+    "renewal_enabled": false,
+    "public_episodes": 45,
+    "publications": 6,
+    "published_publications": 5,
+    "target_publication_results": [
+      "held"
+    ],
+    "target_plan_state": "missed_pending_policy",
+    "target_drama_state": "draft",
+    "mfa_ciphertext_decrypts": true,
+    "unrelated_accounts": 3,
+    "unrelated_accounts_unchanged": true,
+    "unrelated_snapshot_sha256": "3ee53d0b419c5425b1072913ebfc74a42a0aff6dc6be2b03c798ce7b3f13e436"
+  },
+  "seconds": 8.37,
+  "payment_evidence": "testing-only FakeGateway; not official Stripe",
+  "scope": "local independent recovery, no cloud reboot or offsite retrieval; no worker/web/SMTP/ad/payment network started",
+  "application_key": "same checkout key loaded to verify MFA decrypt; not printed or exported"
+}

@@ -1,0 +1,13 @@
+{
+  "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "checkoutHead": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "scenario": "acquisition-dirty",
+  "base": "http://127.0.0.1:8377",
+  "source": "h5-platform/tests/Feature/Acquisition/Support/dirty-state-smoke.cjs",
+  "sourceSha256": "f939f58fa7691e948017cf2dbc47f014345feaa946502a18db039d7e3585b9e9",
+  "adapterSha256": "a6fac5b9e25635de4d2191ec6a3b2215d5bdafca5ed5ef8004468070670d2ca1",
+  "changes": [
+    "Exact dotted MFA id; accept successful intended admin path, reject login/setup. No auth bypass."
+  ],
+  "exitCode": 0
+}
