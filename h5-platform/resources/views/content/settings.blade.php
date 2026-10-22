@@ -13,7 +13,7 @@
     <x-admin.dialog id="content-default-dialog" title="确认默认试看规则">
         <div id="content-default-impact"></div>
         <p id="content-default-error" role="alert" class="h5-error" hidden></p>
-        <x-slot:actions><button class="h5-button" type="button" data-admin-close>取消</button><button id="content-default-confirm" class="h5-button h5-primary" type="button">确认修改</button></x-slot:actions>
+        <x-slot:actions><button class="h5-button" type="button" data-admin-close>返回修改</button><button id="content-default-confirm" class="h5-button h5-primary" type="button">确认修改</button></x-slot:actions>
     </x-admin.dialog>
 </x-admin.workspace>
 <script src="{{ asset('content/errors.js') }}?v={{ substr(hash_file('sha256', public_path('content/errors.js')), 0, 12) }}" defer></script>

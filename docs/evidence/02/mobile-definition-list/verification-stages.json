@@ -1,0 +1,29 @@
+{
+  "final_application": "8dedf0d9df05ef4871d6002588371288279d1db0",
+  "layout_stage": {
+    "passed": 100,
+    "tested_source": {
+      "baseline": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+      "scope": "100 checks completed before cover-only layout correction; these three files were the tested application inputs",
+      "files": {
+        "h5-platform/public/content/admin.css": "1c0ce67791c67bc49cc6ba13b653ed6cb78c06294081cac1bdadcbcc2f680358",
+        "h5-platform/public/content/admin.js": "5100761e675baf84c494dfd084eb222aec272a0a33539e44f7e71aff828f6bf3",
+        "h5-platform/resources/views/content/settings.blade.php": "51f0b428dc54c3d3763c3319a6b065bd9bd792aac50c10351d2c7e88a7f04f34"
+      }
+    },
+    "reconstructed_from_baseline": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+    "patch": "tested-before-cover.patch",
+    "unchanged_in_final_regions": {
+      "release-confirm": "a9711c955a28b10f094d9db92501c803e225e6181e97c9abc660ed561c513ceb",
+      "release-status": "7ff924b2c2f0bc508619c09a4f3f52ff7366188e14e14521c00165251f9e753a",
+      "media-preview": "2535b81edaab14e49674bba7023fa1f6314ea9c4dae2b0cee534694b2317f6f1",
+      "dl-and-mobile-css": "94e03c2a6e153b1ca6a090967daf3170e63a6122b155236aef8c2455353c1600"
+    },
+    "settings_blade_unchanged": true
+  },
+  "cover_stage": {
+    "passed": 42,
+    "application": "8dedf0d9df05ef4871d6002588371288279d1db0"
+  },
+  "boundary": "Per 00 instruction, do not rerun unchanged layout suite after cover-only correction. Layout evidence predates cover correction; all relevant layout/preview/button regions verified byte-identical in final code."
+}

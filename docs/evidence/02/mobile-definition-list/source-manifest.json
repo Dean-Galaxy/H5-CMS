@@ -1,0 +1,386 @@
+{
+  "application_commit": "8dedf0d9df05ef4871d6002588371288279d1db0",
+  "baseline": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "contract": "1.0.5",
+  "source": {
+    "h5-platform/public/content/admin.css": "206f837f3140d330c8d293c7f2fba53c74901524925f8e3bccdfbbdc44ae3509",
+    "h5-platform/public/content/admin.js": "45f0cb0b3fb71aace0ff612ec84d869f4c6f94759819ed314ef9ce3f7c89c1e1",
+    "h5-platform/resources/views/content/settings.blade.php": "51f0b428dc54c3d3763c3319a6b065bd9bd792aac50c10351d2c7e88a7f04f34",
+    "h5-platform/tests/Feature/Content/Support/release-layout.browser.cjs": "b7ba7d59871458440cd83c960ac407945b17f8731038cb91b71a7912ec70c7f2",
+    "h5-platform/tests/Feature/Content/Support/cover-alignment.browser.cjs": "69c6fb668b635ab4b2c79f2b345b9de151f2c7f515d489bed0e84c2969f39921",
+    "h5-platform/public/admin-ui/admin.css": "9f8dd19a8262839042f718f026068aa2f84bbdf6366c9a1fec026be64b797df0",
+    "h5-platform/public/admin-ui/admin.js": "233b5652f8db837a6249c2470d209d338a0cf7cb1c035a9a4119ed5b4e14144b",
+    "docs/ui/08-admin-v2/approved-fragment.html": "61491c1a40a21ed75e76e83387d2eb912de8b4862d118a0685aaa1fdc3a0c0e5"
+  },
+  "screenshots": [
+    {
+      "path": "layout/global-confirm-mobile-dark.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "3a7979d3d0f685b67e7ccc5edc0784f50e339e8c96be8f7bbc75347170296de6",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/long-preview-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "f1dae44501cdbdcf74d835a8a9da3b405fd96d1a29f4a775884491b898f04670",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-paused-short-light.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "79b82b82f66d1dac4b8e0569b5b44c71c00916dda267d3966416d3c20f3366ae",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-confirm-mobile-dark.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "6449ec9eb120c60226e853797bee952282bb029edb3d0092b222d00e34793f49",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-paused-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "81e5b03bf64867dc196dc265eccc15c06f083ef8b6bc000c416c9b1dadc7385c",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-confirm-mobile-light.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "603e2c594990916be373d8af7d5848c6816f67d9f589d571db5564b20f8305d1",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-ten-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "df6ee76d0e83310295f734e2b4964e8d687afa3115ddc7cd9ec3f8055d86e8f7",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-ten-short-dark-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "49b1e248694561811d4cad713597aad88dd521a5ca1fa12ef0e5d6db57271280",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/global-confirm-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "3bf19b70b44f5b33e1c1c4df089e13cce76ca08099319ccc5b9b680fa093e035",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-ten-short-light-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "74f58adae7a8bd7b05be009d6302e822e35b1a71bf6f051490fd2b9d25957de7",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/long-preview-mobile-light.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "89d845e8ca2e9bb1d4494a29bd7157b68386abe167936f9e07f624104b2bc8a4",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-ten-short-light.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "c25c7ee656aed77300a9bb8450cd6a9923d81e453af6f6e795473a41ef89cf42",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-ten-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "521fd5d017851de67e2c5e7cc8eb4dccb162e356932fefd3c687dc8ce507f50b",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-paused-short-light-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "3aa530c72da49135b956d7ea1412e9ac1f7d8d4f605a415ac18db05b1b0cd6b2",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-confirm-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "21e68de04a5c50c31f7ae72ba43a5e85e16ccbac59c887281279599773e1f263",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/long-preview-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "e57e4ffbf626a0b26ddafe4c8e729301947e0beb585b6f533e2ffbf509ce7693",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/long-preview-short-dark-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "59645b6767dd7507ff78850308013538c3281ff99df9c92190ddce6e6c65fdba",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-ten-mobile-light.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "d201e3b9d922543ed287659f6266da449f550afa99c65d64d685359be6b55a7c",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/global-confirm-mobile-light.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "71dc280dad54c83cfdcdf25c8b50688cc5f1469ed5ace0b5146c0bfecdf0a088",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/long-preview-short-light.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "fd9057a878927334814053a9d6dda397cd8a3c78de7a4c0208dcd128b5194752",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/long-preview-mobile-dark.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "73bd06375aea71587b99ae8a58589242a6535345e7c38193e90e4f79c5659b50",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/global-confirm-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "c7433dfb36309c57b321fddbf224b74372b371cb4ef3a26496ce44499cb8f004",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-paused-mobile-light.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "4fc58ea101b2df012e87628b55092e7611629c29442551335bf85d574547187c",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/global-confirm-short-light-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "8a794abb0ed03be96371091bbe499c3b96951a0ce5aefa2b36154bbd1c36fbea",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-confirm-short-light-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "f50610ccd95166034db9a8955f6605c862e99ca997f4730e47cc6625d98bce46",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/long-preview-short-light-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "7bd050d2e503399f4eb54a21e56e97adda6e87738ed4c4155978ba7793456b8d",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-confirm-short-dark-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "666426412c539a7dc873009971f44ec831816d8ac97b6b0c12393fb41fa8efc6",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-paused-short-dark-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "4909084c4b746140bcbf546b8f2f317e50db2167f9bf92d72539cf2d9f37dac6",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-ten-mobile-dark.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "1e45277aa670c37ba324eb52b9436255b1d0df9c162d1470d3f1d9f2c99583e9",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/global-confirm-short-dark-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "1005ce47b48feec5dceaec2bef1a94d811665cd9c606697a50c32a0afa78f278",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-paused-mobile-dark.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "9928c532b0d54a6f74571a1ab36cb7d694b05b82fe5e8dbe9acf8ccbe917b4a7",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/global-confirm-short-light.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "45eeca4a6f734cf1783bdb2180fdb53b5fdc44ea3dd30f5472950b9983201e01",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-confirm-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "94d32184e48d5cae742e0d2c7380d47a3996e8582ffa4b916540764a864b0d54",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-paused-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "f605953daec410b8e35e70026037a79a5803e05d20ff6cd653382bcce13a4659",
+      "stage": "layout"
+    },
+    {
+      "path": "layout/release-confirm-short-light.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "2d96aae7fc6e8ce23a6c3e9970d6e1bdd2012f1a3510b352bbe1316189663ca5",
+      "stage": "layout"
+    },
+    {
+      "path": "cover/current-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "d9fdc188048e4f6743346552f4a59239d48f785e218ffd05dcd5da7b9dd1235d",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/candidate-short-light.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "3f866bd6721b379ff64a5ef57e1fde5aab22099b9637104dee25f2f0d380b67a",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/current-mobile-dark.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "426a65d3ad0e1617795518568c8e862cf35a7849823ab3f42cdb81501ef75c28",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/unsaved-protection-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "b575da064a6af8cb75d8743acf6234d501d729b991d8b9d73078765775036011",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/current-short-dark-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "5254bb86d5cb193cff1bca64107474ddb110cc4a05addb8bf1066a9a963ee278",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/current-short-light-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "8d2a0bcf685dfc3de466df2b6ccaa74157a409c310f3c01575dfb8c5dd3e50d6",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/candidate-short-dark-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "7d6a5558169c07a97530bc5bdace2d39ad8a514333501b663067cb32e9166f66",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/candidate-short-light-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "112097dc3a4efaa99a6d5aaa253d62b490699967f5cc7bdce0f50fef89e039b9",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/candidate-mobile-light.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "aff016a3a8353326bda41751e3c55a8cea1e37714529eb8b33a419e3b132c848",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/failed-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "8b6989fc77e47a2234c7b0932de0eef26f6c4630a88ea85fefb92dc21d8b7644",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/failed-short-dark-scrolled.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "0bd5ffc0efc3958eba471140e0933d33008e34ba35eae35dd429010aff1488ce",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/candidate-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "1883cd703400ef4634f367dbf989819fc6eceeab7a8f19b75d1df8c704c95ede",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/current-mobile-light.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "45bd8b35cdc1fa4e7cb455e5569917f18a70fc384225680edd254870847dce72",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/current-short-light.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "8d2a0bcf685dfc3de466df2b6ccaa74157a409c310f3c01575dfb8c5dd3e50d6",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/candidate-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "0490f8f0dd7a67b990fdf87c3f3b1f01bbd41fc57e49601841d1646598a5bb5b",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/candidate-mobile-dark.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "e04dc4159734a79f32c6daac2dd6862771eef042e4525e90cd00e1c3f3579e6b",
+      "stage": "cover"
+    },
+    {
+      "path": "cover/current-short-dark.png",
+      "width": 375,
+      "height": 500,
+      "sha256": "5254bb86d5cb193cff1bca64107474ddb110cc4a05addb8bf1066a9a963ee278",
+      "stage": "cover"
+    }
+  ],
+  "viewport_counts": {
+    "375x812": 14,
+    "1100x1000": 7,
+    "375x500": 31
+  }
+}
