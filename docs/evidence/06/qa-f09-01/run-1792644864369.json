@@ -1,0 +1,109 @@
+{
+  "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "checkout": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "base": "http://127.0.0.1:8391",
+  "dbPort": 5891,
+  "startedAt": "2026-10-22T04:54:24.392Z",
+  "checks": [
+    {
+      "name": "same normally enrolled synthetic account retains eight unused recovery codes",
+      "passed": true
+    },
+    {
+      "name": "normal password and fresh-window TOTP login succeeds",
+      "passed": true
+    },
+    {
+      "name": "explicit normal logout reaches login page",
+      "passed": true
+    },
+    {
+      "name": "password after explicit logout still requires MFA",
+      "passed": true
+    },
+    {
+      "name": "new session valid TOTP enters admin",
+      "passed": true
+    },
+    {
+      "name": "normal recovery code enters admin and consumes exactly one",
+      "passed": true
+    },
+    {
+      "name": "used recovery code is rejected and remaining count stays seven",
+      "passed": true
+    },
+    {
+      "name": "no browser script errors",
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "screenshots": false,
+  "trace": false,
+  "secretsExported": false,
+  "enrollmentRun": "run-1792644641264",
+  "scope": "Continuation on same normally enrolled synthetic account; no new or preseeded MFA.",
+  "browser": "155.0.8059.85",
+  "authRequests": [
+    {
+      "stage": "first password",
+      "status": 200,
+      "attemptsBefore": 0,
+      "attemptsAfter": 1
+    },
+    {
+      "stage": "first TOTP",
+      "status": 200,
+      "attemptsBefore": 1,
+      "attemptsAfter": 2
+    },
+    {
+      "stage": "second password",
+      "status": 200,
+      "attemptsBefore": 2,
+      "attemptsAfter": 3
+    },
+    {
+      "stage": "second TOTP",
+      "status": 200,
+      "attemptsBefore": 3,
+      "attemptsAfter": 4
+    },
+    {
+      "stage": "password before recovery",
+      "status": 200,
+      "attemptsBefore": 0,
+      "attemptsAfter": 1
+    },
+    {
+      "stage": "confirm recovery",
+      "status": 200,
+      "attemptsBefore": 1,
+      "attemptsAfter": 2
+    },
+    {
+      "stage": "password before recovery reuse",
+      "status": 200,
+      "attemptsBefore": 2,
+      "attemptsAfter": 3
+    },
+    {
+      "stage": "confirm reuse",
+      "status": 200,
+      "attemptsBefore": 3,
+      "attemptsAfter": 4
+    }
+  ],
+  "rateLimitWaits": [
+    {
+      "stage": "password before recovery",
+      "attempts": 4,
+      "waitSeconds": 23,
+      "required": 2
+    }
+  ],
+  "result": "passed",
+  "finishedAt": "2026-10-22T04:55:33.289Z",
+  "browserScriptErrors": 0
+}
