@@ -38,5 +38,15 @@
     "01 raw targeted test log retains trailing whitespace; source diff check passed",
     "07 R01 paused0/12; user account/secret and8377 untouched",
     "06 new isolated normal enrollment before8377 deployment"
-  ]
+  ],
+  "root_final_identity_and_panel": {
+    "tested_commit": "96e071afa05578145ff8e0dbfe91f1d1f99131fa",
+    "application_matches_candidate": true,
+    "passed": 91,
+    "assertions": 713,
+    "exit_code": 0,
+    "test_only_fix": "d0f5d4eb28392d0d99a951808b0e1dbb84cfe62d",
+    "fixture_reason": "Freeze test clock before explicit audit fixtures; keep all sorting and permission assertions",
+    "log_sha256": "33ee746023c584f493118cdd6a4087364b5db17728699740514078ffeb75ed48"
+  }
 }
