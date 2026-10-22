@@ -1,0 +1,42 @@
+{
+  "status": "candidate_awaiting06_normal_enrollment",
+  "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "previous_application": "e4a6c65bac6c2005feff00b289f733faea29c583",
+  "module_delivery": "e4a723ee676a725830c5aaab0cd4012329e8d0bb",
+  "module_source": "0569e502327d95f208fe2939435fcf3dada12a2c",
+  "root_manifest_entries_verified": 6,
+  "independent_autoload_reproduction": {
+    "imagick": false,
+    "generator_returns_svg_data_uri": true,
+    "decoded_generator_xml_root": "svg",
+    "filament_fallback_contains_nested_uri": true
+  },
+  "root_panel_test_before_fix": {
+    "failed": 1,
+    "assertions": 7,
+    "failure": "nested data URI payload"
+  },
+  "module_tests": {
+    "passed": 13,
+    "assertions": 50
+  },
+  "root_identity_and_panel": {
+    "passed": 90,
+    "failed": 1,
+    "assertions": 706,
+    "panel_qr_passed": true,
+    "failure": "StaffAccountsTest fixed2026-10-21 fixture timestamp predates current owner audit;01 deterministic test correction requested; production sorting unchanged"
+  },
+  "source_sha256": {
+    "h5-platform/app/Modules/Identity/Filament/Auth/StaffAppAuthentication.php": "34043011a15170fef0e4c49b7635315c2c36b03f7ec547bbe778b72c9a1e5311",
+    "h5-platform/app/Providers/Filament/AdminPanelProvider.php": "a6605b3cd2142405ee9bfd927215a41a15612f83599ec5832bfdf50579cbd7eb",
+    "h5-platform/tests/Feature/Contracts/AdminPanelIntegrationTest.php": "b73a671a77943171b04b0264cfd906a9498d51fcad29db2c9a2401f64e63f9ad"
+  },
+  "boundaries": [
+    "No vendor/dependency/migration/business rule changes",
+    "Root isolated h5_5c78d05e4e_test/5541 only",
+    "01 raw targeted test log retains trailing whitespace; source diff check passed",
+    "07 R01 paused0/12; user account/secret and8377 untouched",
+    "06 new isolated normal enrollment before8377 deployment"
+  ]
+}
