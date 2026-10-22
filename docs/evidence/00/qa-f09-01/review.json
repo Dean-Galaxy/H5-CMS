@@ -1,5 +1,5 @@
 {
-  "status": "candidate_awaiting06_normal_enrollment",
+  "status": "isolated_verification_received_awaiting8377_rollout",
   "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
   "previous_application": "e4a6c65bac6c2005feff00b289f733faea29c583",
   "module_delivery": "e4a723ee676a725830c5aaab0cd4012329e8d0bb",
@@ -48,5 +48,18 @@
     "test_only_fix": "d0f5d4eb28392d0d99a951808b0e1dbb84cfe62d",
     "fixture_reason": "Freeze test clock before explicit audit fixtures; keep all sorting and permission assertions",
     "log_sha256": "33ee746023c584f493118cdd6a4087364b5db17728699740514078ffeb75ed48"
+  },
+  "independent_06_receipt": {
+    "delivery": "4d104e461fad29675ca47e0a4302b7bd8f90c938",
+    "merge": "991d985b7b60d905338ac7f87e4f75930b686f04",
+    "evidence_hashes_verified": 20,
+    "tool_hashes_and_syntax_verified": 3,
+    "production_tree_matches_candidate": true,
+    "segmented_enrollment_passed_checks": 11,
+    "enrollment_whole_run": "failed at subsequent old login wait",
+    "same_account_continuation_passed_checks": 8,
+    "continuation_result": "passed",
+    "actual_phone_scan": "pending user",
+    "combined_script": "syntax checked only; not rerun end to end"
   }
 }
