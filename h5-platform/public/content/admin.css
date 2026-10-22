@@ -23,7 +23,7 @@
 #content-app .ct-red{color:var(--h5-red)}
 #content-app .ct-dl{display:grid;grid-template-columns:auto 1fr;gap:12px 18px;margin:18px 0}
 #content-app .ct-dl dt{color:var(--h5-muted)}
-#content-app .ct-dl dd{margin:0}
+#content-app .ct-dl dd{margin:0;min-width:0;overflow-wrap:anywhere}
 #content-app .ct-media-row{padding:17px 0;border-bottom:1px solid var(--h5-line)}
 #content-app .ct-media-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 #content-app .ct-current-file{margin-top:8px;font-size:13px;overflow-wrap:anywhere}
@@ -40,7 +40,7 @@
 #content-app .ct-mapping-number{width:82px}
 #content-app .ct-file-choice{display:none}
 #content-app #content-message{font-size:13px}
-@media(max-width:580px){#content-app .ct-split{grid-template-columns:1fr}#content-app .ct-search{width:100%}#content-app .ct-heading h1{font-size:21px}#content-app .ct-dl{grid-template-columns:1fr}#content-app .ct-dl dd{margin-bottom:8px}}
+@media(max-width:580px){#content-app .ct-split{grid-template-columns:1fr}#content-app .ct-search{width:100%}#content-app .ct-heading h1{font-size:21px}}
 
 #content-settings .ct-default-count{max-width:260px;margin-top:18px}
 #content-settings .ct-formactions{margin-top:22px;padding-top:17px;border-top:1px solid var(--h5-line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -66,7 +66,8 @@
 #content-app #content-list-screen>.h5-tab-panel>div>:first-child,#content-app #content-detail-screen>.h5-tab-panel>div>:first-child{margin-top:0}
 /* Dialog previews must not inherit the list thumbnail dimensions. */
 #content-app .ct-image-current{display:grid;gap:10px;margin-top:12px}
-#content-app .ct-image-current-cover{display:flex;align-items:center;flex-wrap:wrap}
+#content-app .ct-cover-file{margin-top:8px;overflow-wrap:anywhere}
+#content-app .ct-cover-current{margin:12px 0}
 #content-app .ct-image-preview{object-fit:contain;background:var(--h5-soft);border-radius:5px;display:grid;place-items:center;max-width:100%;color:var(--h5-muted)}
 #content-app .ct-image-preview-cover{width:90px;height:126px;flex:none}
 #content-app .ct-image-preview-banner{width:100%;height:120px}
