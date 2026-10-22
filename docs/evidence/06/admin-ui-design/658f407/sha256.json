@@ -1,5 +1,5 @@
 {
-  "README.md": "b2650e4044187d42fb65cb6639508d57d587bb6ab592b56669f169b02d37572d",
+  "README.md": "204de7ead57956e7707ac29fb3714afe662f631a95e5f7565676c3660ea58646",
   "acquisition/658f407-desktop-assignment-actual-only.png": "24574bb8f0c4015688774a62d6e5badc9f5ae806bb2162ed388378d8735ccc76",
   "acquisition/658f407-desktop-dark-assignment-actual-only.png": "27cffe3f7da8c0487a3a18e28d21f0660b9c4bad76bb62aaffcb49cc5b6acfe7",
   "acquisition/658f407-desktop-dark-deliveries-actual.png": "4fd45cdcd80597dbc3bbaa3a8abaf813cc8337f0695051d94c398655f30c9e31",
@@ -480,6 +480,7 @@
   "identity/short-dark-unsaved.png": "e81ef552eded5323272f56b3897c1911d668c639ac72d7ed7855127efac2c24c",
   "integration-security-6f2b87d.txt": "03ed71f283b59574b7854c068fd365ffdde82c24abb3ea34991ea670bf637dde",
   "metadata.json": "e366a6e69bfd294484e5df064dd2ea261af8aa8ac70fc07de86f94e7448593eb",
+  "migrations-current-state.txt": "c8a1fff093ccdfd67055e9d2637137493f067e2578097f405d931c99b93d417a",
   "recovery.json": "8caa05952dd6cb6eece66a04e2943b0dad7d402050e919d505efc30ff206d10e",
   "reproduce.md": "a3f3a1d32c5afa6aaf88161c87eddb2d59bd328d66a7f8705016f3c71dce7027",
   "restart.json": "73ad7e4310725af24c6994ba52bcc07598a949046ad1f4a6bb78af00c1861936",
