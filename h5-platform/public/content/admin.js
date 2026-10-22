@@ -50,12 +50,23 @@
     else{activate('content-tabs',S.view);$('content-list-actions').innerHTML=(S.view==='dramas'?btn('＋ 新建剧目','new-drama','h5-primary'):'');renderList();S.mainSnapshot=null;}
     syncing=false;
   }
+  function nextBatchLabel(d){
+    const p=d.plan,total=d.total_episodes,published=d.published_count;
+    const stopped=p.state==='disabled'||d.state==='withdrawn';
+    if(Number.isInteger(total)&&total>0&&published>=total)return '无后续分集'+(stopped?' · 已停用':'');
+    if(stopped)return '已停用'+(total===null?' · 总集数未确认':'');
+    if(!Number.isInteger(total)||total<1)return '总集数未确认';
+    if(p.state==='finished')return '计划已结束，请核对未公开分集';
+    const from=Math.max(p.start_number,published+1),through=p.mode==='completed'?total:Math.min(total,from+p.batch_size-1);
+    if(!Number.isInteger(from)||!Number.isInteger(through)||from<1||from>through)return '后续范围待核对';
+    return `第 ${from}–${through} 集`;
+  }
   function renderList(){
     const d=S.data;if(!d)return;
     if(S.view==='dramas'){
       const list=d.dramas.filter(x=>(S.status==='all'||dramaState(x)===S.status)&&`${title(x)} ${x.title_en}`.toLowerCase().includes(S.search.toLowerCase()));
       $('content-view-dramas').innerHTML=`<div class="ct-tools"><input class="h5-input ct-search" id="content-search" placeholder="搜索剧名" aria-label="搜索剧目" value="${esc(S.search)}">${select('list_status',[['all','全部状态'],['草稿','草稿'],['待上线','待上线'],['已上架','已上架'],['已下架','已下架']],S.status,'aria-label="剧目状态"')}</div>`+table(['剧目','状态','媒体就绪','已公开','操作'],list.map(x=>`<tr><td><div class="ct-film">${imagePreview(x.cover_asset_id,'ct-poster')}<div><div class="ct-name">${esc(title(x))}</div><small class="h5-muted">${esc(x.title_en)}</small></div></div></td><td>${pill(dramaState(x),x.state==='published'?'h5-ok':'')}</td><td>${x.ready_count??0} / ${x.total_episodes??'未确认'}${x.total_episodes&&x.ready_count<x.total_episodes?'<br>'+link((x.total_episodes-x.ready_count)+' 集待处理','open-issues',`data-id="${x.id}"`):''}</td><td>${x.published_count} / ${x.total_episodes??'未确认'}</td><td>${link('管理剧目','open',`data-id="${x.id}"`)}</td></tr>`).join(''))+`<div class="ct-footer"><span>共 ${list.length} 部</span><span>新建和上传均保存为草稿</span></div>`;
-    }else if(S.view==='releases')$('content-view-releases').innerHTML=table(['剧目','下一次发布（北京时间）','下一批','状态',''],d.dramas.map(x=>`<tr><td>${esc(title(x))}</td><td>${x.plan.next_at?date(x.plan.next_at):'尚未安排'}</td><td>${x.plan.state==='finished'?'已全部公开':x.total_episodes?`第 ${x.plan.start_number}–${x.plan.mode==='completed'?x.total_episodes:Math.min(x.total_episodes,x.plan.start_number+x.plan.batch_size-1)} 集`:'总集数未确认'}</td><td>${pill(states[x.plan.state])}</td><td>${link('查看设置','open-release',`data-id="${x.id}"`)}</td></tr>`).join(''))+'<div class="h5-card ct-gap"><h3>异常处理</h3><p class="ct-note">服务器故障错过发布时间的规则待确认，当前不提供自动补发承诺。</p></div>';
+    }else if(S.view==='releases')$('content-view-releases').innerHTML=table(['剧目','下一次发布（北京时间）','下一批','状态',''],d.dramas.map(x=>`<tr><td>${esc(title(x))}</td><td>${x.plan.next_at?date(x.plan.next_at):'尚未安排'}</td><td>${esc(nextBatchLabel(x))}</td><td>${pill(states[x.plan.state])}</td><td>${link('查看设置','open-release',`data-id="${x.id}"`)}</td></tr>`).join(''))+'<div class="h5-card ct-gap"><h3>异常处理</h3><p class="ct-note">服务器故障错过发布时间的规则待确认，当前不提供自动补发承诺。</p></div>';
     else if(S.view==='categories')$('content-view-categories').innerHTML=`<div class="ct-tools"><span class="h5-muted">管理网站分类及展示顺序</span>${btn('新增分类','category','h5-primary')}</div>`+table(['中文名称','英文名称','排序','状态',''],d.categories.map(c=>`<tr><td>${esc(c.name_zh)}</td><td>${esc(c.name_en)}</td><td>${c.sort_order}</td><td>${pill(c.active?'启用':'停用',c.active?'h5-ok':'')}</td><td>${link('编辑','category',`data-id="${c.id}"`)}</td></tr>`).join(''));
     else $('content-view-banners').innerHTML=`<div class="ct-tools"><span class="h5-muted">在此管理横图、文案与关联剧目</span>${btn('新增 Banner','banner','h5-primary')}</div>`+d.banners.map(b=>`<div class="h5-card ct-gap"><div class="ct-media-head"><div class="h5-toolbar">${imagePreview(b.image_asset_id,'ct-banner-image')}<div><h3>${esc(b.title_zh||b.title_en||'未命名 Banner')}</h3><small class="h5-muted">目标：${esc(title(d.dramas.find(x=>x.id===b.drama_id)||{}))}<br>横图：${esc(fileName(b.image_asset_id))}</small></div></div>${link('编辑','banner',`data-id="${b.id}"`)}</div><div class="ct-formactions">${pill(b.active?'配置已启用':'已停用',b.active?'h5-ok':'')}<span class="ct-small h5-muted">${esc(bannerVisibility(b))}</span></div></div>`).join('');
   }
