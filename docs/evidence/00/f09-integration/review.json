@@ -55,9 +55,10 @@
     }
   ],
   "pending": [
-    "08 final targeted 02 review",
-    "06 fixed 6f2b87d combined verification",
-    "00 reception before 07 resume"
+    "02 mobile definition-list layout and approved return-label correction",
+    "08 targeted visual review",
+    "06 new fixed candidate targeted verification and final handoff",
+    "00 reception before07 resume"
   ],
   "preserved": "07 3/11 records, drafts, media and 8206/8303 runtime untouched",
   "followup_05": {
@@ -72,13 +73,59 @@
       33
     ]
   },
-  "final_application_candidate": "6f2b87d5676191d09b7e3dfabeb251a72b6a6ef9",
+  "final_application_candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
   "followup_02": {
     "delivery": "dce28949b70fdcbf44516eefb213e6aceddd43ee",
     "source": "2aab2fbd8c3f0ad2a78efe06ce244f25fc7209e6",
     "manifest_entries_verified": 63,
     "module_browser_checks": 74,
     "screenshots": 50,
-    "design_review": "08 pending targeted final review"
+    "design_review": "08 reviewed all50 new images and closed four targeted design findings"
+  },
+  "previous_application_candidate": "6f2b87d5676191d09b7e3dfabeb251a72b6a6ef9",
+  "followup_c16": {
+    "delivery": "cdaf4d98994f5557d019813f05d3669bbd267a35",
+    "source": "e821e85956093c8932c933b98b8e8527a3195b91",
+    "manifest_entries_verified": 6,
+    "module_browser_checks": 17,
+    "root_review": "source, exact hash match, real mobile screenshot, JS syntax and diff check",
+    "business_writes": "none in Content read-only probe; normal Identity login session remains"
+  },
+  "combined_review_checkpoint": {
+    "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+    "status": "in_progress_not_accepted",
+    "source": "06 isolated h5-06-f09-final, HTTP8377/PG5877",
+    "content_report": {
+      "passed": 74,
+      "errors": 0,
+      "root_read": "runtime browser.json; functional evidence, not full design acceptance"
+    },
+    "release_list_report": {
+      "passed": 13,
+      "real_case": "35 episodes all published then withdrawn",
+      "fixture_cases": 8,
+      "content_requests": "GET only",
+      "before_after_content_payload_sha256_equal": true
+    },
+    "acquisition_report": {
+      "passed": 50,
+      "source": "06 corrected progress receipt; final packaged report pending",
+      "mfa_setup": "Operator MFA prepared with explicit local fixture; first-time setup flow not passed"
+    },
+    "root_visual_spot_checks": [
+      "Content real upload choose and mapping modal",
+      "Content 375x500 dark publication confirmation scrolled",
+      "Acquisition mobile dark pixel page and short scrolled link dialog"
+    ],
+    "pending_comparison_correction": "Acquisition prototype export retains outer16px; same internal canvas representative G comparison requested. Pixel business detail is B extension, not pixel-perfect counterpart.",
+    "remaining": "06 Billing/Identity/Audience affected checks and complete comparison matrix, replayable runners and handoff;00 acceptance;07 resume"
+  },
+  "mobile_definition_list_finding": {
+    "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+    "status": "returned_to02",
+    "confirmed_by00": "same-state375x812 images and CSS/approved-source inspection",
+    "cause": "Content-only580px rule changes two-column dl to one-column and adds dd gap",
+    "scope": "release confirmation and active/paused cards; restore approved return-to-edit label; check global confirm equivalent",
+    "business_change": "none requested"
   }
 }

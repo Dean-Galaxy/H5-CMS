@@ -1,0 +1,18 @@
+--- a/h5-platform/public/content/admin.css
++++ b/h5-platform/public/content/admin.css
+@@ -26 +26 @@
+-#content-app .ct-dl dd{margin:0}
++#content-app .ct-dl dd{margin:0;min-width:0;overflow-wrap:anywhere}
+@@ -43 +43 @@
+-@media(max-width:580px){#content-app .ct-split{grid-template-columns:1fr}#content-app .ct-search{width:100%}#content-app .ct-heading h1{font-size:21px}#content-app .ct-dl{grid-template-columns:1fr}#content-app .ct-dl dd{margin-bottom:8px}}
++@media(max-width:580px){#content-app .ct-split{grid-template-columns:1fr}#content-app .ct-search{width:100%}#content-app .ct-heading h1{font-size:21px}}
+--- a/h5-platform/public/content/admin.js
++++ b/h5-platform/public/content/admin.js
+@@ -180 +180 @@
+-    dialog('release-confirm','确认上线安排',`<p class="ct-note">${esc(title(S.drama))} · ${v.mode==='completed'?'全集一次上线':'分批更新'}</p><dl class="ct-dl"><dt>${v.timing==='now'?'现在上线':'首批上线'}</dt><dd>第 ${p.from}–${p.through} 集${v.timing==='scheduled'?'<br>'+date(utc(v.date)):''}</dd><dt>剩余集数</dt><dd>${p.through<S.drama.total_episodes?`第 ${p.through+1}–${S.drama.total_episodes} 集`:'无，全集完成上线'}</dd><dt>更新规则</dt><dd>${v.mode==='completed'?'全集一次上线':`每 ${v.interval_days} 天 ${v.batch_size} 集，最后一批发布剩余集数`}</dd><dt>免费范围</dt><dd>前 ${S.drama.free_count} 集；其余需要有效会员</dd></dl><h3>上线与更新排期（北京时间）</h3>${scheduleHtml(v)}<p class="${p.blocked_reason?'h5-alert':'h5-success'}">${p.blocked_reason?'当前阻断：'+esc(p.blocked_reason)+'。定时安排执行时仍须全部就绪。':'当前检查通过；执行时再次核对素材与授权。'}</p><p class="ct-note">${v.timing==='now'?'确认后立即公开本批并保存后续排期。':'确认后保存并启用；到指定时刻才公开。'}取消不会修改计划。</p>`,btn('取消','close')+btn(v.timing==='now'?(p.through<S.drama.total_episodes?'确认上线并启用后续更新':'确认全集上线'):'确认启用计划','confirm-action','h5-primary',p.blocked_reason&&v.timing==='now'?'disabled':''));
++    dialog('release-confirm','确认上线安排',`<p class="ct-note">${esc(title(S.drama))} · ${v.mode==='completed'?'全集一次上线':'分批更新'}</p><dl class="ct-dl"><dt>${v.timing==='now'?'现在上线':'首批上线'}</dt><dd>第 ${p.from}–${p.through} 集${v.timing==='scheduled'?'<br>'+date(utc(v.date)):''}</dd><dt>剩余集数</dt><dd>${p.through<S.drama.total_episodes?`第 ${p.through+1}–${S.drama.total_episodes} 集`:'无，全集完成上线'}</dd><dt>更新规则</dt><dd>${v.mode==='completed'?'全集一次上线':`每 ${v.interval_days} 天 ${v.batch_size} 集，最后一批发布剩余集数`}</dd><dt>免费范围</dt><dd>前 ${S.drama.free_count} 集；其余需要有效会员</dd></dl><h3>上线与更新排期（北京时间）</h3>${scheduleHtml(v)}<p class="${p.blocked_reason?'h5-alert':'h5-success'}">${p.blocked_reason?'当前阻断：'+esc(p.blocked_reason)+'。定时安排执行时仍须全部就绪。':'当前检查通过；执行时再次核对素材与授权。'}</p><p class="ct-note">${v.timing==='now'?'确认后立即公开本批并保存后续排期。':'确认后保存并启用；到指定时刻才公开。'}返回修改不会修改计划。</p>`,btn('返回修改','close')+btn(v.timing==='now'?(p.through<S.drama.total_episodes?'确认上线并启用后续更新':'确认全集上线'):'确认启用计划','confirm-action','h5-primary',p.blocked_reason&&v.timing==='now'?'disabled':''));
+--- a/h5-platform/resources/views/content/settings.blade.php
++++ b/h5-platform/resources/views/content/settings.blade.php
+@@ -16 +16 @@
+-        <x-slot:actions><button class="h5-button" type="button" data-admin-close>取消</button><button id="content-default-confirm" class="h5-button h5-primary" type="button">确认修改</button></x-slot:actions>
++        <x-slot:actions><button class="h5-button" type="button" data-admin-close>返回修改</button><button id="content-default-confirm" class="h5-button h5-primary" type="button">确认修改</button></x-slot:actions>
