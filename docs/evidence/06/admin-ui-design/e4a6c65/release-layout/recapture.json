@@ -1,0 +1,20 @@
+{
+  "candidate": "e4a6c65bac6c2005feff00b289f733faea29c583",
+  "method": "One screenshot visually showed a repeated header near the bottom after rapid resize. Fresh navigation and two animation frames plus 300ms; original retained separately, not used for pairing.",
+  "dom": {
+    "bodyScrollWidth": 375,
+    "viewport": [
+      375,
+      812
+    ],
+    "topHeaderTexts": [
+      "H5员工工作台",
+      "内容管理"
+    ],
+    "headingCount": 1
+  },
+  "state": "paused",
+  "published": 10,
+  "publishedEpisodesUnchanged": true,
+  "fixtureOnly": true
+}

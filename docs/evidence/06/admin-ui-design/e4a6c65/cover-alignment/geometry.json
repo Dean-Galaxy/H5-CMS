@@ -1,0 +1,937 @@
+[
+  {
+    "state": "current",
+    "variant": "desktop",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 255,
+      "y": 141.1875,
+      "right": 340.6875,
+      "bottom": 162.875,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 731.3125,
+      "y": 132.1875,
+      "right": 845,
+      "bottom": 171.875,
+      "width": 113.6875,
+      "height": 39.6875
+    },
+    "filename": {
+      "x": 255,
+      "y": 179.875,
+      "right": 845,
+      "bottom": 201.5625,
+      "width": 590,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 255,
+      "y": 213.5625,
+      "right": 345,
+      "bottom": 339.5625,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": null,
+    "candidateImage": null,
+    "note": {
+      "x": 255,
+      "y": 351.5625,
+      "right": 845,
+      "bottom": 370.15625,
+      "width": 590,
+      "height": 18.59375
+    },
+    "body": {
+      "x": 255,
+      "y": 124,
+      "right": 845,
+      "bottom": 370.15625,
+      "width": 590,
+      "height": 246.15625
+    },
+    "close": {
+      "x": 801,
+      "y": 87,
+      "right": 845,
+      "bottom": 124,
+      "width": 44,
+      "height": 37
+    },
+    "actions": {
+      "x": 255,
+      "y": 390.15625,
+      "right": 845,
+      "bottom": 429.84375,
+      "width": 590,
+      "height": 39.6875
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      1100,
+      1000
+    ]
+  },
+  {
+    "state": "candidate",
+    "variant": "desktop",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 255,
+      "y": 141.1875,
+      "right": 340.6875,
+      "bottom": 162.875,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 731.3125,
+      "y": 132.1875,
+      "right": 845,
+      "bottom": 171.875,
+      "width": 113.6875,
+      "height": 39.6875
+    },
+    "filename": {
+      "x": 255,
+      "y": 179.875,
+      "right": 845,
+      "bottom": 201.5625,
+      "width": 590,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 255,
+      "y": 213.5625,
+      "right": 345,
+      "bottom": 339.5625,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": {
+      "x": 255,
+      "y": 351.5625,
+      "right": 845,
+      "bottom": 556.296875,
+      "width": 590,
+      "height": 204.734375
+    },
+    "candidateImage": {
+      "x": 267,
+      "y": 418.296875,
+      "right": 357,
+      "bottom": 544.296875,
+      "width": 90,
+      "height": 126
+    },
+    "note": {
+      "x": 255,
+      "y": 565.296875,
+      "right": 845,
+      "bottom": 583.890625,
+      "width": 590,
+      "height": 18.59375
+    },
+    "body": {
+      "x": 255,
+      "y": 124,
+      "right": 845,
+      "bottom": 583.890625,
+      "width": 590,
+      "height": 459.890625
+    },
+    "close": {
+      "x": 801,
+      "y": 87,
+      "right": 845,
+      "bottom": 124,
+      "width": 44,
+      "height": 37
+    },
+    "actions": {
+      "x": 255,
+      "y": 603.890625,
+      "right": 845,
+      "bottom": 643.578125,
+      "width": 590,
+      "height": 39.6875
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      1100,
+      1000
+    ]
+  },
+  {
+    "state": "current",
+    "variant": "mobile-light",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": null,
+    "candidateImage": null,
+    "note": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 340.0625,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 340.0625,
+      "width": 319,
+      "height": 262.0625
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 360.0625,
+      "right": 347,
+      "bottom": 402.0625,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      812
+    ]
+  },
+  {
+    "state": "candidate",
+    "variant": "mobile-light",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 507.609375,
+      "width": 319,
+      "height": 204.734375
+    },
+    "candidateImage": {
+      "x": 40,
+      "y": 369.609375,
+      "right": 130,
+      "bottom": 495.609375,
+      "width": 90,
+      "height": 126
+    },
+    "note": {
+      "x": 28,
+      "y": 516.609375,
+      "right": 347,
+      "bottom": 553.796875,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 553.796875,
+      "width": 319,
+      "height": 475.796875
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 573.796875,
+      "right": 347,
+      "bottom": 615.796875,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      812
+    ]
+  },
+  {
+    "state": "current",
+    "variant": "mobile-dark",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": null,
+    "candidateImage": null,
+    "note": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 340.0625,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 340.0625,
+      "width": 319,
+      "height": 262.0625
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 360.0625,
+      "right": 347,
+      "bottom": 402.0625,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      812
+    ]
+  },
+  {
+    "state": "candidate",
+    "variant": "mobile-dark",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 507.609375,
+      "width": 319,
+      "height": 204.734375
+    },
+    "candidateImage": {
+      "x": 40,
+      "y": 369.609375,
+      "right": 130,
+      "bottom": 495.609375,
+      "width": 90,
+      "height": 126
+    },
+    "note": {
+      "x": 28,
+      "y": 516.609375,
+      "right": 347,
+      "bottom": 553.796875,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 553.796875,
+      "width": 319,
+      "height": 475.796875
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 573.796875,
+      "right": 347,
+      "bottom": 615.796875,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      812
+    ]
+  },
+  {
+    "state": "current",
+    "variant": "short-light",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": null,
+    "candidateImage": null,
+    "note": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 340.0625,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 340.0625,
+      "width": 319,
+      "height": 262.0625
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 360.0625,
+      "right": 347,
+      "bottom": 402.0625,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      500
+    ]
+  },
+  {
+    "state": "candidate",
+    "variant": "short-light",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 507.609375,
+      "width": 319,
+      "height": 204.734375
+    },
+    "candidateImage": {
+      "x": 40,
+      "y": 369.609375,
+      "right": 130,
+      "bottom": 495.609375,
+      "width": 90,
+      "height": 126
+    },
+    "note": {
+      "x": 28,
+      "y": 516.609375,
+      "right": 347,
+      "bottom": 553.796875,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 402,
+      "width": 319,
+      "height": 324
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 422,
+      "right": 347,
+      "bottom": 464,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      500
+    ]
+  },
+  {
+    "state": "current",
+    "variant": "short-dark",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": null,
+    "candidateImage": null,
+    "note": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 340.0625,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 340.0625,
+      "width": 319,
+      "height": 262.0625
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 360.0625,
+      "right": 347,
+      "bottom": 402.0625,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      500
+    ]
+  },
+  {
+    "state": "candidate",
+    "variant": "short-dark",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 507.609375,
+      "width": 319,
+      "height": 204.734375
+    },
+    "candidateImage": {
+      "x": 40,
+      "y": 369.609375,
+      "right": 130,
+      "bottom": 495.609375,
+      "width": 90,
+      "height": 126
+    },
+    "note": {
+      "x": 28,
+      "y": 516.609375,
+      "right": 347,
+      "bottom": 553.796875,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 402,
+      "width": 319,
+      "height": 324
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 422,
+      "right": 347,
+      "bottom": 464,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      500
+    ]
+  },
+  {
+    "state": "failed",
+    "variant": "short-dark",
+    "title": "更换竖版封面",
+    "headingCount": 0,
+    "label": {
+      "x": 28,
+      "y": 91.34375,
+      "right": 113.6875,
+      "bottom": 113.03125,
+      "width": 85.6875,
+      "height": 21.6875
+    },
+    "upload": {
+      "x": 233.3125,
+      "y": 81.1875,
+      "right": 347,
+      "bottom": 123.1875,
+      "width": 113.6875,
+      "height": 42
+    },
+    "filename": {
+      "x": 28,
+      "y": 131.1875,
+      "right": 347,
+      "bottom": 152.875,
+      "width": 319,
+      "height": 21.6875
+    },
+    "current": {
+      "x": 28,
+      "y": 164.875,
+      "right": 118,
+      "bottom": 290.875,
+      "width": 90,
+      "height": 126
+    },
+    "candidate": {
+      "x": 28,
+      "y": 302.875,
+      "right": 347,
+      "bottom": 453.890625,
+      "width": 319,
+      "height": 151.015625
+    },
+    "candidateImage": null,
+    "note": {
+      "x": 28,
+      "y": 462.890625,
+      "right": 347,
+      "bottom": 500.078125,
+      "width": 319,
+      "height": 37.1875
+    },
+    "body": {
+      "x": 28,
+      "y": 78,
+      "right": 347,
+      "bottom": 402,
+      "width": 319,
+      "height": 324
+    },
+    "close": {
+      "x": 303,
+      "y": 36,
+      "right": 347,
+      "bottom": 78,
+      "width": 44,
+      "height": 42
+    },
+    "actions": {
+      "x": 28,
+      "y": 422,
+      "right": 347,
+      "bottom": 464,
+      "width": 319,
+      "height": 42
+    },
+    "overflow": false,
+    "pageOverflow": false,
+    "viewport": [
+      375,
+      500
+    ]
+  }
+]

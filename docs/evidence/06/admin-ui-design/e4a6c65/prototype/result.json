@@ -1,0 +1,250 @@
+{
+  "candidate": "e4a6c65bac6c2005feff00b289f733faea29c583",
+  "prototypeCommit": "bc5a24d63b7e23126bad9bb5519ea0e9fa8825cf",
+  "sourceSha256": "5dd3d41fd6e8e1f141c1da3e02762944e10141e02e73074f5aae85d9432c6b05",
+  "srcdocSha256": "a0673c0cb5957b15329ae9d3bb5e4b5aa05e52023d9cbad17b4ab71e83d616c3",
+  "browser": "155.0.8059.85",
+  "shots": [
+    {
+      "state": "release-confirm",
+      "label": "desktop",
+      "width": 1100,
+      "height": 1000,
+      "theme": "light",
+      "name": "release-confirm-desktop.png"
+    },
+    {
+      "state": "release-confirm",
+      "label": "mobile-light",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "name": "release-confirm-mobile-light.png"
+    },
+    {
+      "state": "release-confirm",
+      "label": "mobile-dark",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "name": "release-confirm-mobile-dark.png"
+    },
+    {
+      "state": "release-confirm",
+      "label": "short-light",
+      "width": 375,
+      "height": 500,
+      "theme": "light",
+      "name": "release-confirm-short-light.png"
+    },
+    {
+      "state": "release-confirm",
+      "label": "short-dark",
+      "width": 375,
+      "height": 500,
+      "theme": "dark",
+      "name": "release-confirm-short-dark.png"
+    },
+    {
+      "state": "release-ten",
+      "label": "desktop",
+      "width": 1100,
+      "height": 1000,
+      "theme": "light",
+      "name": "release-ten-desktop.png"
+    },
+    {
+      "state": "release-ten",
+      "label": "mobile-light",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "name": "release-ten-mobile-light.png"
+    },
+    {
+      "state": "release-ten",
+      "label": "mobile-dark",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "name": "release-ten-mobile-dark.png"
+    },
+    {
+      "state": "release-ten",
+      "label": "short-light",
+      "width": 375,
+      "height": 500,
+      "theme": "light",
+      "name": "release-ten-short-light.png"
+    },
+    {
+      "state": "release-ten",
+      "label": "short-dark",
+      "width": 375,
+      "height": 500,
+      "theme": "dark",
+      "name": "release-ten-short-dark.png"
+    },
+    {
+      "state": "release-paused",
+      "label": "desktop",
+      "width": 1100,
+      "height": 1000,
+      "theme": "light",
+      "name": "release-paused-desktop.png"
+    },
+    {
+      "state": "release-paused",
+      "label": "mobile-light",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "name": "release-paused-mobile-light.png"
+    },
+    {
+      "state": "release-paused",
+      "label": "mobile-dark",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "name": "release-paused-mobile-dark.png"
+    },
+    {
+      "state": "release-paused",
+      "label": "short-light",
+      "width": 375,
+      "height": 500,
+      "theme": "light",
+      "name": "release-paused-short-light.png"
+    },
+    {
+      "state": "release-paused",
+      "label": "short-dark",
+      "width": 375,
+      "height": 500,
+      "theme": "dark",
+      "name": "release-paused-short-dark.png"
+    },
+    {
+      "state": "current",
+      "label": "desktop",
+      "width": 1100,
+      "height": 1000,
+      "theme": "light",
+      "name": "current-desktop.png"
+    },
+    {
+      "state": "current",
+      "label": "mobile-light",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "name": "current-mobile-light.png"
+    },
+    {
+      "state": "current",
+      "label": "mobile-dark",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "name": "current-mobile-dark.png"
+    },
+    {
+      "state": "current",
+      "label": "short-light",
+      "width": 375,
+      "height": 500,
+      "theme": "light",
+      "name": "current-short-light.png"
+    },
+    {
+      "state": "current",
+      "label": "short-dark",
+      "width": 375,
+      "height": 500,
+      "theme": "dark",
+      "name": "current-short-dark.png"
+    },
+    {
+      "state": "candidate",
+      "label": "desktop",
+      "width": 1100,
+      "height": 1000,
+      "theme": "light",
+      "name": "candidate-desktop.png"
+    },
+    {
+      "state": "candidate",
+      "label": "mobile-light",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "name": "candidate-mobile-light.png"
+    },
+    {
+      "state": "candidate",
+      "label": "mobile-dark",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "name": "candidate-mobile-dark.png"
+    },
+    {
+      "state": "candidate",
+      "label": "short-light",
+      "width": 375,
+      "height": 500,
+      "theme": "light",
+      "name": "candidate-short-light.png"
+    },
+    {
+      "state": "candidate",
+      "label": "short-dark",
+      "width": 375,
+      "height": 500,
+      "theme": "dark",
+      "name": "candidate-short-dark.png"
+    },
+    {
+      "state": "global-confirm",
+      "label": "desktop",
+      "width": 1100,
+      "height": 1000,
+      "theme": "light",
+      "name": "global-confirm-desktop.png"
+    },
+    {
+      "state": "global-confirm",
+      "label": "mobile-light",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "name": "global-confirm-mobile-light.png"
+    },
+    {
+      "state": "global-confirm",
+      "label": "mobile-dark",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "name": "global-confirm-mobile-dark.png"
+    },
+    {
+      "state": "global-confirm",
+      "label": "short-light",
+      "width": 375,
+      "height": 500,
+      "theme": "light",
+      "name": "global-confirm-short-light.png"
+    },
+    {
+      "state": "global-confirm",
+      "label": "short-dark",
+      "width": 375,
+      "height": 500,
+      "theme": "dark",
+      "name": "global-confirm-short-dark.png"
+    }
+  ],
+  "boundary": "Exact approved srcdoc; ordinary prototype UI only. 35 episodes, first ten active/paused, date 2026-10-24, free 5, global proposal 6/sync. Prototype impact list remains demonstrations; actual own DB list differs. Real errors and long-media-filename preview have no identical prototype data. Real dialog viewport-limited scroll differs from prototype expanding root. No server or business writes."
+}

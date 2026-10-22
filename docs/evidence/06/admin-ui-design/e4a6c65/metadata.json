@@ -1,0 +1,64 @@
+{
+  "candidate": "e4a6c65bac6c2005feff00b289f733faea29c583",
+  "actualCheckoutDuringRuns": "50d351bb4e8c44df3b09df42bc8ef355706e8d96",
+  "contract": "1.0.5",
+  "applicationDiffAgainstCandidate": "empty for app/config/resources/public/routes/database/bootstrap/composer files",
+  "previousApplication": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "changedProductionFiles": [
+    "h5-platform/public/content/admin.css",
+    "h5-platform/public/content/admin.js",
+    "h5-platform/resources/views/content/settings.blade.php"
+  ],
+  "runtime": {
+    "web": 8377,
+    "postgres": 5877,
+    "database": "h5_e5d3fdcfd4",
+    "billing8378": "stopped",
+    "old8206_8303": "untouched"
+  },
+  "migration": "Nothing to migrate; previous 15 retained",
+  "browser": "Chrome 155.0.8059.85",
+  "platform": "macOS",
+  "dpr": 1,
+  "viewports": [
+    [
+      1100,
+      1000,
+      "light"
+    ],
+    [
+      375,
+      812,
+      "light"
+    ],
+    [
+      375,
+      812,
+      "dark"
+    ],
+    [
+      375,
+      500,
+      "light"
+    ],
+    [
+      375,
+      500,
+      "dark"
+    ]
+  ],
+  "prototype": "bc5a24d63b7e23126bad9bb5519ea0e9fa8825cf",
+  "checks": {
+    "releaseLayout": 100,
+    "coverAlignment": 42
+  },
+  "pairedScreenshots": 30,
+  "scope": "06 targeted regression only. F09 OPEN and 07 paused pending 00 receipt. Earlier suites/restore remain at their original SHA.",
+  "sources": {
+    "scripts/ops/f09_final_delta.py": "30bb3237393de4eb9564b81183da463506cac20f166ee329da2ce6a8bcdebf71",
+    "h5-platform/tests/Browser/f09-delta-prototype.cjs": "b974368d5d6c1531b2b09486335bd39fec364079f07b807fae7ae163ad3c311b",
+    "h5-platform/tests/Browser/f09-recapture-paused.cjs": "cec508c7aaeea7a69249021f107c82c91a8723badcf48e3ee6f1ca32dc5f3be9",
+    "h5-platform/tests/Feature/Content/Support/release-layout.browser.cjs": "b7ba7d59871458440cd83c960ac407945b17f8731038cb91b71a7912ec70c7f2",
+    "h5-platform/tests/Feature/Content/Support/cover-alignment.browser.cjs": "69c6fb668b635ab4b2c79f2b345b9de151f2c7f515d489bed0e84c2969f39921"
+  }
+}
