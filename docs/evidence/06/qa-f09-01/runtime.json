@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "contract": "1.0.5",
+  "config_environment": "local",
+  "container_environment": "local",
+  "process_environment": "local",
+  "cached": false,
+  "controlled_staging": false,
+  "origin": null,
+  "region": {
+    "country_code": "ZZ",
+    "source": "unresolved"
+  },
+  "billing_driver": "unconfigured",
+  "acquisition_ready": false
+}

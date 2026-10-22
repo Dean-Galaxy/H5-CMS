@@ -1,0 +1,11 @@
+{
+  "login_rate_limit": {
+    "attempts": 0,
+    "wait_seconds": 0,
+    "maximum": 5
+  },
+  "imagick": false,
+  "secret_set": true,
+  "recovery_count": 7,
+  "staff_count": 3
+}
