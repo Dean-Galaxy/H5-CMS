@@ -1,0 +1,123 @@
+{
+  "reviewed_at_utc": "2026-10-22T03:43:02.160838+00:00",
+  "reviewed_delivery": "38eda9326e15b759ee3ea37f7a3f9e3b614e85c1",
+  "application_candidate": "e4a6c65bac6c2005feff00b289f733faea29c583",
+  "coordinator_receipt": "47c781488bc6f5fecc0d25bd0ee3ce76adb59615",
+  "mode": "read-only audit plus documentation; no business test rerun or database reset",
+  "manifests": [
+    {
+      "packet": "658f407",
+      "entries": 487,
+      "manifest_sha256": "84c0a7c1fea15dbc673289967a896e8af98d4325da73ea9ca5f7dc60c43e0741",
+      "mismatches": [],
+      "unlisted": []
+    },
+    {
+      "packet": "e4a6c65",
+      "entries": 96,
+      "manifest_sha256": "8314f12530daefe5b41da99046d75b31d9b05b9b79c06e225c7b47f981214266",
+      "mismatches": [],
+      "unlisted": []
+    }
+  ],
+  "application_diff_empty": true,
+  "untracked_application": [],
+  "source_hashes": {
+    "scripts/ops/f09_final_delta.py": true,
+    "h5-platform/tests/Browser/f09-delta-prototype.cjs": true,
+    "h5-platform/tests/Browser/f09-recapture-paused.cjs": true,
+    "h5-platform/tests/Feature/Content/Support/release-layout.browser.cjs": true,
+    "h5-platform/tests/Feature/Content/Support/cover-alignment.browser.cjs": true
+  },
+  "recorded_runs": [
+    {
+      "scenario": "release-layout",
+      "checks": 100,
+      "exit_code": 0,
+      "errors": [],
+      "candidate": "e4a6c65bac6c2005feff00b289f733faea29c583",
+      "checkout": "50d351bb4e8c44df3b09df42bc8ef355706e8d96",
+      "meaning": "recorded checks verified, not rerun; includes repeated viewport checks"
+    },
+    {
+      "scenario": "cover-alignment",
+      "checks": 42,
+      "exit_code": 0,
+      "errors": [],
+      "candidate": "e4a6c65bac6c2005feff00b289f733faea29c583",
+      "checkout": "50d351bb4e8c44df3b09df42bc8ef355706e8d96",
+      "meaning": "recorded checks verified, not rerun; includes repeated viewport checks"
+    }
+  ],
+  "return_snapshots_matched": 10,
+  "paired_files_exist": 30,
+  "historical_recovery": {
+    "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+    "tables": 48,
+    "media_files": 248,
+    "same_targets": true,
+    "unrelated_accounts_unchanged": true,
+    "actual_retained_dump_hash_matches": true,
+    "actual_retained_target_manifest_hash_matches": true,
+    "payment": "testing-only FakeGateway; not official Stripe",
+    "scope": "local independent recovery, no cloud reboot or offsite retrieval; no worker/web/SMTP/ad/payment network started"
+  },
+  "runtime_status": {
+    "workspace": "h5_e5d3fdcfd4",
+    "checks": {
+      "web": true,
+      "queue": true,
+      "scheduler": true,
+      "database": true,
+      "http": true
+    },
+    "website": "http://127.0.0.1:8377",
+    "admin": "http://127.0.0.1:8377/admin",
+    "database": "h5_e5d3fdcfd4",
+    "db_port": 5877,
+    "mail": "仅本地预览，未验证真实送达",
+    "media": "/Users/hejunxiang/.codex/worktrees/h5-06-f09-final/H5/.runtime/media"
+  },
+  "database_readonly_check": {
+    "database": "h5_e5d3fdcfd4",
+    "user": "h5_app_e5d3fdcfd4",
+    "migrations": 15,
+    "public_schema_tables": 48
+  },
+  "http": [
+    {
+      "route": "/health",
+      "status": 200
+    },
+    {
+      "route": "/admin/login",
+      "status": 200
+    },
+    {
+      "route": "/content/admin.css",
+      "status": 200,
+      "sha256": "206f837f3140d330c8d293c7f2fba53c74901524925f8e3bccdfbbdc44ae3509",
+      "matches_checkout": true
+    },
+    {
+      "route": "/content/admin.js",
+      "status": 200,
+      "sha256": "45f0cb0b3fb71aace0ff612ec84d869f4c6f94759819ed314ef9ce3f7c89c1e1",
+      "matches_checkout": true
+    },
+    {
+      "route": "/api/v1/admin/content/",
+      "status": 401
+    }
+  ],
+  "billing_8378_listener_present": false,
+  "visually_reviewed_this_turn": [
+    "release-confirm-mobile-dark actual/reference",
+    "candidate-short-dark actual/reference"
+  ],
+  "limitations": [
+    "No new full business suite, restore, server restart, official payment, actual phone, SMTP or external deployment was executed.",
+    "Hash checks establish artifact integrity, not independent re-execution.",
+    "No credentials, source database rows, or response bodies are exported."
+  ]
+}
