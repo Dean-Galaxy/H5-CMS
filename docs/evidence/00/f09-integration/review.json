@@ -1,5 +1,5 @@
 {
-  "status": "engineering_candidate_only_F09_open_07_paused",
+  "status": "engineering_fixes_received_F09_pending_user_acceptance_07_resumed",
   "candidate": "3381fb9198ae6e9d2727c232ee56bf5d72e78e68",
   "contract": "1.0.5",
   "shared_commit": "8dc6197ecc259aedd5dd1b3e2d171b3a4e90e2e9",
@@ -55,9 +55,9 @@
     }
   ],
   "pending": [
-    "08 final targeted visual review",
-    "06 final candidate targeted verification",
-    "00 reception before07 resume"
+    "07 personal account and normal MFA preparation",
+    "User manual acceptance 0/12; historical3/11 retained",
+    "External payment/regions/mail/devices/ads/deployment gates remain"
   ],
   "preserved": "07 3/11 records, drafts, media and 8206/8303 runtime untouched",
   "followup_05": {
@@ -155,6 +155,31 @@
       "cover/candidate-mobile-light.png",
       "cover/failed-short-dark-scrolled.png"
     ],
-    "status": "received_waiting06_and08"
+    "status": "received_08_review_and06_final_passed"
+  },
+  "final_reception": {
+    "delivery06": "38eda9326e15b759ee3ea37f7a3f9e3b614e85c1",
+    "merge": "c7ef62c1d746c2ce22bb4e36d719b23ae127ac28",
+    "manifest_verified": 96,
+    "source_hashes_verified": 5,
+    "json_valid": 11,
+    "syntax_passed": 3,
+    "06_targeted_checks": [
+      100,
+      42
+    ],
+    "errors": [],
+    "08_review": "20 images; three findings passed; code matches candidate; read-only",
+    "root_visual_pairs": [
+      "release-confirm-mobile-dark",
+      "candidate-mobile-dark",
+      "release-paused-mobile-light"
+    ],
+    "runtime": "8377/5877 five health checks passed; direct local login200, CSS/JS match fixed application",
+    "closed_engineering_findings": [
+      "F09-06-01",
+      "F09-06-02"
+    ],
+    "manual_acceptance": "pending; no user pass inferred"
   }
 }
