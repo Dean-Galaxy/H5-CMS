@@ -88,5 +88,34 @@
     "module_browser_checks": 17,
     "root_review": "source, exact hash match, real mobile screenshot, JS syntax and diff check",
     "business_writes": "none in Content read-only probe; normal Identity login session remains"
+  },
+  "combined_review_checkpoint": {
+    "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+    "status": "in_progress_not_accepted",
+    "source": "06 isolated h5-06-f09-final, HTTP8377/PG5877",
+    "content_report": {
+      "passed": 74,
+      "errors": 0,
+      "root_read": "runtime browser.json; functional evidence, not full design acceptance"
+    },
+    "release_list_report": {
+      "passed": 13,
+      "real_case": "35 episodes all published then withdrawn",
+      "fixture_cases": 8,
+      "content_requests": "GET only",
+      "before_after_content_payload_sha256_equal": true
+    },
+    "acquisition_report": {
+      "passed": 47,
+      "source": "06 progress receipt; final packaged report pending",
+      "mfa_setup": "Operator MFA prepared with explicit local fixture; first-time setup flow not passed"
+    },
+    "root_visual_spot_checks": [
+      "Content real upload choose and mapping modal",
+      "Content 375x500 dark publication confirmation scrolled",
+      "Acquisition mobile dark pixel page and short scrolled link dialog"
+    ],
+    "pending_comparison_correction": "Acquisition prototype export retains outer16px; same internal canvas representative G comparison requested. Pixel business detail is B extension, not pixel-perfect counterpart.",
+    "remaining": "06 Billing/Identity/Audience affected checks and complete comparison matrix, replayable runners and handoff;00 acceptance;07 resume"
   }
 }
