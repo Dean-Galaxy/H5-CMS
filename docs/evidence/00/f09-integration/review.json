@@ -55,7 +55,9 @@
     }
   ],
   "pending": [
-    "06 fixed658f407 combined verification",
+    "02 mobile definition-list layout and approved return-label correction",
+    "08 targeted visual review",
+    "06 new fixed candidate targeted verification and final handoff",
     "00 reception before07 resume"
   ],
   "preserved": "07 3/11 records, drafts, media and 8206/8303 runtime untouched",
@@ -106,8 +108,8 @@
       "before_after_content_payload_sha256_equal": true
     },
     "acquisition_report": {
-      "passed": 47,
-      "source": "06 progress receipt; final packaged report pending",
+      "passed": 50,
+      "source": "06 corrected progress receipt; final packaged report pending",
       "mfa_setup": "Operator MFA prepared with explicit local fixture; first-time setup flow not passed"
     },
     "root_visual_spot_checks": [
@@ -117,5 +119,13 @@
     ],
     "pending_comparison_correction": "Acquisition prototype export retains outer16px; same internal canvas representative G comparison requested. Pixel business detail is B extension, not pixel-perfect counterpart.",
     "remaining": "06 Billing/Identity/Audience affected checks and complete comparison matrix, replayable runners and handoff;00 acceptance;07 resume"
+  },
+  "mobile_definition_list_finding": {
+    "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+    "status": "returned_to02",
+    "confirmed_by00": "same-state375x812 images and CSS/approved-source inspection",
+    "cause": "Content-only580px rule changes two-column dl to one-column and adds dd gap",
+    "scope": "release confirmation and active/paused cards; restore approved return-to-edit label; check global confirm equivalent",
+    "business_change": "none requested"
   }
 }
