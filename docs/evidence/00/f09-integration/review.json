@@ -55,9 +55,8 @@
     }
   ],
   "pending": [
-    "02 mobile definition-list layout and approved return-label correction",
-    "08 targeted visual review",
-    "06 new fixed candidate targeted verification and final handoff",
+    "08 final targeted visual review",
+    "06 final candidate targeted verification",
     "00 reception before07 resume"
   ],
   "preserved": "07 3/11 records, drafts, media and 8206/8303 runtime untouched",
@@ -73,7 +72,7 @@
       33
     ]
   },
-  "final_application_candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "final_application_candidate": "e4a6c65bac6c2005feff00b289f733faea29c583",
   "followup_02": {
     "delivery": "dce28949b70fdcbf44516eefb213e6aceddd43ee",
     "source": "2aab2fbd8c3f0ad2a78efe06ce244f25fc7209e6",
@@ -82,7 +81,7 @@
     "screenshots": 50,
     "design_review": "08 reviewed all50 new images and closed four targeted design findings"
   },
-  "previous_application_candidate": "6f2b87d5676191d09b7e3dfabeb251a72b6a6ef9",
+  "previous_application_candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
   "followup_c16": {
     "delivery": "cdaf4d98994f5557d019813f05d3669bbd267a35",
     "source": "e821e85956093c8932c933b98b8e8527a3195b91",
@@ -127,5 +126,35 @@
     "cause": "Content-only580px rule changes two-column dl to one-column and adds dd gap",
     "scope": "release confirmation and active/paused cards; restore approved return-to-edit label; check global confirm equivalent",
     "business_change": "none requested"
+  },
+  "combined_evidence_received": {
+    "delivery": "f5b0459828319c0d1a3dbb51469ac92c053fcf12",
+    "merge": "e2c9570084e27573dd6eb65229971b5da2fa8e23",
+    "hashes_verified": 486,
+    "json_valid": 25,
+    "syntax_passed": 9,
+    "design_findings_open": [
+      "F09-06-01",
+      "F09-06-02"
+    ],
+    "boundary": "historical technical evidence received; does not resume07"
+  },
+  "final_content_fix": {
+    "delivery": "3e10731ba68b13d8e3b49d0556515766529389d7",
+    "source": "8dedf0d9df05ef4871d6002588371288279d1db0",
+    "hashes_verified": 60,
+    "screenshots": 52,
+    "syntax_passed": 3,
+    "module_checks": {
+      "layout_prior_unchanged_regions": 100,
+      "final_cover": 42
+    },
+    "root_images_viewed": [
+      "layout/release-confirm-mobile-dark.png",
+      "layout/release-paused-short-light-scrolled.png",
+      "cover/candidate-mobile-light.png",
+      "cover/failed-short-dark-scrolled.png"
+    ],
+    "status": "received_waiting06_and08"
   }
 }
