@@ -1,0 +1,21 @@
+{
+  "checked_at_utc": "2026-10-22T07:05:25.182965+00:00",
+  "application_candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "runtime_checkout_at_check": "a82a287f835fae59eb706435ab108c6369e8e257",
+  "application_files_compared": 260,
+  "all_match": true,
+  "direct_loopback_http": {
+    "/health": 200,
+    "/admin/login": 200
+  },
+  "health_modules": [
+    "identity",
+    "content",
+    "billing",
+    "audience",
+    "acquisition"
+  ],
+  "probe_correction": "Initial urllib inherited proxy returned502; direct ProxyHandler({}) correct registered /health and login both200; /up is not registered.",
+  "personal_account_login_performed": false,
+  "phone_scan": "pending user"
+}

@@ -1,5 +1,5 @@
 {
-  "status": "isolated_verification_received_awaiting8377_rollout",
+  "status": "engineering_fix_and8377_rollout_received_07_R01_resumed_pending_user",
   "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
   "previous_application": "e4a6c65bac6c2005feff00b289f733faea29c583",
   "module_delivery": "e4a723ee676a725830c5aaab0cd4012329e8d0bb",
@@ -37,7 +37,8 @@
     "Root isolated h5_5c78d05e4e_test/5541 only",
     "01 raw targeted test log retains trailing whitespace; source diff check passed",
     "07 R01 paused0/12; user account/secret and8377 untouched",
-    "06 new isolated normal enrollment before8377 deployment"
+    "06 new isolated normal enrollment before8377 deployment",
+    "Later rollout supersedes historical8377 untouched/pause: engineering received;07 R01 resumes, actual phone/user acceptance still pending."
   ],
   "root_final_identity_and_panel": {
     "tested_commit": "96e071afa05578145ff8e0dbfe91f1d1f99131fa",
@@ -61,5 +62,18 @@
     "continuation_result": "passed",
     "actual_phone_scan": "pending user",
     "combined_script": "syntax checked only; not rerun end to end"
+  },
+  "rollout_receipt": {
+    "delivery": "a82a287f835fae59eb706435ab108c6369e8e257",
+    "merge": "5fbede0e7b0fa83c31ad28a347e6041fbe3c7bc4",
+    "evidence_hashes_verified": 9,
+    "tool_hashes_and_syntax_verified": 3,
+    "independent_application_files_matched": 260,
+    "direct_health_http": 200,
+    "direct_login_http": 200,
+    "business_tables_unchanged": 42,
+    "media_files_unchanged": 490,
+    "personal_account_operated": false,
+    "human_progress": "0/12 pending actual user evidence"
   }
 }
