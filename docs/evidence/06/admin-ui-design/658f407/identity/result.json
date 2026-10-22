@@ -1,0 +1,171 @@
+{
+  "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "checks": [
+    "Owner real password and TOTP login",
+    "desktop single title and two real tabs",
+    "desktop create field order and staff password limits",
+    "desktop manage real selected acquisition staff",
+    "desktop audit four columns and no raw owner email",
+    "desktop-dark single title and two real tabs",
+    "desktop-dark create field order and staff password limits",
+    "desktop-dark manage real selected acquisition staff",
+    "desktop-dark audit four columns and no raw owner email",
+    "mobile single title and two real tabs",
+    "mobile create field order and staff password limits",
+    "mobile manage real selected acquisition staff",
+    "mobile audit four columns and no raw owner email",
+    "mobile-dark single title and two real tabs",
+    "mobile-dark create field order and staff password limits",
+    "mobile-dark manage real selected acquisition staff",
+    "mobile-dark audit four columns and no raw owner email",
+    "short dark unsaved prompt has three choices",
+    "continue retains name",
+    "short real create scroll and actions remain reachable",
+    "discard closes editor",
+    "no script errors"
+  ],
+  "pairs": [
+    {
+      "name": "desktop-accounts",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "boundary": "Same module/state; actual synthetic staff count and email sublines differ from original two demo rows. No whole-table pixel claim."
+    },
+    {
+      "name": "desktop-create",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "boundary": "Empty create dialog; actual password/MFA delivery note is a required real extension."
+    },
+    {
+      "name": "desktop-manage",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "boundary": "Both acquisition/enabled; actual identity name/email differs, background horizontal scroll may differ."
+    },
+    {
+      "name": "desktop-audit",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "boundary": "Real recent audit rows versus one prototype demo row; compare four-column hierarchy only."
+    },
+    {
+      "name": "desktop-dark-accounts",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "boundary": "Same module/state; actual synthetic staff count and email sublines differ from original two demo rows. No whole-table pixel claim."
+    },
+    {
+      "name": "desktop-dark-create",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "boundary": "Empty create dialog; actual password/MFA delivery note is a required real extension."
+    },
+    {
+      "name": "desktop-dark-manage",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "boundary": "Both acquisition/enabled; actual identity name/email differs, background horizontal scroll may differ."
+    },
+    {
+      "name": "desktop-dark-audit",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "boundary": "Real recent audit rows versus one prototype demo row; compare four-column hierarchy only."
+    },
+    {
+      "name": "mobile-accounts",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "boundary": "Same module/state; actual synthetic staff count and email sublines differ from original two demo rows. No whole-table pixel claim."
+    },
+    {
+      "name": "mobile-create",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "boundary": "Empty create dialog; actual password/MFA delivery note is a required real extension."
+    },
+    {
+      "name": "mobile-manage",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "boundary": "Both acquisition/enabled; actual identity name/email differs, background horizontal scroll may differ."
+    },
+    {
+      "name": "mobile-audit",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "boundary": "Real recent audit rows versus one prototype demo row; compare four-column hierarchy only."
+    },
+    {
+      "name": "mobile-dark-accounts",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "boundary": "Same module/state; actual synthetic staff count and email sublines differ from original two demo rows. No whole-table pixel claim."
+    },
+    {
+      "name": "mobile-dark-create",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "boundary": "Empty create dialog; actual password/MFA delivery note is a required real extension."
+    },
+    {
+      "name": "mobile-dark-manage",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "boundary": "Both acquisition/enabled; actual identity name/email differs, background horizontal scroll may differ."
+    },
+    {
+      "name": "mobile-dark-audit",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "boundary": "Real recent audit rows versus one prototype demo row; compare four-column hierarchy only."
+    }
+  ],
+  "geometry": [
+    {
+      "bodyHeight": 324,
+      "scrollHeight": 412,
+      "actionsBottom": 464,
+      "closeBottom": 78,
+      "viewport": 500
+    }
+  ],
+  "errors": [],
+  "browser": "155.0.8059.85",
+  "prototypeSha256": "5dd3d41fd6e8e1f141c1da3e02762944e10141e02e73074f5aae85d9432c6b05",
+  "srcdocSha256": "a0673c0cb5957b15329ae9d3bb5e4b5aa05e52023d9cbad17b4ab71e83d616c3",
+  "boundary": "No staff changes; synthetic own accounts only. List/audit density differs explicitly. MFA enrollment was fixture preparation, not a passed UI test."
+}
