@@ -1,0 +1,54 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+  [39;41;1m FAIL [39;49;22m[39m Tests\Feature\Billing\PayPalCheckoutTest[39m
+  [31;1m⨯[39;22m[90m [39m[90mserver order preparation and remote reread never grant membership[39m[90m   [39m [90m0.28s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtimeout retries original request and key without new intent[39m[90m         [39m [90m0.15s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreturned identity survives followup failure and reentry only reads[39m[90m… [39m [90m0.13s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown creation after local deadline keeps occupancy and never pos[39m[90m…[39m [90m0.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mold approval link is removed after local deadline without claiming[39m[90m… [39m [90m0.13s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchanged plan is rejected before creating subscription with data set[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchanged plan is rejected before creating subscription with data set[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchanged plan is rejected before creating subscription with data set[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchanged plan is rejected before creating subscription with data set[39m[90m…[39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchanged plan is rejected before creating subscription with data set[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchanged plan is rejected before creating subscription with data set[39m[90m…[39m [90m0.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchanged plan is rejected before creating subscription with data set[39m[90m…[39m [90m0.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched server subscription has no link but preserves identity w[39m[90m…[39m [90m0.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched server subscription has no link but preserves identity w[39m[90m…[39m [90m0.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched server subscription has no link but preserves identity w[39m[90m…[39m [90m0.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched server subscription has no link but preserves identity w[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched server subscription has no link but preserves identity w[39m[90m…[39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched server subscription has no link but preserves identity w[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched server subscription has no link but preserves identity w[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched server subscription has no link but preserves identity w[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcancel between preparation and dispatch blocks post[39m[90m                 [39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mplan provisioning preserves id on read failure and never updates ol[39m[90m…[39m [90m0.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90mconfiguration switch after create preserves identity but blocks fol[39m[90m…[39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown or other merchant plan cannot be prepared[39m[90m                   [39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90monly single exact sandbox approval relation is accepted[39m[90m             [39m [90m0.10s[39m  
+  [31m────────────────────────────────────────────────────────────────────────────[39m  
+  [41;1m FAILED [49;22m [1mTests\Feature\Billing\PayPalCheckoutTest[22m [90m>[39m server order preparati…   
+[39;1m  Failed asserting that two strings are identical.
+  [39;22m[31m-'http://127.0.0.1:8303/account?order_id=01a17867-16e4-73ec-83c7-0de4a9831d1a'[39m[39;1m
+  [39;22m[32m+'http://127.0.0.1:8303/identity/account?order_id=01a17867-16e4-73ec-83c7-0de4a9831d1a'[39m[39;1m
+  [39;22m
+
+  at [32mtests/Feature/Billing/PayPalCheckoutTest.php[39m:[32m74[39m
+     70▕         $prepared = DB::table('billing_orders')->find($order->id);
+     71▕         self::assertNull($prepared->expires_at);
+     72▕         $params = BillingStore::json($prepared->checkout_request)['params'];
+     73▕         self::assertSame($order->id, $params['custom_id']);
+  ➜  74▕         self::assertSame('http://127.0.0.1:8303/account?order_id='.$order->id, $params['application_context']['return_url']);
+     75▕         self::assertArrayNotHasKey('plan', $params);
+     76▕         self::assertArrayNotHasKey('subscriber', $params);
+     77▕         self::assertArrayNotHasKey('start_time', $params);
+     78▕         self::assertSame(self::APPROVE, $flow->execute($order->id));
+
+  [33m1   [39m[39;1mtests/Feature/Billing/PayPalCheckoutTest.php[39;22m:[39;1m74[39;22m
+
+
+  [90mTests:[39m    [31;1m1 failed[39;22m[90m,[39m[39m [39m[32;1m24 passed[39;22m[90m (86 assertions)[39m
+  [90mDuration:[39m [39m3.11s[39m
+

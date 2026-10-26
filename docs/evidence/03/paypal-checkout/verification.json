@@ -1,0 +1,15 @@
+{
+  "source_commit": "59d1cc593a9ef96bb3675265725f2ea821c4a904",
+  "contract": "1.0.5",
+  "tests": 301,
+  "assertions": 3816,
+  "duration_seconds": 18.3,
+  "new_checkout_tests": 27,
+  "contract_examples": 59,
+  "paypal_http": "MockHandler only",
+  "official_verification": "not_performed",
+  "public_checkout_route": false,
+  "stable_environment_changed": false,
+  "dependencies_changed": false,
+  "dependency_audit": "existing Livewire advisory remains; managed by 00"
+}
