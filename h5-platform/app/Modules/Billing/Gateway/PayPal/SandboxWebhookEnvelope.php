@@ -79,7 +79,19 @@ final readonly class SandboxWebhookEnvelope
     public function unverifiedHint(): array
     {
         $type = $this->event->event_type;
-        $kind = match ($type) {
+        $kind = self::classify($type);
+        $id = $this->event->resource->id ?? null;
+        if ($kind !== 'ignore' && ! self::identifier($id)) {
+            throw new InvalidArgumentException('PAYPAL_WEBHOOK_RESOURCE_INVALID');
+        }
+
+        return ['event_id' => $this->event->id, 'event_type' => $type, 'kind' => $kind,
+            'resource_id' => self::identifier($id) ? $id : null, 'occurred_at' => $this->event->create_time];
+    }
+
+    public static function classify(string $type): string
+    {
+        return match ($type) {
             'PAYMENT.SALE.COMPLETED' => 'payment_lookup',
             'PAYMENT.SALE.REFUNDED' => 'refund_lookup',
             'PAYMENT.SALE.REVERSED' => 'reversal_review',
@@ -89,13 +101,6 @@ final readonly class SandboxWebhookEnvelope
             'BILLING.SUBSCRIPTION.PAYMENT.FAILED' => 'subscription_lookup',
             default => 'ignore',
         };
-        $id = $this->event->resource->id ?? null;
-        if ($kind !== 'ignore' && ! self::identifier($id)) {
-            throw new InvalidArgumentException('PAYPAL_WEBHOOK_RESOURCE_INVALID');
-        }
-
-        return ['event_id' => $this->event->id, 'event_type' => $type, 'kind' => $kind,
-            'resource_id' => self::identifier($id) ? $id : null, 'occurred_at' => $this->event->create_time];
     }
 
     public function belongsToWebhook(string $configuredWebhookId): bool

@@ -17,6 +17,16 @@ final readonly class ProviderScope
         }
     }
 
+    public static function legacyStripe(): self
+    {
+        return new self('stripe', 'test', 'legacy-stripe-test');
+    }
+
+    public function matches(object $record): bool
+    {
+        return $this->columns() === self::fromRecord($record)->columns();
+    }
+
     public static function fromRecord(object $record): self
     {
         return new self($record->provider, $record->provider_environment, $record->merchant_scope);

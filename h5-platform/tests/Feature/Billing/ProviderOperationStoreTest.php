@@ -121,6 +121,8 @@ final class ProviderOperationStoreTest extends TestCase
     public function test_upgrade_preserves_legacy_subscription_and_cross_channel_one_open_constraint(): void
     {
         $migration = require database_path('migrations/2026_10_26_200400_add_billing_provider_scopes.php');
+        $scopedIds = require database_path('migrations/2026_10_26_200500_scope_billing_external_identifiers.php');
+        $scopedIds->down();
         $migration->down();
         $viewer = BillingStore::id();
         $id = BillingStore::id();
@@ -130,6 +132,7 @@ final class ProviderOperationStoreTest extends TestCase
         DB::table('billing_subscriptions')->insert($legacy);
         $before = (array) DB::table('billing_subscriptions')->find($id);
         $migration->up();
+        $scopedIds->up();
         $after = (array) DB::table('billing_subscriptions')->find($id);
         self::assertSame($before, array_diff_key($after, array_flip(['provider', 'provider_environment', 'merchant_scope'])));
         self::assertSame(['provider' => 'stripe', 'provider_environment' => 'test', 'merchant_scope' => 'legacy-stripe-test'], ProviderScope::fromRecord((object) $after)->columns());
