@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Modules\Billing\Gateway\PayPal;
 
+use App\Modules\Billing\Gateway\ProviderScope;
 use App\Support\DependencyNotReady;
 use App\Support\RuntimeEnvironmentGuard;
 use GuzzleHttp\Client;
@@ -33,6 +34,23 @@ final class SandboxApi
     public function createPlan(SandboxWeeklyPlan $plan, string $productId, string $persistedRequestId): array
     {
         return $this->call('POST', '/v1/billing/plans', json_encode($plan->createRequest($productId), JSON_THROW_ON_ERROR), $persistedRequestId);
+    }
+
+    /** Scope and credential generation must stay fixed throughout a multi-call operation. */
+    public function configurationStamp(ProviderScope $scope): string
+    {
+        $this->assertAvailable();
+        if ($scope->provider !== 'paypal' || $scope->environment !== 'sandbox'
+            || $scope->merchantScope !== config('billing.paypal.merchant_scope')) {
+            throw new DependencyNotReady('Billing / PayPal persisted merchant scope');
+        }
+
+        return $this->configurationFingerprint;
+    }
+
+    public function createSubscription(SandboxSubscriptionRequest $request, string $persistedRequestId): array
+    {
+        return $this->call('POST', '/v1/billing/subscriptions', json_encode($request->payload(), JSON_THROW_ON_ERROR), $persistedRequestId);
     }
 
     public function subscription(string $id): array
