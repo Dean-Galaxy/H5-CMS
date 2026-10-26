@@ -1,0 +1,42 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+  [39;41;1m FAIL [39;49;22m[39m Tests\Feature\Billing\ProviderPaymentLedgerTest[39m
+  [31;1m⨯[39;22m[90m [39m[90mboth providers use one paid ledger entitlement and event without co[39m[90m…[39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlate payment uses its original period and replay does not restore r[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrenewal has original price and does not turn unpaid gap into access[39m[90m [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched scope amount customer or first order cannot write any pa[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90msecond transaction cannot overlap an already paid cycle[39m[90m             [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90moutbox insert failure rolls back payment access order and discount[39m[90m… [39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\ProviderInboxTest[39m
+  [32;1m✓[39;22m[90m [39m[90mverified sandbox event is durable deduplicated and does not grant m[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfailed or unknown verification never acknowledges inbox[39m[90m             [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mheader injection fails before any verification request[39m[90m              [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90midentical event id in another merchant or provider does not collide[39m[90m [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mverified event id with conflicting resource is rejected without ove[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpaypal inbox stays pending until its fact processor is ready instea[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mgateway routing uses persisted scope and never new purchase configu[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mother stripe merchant cannot use the legacy stripe account[39m[90m          [39m [90m0.01s[39m  
+  [31m────────────────────────────────────────────────────────────────────────────[39m  
+  [41;1m FAILED [49;22m [1mTests\Feature\Billing\ProviderPaymentLedgerTest[22m [90m>[39m both providers…    
+[39;1m  Failed asserting that App\Enums\TransactionKind Enum #2970 (FirstSubscription, 'first_subscription') is identical to 'first_subscription'.[39;22m
+
+  at [32mtests/Feature/Billing/ProviderPaymentLedgerTest.php[39m:[32m31[39m
+     27▕             self::assertSame($paymentId, app(PaymentLedger::class)->record($sub->id, $fact));
+     28▕             self::assertTrue(app(MembershipReader::class)->membership($viewer->id, now()->toDateTimeImmutable())->access_active);
+     29▕             $event = PaymentSettled::fromArray(BillingStore::json(DB::table('billing_outbox')->where('payment_id', $paymentId)->first()->payload));
+     30▕             self::assertSame($order->id, $event->order_id);
+  ➜  31▕             self::assertSame('first_subscription', $event->transaction_kind);
+     32▕             self::assertTrue($event->is_test);
+     33▕             self::assertSame(300, $event->amount_minor);
+     34▕         }
+     35▕         self::assertDatabaseCount('billing_payments', 3);
+
+  [33m1   [39m[39;1mtests/Feature/Billing/ProviderPaymentLedgerTest.php[39;22m:[39;1m31[39;22m
+
+
+  [90mTests:[39m    [31;1m1 failed[39;22m[90m,[39m[39m [39m[32;1m13 passed[39;22m[90m (48 assertions)[39m
+  [90mDuration:[39m [39m0.57s[39m
+

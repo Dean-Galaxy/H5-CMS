@@ -1,0 +1,39 @@
+{
+  "outcome": "completed",
+  "database": "h5_785df0be15_test",
+  "app_base": "/Users/hejunxiang/.codex/worktrees/h5-03-billing/H5/h5-platform",
+  "lock_observed": true,
+  "blocked_waiters": [
+    {
+      "pid": 6280,
+      "wait_event_type": "Lock",
+      "wait_event": "transactionid",
+      "blockers": "{6274}"
+    },
+    {
+      "pid": 6279,
+      "wait_event_type": "Lock",
+      "wait_event": "tuple",
+      "blockers": "{6280}"
+    }
+  ],
+  "parent_pg_pid": 6274,
+  "children_stopped": true,
+  "parent_transaction_level": 0,
+  "elapsed_seconds": 0.150498542,
+  "worker_pg_pids": [
+    6279,
+    6280
+  ],
+  "results": [
+    {
+      "code": "OK",
+      "payment_id": "01a1785d-a855-725a-9e60-997877a7c827"
+    },
+    {
+      "code": "OK",
+      "payment_id": "01a1785d-a855-725a-9e60-997877a7c827"
+    }
+  ],
+  "boundary": "Real isolated PostgreSQL concurrency; local normalized fact fixture, no official payment."
+}
