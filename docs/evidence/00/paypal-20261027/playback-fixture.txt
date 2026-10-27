@@ -1,0 +1,10 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund  14.94s
+
+  Tests:    1 passed (26 assertions)
+  Duration: 16.69s
+

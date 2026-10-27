@@ -1,0 +1,43 @@
+{
+  "source_commit": "93ccf433cc07300d0945551aea25dd3a541359fd",
+  "billing_foundation": "d0c1d5b9410f568e28dc4887ff35f5626171dce7",
+  "shared_config": "fc81e576d1abb813c24d125bc0ddc8238b1f574d",
+  "livewire": "4.4.8",
+  "billing_contracts": {
+    "tests": 305,
+    "assertions": 3844
+  },
+  "explicit_stripe_fixture": {
+    "tests": 1,
+    "assertions": 26
+  },
+  "openapi": "1.0.5",
+  "contract_examples": 59,
+  "dependency_audit": {
+    "advisories": [],
+    "abandoned": []
+  },
+  "official_paypal_verified": false,
+  "stable_site_changed": false,
+  "public_webhook_opened": false,
+  "livewire_browser": {
+    "passed": 11,
+    "cases": [
+      "ArrowRight retains focus after real server update",
+      "End retains focus after real server update",
+      "Home retains focus after real server update",
+      "ArrowLeft retains focus after real server update",
+      "requests used the real Livewire endpoint",
+      "loading blocks an extra tab request",
+      "mouse response does not steal input focus",
+      "server response does not steal modal focus",
+      "server rejection leaves selection unchanged",
+      "rejection does not force focus elsewhere",
+      "no external request or script error"
+    ],
+    "responses": 8,
+    "external": [],
+    "errors": [],
+    "boundary": "Real Livewire fixture; no staff auth or business acceptance"
+  }
+}
