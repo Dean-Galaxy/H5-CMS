@@ -178,5 +178,58 @@ class ApplyBoundaryTests(unittest.TestCase):
         self.assertEqual(value, module.parse_env('VALUE=' + module.quote(value), AUTOLOAD)['VALUE'])
 
 
+    def test_14_api_only_then_off_does_not_enable_purchase_or_change_secrets(self):
+        self.apply()
+        module.apply(self.root, AUTOLOAD, api_mode=True)
+        parsed = module.parse_env(self.env.read_text(), AUTOLOAD)
+        self.assertEqual('true', parsed[module.PREFIX + 'ENABLED'])
+        self.assertEqual('unconfigured', parsed['H5_BILLING_NEW_PURCHASE_PROVIDER'])
+        self.assertEqual(self.values['client_secret'], parsed[module.PREFIX + 'CLIENT_SECRET'])
+        with self.assertRaises(ValueError): self.apply()
+        # Off must remain available even if the pending form file is absent.
+        (self.directory / 'credentials.json').unlink()
+        module.apply(self.root, AUTOLOAD, api_mode=False)
+        parsed = module.parse_env(self.env.read_text(), AUTOLOAD)
+        self.assertEqual('false', parsed[module.PREFIX + 'ENABLED'])
+        self.assertEqual(self.values['client_secret'], parsed[module.PREFIX + 'CLIENT_SECRET'])
+
+    def test_15_complete_ids_without_retyping_secret(self):
+        self.apply()
+        additions = {'merchant_id': 'SYNTHETIC_MERCHANT', 'product_id': 'PROD-SYNTHETIC', 'webhook_id': 'WH-SYNTHETIC'}
+        before_env = self.env.read_bytes()
+        module.complete_ids(self.root, additions, AUTOLOAD)
+        doc = json.loads((self.directory / 'credentials.json').read_text())
+        self.assertEqual(self.values['client_secret'], doc['credentials']['client_secret'])
+        self.assertEqual(self.values['client_id'], doc['credentials']['client_id'])
+        self.assertEqual(self.values['merchant_scope'], doc['credentials']['merchant_scope'])
+        self.assertEqual(before_env, self.env.read_bytes())
+        self.apply()
+        parsed = module.parse_env(self.env.read_text(), AUTOLOAD)
+        for key, value in additions.items():
+            self.assertEqual(value, parsed[module.PREFIX + key.upper()])
+        self.assertEqual('false', parsed[module.PREFIX + 'ENABLED'])
+
+    def test_16_complete_ids_cannot_change_identity_or_accept_secret_field(self):
+        self.apply()
+        additions = {'merchant_id': 'SYNTHETIC_MERCHANT', 'product_id': '', 'webhook_id': ''}
+        module.complete_ids(self.root, additions, AUTOLOAD)
+        before = (self.directory / 'credentials.json').read_bytes()
+        for values in ({**additions, 'merchant_id': 'OTHER'}, {**additions, 'client_secret': 'OTHER'}):
+            with self.assertRaises(ValueError): module.complete_ids(self.root, values, AUTOLOAD)
+            self.assertEqual(before, (self.directory / 'credentials.json').read_bytes())
+
+    def test_17_complete_ids_requires_api_off(self):
+        self.apply()
+        module.apply(self.root, AUTOLOAD, api_mode=True)
+        before = (self.directory / 'credentials.json').read_bytes()
+        with self.assertRaises(ValueError):
+            module.complete_ids(self.root, {'merchant_id': '', 'product_id': '', 'webhook_id': 'WH-SYNTHETIC'}, AUTOLOAD)
+        self.assertEqual(before, (self.directory / 'credentials.json').read_bytes())
+
+    def test_18_api_only_rejects_missing_applied_credentials(self):
+        with self.assertRaises(ValueError): module.apply(self.root, AUTOLOAD, api_mode=True)
+        self.assertEqual(self.original, self.env.read_bytes())
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
