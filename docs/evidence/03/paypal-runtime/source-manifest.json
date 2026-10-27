@@ -1,0 +1,23 @@
+{
+  "code_commit": "35bd488d8ae8abd7c5ec7d27aceeb724ad715280",
+  "sha256": {
+    "h5-platform/app/Modules/Billing/BillingServiceProvider.php": "1686feea693de4b6e22f118536822981e6ab1ffa5fb48a2c714e1bc4805f5a74",
+    "h5-platform/app/Modules/Billing/Console/PayPalPrepare.php": "86be78cda6c8c00816d3815649edf0d4bbe2d8d4b2d9fdde3b0ea63d8e805c25",
+    "h5-platform/app/Modules/Billing/Console/ReconcileBilling.php": "c4fb4ecf49710819c6878ad64dcdd297ff63e60c1bfca70d7ff5762603acc319",
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxApi.php": "72a18498537788b775083fa702f6269df19cdbb89ea6aca7ec7a7e8a51e596ba",
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/WeeklyCycleEvidence.php": "cef5bc69c9da19da9b38be5cc21ac3d88e01185fdc699fe2b4f364cd8156f738",
+    "h5-platform/app/Modules/Billing/Services/BillingEngine.php": "b0b9d4ad6d06824b8025fe6162cf206c7f4474f228dc1e1750a1d3ecd8f6da2f",
+    "h5-platform/app/Modules/Billing/Services/PayPalReconciliation.php": "f8f8e2cadc98f34dae22575ff15a69688276e77df594701b1ccbad825b1a7c50",
+    "h5-platform/app/Modules/Billing/Services/PayPalRuntime.php": "b6b6329ce916e3dc8afe2ec40408ec7dbd58b893c407f2cd7c7d87e3c68c9fc4",
+    "h5-platform/app/Modules/Billing/Services/PayPalWebhookReceiver.php": "512cf745e1a98253658fa5015a2d252722249d17400eb3060358b52244492c0a",
+    "h5-platform/app/Modules/Billing/Services/ProviderOperationStore.php": "89fe93fb4e003fd7d6db366d46524d05da891e3fc9a74fdc46cc03123fc12375",
+    "h5-platform/app/Modules/Billing/Services/WebhookService.php": "3005e645dc97466de41866346880135412af916a9335180f95524b412379364a",
+    "h5-platform/database/migrations/2026_10_27_200600_add_paypal_observations.php": "80d6f0599df4400d3d023fe3afee225e20f1cafb7bc6c08211f30a6a2732b0b0",
+    "h5-platform/routes/modules/billing.php": "d0c750ce4543115b8f7d609ab0e6aed2567bfc1dd1913a1bb936736d0de58502",
+    "h5-platform/tests/Feature/Billing/BillingConcurrencyTest.php": "cd0d8ab3e09227b41c16570e4500facde59b7b2e514eee790b9f8aac8758c92e",
+    "h5-platform/tests/Feature/Billing/BillingTestCase.php": "c2f695252db95119c63ba1a122a81d654dc7013ed60a92d6b92a74effab428fc",
+    "h5-platform/tests/Feature/Billing/PayPalRuntimeTest.php": "a9987426f9d2504424faa9c9bed99dc2517948ab910ec96d7f532249004e9527",
+    "h5-platform/tests/Feature/Billing/Support/admin-browser-fixture.php": "ee38b0f99aeff5e08edf6abaf264ca4fb64a17163dd689b297f8e02eddc4435b",
+    "h5-platform/tests/Feature/Billing/Support/billing-worker.php": "4f82124130e5f464e09598e4ef0c1f676fdc0714ac88c9dff889b9bf7f604047"
+  }
+}

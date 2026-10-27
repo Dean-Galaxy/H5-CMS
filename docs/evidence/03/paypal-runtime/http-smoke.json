@@ -1,0 +1,36 @@
+{
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200,
+      "expected": 200,
+      "request_id_present": true
+    },
+    {
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 503,
+      "expected": 503,
+      "request_id_present": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/billing/subscription/cancel",
+      "status": 419,
+      "expected": 419,
+      "request_id_present": true
+    },
+    {
+      "method": "POST",
+      "path": "/webhooks/paypal/extra",
+      "status": 404,
+      "expected": 404,
+      "request_id_present": true
+    }
+  ],
+  "network": "loopback only",
+  "provider_payment_verification": "not performed",
+  "port": 8203,
+  "note": "Unregistered adjacent callback path is 404; CSRF checked against registered browser mutation."
+}

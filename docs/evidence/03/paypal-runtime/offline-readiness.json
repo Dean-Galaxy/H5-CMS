@@ -1,0 +1,1 @@
+{"configuration_valid":true,"missing":["client_id","client_secret","merchant_id","merchant_scope","webhook_id","product_id","sandbox_enabled"],"network_requested":false,"merchant_verified":false,"merchant_id":null,"product_id":null,"official_payment_verification":"not_performed","diagnostic_code":"PAYPAL_NOT_CONFIGURED"}
