@@ -1,0 +1,20 @@
+Source SHA: 272b2ac1ae7b1d3fdb8a990ec3c20a5f810165e7
+Synthetic values only. Temporary isolated directory. No application database.
+test_01_local_form_is_private_and_does_not_reflect_saved_secret (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_01_local_form_is_private_and_does_not_reflect_saved_secret) ... ok
+test_02_valid_submission_writes_private_file_only (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_02_valid_submission_writes_private_file_only) ... ok
+test_03_rebinding_host_is_rejected (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_03_rebinding_host_is_rejected) ... ok
+test_04_cross_origin_and_null_origin_are_rejected (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_04_cross_origin_and_null_origin_are_rejected) ... ok
+test_05_wrong_missing_and_duplicate_csrf_are_rejected (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_05_wrong_missing_and_duplicate_csrf_are_rejected) ... ok
+test_06_oversize_content_and_bad_type_are_rejected (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_06_oversize_content_and_bad_type_are_rejected) ... ok
+test_07_unknown_fields_or_empty_client_do_not_replace_saved_file (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_07_unknown_fields_or_empty_client_do_not_replace_saved_file) ... ok
+test_08_no_file_or_path_is_served (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_08_no_file_or_path_is_served) ... ok
+test_09_symlink_directory_is_refused_without_touching_target (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_09_symlink_directory_is_refused_without_touching_target) ... ok
+test_10_symlink_destination_is_refused_without_touching_target (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_10_symlink_destination_is_refused_without_touching_target) ... ok
+test_11_duplicate_fields_and_transfer_encoding_are_rejected (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_11_duplicate_fields_and_transfer_encoding_are_rejected) ... ok
+test_12_existing_listener_is_not_replaced (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_12_existing_listener_is_not_replaced) ... ok
+test_13_stop_requires_csrf_and_shuts_listener (test_paypal_sandbox_credentials.CredentialBoundaryTests.test_13_stop_requires_csrf_and_shuts_listener) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.019s
+
+OK
