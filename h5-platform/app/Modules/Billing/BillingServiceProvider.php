@@ -5,6 +5,7 @@ namespace App\Modules\Billing;
 use App\Contracts\BillingService;
 use App\Contracts\MembershipReader;
 use App\Modules\Billing\Console\BillingConfigurationCheck;
+use App\Modules\Billing\Console\PayPalPrepare;
 use App\Modules\Billing\Console\ReconcileBilling;
 use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Gateway\StripeGateway;
@@ -46,7 +47,7 @@ final class BillingServiceProvider extends ServiceProvider
         }
         // instance() bypasses afterResolving; reject a later replacement as well.
         $this->app->rebinding(PaymentGateway::class, fn ($app, mixed $gateway) => $this->assertGatewayBinding($gateway));
-        $this->commands([ReconcileBilling::class, BillingConfigurationCheck::class]);
+        $this->commands([ReconcileBilling::class, BillingConfigurationCheck::class, PayPalPrepare::class]);
         $this->app->afterResolving(Schedule::class, function (Schedule $schedule) {
             $schedule->command('billing:reconcile')->everyMinute()->withoutOverlapping(5);
         });

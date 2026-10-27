@@ -25,6 +25,8 @@ use App\Enums\Role;
 use App\Enums\SubscriptionAction;
 use App\Enums\SubscriptionState;
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\PayPal\SandboxApi;
+use App\Modules\Billing\Gateway\PayPal\SandboxSubscriptionRequest;
 use App\Modules\Billing\Gateway\ProviderGatewayRouter;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Support\CheckoutSafety;
@@ -71,11 +73,24 @@ final class BillingEngine implements BillingService, MembershipReader
         if (! config('billing.quote_policy_approved')) {
             throw new DependencyNotReady('Billing quote policy D02');
         }
-        $this->gateway->assertAvailable();
+        $priorOrder = DB::table('billing_orders')->where('viewer_id', $viewer->id)->where('idempotency_key', 'client:'.$idempotencyKey)->first();
+        $provider = $priorOrder?->provider ?? config('billing.new_purchase_provider', 'unconfigured');
+        if ($priorOrder && $provider === 'paypal') {
+            $purchaseScope = ProviderScope::fromRecord($priorOrder);
+            app(SandboxApi::class)->configurationStamp($purchaseScope);
+        } elseif ($provider === 'paypal') {
+            $purchaseScope = app(PayPalRuntime::class)->assertPurchaseReady();
+        } else {
+            if ($provider === 'unconfigured') {
+                throw new DependencyNotReady('Billing / new purchase provider');
+            }
+            $this->gateway->assertAvailable();
+            $purchaseScope = ProviderScope::legacyStripe();
+        }
         $idempotencyKey = 'client:'.$idempotencyKey;
         $return = app(SafeReturn::class)->path($input->return_to);
         $fingerprint = hash('sha256', json_encode([$input->offer_id, $input->price_version, $return], JSON_THROW_ON_ERROR));
-        $order = DB::transaction(function () use ($viewer, $input, $idempotencyKey, $source, $return, $fingerprint) {
+        $order = DB::transaction(function () use ($viewer, $input, $idempotencyKey, $source, $return, $fingerprint, $purchaseScope) {
             $account = BillingStore::lock($viewer->id);
             $existing = DB::table('billing_orders')->where('viewer_id', $viewer->id)->where('idempotency_key', $idempotencyKey)->first();
             if ($existing) {
@@ -104,11 +119,11 @@ final class BillingEngine implements BillingService, MembershipReader
                 $this->stale();
             }
             $discount = $first && $offer->first_week_amount_minor < $offer->regular_amount_minor;
-            DB::table('billing_subscriptions')->insert(['id' => $subId, 'viewer_id' => $viewer->id, 'first_order_id' => $orderId, 'state' => 'pending',
+            DB::table('billing_subscriptions')->insert($purchaseScope->columns() + ['id' => $subId, 'viewer_id' => $viewer->id, 'first_order_id' => $orderId, 'state' => 'pending',
                 'price_version' => $offer->price_version, 'regular_amount_minor' => $offer->regular_amount_minor, 'first_week_amount_minor' => $offer->first_week_amount_minor,
                 'currency' => $offer->currency, 'is_test' => $offer->is_test, 'renewal_enabled' => false, 'resolution_required' => true,
                 'created_at' => now(), 'updated_at' => now()]);
-            DB::table('billing_orders')->insert(['id' => $orderId, 'viewer_id' => $viewer->id, 'subscription_id' => $subId, 'offer_id' => $offer->id,
+            DB::table('billing_orders')->insert($purchaseScope->columns() + ['id' => $orderId, 'viewer_id' => $viewer->id, 'subscription_id' => $subId, 'offer_id' => $offer->id,
                 'idempotency_key' => $idempotencyKey, 'fingerprint' => $fingerprint, 'transaction_kind' => $first ? 'first_subscription' : 'resubscription',
                 'price_version' => $offer->price_version, 'amount_minor' => $first ? $offer->first_week_amount_minor : $offer->regular_amount_minor,
                 'regular_amount_minor' => $offer->regular_amount_minor, 'discount_applied' => $discount, 'currency' => $offer->currency, 'is_test' => $offer->is_test,
@@ -133,6 +148,15 @@ final class BillingEngine implements BillingService, MembershipReader
     {
         $initial = DB::table('billing_orders')->find($orderId);
         if (! $initial) {
+            return;
+        }
+        if ($initial->provider === 'paypal') {
+            try {
+                app(PayPalRuntime::class)->checkout($orderId);
+            } catch (\Throwable) {
+                DB::table('billing_orders')->where('id', $orderId)->update(['last_error' => 'PAYPAL_CHECKOUT_UNRESOLVED', 'updated_at' => now()]);
+            }
+
             return;
         }
         // Commit the complete immutable remote request and attempted marker BEFORE making a payable Session.
@@ -382,7 +406,11 @@ final class BillingEngine implements BillingService, MembershipReader
             if (! $sub->provider_id) {
                 $this->pending();
             }
-            $this->gatewayFor($sub)->assertAvailable();
+            if ($sub->provider === 'paypal') {
+                app(PayPalReconciliation::class)->assertAvailable($sub);
+            } else {
+                $this->gatewayFor($sub)->assertAvailable();
+            }
 
             $id = $this->reserveOperation($sub, 'cancel');
             $this->consumeSupportRequest($supportRequest, $sub->confirmation_version + 1);
@@ -461,6 +489,16 @@ final class BillingEngine implements BillingService, MembershipReader
                 return;
             }
             try {
+                if ($sub->provider === 'paypal') {
+                    if ($enabled) {
+                        throw new DependencyNotReady('PayPal resume official evidence');
+                    }
+                    app(PayPalReconciliation::class)->cancelOperation($sub);
+                    DB::table('billing_operations')->where('id', $op->id)->update(['state' => 'succeeded', 'last_error' => null, 'updated_at' => now()]);
+                    app(AuditRecorder::class)->record('billing.cancel', 'billing_subscription', $sub->id, 'confirmed', ['version' => $sub->confirmation_version + 1]);
+
+                    return;
+                }
                 $current = $this->gatewayFor($sub)->subscription($sub->provider_id);
                 $terminal = in_array($current['status'], ['canceled', 'incomplete_expired'], true);
                 $resumeQuote = $enabled && $op->quote_id
@@ -508,6 +546,14 @@ final class BillingEngine implements BillingService, MembershipReader
                 DB::table('billing_operations')->where('id', $op->id)->update(['last_error' => 'PROVIDER_RESULT_UNRESOLVED', 'updated_at' => now()]);
             }
         });
+        $sub = DB::table('billing_subscriptions')->find($op->subscription_id);
+        if ($sub?->provider === 'paypal') {
+            try {
+                app(PayPalReconciliation::class)->sync($sub->id);
+            } catch (\Throwable) {
+                // The confirmed cancellation is retained; unresolved payment facts stay pending.
+            }
+        }
     }
 
     public function retryPendingOperations(): int
@@ -558,6 +604,24 @@ final class BillingEngine implements BillingService, MembershipReader
 
     private function checkoutResult(object $order): Checkout
     {
+        if ($order->provider === 'paypal') {
+            $url = null;
+            try {
+                app(SandboxApi::class)->configurationStamp(ProviderScope::fromRecord($order));
+                $prepared = BillingStore::json($order->checkout_request);
+                $expected = new SandboxSubscriptionRequest($prepared['params']['plan_id'], $order->id, $order);
+                if ($prepared['params'] == $expected->payload() && $order->state === 'pending' && $order->checkout_prepared_at
+                    && now()->lt(CarbonImmutable::parse($order->checkout_prepared_at)->addMinutes(31))) {
+                    $url = SandboxSubscriptionRequest::approvalUrl([
+                        'status' => 'APPROVAL_PENDING', 'links' => [['rel' => 'approve', 'method' => 'GET', 'href' => $order->checkout_url]],
+                    ]);
+                }
+            } catch (\Throwable) {
+                // Never expose an unsafe or stale persisted approval URL.
+            }
+
+            return new Checkout($order->id, OrderState::from($order->state), $url, null);
+        }
         $safety = app(CheckoutSafety::class);
         $url = $order->state === 'pending' && $order->checkout_id && $order->expires_at
             && now()->lt(CarbonImmutable::parse($order->expires_at))

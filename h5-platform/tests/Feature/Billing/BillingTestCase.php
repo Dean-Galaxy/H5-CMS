@@ -30,7 +30,7 @@ abstract class BillingTestCase extends TestCase
     {
         parent::setUp();
         $this->app->register(BillingServiceProvider::class);
-        config(['billing.quote_policy_approved' => true]);
+        config(['billing.quote_policy_approved' => true, 'billing.new_purchase_provider' => 'stripe']);
         $this->gateway = new FakeGateway;
         $this->app->instance(PaymentGateway::class, $this->gateway);
         $this->app->bind(RegionResolver::class, fn () => new class implements RegionResolver
