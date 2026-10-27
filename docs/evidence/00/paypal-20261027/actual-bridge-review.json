@@ -1,0 +1,18 @@
+{
+  "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+  "actual_upstream": [
+    {
+      "host": "127.0.0.1",
+      "port": 8406,
+      "status": 503
+    }
+  ],
+  "direct_status": 503,
+  "bridged_status": 503,
+  "missing_headers": 400,
+  "cookie": 403,
+  "private_path": 404,
+  "passed": true,
+  "provider_configuration": "disabled; no official call or signature proof",
+  "public_tunnel": "not opened"
+}
