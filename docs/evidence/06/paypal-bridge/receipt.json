@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-10-27T08:42:13.525823+00:00",
+  "source_sha": "d98f466a92a6d064681b7ac79bc2ba79d1f6ab65",
+  "results": {
+    "test_paypal_callback_bridge.py": {
+      "exit_code": 0,
+      "skipped": false
+    },
+    "test_paypal_apply_credentials.py": {
+      "exit_code": 0,
+      "skipped": false
+    }
+  },
+  "source_sha256": {
+    "scripts/ops/paypal_callback_bridge.py": "fa6a828d0a85924e2be81315041191a4eb1da380b3411f207fefc76d858516c6",
+    "scripts/ops/tests/test_paypal_callback_bridge.py": "7ffab490a4a58c16076c6512bb71e40aa8ea53cc3d3900b13e68b853f442cc12",
+    "scripts/ops/paypal_apply_credentials.py": "7876ab6ae0857c2cafb20c282894e6e3bc913a37ed41285a586545e24ad1e7e7",
+    "scripts/ops/tests/test_paypal_apply_credentials.py": "8f9d688f8cb689d81cfd0b3c6f681b6fb654e73126a001abfd270a0c9c7fe58b"
+  },
+  "dotenv_parser_sha256": "92732417e5b3304927bc86b8f20340b072e74436968acc1db8b0b826d3254094",
+  "application_booted": false,
+  "official_paypal_contacted": false,
+  "tunnel_opened": false,
+  "real_credentials_read_or_applied": false
+}

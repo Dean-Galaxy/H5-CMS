@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-10-27T08:45:42.001070+00:00",
+  "source_sha": "d1ae6176ce065577ac0de957d75d496efacf09e3",
+  "public_contract_commit": "a57fd2e",
+  "tests_run": 43,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "source_sha256": {
+    "scripts/ops/paypal_apply_credentials.py": "7876ab6ae0857c2cafb20c282894e6e3bc913a37ed41285a586545e24ad1e7e7",
+    "scripts/ops/paypal_callback_bridge.py": "b924bcf65870f0fd7a49b1b19b1acd74cd433f2bcc6fc851167826805f73d57f",
+    "scripts/ops/paypal_sandbox_credentials.py": "b475b8e7ba0d6a838720121b95ae69827bcf958f28cd7630a380aeb6f11aa783",
+    "scripts/ops/tests/paypal_credentials_browser.mjs": "effbb621248de16a3275162ed46be61e997bc36d6919951cc6d55e4b36e8edff",
+    "scripts/ops/tests/test_paypal_apply_credentials.py": "8f9d688f8cb689d81cfd0b3c6f681b6fb654e73126a001abfd270a0c9c7fe58b",
+    "scripts/ops/tests/test_paypal_callback_bridge.py": "76fac23c73950d7e5476b6d282edfcded2f93d9cd2de4dc67956cd1cef852da4",
+    "scripts/ops/tests/test_paypal_sandbox_credentials.py": "fd8a98affda9a158b110a25a098a6578a3d24baedf31cc32ea7205508794ce83"
+  },
+  "dotenv_source": "existing installed vlucas/phpdotenv library only; no application boot",
+  "tunnel_opened": false,
+  "application_started": false,
+  "real_credentials_read_or_applied": false,
+  "credential_page": "00 started 8407 for 07; not changed by this run"
+}
