@@ -50,7 +50,7 @@ try{
  checks.denied_has_no_media_requests=media.length===mediaBefore;
  await page.screenshot({path:out+'/membership-gate.png',fullPage:true});
  await page.goto(base+'/membership?purchase=1');
- const text=await page.textContent('body');checks.test_prices_shown=text.includes('$3.00')&&text.includes('$12.00');
+ const text=await page.textContent('body');checks.test_prices_shown=text.includes('USD 3.00')&&text.includes('USD 12.00');
  await page.screenshot({path:out+'/test-offer.png',fullPage:true});
  const csrf=await (await context.request.get(base+'/api/v1/auth/csrf')).json();
  const login=await context.request.post(base+'/api/v1/auth/login',{data:{...account,return_to:'/membership'},headers:{'X-CSRF-TOKEN':csrf.csrf_token,'Accept':'application/json'}});
