@@ -1,0 +1,261 @@
+{
+  "status": "superseded: shared CookieJar caused bridge-side 403, not proof of upstream reachability",
+  "original": {
+    "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+    "checkout_sha": "3ba2bae16d100b46399a00e05ada841bb0dec57b",
+    "checks": [
+      {
+        "check": "application: missing signatures never acknowledged",
+        "status": 503,
+        "expected": [
+          400,
+          403,
+          503
+        ],
+        "passed": true
+      },
+      {
+        "check": "application: synthetic signatures never acknowledged in unconfigured runtime",
+        "status": 503,
+        "expected": [
+          400,
+          403,
+          503
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge: missing signatures never acknowledged",
+        "status": 403,
+        "expected": [
+          400,
+          403,
+          503
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge: synthetic signatures never acknowledged in unconfigured runtime",
+        "status": 403,
+        "expected": [
+          400,
+          403,
+          503
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /admin",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /admin/login",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /livewire/update",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /api/v1/auth/csrf",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /media/private.ts",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /.env",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /.runtime/paypal-sandbox/credentials.json",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /webhooks/paypal",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge blocks private/variant path /webhooks/paypal/",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge rejects method GET",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge rejects method PUT",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "bridge rejects method OPTIONS",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "application browser checkout still requires CSRF",
+        "status": 419,
+        "expected": [
+          419
+        ],
+        "passed": true
+      },
+      {
+        "check": "application nonexistent adjacent route is unavailable",
+        "status": 404,
+        "expected": [
+          404
+        ],
+        "passed": true
+      },
+      {
+        "check": "viewer csrf available",
+        "status": 200,
+        "expected": [
+          200
+        ],
+        "passed": true
+      },
+      {
+        "check": "fresh synthetic viewer can log in",
+        "status": 200,
+        "expected": [
+          200
+        ],
+        "passed": true
+      },
+      {
+        "check": "test-only offer available",
+        "status": 200,
+        "expected": [
+          200
+        ],
+        "passed": true
+      },
+      {
+        "check": "valid checkout does not pretend purchase-ready",
+        "status": 503,
+        "expected": [
+          503
+        ],
+        "passed": true
+      },
+      {
+        "check": "viewer membership query available",
+        "status": 200,
+        "expected": [
+          200
+        ],
+        "passed": true
+      }
+    ],
+    "before": {
+      "workspace": "h5_0a65842d38",
+      "database": "h5_0a65842d38",
+      "db_port": 5906,
+      "app_env": "local",
+      "contract": "1.0.5",
+      "paypal_enabled": false,
+      "purchase_provider": "unconfigured",
+      "local_region_fixture": true,
+      "mail": "preview",
+      "acquisition_ready": false,
+      "migrations": 18,
+      "counts": {
+        "billing_orders": 0,
+        "billing_subscriptions": 0,
+        "billing_payments": 0,
+        "billing_refunds": 0,
+        "billing_entitlements": 0,
+        "billing_inbox": 0,
+        "billing_outbox": 0,
+        "billing_provider_intents": 0,
+        "billing_paypal_observations": 0
+      }
+    },
+    "after": {
+      "workspace": "h5_0a65842d38",
+      "database": "h5_0a65842d38",
+      "db_port": 5906,
+      "app_env": "local",
+      "contract": "1.0.5",
+      "paypal_enabled": false,
+      "purchase_provider": "unconfigured",
+      "local_region_fixture": true,
+      "mail": "preview",
+      "acquisition_ready": false,
+      "migrations": 18,
+      "counts": {
+        "billing_orders": 0,
+        "billing_subscriptions": 0,
+        "billing_payments": 0,
+        "billing_refunds": 0,
+        "billing_entitlements": 0,
+        "billing_inbox": 0,
+        "billing_outbox": 0,
+        "billing_provider_intents": 0,
+        "billing_paypal_observations": 0
+      }
+    },
+    "billing_facts_unchanged": true,
+    "official_signature_verification": "not_performed",
+    "external_https": "not_opened",
+    "limitations": "Real local denial only; provider is off. Not valid-credential signature verification."
+  }
+}

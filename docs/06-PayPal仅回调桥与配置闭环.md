@@ -1,6 +1,6 @@
 # 06 PayPal：仅回调桥与配置闭环
 
-2026-10-27追加。00已在 `a57fd2e` 接收回调专用工程约定，06已正常合入；**不是本人对外网启动的批准**。本方案取代早先“首笔Sandbox必须先有完整staging服务器”的建议；整站staging仍遵守原TLS、邮件、地区及部署约定。本机网站不对外，不把local标成公网测试站。
+2026-10-27追加。00已在 `a57fd2e` 接收回调专用工程约定，06已正常合入；**该工程接收本身不是本人对外网启动的批准**。后续本人已在00明确批准仅回调临时联调，06已读取原话确认；下述命令尚待实际执行与取证。本方案取代早先“首笔Sandbox必须先有完整staging服务器”的建议；整站staging仍遵守原TLS、邮件、地区及部署约定。本机网站不对外，不把local标成公网测试站。
 
 ## 当前实现和证据
 
@@ -8,7 +8,7 @@
 - 回调桥：`c4b1ff0`初版16项由00独立通过；`5903b34`追加每分钟60次全局上游预算和第17项。所有测试是临时回环合成上游，不是官方验签。
 - 配置应用与补ID：最终工具 `3699a32b73ca20e16aa3aa488e99d202e414751e`，18项合成临时工作区测试；真实vlucas/phpdotenv解析器证明所有可打印特殊字符按字面保留。没有启动Laravel、联网或应用本人配置。
 - 桥17 + 应用18 + 录入13 = 48项工具检查。最终固定版本与实际运行回执见 [证据](evidence/06/paypal-bridge/README.md)；Chrome10项仍属于 `272b2ac`，本次没有把它改标成新版本。
-- 当前应用代码虽已包含00接收的03基础段，完整03/04联合候选尚待00指定；8406/5906未启动或迁移。旧8377/5877不动。
+- 此处原为基础段阶段。后续已接a82b831完整候选并完成8406/5906启动、18迁移及本机联合验证，详见[本机联合验收](06-PayPal-a82b831本机联合验收.md)。旧8377/5877未动。
 
 ## 1. 首笔Sandbox最小方案
 
@@ -105,7 +105,7 @@ python3 scripts/ops/paypal_apply_credentials.py --candidate CANDIDATE_SHA --appl
 
 ## 4. 外网批准后才允许执行的命令候选
 
-**以下未执行。** 当前只检查已安装 `cloudflared 2025.5.0` 的version/help，确认参数存在；版本较旧，00需在批准窗口核准适用版本及公告。没有安装、升级或连接Cloudflare。`--local-review`保留为显式本机工具开关，并不表达外网授权。
+**以下未执行。** 最初检查全局旧版2025.5.0后，已从官方2026.10.4稳定发行独立下载macOS ARM64到`.runtime/tools/cloudflared-2026.10.4`；19,834,425字节和官方SHA256 `68b6bc4080ac1330234db2a9002d07f98b000537a1bd531a687b660d4160fa7f`匹配，实际version/help已检查。不修改全局版本，尚未连接Cloudflare。[官方发行](https://github.com/cloudflare/cloudflared/releases/tag/2026.10.4)；[本机回执](evidence/06/paypal-a82b831/cloudflared-release.json)。`--local-review`保留为显式本机工具开关，并不表达外网授权。
 
 先在终端一运行回调桥（仅本机审查，不自动开隧道）：
 
@@ -117,13 +117,12 @@ python3 scripts/ops/paypal_callback_bridge.py --port 8408 --local-review
 
 ```sh
 umask 077
-env -i PATH=/opt/homebrew/bin:/usr/bin:/bin /opt/homebrew/bin/cloudflared tunnel \
+env -i PATH=/opt/homebrew/bin:/usr/bin:/bin .runtime/tools/cloudflared-2026.10.4 tunnel \
   --config /dev/null \
   --no-autoupdate \
   --metrics 127.0.0.1:8409 \
   --management-diagnostics=false \
   --loglevel info \
-  --transport-loglevel warn \
   --url http://127.0.0.1:8408 \
   --http-host-header 127.0.0.1:8408 \
   --no-chunked-encoding \
