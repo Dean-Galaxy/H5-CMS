@@ -1,0 +1,23 @@
+Source SHA: d98f466a92a6d064681b7ac79bc2ba79d1f6ab65
+Only synthetic loopback upstream / temporary workspace. No real credential file read.
+test_01_exact_path_and_byte_preservation (test_paypal_callback_bridge.BridgeBoundaryTests.test_01_exact_path_and_byte_preservation) ... ok
+test_02_all_private_paths_and_variants_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests.test_02_all_private_paths_and_variants_are_rejected) ... ok
+test_03_every_other_method_is_rejected (test_paypal_callback_bridge.BridgeBoundaryTests.test_03_every_other_method_is_rejected) ... ok
+test_04_host_rebinding_is_rejected (test_paypal_callback_bridge.BridgeBoundaryTests.test_04_host_rebinding_is_rejected) ... ok
+test_05_credentials_are_rejected_not_forwarded (test_paypal_callback_bridge.BridgeBoundaryTests.test_05_credentials_are_rejected_not_forwarded) ... ok
+test_06_proxy_identity_and_arbitrary_targets_are_not_forwarded (test_paypal_callback_bridge.BridgeBoundaryTests.test_06_proxy_identity_and_arbitrary_targets_are_not_forwarded) ... ok
+test_07_body_limits_include_boundary (test_paypal_callback_bridge.BridgeBoundaryTests.test_07_body_limits_include_boundary) ... ok
+test_08_transfer_compression_expect_upgrade_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests.test_08_transfer_compression_expect_upgrade_are_rejected) ... ok
+test_09_missing_signature_headers_and_bad_types_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests.test_09_missing_signature_headers_and_bad_types_are_rejected) ... ok
+test_10_duplicate_headers_and_short_body_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests.test_10_duplicate_headers_and_short_body_are_rejected) ... ok
+test_11_application_errors_are_not_confirmed_or_leaked (test_paypal_callback_bridge.BridgeBoundaryTests.test_11_application_errors_are_not_confirmed_or_leaked) ... ok
+test_12_redirects_are_not_followed (test_paypal_callback_bridge.BridgeBoundaryTests.test_12_redirects_are_not_followed) ... ok
+test_13_unavailable_upstream_is_retryable (test_paypal_callback_bridge.BridgeBoundaryTests.test_13_unavailable_upstream_is_retryable) ... ok
+test_14_oversize_header_is_rejected (test_paypal_callback_bridge.BridgeBoundaryTests.test_14_oversize_header_is_rejected) ... ok
+test_15_upstream_loop_and_occupied_listener_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests.test_15_upstream_loop_and_occupied_listener_are_rejected) ... ok
+test_16_saturated_bridge_returns_retryable_status (test_paypal_callback_bridge.BridgeBoundaryTests.test_16_saturated_bridge_returns_retryable_status) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 8.539s
+
+OK
