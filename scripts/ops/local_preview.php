@@ -21,7 +21,8 @@ $c = json_decode(file_get_contents($root.'/.runtime/workspace.json'), true, flag
 if (PHP_SAPI !== 'cli' || ! $app->environment('local') || $c['root'] !== $root ||
     config('database.connections.pgsql.database') !== $c['db'] ||
     (int) config('database.connections.pgsql.port') !== $c['db_port'] ||
-    config('mail.default') !== 'preview' || config('billing.driver') !== 'unconfigured') {
+    config('mail.default') !== 'preview' || config('billing.driver') !== 'unconfigured' ||
+    config('billing.new_purchase_provider') !== 'unconfigured' || config('billing.paypal.enabled') !== false) {
     throw new LogicException('Only the checkout-bound local unconfigured preview is allowed.');
 }
 $run = $root.'/.runtime/06';
@@ -52,6 +53,7 @@ $session->start();
 request()->setLaravelSession($session);
 Auth::guard('staff')->login($staff);
 $session->put('identity.mfa_staff', $staff->id);
+$session->put('identity.version.staff', $staff->session_version);
 $publication = app(PublicationService::class);
 if (($argv[1] ?? '') === 'withdraw') {
     $d = DramaRecord::findOrFail($existing['drama_id']);

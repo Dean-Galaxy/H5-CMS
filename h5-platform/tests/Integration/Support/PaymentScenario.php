@@ -20,6 +20,8 @@ final class PaymentScenario
         if (! app()->environment('testing') || config('database.connections.pgsql.database') !== getenv('H5_TEST_DATABASE')) {
             throw new \LogicException('06 payment scenario requires an explicitly isolated test database.');
         }
+        // This legacy cross-module fixture deliberately models Stripe, never PayPal.
+        config(['billing.new_purchase_provider' => 'stripe']);
         $gateway = new FakeGateway;
         app()->instance(PaymentGateway::class, $gateway);
         if (! DB::table('billing_prices')->exists()) {
