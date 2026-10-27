@@ -1,0 +1,30 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.33s
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.16s
+  ✓ renewal uses original price and original period when delivery is la… 0.14s
+  ✓ failed renewal never adds access and blocks second purchase          0.14s
+  ✓ partial then full refund only revokes its payment and stops renewal  0.13s
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.11s
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.11s
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.12s
+
+   PASS  Tests\Feature\Billing\PayPalSandboxApiTest
+  ✓ calls fixed sandbox with tls no redirects and server generated week… 0.01s
+  ✓ suspend is only an operation response and does not claim membership… 0.01s
+  ✓ verification failure is false and success still requires fact looku… 0.01s
+  ✓ other webhook scope is rejected before network                       0.01s
+  ✓ unknown verification status never becomes success                    0.01s
+  ✓ redirect is not followed or retried                                  0.01s
+  ✓ unknown mutation response is not automatically retried or logged     0.01s
+  ✓ missing configuration blocks even a cached token without http        0.01s
+  ✓ configuration change discards old merchant token                     0.01s
+  ✓ live environment and fake transport outside testing are rejected     0.01s
+  ✓ path injection is rejected before oauth                              0.01s
+  ✓ missing enablement is not inferred from credentials                  0.01s
+
+  Tests:    20 passed (247 assertions)
+  Duration: 1.44s

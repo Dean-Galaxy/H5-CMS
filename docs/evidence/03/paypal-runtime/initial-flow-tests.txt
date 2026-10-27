@@ -1,0 +1,52 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   FAIL  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.33s
+  ⨯ cancel requires observed stop preserves paid period and disables re… 0.15s
+  ✓ renewal uses original price and original period when delivery is la… 0.13s
+  ✓ failed renewal never adds access and blocks second purchase          0.12s
+  ✓ partial then full refund only revokes its payment and stops renewal  0.13s
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.10s
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.11s
+  ⨯ expired unapproved checkout is hard cancelled before occupancy is r… 0.11s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\PayPalRuntimeTest > cancel requ…  ApiProblem
+  付款或订阅正在核对，请稍后刷新
+
+  at app/Modules/Billing/Services/BillingEngine.php:646
+    642▕     }
+    643▕
+    644▕     private function pending(): never
+    645▕     {
+  ➜ 646▕         throw new ApiProblem('BILLING_PENDING', 409, '付款或订阅正在核对，请稍后刷新', true);
+    647▕     }
+    648▕
+    649▕     private function notFound(): never
+    650▕     {
+
+  1   app/Modules/Billing/Services/BillingEngine.php:646
+  2   app/Modules/Billing/Services/BillingEngine.php:425
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\PayPalRuntimeTest > expir…  RuntimeException
+  PAYPAL_RECONCILIATION_REQUIRED
+
+  at app/Modules/Billing/Services/PayPalReconciliation.php:111
+    107▕                 }
+    108▕             });
+    109▕         } catch (Throwable) {
+    110▕             $this->markPending($subscriptionId);
+  ➜ 111▕             throw new RuntimeException('PAYPAL_RECONCILIATION_REQUIRED');
+    112▕         }
+    113▕     }
+    114▕
+    115▕     /** Called while BillingEngine holds the account lock and current operation version. */
+
+  1   app/Modules/Billing/Services/PayPalReconciliation.php:111
+  2   tests/Feature/Billing/PayPalRuntimeTest.php:267
+
+
+  Tests:    2 failed, 6 passed (186 assertions)
+  Duration: 1.30s

@@ -1,0 +1,23 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.37s
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.14s
+  ✓ renewal uses original price and original period when delivery is la… 0.13s
+  ✓ failed renewal never adds access and blocks second purchase          0.13s
+  ✓ partial then full refund only revokes its payment and stops renewal  0.14s
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.11s
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.12s
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.12s
+  ✓ setup only client credentials can discover seller and create one pr… 0.11s
+  ✓ unconfigured new purchase stays disabled even after setup            0.11s
+  ✓ refund correction restores only original interval without restoring… 0.13s
+  ✓ terminal without proof of no payment retains unique occupancy        0.12s
+  ✓ late cancel event rereads current provider state and cannot extend…  0.12s
+  ✓ lagging transaction history cannot release a terminal subscription   0.12s
+  ✓ reversal stop intent survives failed read transaction                0.13s
+
+  Tests:    15 passed (381 assertions)
+  Duration: 2.23s
