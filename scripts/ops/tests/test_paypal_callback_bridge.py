@@ -50,6 +50,7 @@ class BridgeBoundaryTests(unittest.TestCase):
     def setUp(self):
         self.upstream.status = 200
         self.upstream.received.clear()
+        self.bridge.forwarded_at.clear()
         self.headers = {k: 'SYNTHETIC_ONLY' for k in module.PAYPAL_HEADERS}
         self.headers.update({'Content-Type': 'application/json', 'Host': self.bridge.expected_host})
         self.body = b'{ "id": "SYNTHETIC", "amount": 1.00, "unicode":"\xe6\xb5\x8b" }\n'
@@ -195,6 +196,13 @@ class BridgeBoundaryTests(unittest.TestCase):
             for _ in range(4):
                 self.bridge.slots.release()
         self.assertEqual([], self.upstream.received)
+
+
+    def test_17_global_budget_rejects_excess_without_trusting_ip(self):
+        for number in range(60):
+            self.assertEqual(200, self.request(headers={**self.headers, 'X-Forwarded-For': f'10.0.0.{number}'})[0])
+        self.assertEqual(429, self.request(headers={**self.headers, 'X-Forwarded-For': '192.0.2.1'})[0])
+        self.assertEqual(60, len(self.upstream.received))
 
 
 if __name__ == '__main__':
