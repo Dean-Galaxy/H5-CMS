@@ -19,6 +19,7 @@ final class AcceptedBillingPlaybackTest extends ContentTestCase
 {
     public function test_real_billing_controls_content_after_cancel_partial_and_full_refund(): void
     {
+        config(['billing.new_purchase_provider' => 'stripe']);
         $gateway = new FakeGateway;
         $this->app->instance(PaymentGateway::class, $gateway);
         $this->assertInstanceOf(BillingEngine::class, app(MembershipReader::class));
