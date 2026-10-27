@@ -1,0 +1,16 @@
+{
+  "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+  "local_handoff_commit": "172433ab32afd04f7c5250d67e6e98b78370d557",
+  "observer_sha256": "482784cf41d447c9f3eeaab5686e0ce775cc7645ba7d3b820f8d07fa62c38c71",
+  "probe_sha256": "eec462f3909f1b28157beed3150786ce389309b0d0d78ccd19783903ddf7a48f",
+  "acceptance_sha256": "f3a048c007614a7c45c1aa67ea37b227e082cc5aeab767e0125f2af5207c3104",
+  "cloudflared": "2026.10.4",
+  "transport": "registered QUIC tunnel; LAX edge",
+  "startup_diagnostics": [
+    "Empty /dev/null config message; no config loaded",
+    "Feature lookup timed out; features disabled by default; later tunnel registration and external tests succeeded"
+  ],
+  "scope": "Explicitly authorized callback-only window; no credentials or official PayPal requests",
+  "window_status": "Active; explicitly handed to 00 for same Sandbox session; 00 owns closure",
+  "public_origin_sha256": "36041bc829ba5abe5025f880cc12efdd878ba808bf1f58191f0cc9e8fc585581"
+}
