@@ -1,0 +1,65 @@
+INFO  Configuration cache cleared successfully.
+
+
+   FAIL  Tests\Feature\Billing\PayPalCheckoutTest
+  ⨯ server order preparation and remote reread never grant membership    0.26s
+  ✓ timeout retries original request and key without new intent          0.13s
+  ✓ returned identity survives followup failure and reentry only reads…  0.14s
+  ✓ unknown creation after local deadline keeps occupancy and never pos… 0.11s
+  ✓ old approval link is removed after local deadline without claiming…  0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.32s
+  ✓ changed plan is rejected before creating subscription with data set… 0.15s
+  ✓ changed plan is rejected before creating subscription with data set… 0.11s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.15s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ cancel between preparation and dispatch blocks post                  0.10s
+  ✓ plan provisioning preserves id on read failure and never updates ol… 0.10s
+  ✓ configuration switch after create preserves identity but blocks fol… 0.10s
+  ✓ unknown or other merchant plan cannot be prepared                    0.09s
+  ✓ only single exact sandbox approval relation is accepted              0.09s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\PayPalCheckoutTest > server order preparati…
+  Failed asserting that two arrays are identical.
+   Array &0 [
+       'plan_id' => 'P-ABCDEFGHIJKLMNOPQRSTUVWX',
+  +    'custom_id' => '01a17867-cd96-73ae-be05-db92c7580975',
+       'quantity' => '1',
+  -    'custom_id' => '01a17867-cd96-73ae-be05-db92c7580975',
+       'application_context' => Array &1 [
+  +        'shipping_preference' => 'NO_SHIPPING',
+  +        'user_action' => 'SUBSCRIBE_NOW',
+  +        'return_url' => 'http://127.0.0.1:8303/identity/account?order_id=01a17867-cd96-73ae-be05-db92c7580975',
+           'cancel_url' => 'http://127.0.0.1:8303/identity/account?order_id=01a17867-cd96-73ae-be05-db92c7580975',
+  -        'return_url' => 'http://127.0.0.1:8303/identity/account?order_id=01a17867-cd96-73ae-be05-db92c7580975',
+  -        'user_action' => 'SUBSCRIBE_NOW',
+  -        'shipping_preference' => 'NO_SHIPPING',
+       ],
+   ]
+
+
+  at tests/Feature/Billing/PayPalCheckoutTest.php:79
+     75▕         self::assertArrayNotHasKey('plan', $params);
+     76▕         self::assertArrayNotHasKey('subscriber', $params);
+     77▕         self::assertArrayNotHasKey('start_time', $params);
+     78▕         self::assertSame(self::APPROVE, $flow->execute($order->id));
+  ➜  79▕         self::assertSame($params, json_decode((string) $this->history[2]['request']->getBody(), true));
+     80▕         $intent = DB::table('billing_provider_intents')->where('operation', 'create_subscription')->first();
+     81▕         self::assertSame($intent->request_key, $this->history[2]['request']->getHeaderLine('PayPal-Request-Id'));
+     82▕         self::assertSame('succeeded', $intent->state);
+     83▕         self::assertSame('I-LOCAL', DB::table('billing_subscriptions')->find($order->subscription_id)->provider_id);
+
+  1   tests/Feature/Billing/PayPalCheckoutTest.php:79
+
+
+  Tests:    1 failed, 24 passed (91 assertions)
+  Duration: 3.18s

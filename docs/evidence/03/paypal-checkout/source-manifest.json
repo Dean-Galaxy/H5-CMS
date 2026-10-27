@@ -1,0 +1,8 @@
+{
+  "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxApi.php": "4ac4126b262f34217b382060fc6c9620e777ba50518e258f5679e816ac8034f8",
+  "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxSubscriptionRequest.php": "fa0714abd4af23b6724381bf166c628b86c09cb1507c0d4c5ddc7d6273c66558",
+  "h5-platform/app/Modules/Billing/Gateway/PayPal/WeeklyPlanVerifier.php": "e6ac0381ee885afcf00d2136996bce661e2b85ec1c2e284e608b78fa618a834a",
+  "h5-platform/app/Modules/Billing/Services/PayPalCheckout.php": "3d5e8904e1ebdb46c2b8a76f72edbcb42f8e6f8fef08a7ce52096dd091b06fa5",
+  "h5-platform/app/Modules/Billing/Services/PayPalPlanProvisioner.php": "965fd348ed05d225fec6d7d6d2f4306240d7cdb75fe05d5d0cd75b9815116eb2",
+  "h5-platform/tests/Feature/Billing/PayPalCheckoutTest.php": "87b002e9b183188504b8d1066e2e60c05419f9549ba47037dc30336c9f438eff"
+}

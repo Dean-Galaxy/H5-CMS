@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-26",
+  "baseline": "78cb6644004c017a2a04ac791025372f020b0023",
+  "source_commit": "9d1518518300376e0a7ea4e69b9689432e0e1d59",
+  "contract": "1.0.5",
+  "scope": "PayPal foundation only; not connected to public checkout or settlement",
+  "focused": {
+    "tests": 87,
+    "assertions": 162
+  },
+  "billing_and_contracts": {
+    "tests": 256,
+    "assertions": 3626,
+    "seconds": 16.29
+  },
+  "contract_examples": 59,
+  "migration": "isolated PostgreSQL test database only; legacy subscription unchanged; rollback refuses new provider evidence",
+  "network_payment_performed": false,
+  "official_paypal_verified": false,
+  "official_stripe_verified": false,
+  "browser_flow_performed": false,
+  "runtime_deployed": false,
+  "dependency_audit": {
+    "status": "advisory_found",
+    "package": "livewire/livewire",
+    "locked": "v4.4.7",
+    "advisory": "GHSA-mhf7-xp6r-6qrc",
+    "owner": "00"
+  },
+  "initial_failures": [
+    "query builder reused after PostgreSQL update; fixed cloned read",
+    "test truncation removed Content seed; fixed isolated migration lifecycle"
+  ],
+  "evidence": [
+    "focused-tests.txt",
+    "billing-contract-tests.txt",
+    "contracts.txt",
+    "dependency-audit.json",
+    "initial-tests.txt",
+    "initial-billing-contract-tests.txt"
+  ]
+}

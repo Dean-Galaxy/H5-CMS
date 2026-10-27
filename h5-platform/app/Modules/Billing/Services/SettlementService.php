@@ -2,7 +2,9 @@
 
 namespace App\Modules\Billing\Services;
 
+use App\Modules\Billing\Data\ExternalPayment;
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\ProviderScope;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -16,7 +18,7 @@ final class SettlementService
     {
         $hint = $this->gateway->invoice($invoiceId);
         $firstOrder = DB::table('billing_orders')->where('id', $hint['order_id'] ?? '')->first();
-        if (! $firstOrder) {
+        if (! $firstOrder || ! ProviderScope::legacyStripe()->matches($firstOrder)) {
             throw new RuntimeException('BILLING_ORDER_NOT_FOUND');
         }
         $this->guarded($firstOrder->subscription_id, function () use ($invoiceId, $firstOrder) {
@@ -42,8 +44,8 @@ final class SettlementService
             $start = CarbonImmutable::parse($invoice['period_start'])->utc();
             $end = CarbonImmutable::parse($invoice['period_end'])->utc();
             $this->requireFact($end->timestamp - $start->timestamp === 7 * 86400);
-            $order = $initial ? $firstOrder : $this->renewalOrder($sub, $firstOrder, $invoice);
-            $payment = DB::table('billing_payments')->where('provider_invoice_id', $invoiceId)->first();
+            $order = $initial ? $firstOrder : app(PaymentLedger::class)->renewalOrder($sub, $firstOrder, $invoiceId);
+            $payment = DB::table('billing_payments')->where(ProviderScope::legacyStripe()->columns())->where('provider_invoice_id', $invoiceId)->first();
             if ($payment) {
                 $this->requireFact($payment->order_id === $order->id && $payment->amount_minor === $expectedAmount
                     && BillingStore::iso($payment->period_start) === BillingStore::iso($start)
@@ -66,49 +68,11 @@ final class SettlementService
                 return;
             }
             $this->requireFact(($invoice['verified_payment'] ?? false) === true && ! empty($invoice['paid_at']) && ! empty($invoice['charge_id']));
-            // A distinct invoice must not grant the same (or an overlapping) paid cycle twice.
-            $this->requireFact(! DB::table('billing_payments')->where('subscription_id', $sub->id)
-                ->where('period_start', '<', $end)->where('period_end', '>', $start)->exists());
-            $this->requireFact(! DB::table('billing_payments')->where('order_id', $order->id)->exists());
-            if ($initial && $order->discount_applied) {
-                $this->requireFact($account->first_offer_used_at === null);
-            }
-            $paidAt = CarbonImmutable::parse($invoice['paid_at'])->utc();
-            $paymentId = BillingStore::id();
-            DB::table('billing_payments')->insert([
-                'id' => $paymentId, 'order_id' => $order->id, 'subscription_id' => $sub->id, 'viewer_id' => $sub->viewer_id,
-                'provider_invoice_id' => $invoiceId, 'provider_charge_id' => $invoice['charge_id'],
-                'amount_minor' => $expectedAmount, 'currency' => $sub->currency, 'is_test' => $sub->is_test,
-                'period_start' => $start, 'period_end' => $end, 'paid_at' => $paidAt, 'created_at' => now(),
-            ]);
-            DB::table('billing_entitlements')->insert([
-                'id' => BillingStore::id(), 'payment_id' => $paymentId, 'viewer_id' => $sub->viewer_id,
-                'subscription_id' => $sub->id, 'access_from' => $start, 'access_until' => $end,
-            ]);
-            DB::table('billing_orders')->where('id', $order->id)->update([
-                'state' => 'paid', 'payment_state' => 'succeeded', 'last_error' => null, 'updated_at' => now(),
-            ]);
-            $accountChanges = [];
-            if ($account->first_paid_at === null || CarbonImmutable::parse($account->first_paid_at)->gt($paidAt)) {
-                $accountChanges['first_paid_at'] = $paidAt;
-            }
-            if ($initial && $order->discount_applied) {
-                $accountChanges['first_offer_used_at'] = $paidAt;
-            }
-            if ($accountChanges) {
-                DB::table('billing_accounts')->where('viewer_id', $sub->viewer_id)->update($accountChanges);
-            }
-            $eventId = BillingStore::id();
-            DB::table('billing_outbox')->insert([
-                'id' => $eventId, 'payment_id' => $paymentId,
-                'payload' => json_encode([
-                    'event_id' => $eventId, 'schema_version' => 'PaymentSettled.v1', 'payment_id' => $paymentId,
-                    'order_id' => $order->id, 'subscription_id' => $sub->id,
-                    'transaction_kind' => $order->transaction_kind, 'discount_applied' => (bool) $order->discount_applied,
-                    'amount_minor' => $expectedAmount, 'currency' => $sub->currency, 'occurred_at' => BillingStore::iso($paidAt),
-                    'is_test' => (bool) $sub->is_test, 'attribution_snapshot' => BillingStore::json($order->attribution_snapshot),
-                ], JSON_THROW_ON_ERROR), 'created_at' => now(),
-            ]);
+            app(PaymentLedger::class)->record($sub->id, new ExternalPayment(
+                ProviderScope::fromRecord($sub), $invoiceId, $invoice['charge_id'], $provider['id'], $provider['customer_id'],
+                $firstOrder->id, $initial, $expectedAmount, $sub->regular_amount_minor, $sub->currency,
+                $start, $end, CarbonImmutable::parse($invoice['paid_at'])->utc(),
+            ));
             $this->applySubscription($sub, $provider);
         });
     }
@@ -116,9 +80,9 @@ final class SettlementService
     public function syncSubscription(string $providerId): void
     {
         $hint = $this->gateway->subscription($providerId);
-        $sub = DB::table('billing_subscriptions')->where('provider_id', $providerId)->first();
+        $sub = DB::table('billing_subscriptions')->where(ProviderScope::legacyStripe()->columns())->where('provider_id', $providerId)->first();
         if (! $sub && ! empty($hint['order_id'])) {
-            $sub = DB::table('billing_subscriptions')->where('first_order_id', $hint['order_id'])->first();
+            $sub = DB::table('billing_subscriptions')->where(ProviderScope::legacyStripe()->columns())->where('first_order_id', $hint['order_id'])->first();
         }
         if (! $sub) {
             throw new RuntimeException('BILLING_SUBSCRIPTION_NOT_FOUND');
@@ -140,7 +104,7 @@ final class SettlementService
     public function syncCheckout(string $orderId): void
     {
         $order = DB::table('billing_orders')->where('id', $orderId)->first();
-        if (! $order || ! $order->checkout_id) {
+        if (! $order || ! ProviderScope::legacyStripe()->matches($order) || ! $order->checkout_id) {
             throw new RuntimeException('BILLING_CHECKOUT_NOT_READY');
         }
         $providerId = $this->guarded($order->subscription_id, function () use ($order) {
@@ -177,7 +141,7 @@ final class SettlementService
 
     public function syncRefunds(string $chargeId): void
     {
-        $payment = DB::table('billing_payments')->where('provider_charge_id', $chargeId)->first();
+        $payment = DB::table('billing_payments')->where(ProviderScope::legacyStripe()->columns())->where('provider_charge_id', $chargeId)->first();
         if (! $payment) {
             throw new RuntimeException('BILLING_PAYMENT_NOT_FOUND');
         }
@@ -190,12 +154,12 @@ final class SettlementService
                 $this->requireFact(is_string($refund['id'] ?? null) && ($refund['currency'] ?? null) === $payment->currency
                     && is_int($refund['amount_minor'] ?? null) && $refund['amount_minor'] > 0
                     && in_array($refund['status'] ?? '', ['pending', 'requires_action', 'succeeded', 'failed', 'canceled'], true));
-                $existing = DB::table('billing_refunds')->where('provider_refund_id', $refund['id'])->first();
+                $existing = DB::table('billing_refunds')->where(ProviderScope::legacyStripe()->columns())->where('provider_refund_id', $refund['id'])->first();
                 $this->requireFact(! $existing || ($existing->payment_id === $payment->id && $existing->amount_minor === $refund['amount_minor']));
                 if ($refund['status'] === 'succeeded' && (! $existing || $existing->status !== 'succeeded')) {
                     $newSuccessfulRefund = true;
                 }
-                DB::table('billing_refunds')->updateOrInsert(['provider_refund_id' => $refund['id']], [
+                DB::table('billing_refunds')->updateOrInsert(ProviderScope::legacyStripe()->columns() + ['provider_refund_id' => $refund['id']], [
                     'payment_id' => $payment->id, 'amount_minor' => $refund['amount_minor'],
                     'status' => $refund['status'], 'created_at' => $existing->created_at ?? now(),
                 ]);
@@ -238,35 +202,9 @@ final class SettlementService
         }
     }
 
-    private function renewalOrder(object $sub, object $firstOrder, array $invoice): object
-    {
-        $key = 'invoice:'.$invoice['id'];
-        $existing = DB::table('billing_orders')->where('viewer_id', $sub->viewer_id)->where('idempotency_key', $key)->first();
-        if ($existing) {
-            $this->requireFact($existing->subscription_id === $sub->id && $existing->transaction_kind === 'renewal'
-                && hash_equals(hash('sha256', $key), $existing->fingerprint)
-                && $existing->amount_minor === $sub->regular_amount_minor && ! $existing->discount_applied
-                && $existing->currency === $sub->currency && (bool) $existing->is_test === (bool) $sub->is_test);
-
-            return $existing;
-        }
-        $id = BillingStore::id();
-        DB::table('billing_orders')->insert([
-            'id' => $id, 'viewer_id' => $sub->viewer_id, 'subscription_id' => $sub->id,
-            'idempotency_key' => $key, 'fingerprint' => hash('sha256', $key), 'transaction_kind' => 'renewal',
-            'price_version' => $sub->price_version, 'amount_minor' => $sub->regular_amount_minor,
-            'regular_amount_minor' => $sub->regular_amount_minor, 'discount_applied' => false,
-            'currency' => $sub->currency, 'is_test' => $sub->is_test, 'state' => 'processing', 'payment_state' => 'pending',
-            'return_to' => '/', 'attribution_snapshot' => $firstOrder->attribution_snapshot,
-            'created_at' => now(), 'updated_at' => now(),
-        ]);
-
-        return DB::table('billing_orders')->where('id', $id)->first();
-    }
-
     private function matchSubscription(object $sub, array $provider): void
     {
-        $this->requireFact(($provider['order_id'] ?? null) === $sub->first_order_id
+        $this->requireFact(ProviderScope::legacyStripe()->matches($sub) && ($provider['order_id'] ?? null) === $sub->first_order_id
             && is_string($provider['customer_id'] ?? null) && $provider['customer_id'] !== ''
             && ($sub->provider_id === null || $sub->provider_id === ($provider['id'] ?? null))
             && ($sub->customer_id === null || $sub->customer_id === $provider['customer_id'])
@@ -281,7 +219,7 @@ final class SettlementService
         $terminal = in_array($status, ['canceled', 'incomplete_expired'], true);
         $hasPaid = DB::table('billing_payments')->where('subscription_id', $sub->id)->exists();
         $hasFutureAccess = DB::table('billing_entitlements')->where('subscription_id', $sub->id)->whereNull('revoked_at')->where('access_until', '>', now())->exists();
-        $latestPaid = ! empty($provider['latest_invoice_id']) && DB::table('billing_payments')->where('provider_invoice_id', $provider['latest_invoice_id'])->exists();
+        $latestPaid = ! empty($provider['latest_invoice_id']) && DB::table('billing_payments')->where(ProviderScope::legacyStripe()->columns())->where('subscription_id', $sub->id)->where('provider_invoice_id', $provider['latest_invoice_id'])->exists();
         $terminalResolved = $latestPaid || $invoiceTerminal;
         $renewal = ! $terminal && ! (bool) $provider['cancel_at_period_end'];
         $state = match (true) {
