@@ -18,6 +18,7 @@ if (config('h5.modules.audience.ready')) {
         Route::get('/billing/return', [BillingController::class, 'paymentReturn']);
         Route::middleware('auth:web')->group(function () {
             Route::post('/membership/checkout', [BillingController::class, 'checkout'])->middleware('throttle:30,1')->block(10, 10);
+            Route::post('/billing/return/recheck', [BillingController::class, 'recheckPaymentReturn'])->middleware('throttle:30,1')->block(10, 10);
             Route::post('/membership/cancel', [BillingController::class, 'cancel'])->middleware('throttle:30,1')->block(10, 10);
             Route::post('/membership/resume', [BillingController::class, 'resume'])->middleware('throttle:30,1')->block(10, 10);
         });
