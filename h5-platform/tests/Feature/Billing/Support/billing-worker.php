@@ -47,6 +47,7 @@ try {
     $fixture = json_decode(file_get_contents($fixturePath), true, flags: JSON_THROW_ON_ERROR);
     $app->register(BillingServiceProvider::class);
     config(['billing.quote_policy_approved' => true, 'session.driver' => 'array', 'billing.driver' => 'unconfigured']);
+    config(['billing.new_purchase_provider' => 'stripe']);
     $gateway = new FakeGateway;
     foreach (['subscriptions', 'invoices', 'checkouts', 'refunds'] as $field) {
         $gateway->{$field} = $fixture[$field] ?? [];

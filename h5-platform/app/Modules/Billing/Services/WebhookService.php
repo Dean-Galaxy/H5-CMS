@@ -58,8 +58,9 @@ final class WebhookService
         if (! $event->is_test) {
             throw new RuntimeException('LIVE_PAYMENTS_DISABLED');
         }
-        if ($event->provider === 'paypal' && SandboxWebhookEnvelope::classify($event->event_type) === 'ignore') {
-            return false;
+        if ($event->provider === 'paypal') {
+            return SandboxWebhookEnvelope::classify($event->event_type) !== 'ignore'
+                ? app(PayPalReconciliation::class)->process($event) : false;
         }
         (new ProviderGatewayRouter($this->gateway))->forRecord($event);
         if (str_starts_with($event->event_type, 'invoice.')) {

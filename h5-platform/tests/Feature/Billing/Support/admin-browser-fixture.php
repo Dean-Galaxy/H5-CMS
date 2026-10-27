@@ -265,6 +265,7 @@ try {
             return new ResolvedRegion('US', 'local_us_test');
         }
     });
+    config(['billing.new_purchase_provider' => 'stripe']);
     $gateway = new FakeGateway;
     app()->instance(PaymentGateway::class, $gateway);
     $summary = DB::transaction(function () use ($root, $run, $database, $credentialPath, $gateway, &$credentialsWritten) {

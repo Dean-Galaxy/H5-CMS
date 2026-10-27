@@ -6,6 +6,7 @@ use App\Contracts\IdentityContext;
 use App\Contracts\MembershipReader;
 use App\Data\CheckoutInput;
 use App\Data\ResumeInput;
+use App\Modules\Billing\Services\PayPalWebhookReceiver;
 use App\Modules\Billing\Services\WebhookService;
 use App\Support\DependencyNotReady;
 use App\Support\UnavailableServices;
@@ -70,6 +71,13 @@ Route::middleware('auth:web')->group(function () use ($ready, $only, $private) {
 Route::post('/webhooks/stripe', function (Request $request) use ($ready) {
     $ready();
     app(WebhookService::class)->receive($request->getContent(), (string) $request->header('Stripe-Signature', ''));
+
+    return response()->json(['status' => 'accepted', 'message' => '通知已接收，付款事实需核对', 'request_id' => $request->attributes->get('request_id')]);
+});
+
+Route::post('/webhooks/paypal', function (Request $request) use ($ready) {
+    $ready();
+    app(PayPalWebhookReceiver::class)->receive($request->getContent(), $request->headers->all());
 
     return response()->json(['status' => 'accepted', 'message' => '通知已接收，付款事实需核对', 'request_id' => $request->attributes->get('request_id')]);
 });

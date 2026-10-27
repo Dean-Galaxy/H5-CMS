@@ -13,7 +13,7 @@ use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
 
-/** Sandbox protocol transport. Not bound to PaymentGateway or public routes yet. */
+/** Sandbox protocol transport used by the PayPal-native runtime. */
 final class SandboxApi
 {
     public const ORIGIN = 'https://api-m.sandbox.paypal.com';
@@ -58,6 +58,75 @@ final class SandboxApi
         return $this->call('GET', '/v1/billing/subscriptions/'.$this->identifier($id, 'I-'));
     }
 
+    public function product(string $id): array
+    {
+        return $this->call('GET', '/v1/catalogs/products/'.$this->identifier($id, 'PROD-'), credentialsOnly: true);
+    }
+
+    public function createProduct(string $requestId): array
+    {
+        return $this->call('POST', '/v1/catalogs/products', json_encode(self::productRequest(), JSON_THROW_ON_ERROR), $requestId, credentialsOnly: true);
+    }
+
+    public static function productRequest(): array
+    {
+        return ['name' => 'TEST H5 weekly membership', 'type' => 'DIGITAL', 'description' => 'Sandbox-only H5 membership integration test'];
+    }
+
+    /** Read the account identity, never log or persist returned balances. */
+    public function assertMerchant(ProviderScope $scope): void
+    {
+        $stamp = $this->configurationStamp($scope);
+        $accountId = $this->merchantIdentity();
+        if ($accountId !== config('billing.paypal.merchant_id')
+            || ! hash_equals($stamp, $this->configurationStamp($scope))) {
+            throw new RuntimeException('PAYPAL_MERCHANT_MISMATCH');
+        }
+    }
+
+    /** Setup read requires only explicitly enabled sandbox Client ID/Secret, not a webhook. */
+    public function merchantIdentity(): string
+    {
+        $this->assertAvailable(credentialsOnly: true);
+        $stamp = $this->configurationFingerprint;
+        $reply = $this->call('GET', '/v1/reporting/balances', credentialsOnly: true);
+        $this->assertAvailable(credentialsOnly: true);
+        $id = $reply['account_id'] ?? null;
+        if (! is_string($id) || preg_match('/\A[A-Z0-9]{1,64}\z/D', $id) !== 1 || $stamp !== $this->configurationFingerprint) {
+            throw new RuntimeException('PAYPAL_MERCHANT_IDENTITY_UNKNOWN');
+        }
+
+        return $id;
+    }
+
+    public function transactions(string $id, \DateTimeImmutable $from, \DateTimeImmutable $until): array
+    {
+        if ($until <= $from || $until->getTimestamp() - $from->getTimestamp() > 31 * 86400) {
+            throw new InvalidArgumentException('PAYPAL_TRANSACTION_WINDOW_INVALID');
+        }
+        $utc = new \DateTimeZone('UTC');
+        $query = http_build_query(['start_time' => $from->setTimezone($utc)->format('Y-m-d\TH:i:s\Z'),
+            'end_time' => $until->setTimezone($utc)->format('Y-m-d\TH:i:s\Z')], '', '&', PHP_QUERY_RFC3986);
+
+        return $this->call('GET', '/v1/billing/subscriptions/'.$this->identifier($id, 'I-').'/transactions?'.$query);
+    }
+
+    public function sale(string $id): array
+    {
+        return $this->call('GET', '/v1/payments/sale/'.$this->identifier($id, ''));
+    }
+
+    public function refund(string $id): array
+    {
+        return $this->call('GET', '/v1/payments/refund/'.$this->identifier($id, ''));
+    }
+
+    /** Hard cancellation only for expired approval/paid periods; never a resume substitute. */
+    public function cancel(string $id): void
+    {
+        $this->call('POST', '/v1/billing/subscriptions/'.$this->identifier($id, 'I-').'/cancel', '{"reason":"Stop future renewal after local cancellation or checkout expiry"}');
+    }
+
     /** Does not assert renewal stopped: the caller must re-read and confirm SUSPENDED. */
     public function suspend(string $id): void
     {
@@ -80,9 +149,9 @@ final class SandboxApi
         return $reply['verification_status'] === 'SUCCESS';
     }
 
-    private function call(string $method, string $path, ?string $body = null, ?string $requestId = null): array
+    private function call(string $method, string $path, ?string $body = null, ?string $requestId = null, bool $credentialsOnly = false): array
     {
-        $this->assertAvailable();
+        $this->assertAvailable($credentialsOnly);
         if ($requestId !== null && preg_match('/\A[A-Za-z0-9-]{1,38}\z/D', $requestId) !== 1) {
             throw new InvalidArgumentException('PAYPAL_REQUEST_ID_INVALID');
         }
@@ -145,14 +214,15 @@ final class SandboxApi
         }
     }
 
-    private function assertAvailable(): void
+    private function assertAvailable(bool $credentialsOnly = false): void
     {
         try {
             app(RuntimeEnvironmentGuard::class)->assertSafeRuntime();
             $environment = app()->environment();
             if (! in_array($environment, ['local', 'testing', 'staging'], true)
                 || config('billing.paypal.enabled') !== true
-                || ($this->testingTransport !== null && $environment !== 'testing')) {
+                || ($this->testingTransport !== null && $environment !== 'testing')
+                || ($this->testingTransport === null && $environment === 'testing')) {
                 throw new RuntimeException;
             }
             if ($environment === 'staging') {
@@ -164,7 +234,8 @@ final class SandboxApi
             $configuration = [];
             foreach (['client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope'] as $key) {
                 $value = config('billing.paypal.'.$key);
-                if (! is_string($value) || preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $value) !== 1) {
+                if ((! $credentialsOnly || in_array($key, ['client_id', 'client_secret'], true))
+                    && (! is_string($value) || preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $value) !== 1)) {
                     throw new RuntimeException;
                 }
                 $configuration[$key] = $value;
