@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-27",
+  "repository": "https://github.com/Dean-Galaxy/H5-CMS",
+  "branch": "codex/h5-platform",
+  "commit": "ce820282c6507b933735a9c0082d0336ef1ae246",
+  "tag": "h5-paypal-runtime-2026-10-27",
+  "remote_branch_and_tag_match": true,
+  "preserved_thursday_commit": "78cb6644004c017a2a04ac791025372f020b0023",
+  "scan_base": "5fb0e0065b081adb22baa11460271b7d36f3ca25",
+  "new_unique_blobs_scanned": 83,
+  "forbidden_paths": [],
+  "common_secret_patterns": [],
+  "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+  "local_combined_tests": 362,
+  "official_payment_verified": false,
+  "note": "Code and reviewed documents only; excludes user credentials, databases, media and private acceptance records. 06 runtime environment evidence follows separately."
+}
