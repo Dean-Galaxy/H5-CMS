@@ -9,7 +9,7 @@ use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
 use InvalidArgumentException;
 
-/** Internal receiver, intentionally not publicly routed before 00's shared wiring. */
+/** Signature-verified receiver behind the exact shared PayPal callback route. */
 final class PayPalWebhookReceiver
 {
     public function __construct(private SandboxApi $api, private ProviderInboxStore $inbox) {}

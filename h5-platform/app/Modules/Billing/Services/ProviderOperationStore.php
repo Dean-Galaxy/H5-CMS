@@ -16,7 +16,7 @@ final class ProviderOperationStore
 {
     public function reserve(ProviderScope $scope, string $operation, string $ownerId, int $version, array $payload): object
     {
-        if ($scope->provider !== 'paypal' || ! in_array($operation, ['create_plan', 'create_subscription'], true)
+        if ($scope->provider !== 'paypal' || ! in_array($operation, ['create_plan', 'create_subscription', 'create_product'], true)
             || ! Str::isUuid($ownerId) || $version < 1) {
             throw new InvalidArgumentException('BILLING_PROVIDER_INTENT_INVALID');
         }
