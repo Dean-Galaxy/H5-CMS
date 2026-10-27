@@ -74,7 +74,7 @@ try:
     status, _, _ = request(base, '/api/v1/billing/checkout', 'POST', {})
     check('application browser checkout still requires CSRF', status, [419])
     status, _, _ = request(base, '/webhooks/paypal/adjacent', 'POST', {})
-    check('application adjacent path has no CSRF exemption', status, [419])
+    check('application nonexistent adjacent route is unavailable', status, [404])
     # This account was registered over real HTTP and verified with the local mail preview.
     account = json.loads((ROOT / '.runtime/http-smoke-account.json').read_text())
     status, token, _ = request(base, '/api/v1/auth/csrf')
