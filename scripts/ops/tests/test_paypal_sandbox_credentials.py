@@ -136,7 +136,11 @@ class CredentialBoundaryTests(unittest.TestCase):
         self.assertEqual(403, self.request(body=body)[0])
         self.assertEqual(400, self.request(headers={'Transfer-Encoding': 'chunked'})[0])
 
-    def test_12_stop_requires_csrf_and_shuts_listener(self):
+    def test_12_existing_listener_is_not_replaced(self):
+        with self.assertRaises(OSError):
+            module.Server(self.root, self.server.server_port)
+
+    def test_13_stop_requires_csrf_and_shuts_listener(self):
         server = module.Server(self.root, 0)
         worker = threading.Thread(target=server.serve_forever, daemon=True)
         worker.start()

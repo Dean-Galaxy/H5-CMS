@@ -69,7 +69,7 @@ def save(root, values):
 
 class Server(ThreadingHTTPServer):
     daemon_threads = True
-    allow_reuse_address = False
+    allow_reuse_address = True  # Reuse TIME_WAIT only; never set SO_REUSEPORT.
 
     def __init__(self, root, port):
         self.root = root
@@ -159,7 +159,10 @@ def main():
     config = ROOT / '.runtime/workspace.json'
     if config.is_symlink() or not config.exists() or json.loads(config.read_text()).get('root') != str(ROOT):
         raise SystemExit('请先为本工作区运行 scripts/dev.py setup，拒绝使用其他工作区配置。')
-    server = Server(ROOT, args.port)
+    try:
+        server = Server(ROOT, args.port)
+    except OSError:
+        raise SystemExit('本机端口不可用；保留占用它的服务，请使用 --port 指定空闲端口。')
     print(f'本机私密录入：{server.origin}/；按 Control+C 停止。无外网连接，不启用付款。', flush=True)
     try:
         server.serve_forever()
