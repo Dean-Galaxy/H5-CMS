@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Review candidate: loopback-only, one-way PayPal webhook bridge. No tunnel launcher."""
 import argparse
+from collections import deque
 import http.client
 import json
 from pathlib import Path
 import socket
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,11 +26,24 @@ class Bridge(ThreadingHTTPServer):
             raise ValueError('UPSTREAM_PORT_INVALID')
         self.upstream_port = upstream_port
         self.slots = threading.BoundedSemaphore(4)
+        self.rate_lock = threading.Lock()
+        self.forwarded_at = deque()
         super().__init__(('127.0.0.1', port), Handler)
         if self.server_port == upstream_port:
             self.server_close()
             raise ValueError('UPSTREAM_LOOP_FORBIDDEN')
         self.expected_host = f'127.0.0.1:{self.server_port}'
+
+    def forwarding_allowed(self):
+        # Global budget: caller-supplied IPs never become a trusted identity.
+        with self.rate_lock:
+            now = time.monotonic()
+            while self.forwarded_at and now - self.forwarded_at[0] >= 60:
+                self.forwarded_at.popleft()
+            if len(self.forwarded_at) >= 60:
+                return False
+            self.forwarded_at.append(now)
+            return True
 
     def process_request(self, request, client_address):
         if not self.slots.acquire(blocking=False):
@@ -129,6 +144,8 @@ class Handler(BaseHTTPRequestHandler):
             if len(values) != 1 or not values[0] or len(values[0]) > 4096 or any(ord(c) < 32 or ord(c) > 126 for c in values[0]):
                 return self.reply(400)
             forwarded[name] = values[0]
+        if not self.server.forwarding_allowed():
+            return self.reply(429)
         try:
             body = self.rfile.read(length)
             if len(body) != length:
