@@ -25,6 +25,8 @@ use App\Enums\Role;
 use App\Enums\SubscriptionAction;
 use App\Enums\SubscriptionState;
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\ProviderGatewayRouter;
+use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Support\CheckoutSafety;
 use App\Modules\Identity\Services\SafeReturn;
 use App\Support\ApiProblem;
@@ -143,7 +145,7 @@ final class BillingEngine implements BillingService, MembershipReader
             try {
                 if ($order->checkout_request === null) {
                     $sub = DB::table('billing_subscriptions')->find($order->subscription_id);
-                    $intent = $this->gateway->prepareCheckout($order, $sub);
+                    $intent = $this->gatewayFor($order)->prepareCheckout($order, $sub);
                     DB::table('billing_orders')->where('id', $order->id)->update([
                         'checkout_request' => json_encode($intent, JSON_THROW_ON_ERROR),
                         'checkout_prepared_at' => $intent['prepared_at'], 'expires_at' => $intent['expires_at'], 'updated_at' => now(),
@@ -172,7 +174,7 @@ final class BillingEngine implements BillingService, MembershipReader
             }
             $sub = DB::table('billing_subscriptions')->find($order->subscription_id);
             try {
-                $result = $this->gateway->createCheckout($attempt, $sub);
+                $result = $this->gatewayFor($order)->createCheckout($attempt, $sub);
                 if (! isset($result['session_id'],$result['expires_at'],$result['customer_id'])
                     || BillingStore::iso($result['expires_at']) !== BillingStore::iso($order->expires_at)) {
                     $this->pending();
@@ -239,7 +241,7 @@ final class BillingEngine implements BillingService, MembershipReader
             if ($sub?->provider_id) {
                 $actions[] = SubscriptionAction::Cancel;
             }
-        } elseif ($sub->state === 'canceling' && $sub->provider_status === 'active' && $until && $sub->period_end && $at->lt(CarbonImmutable::parse($sub->period_end))) {
+        } elseif (ProviderScope::legacyStripe()->matches($sub) && $sub->state === 'canceling' && $sub->provider_status === 'active' && $until && $sub->period_end && $at->lt(CarbonImmutable::parse($sub->period_end))) {
             $actions[] = SubscriptionAction::Resume;
         } elseif ($renewal) {
             $actions[] = SubscriptionAction::Cancel;
@@ -295,7 +297,7 @@ final class BillingEngine implements BillingService, MembershipReader
             if ($sub->regular_amount_minor !== $quote->amount_minor || $sub->currency !== $quote->currency || BillingStore::iso($sub->period_end) !== BillingStore::iso($quote->next_renewal_at)) {
                 $this->stale();
             }
-            $this->gateway->assertAvailable();
+            $this->gatewayFor($sub)->assertAvailable();
             DB::table('billing_resume_quotes')->where('id', $quote->id)->update(['state' => 'pending']);
 
             return $this->reserveOperation($sub, 'resume', $quote->id);
@@ -380,7 +382,7 @@ final class BillingEngine implements BillingService, MembershipReader
             if (! $sub->provider_id) {
                 $this->pending();
             }
-            $this->gateway->assertAvailable();
+            $this->gatewayFor($sub)->assertAvailable();
 
             $id = $this->reserveOperation($sub, 'cancel');
             $this->consumeSupportRequest($supportRequest, $sub->confirmation_version + 1);
@@ -459,7 +461,7 @@ final class BillingEngine implements BillingService, MembershipReader
                 return;
             }
             try {
-                $current = $this->gateway->subscription($sub->provider_id);
+                $current = $this->gatewayFor($sub)->subscription($sub->provider_id);
                 $terminal = in_array($current['status'], ['canceled', 'incomplete_expired'], true);
                 $resumeQuote = $enabled && $op->quote_id
                     ? DB::table('billing_resume_quotes')->where('id', $op->quote_id)
@@ -480,7 +482,7 @@ final class BillingEngine implements BillingService, MembershipReader
                 }
                 $this->checkOriginalTerms($sub, $current, $enabled);
                 if (! $terminal && $current['cancel_at_period_end'] === $enabled) {
-                    $current = $this->gateway->setRenewal($sub, $enabled, 'billing-operation-'.$op->id);
+                    $current = $this->gatewayFor($sub)->setRenewal($sub, $enabled, 'billing-operation-'.$op->id);
                     $this->checkOriginalTerms($sub, $current, $enabled);
                 }
                 if (! $terminal && $current['cancel_at_period_end'] === $enabled) {
@@ -490,7 +492,7 @@ final class BillingEngine implements BillingService, MembershipReader
                     $this->pending();
                 }
                 $version = $sub->confirmation_version + 1;
-                $latestPaid = ! empty($current['latest_invoice_id']) && DB::table('billing_payments')->where('provider_invoice_id', $current['latest_invoice_id'])->exists();
+                $latestPaid = ! empty($current['latest_invoice_id']) && DB::table('billing_payments')->where(ProviderScope::fromRecord($sub)->columns())->where('subscription_id', $sub->id)->where('provider_invoice_id', $current['latest_invoice_id'])->exists();
                 $hasAccess = DB::table('billing_entitlements')->where('subscription_id', $sub->id)->whereNull('revoked_at')->where('access_until', '>', now())->exists();
                 $requiresCheck = ! $latestPaid || DB::table('billing_orders')->where('subscription_id', $sub->id)->where('state', 'review_required')->exists();
                 DB::table('billing_subscriptions')->where('id', $sub->id)->update(['state' => $terminal ? ($requiresCheck ? 'pending' : ($hasAccess ? 'canceling' : 'ended')) : ($enabled ? 'active' : 'canceling'),
@@ -539,6 +541,7 @@ final class BillingEngine implements BillingService, MembershipReader
         if (! $sub || $sub->state === 'ended') {
             $this->stale();
         }
+        $this->gatewayFor($sub);
         if ($sub->resolution_required || DB::table('billing_operations')->where('subscription_id', $sub->id)->where('state', 'pending')->exists()) {
             $this->pending();
         }
@@ -562,6 +565,11 @@ final class BillingEngine implements BillingService, MembershipReader
             && $safety->checkoutUrlIsSafe($order->checkout_url) ? $order->checkout_url : null;
 
         return new Checkout($order->id, OrderState::from($order->state), $url, BillingStore::iso($order->expires_at));
+    }
+
+    private function gatewayFor(object $record): PaymentGateway
+    {
+        return (new ProviderGatewayRouter($this->gateway))->forRecord($record);
     }
 
     private function stale(): never

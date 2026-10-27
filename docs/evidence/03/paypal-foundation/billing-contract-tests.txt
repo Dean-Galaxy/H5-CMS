@@ -1,0 +1,313 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingAdministrationTest[39m
+  [32;1m✓[39;22m[90m [39m[90mprices append versions and never overwrite prior terms[39m[90m              [39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90minvalid amounts and non test prices cannot be saved[39m[90m                 [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mevery administration action requires allowed staff and mfa[39m[90m          [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcase scope is derived from order and cannot be replaced with anothe[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90msupport view and notes use minimal scoped fields and safe audit[39m[90m     [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mverified cancel dispatches only persisted identity and returns proc[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mowner still needs verified request and malformed case link is rejec[39m[90m…[39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingCheckoutCompatibilityTest[39m
+  [32;1m✓[39;22m[90m [39m[90munknown legacy intent with no session keeps original snapshot and b[39m[90m…[39m [90m0.06s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlater unique session recovers original legacy checkout without crea[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90munattempted legacy coupon intent is read only even inside initial c[39m[90m…[39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingCheckoutSafetyTest[39m
+  [32;1m✓[39;22m[90m [39m[90mexisting safe checkout returns official fragment without creating a[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexisting checkout hides unsafe saved request without rewriting or r[39m[90m…[39m [90m0.05s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexisting checkout hides unsafe provider urls without changing payme[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mchanged origin hides existing checkout and restoring configuration[39m[90m… [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90muntrusted or non us region is rejected before gateway or order rese[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmissing stripe credentials never create orders placeholders or webh[39m[90m…[39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingConcurrencyTest[39m
+  [32;1m✓[39;22m[90m [39m[90mtwo real checkout processes create only one open subscription and o[39m[90m…[39m [90m0.30s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtwo real settlement processes commit one payment interval and outbo[39m[90m…[39m [90m0.32s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtwo real resume processes cannot duplicate operation or replay over[39m[90m…[39m [90m0.30s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingDeskTest[39m
+  [32;1m✓[39;22m[90m [39m[90mowner uses dollar inputs and exact saved price survives refresh[39m[90m     [39m [90m0.14s[39m  
+  [32;1m✓[39;22m[90m [39m[90msupport can open exact order without price controls or payment cred[39m[90m…[39m [90m0.05s[39m  
+  [32;1m✓[39;22m[90m [39m[90minvalid dollars keep the form and save pending refuses navigation[39m[90m   [39m [90m0.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstale price editor keeps entered dollars until explicit discard[39m[90m     [39m [90m0.05s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefresh context and forged tabs or cases do not bypass scope[39m[90m        [39m [90m0.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90munsaved support note requires real validation and discard does not[39m[90m… [39m [90m0.07s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpayment refund and next renewal amounts render as precise dollars[39m[90m   [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90munauthed page does not bootstrap owner or prices[39m[90m                    [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstaff without mfa proof cannot render billing data[39m[90m                  [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mother roles cannot render the billing page[39m[90m                          [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown support cancellation clears consumed verification but keeps[39m[90m…[39m [90m0.06s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingEngineTest[39m
+  [32;1m✓[39;22m[90m [39m[90mverified account snapshot and idempotency control checkout[39m[90m          [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcheckout unknown is persisted and retry keeps same order[39m[90m            [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexpired offer and another accounts offer cannot create orders[39m[90m       [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcancel resume uses original price and old retry cannot undo later c[39m[90m…[39m [90m0.05s[39m  
+  [32;1m✓[39;22m[90m [39m[90munexecuted resume expires at boundary and cancel timeout reconciles[39m[90m [39m [90m0.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpaid interval is half open and pending original blocks repurchase[39m[90m   [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhttp rejects client money and preserves order ownership[39m[90m             [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhttp enforces frozen idempotency key bounds before creating orders[39m[90m  [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguest offer requires new personal offer and changed eligibility req[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcheckout creation intent survives unknown result with fixed paramet[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtesting gateway does not hide conflicting coupon parameters[39m[90m         [39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingReviewRegressionTest[39m
+  [32;1m✓[39;22m[90m [39m[90mexpired ambiguous resume becomes terminal and does not lock account[39m[90m…[39m [90m0.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90mowner direct support cancel cannot bypass verified request business[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcase verification is rechecked after account lock before cancel res[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90munresolved ended subscription blocks checkout and membership does n[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mconsumed support case cannot cancel viewer later explicit resume[39m[90m    [39m [90m0.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90mverified old case cannot cancel a later subscription for same viewe[39m[90m…[39m [90m0.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpending resume keeps original quote boundary when invoice sync adva[39m[90m…[39m [90m0.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90mprovider terminated subscription keeps paid access but cannot issue[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mconfirmed cancel does not clear independent refund review or allow[39m[90m… [39m [90m0.03s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingSettlementTest[39m
+  [32;1m✓[39;22m[90m [39m[90mpaid invoice atomically creates fixed period payment entitlement an[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched owner amount currency mode and unverified payment never[39m[90m… [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90munpaid and action required invoice do not consume discount or grant[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrenewal uses original price and its actual period after site price[39m[90m… [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfailed renewal keeps old paid period and successful retry adds only[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdistinct invoice for same paid period is quarantined[39m[90m                [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuccess page and active subscription without paid invoice do not cr[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexpired checkout releases unpaid subscription and discount is still[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpending and failed refunds do not revoke paid entitlement[39m[90m           [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpartial refund keeps access and stops renewal without resetting dis[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfull refund revokes only related payment and stops renewal[39m[90m          [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mwebhook is durable deduplicated and uses current fact even for late[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90minvalid signature never reaches inbox and provider outage can be re[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90moutbox keeps missing or failing consumer pending without rolling ba[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcanceled subscription with unresolved initial invoice cannot releas[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpayment and entitlement rollback when outbox cannot be saved[39m[90m        [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfailed inbox item does not starve later items when batch is one[39m[90m     [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfailed outbox item does not starve later payments[39m[90m                   [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfull refund cancel timeout is retryable and does not undo refund fa[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90minvoice sync does not replace version of pending cancel operation[39m[90m   [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmultiple partial refunds accumulate once and full refund correction[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mold refund replay cannot cancel explicit later resume but new succe[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefund correction after original expiry does not create current acc[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefund for ended old subscription does not cancel new subscription[39m[90m  [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefund total above payment is quarantined without revoking verified[39m[90m…[39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingStagingPolicyTest[39m
+  [32;1m✓[39;22m[90m [39m[90msafe staging boots with official transport but never makes a paymen[39m[90m…[39m [90m0.13s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcached missing credentials and unconfigured driver allow boot but b[39m[90m…[39m [90m0.63s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcached provider rejects disallowed payment modes credentials and ve[39m[90m…[39m [90m1.89s[39m  
+  [32;1m✓[39;22m[90m [39m[90msame gateway and provider recheck loaded configuration after succes[39m[90m…[39m [90m2.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmissing credentials after boot disable existing gateway without fai[39m[90m…[39m [90m0.25s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstaging rejects replaced sdk at boot and on an existing gateway[39m[90m     [39m [90m0.46s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstaging rejects fake gateway bindings and cannot retrieve a rejecte[39m[90m…[39m [90m0.69s[39m  
+  [32;1m✓[39;22m[90m [39m[90moffline diagnostic reports configuration readiness without claiming[39m[90m…[39m [90m0.67s[39m  
+  [32;1m✓[39;22m[90m [39m[90muncached real environment loading respects opt in and credential bo[39m[90m…[39m [90m1.54s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingUsdPriceTest[39m
+  [32;1m✓[39;22m[90m [39m[90mdecimal strings and business boundaries save exact minor units and[39m[90m… [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmalformed usd and non string types map errors to the input field wi[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpositive price range and test acknowledgement remain module rules[39m[90m   [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlegacy minor fields cannot override or replace usd input[39m[90m            [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstale usd submission cannot overwrite a newer price version[39m[90m         [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstaff permissions and mfa are checked before parsing usd[39m[90m            [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90musd price change preserves existing offer checkout intent and subsc[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90musd price change preserves paid facts and original resume quote[39m[90m     [39m [90m0.04s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\PayPalProtocolTest[39m
+  [32;1m✓[39;22m[90m [39m[90musd conversion never uses floating point or rounds an invalid amount[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #6[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #7[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #8[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #9[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #10[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #11[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #12[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #13[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #14[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #15[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #16[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #17[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #18[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #19[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #20[39m
+  [32;1m✓[39;22m[90m [39m[90mfirst week is one paid week followed by original regular weekly price[39m
+  [32;1m✓[39;22m[90m [39m[90mreturning customer has no trial and changed prices have new fingerprints[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90mverification embeds original json bytes and does not claim verified or paid[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #6[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #7[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #8[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #6[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #7[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #8[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #9[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #10[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #11[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #12[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #13[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #14[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #15[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #16[39m
+  [32;1m✓[39;22m[90m [39m[90mduplicate case variant headers are rejected[39m
+  [32;1m✓[39;22m[90m [39m[90mmissing header is rejected[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90mold delivery and fractional seconds are retained for fact reconciliation[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\PayPalSandboxApiTest[39m
+  [32;1m✓[39;22m[90m [39m[90mcalls fixed sandbox with tls no redirects and server generated week[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuspend is only an operation response and does not claim membership[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mverification failure is false and success still requires fact looku[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mother webhook scope is rejected before network[39m[90m                      [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown verification status never becomes success[39m[90m                   [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mredirect is not followed or retried[39m[90m                                 [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown mutation response is not automatically retried or logged[39m[90m    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmissing configuration blocks even a cached token without http[39m[90m       [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mconfiguration change discards old merchant token[39m[90m                    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlive environment and fake transport outside testing are rejected[39m[90m    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpath injection is rejected before oauth[39m[90m                             [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmissing enablement is not inferred from credentials[39m[90m                 [39m [90m0.01s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\ProviderOperationStoreTest[39m
+  [32;1m✓[39;22m[90m [39m[90msame intent reuses payload key and deadline after unknown result[39m[90m    [39m [90m0.13s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexpired provider idempotency window requires reconciliation not new[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmutated payload cannot reuse the original idempotency intent[39m[90m        [39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcross merchant cannot complete another scope intent[39m[90m                 [39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90muncommitted intent cannot be dispatched[39m[90m                             [39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90msame external id is isolated by provider and merchant[39m[90m               [39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mone owner cannot acquire a second external subscription in the same[39m[90m…[39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mupgrade preserves legacy subscription and cross channel one open co[39m[90m…[39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrollback refuses to drop new provider evidence[39m[90m                      [39m [90m0.09s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\StripeGatewayTest[39m
+  [32;1m✓[39;22m[90m [39m[90mconfiguration and live credentials fail closed without http[39m[90m         [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mactual client options and global tls are checked before http[39m[90m        [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90meach network step rechecks mutated configuration[39m[90m                    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90munconfigured gateway never fabricates checkout success[39m[90m              [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcheckout persists new preparation deadline weekly snapshot and cont[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mold return origins and order ids are read only and never exposed[39m[90m    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90muntrusted checkout urls and remote return mismatch are not returned[39m[90m [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mregular price checkout omits discounts and promotion code input[39m[90m     [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhttp fixture rejects coupon and serialized false promotion flag[39m[90m     [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlegacy conflict reconciles all statuses without post or mutating in[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlegacy conflict with zero or multiple sessions stays pending and un[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpersisted promotion flag rejects values other than strict false bef[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpersisted coupon shape must match discounted order before http[39m[90m      [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpreparation attaches controlled test clock and accepts same clock c[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpreparation refuses existing customer on another clock without rebi[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpreparation refuses customer response omitting requested clock[39m[90m      [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown create finds original session without recreating customer c[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown or too late create with no match remains pending without ne[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreconciliation paginates and refuses multiple matching sessions[39m[90m     [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mprovider deadline must exactly match the persisted request[39m[90m          [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpaid invoice requires actual payment and uses line service interval[39m[90m [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90munpaid invoice reads current required action without granting payme[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmanually marked paid invoice is not verified payment[39m[90m                [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpayment for another customer is not verified[39m[90m                        [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrestore updates only cancellation flag and rechecks same period[39m[90m     [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefunds include all pages and preserve partial pending and failed f[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90msigned webhook retains only minimum reconciliation identity[39m[90m         [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefund event exposes charge id only as reconciliation hint[39m[90m          [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtampered signature is rejected[39m[90m                                      [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlive webhook and version mismatch fail closed[39m[90m                       [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mplatform timeout has safe fixed error and no false success[39m[90m          [39m [90m0.01s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcceptedAudienceTest[39m
+  [32;1m✓[39;22m[90m [39m[90mdefault website and progress use the accepted provider without loca[39m[90m…[39m [90m0.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfresh local content and unconfigured prices are not replaced by sam[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfresh progress is empty and a guest cannot write account progress[39m[90m   [39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcceptedBillingPlaybackTest[39m
+  [32;1m✓[39;22m[90m [39m[90mreal billing controls content after cancel partial and full refund[39m[90m  [39m [90m0.09s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcceptedBillingTest[39m
+  [32;1m✓[39;22m[90m [39m[90mreal billing loads without opt in and does not enable external paym[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal nonmember and configured price remain truthful when stripe is[39m[90m… [39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcceptedContentTest[39m
+  [32;1m✓[39;22m[90m [39m[90mcontent loads without local opt in and registers each job once[39m[90m      [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpublic content still requires a trusted region then reads its own d[39m[90m…[39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AcquisitionReadPortsTest[39m
+  [32;1m✓[39;22m[90m [39m[90mconsumers read typed minimal pages without private staff or media f[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mabsent read providers do not turn into successful empty lists or sa[39m[90m…[39m [90m0.01s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AdminPanelIntegrationTest[39m
+  [32;1m✓[39;22m[90m [39m[90mregistered staff mfa provider generates one decodable qr data uri[39m[90m   [39m [90m0.05s[39m  
+  [32;1m✓[39;22m[90m [39m[90mactual staff profile route uses staff policy and same origin avatar[39m[90m [39m [90m0.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdesign navigation keeps role permissions and optional module gate[39m[90m   [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguest cannot open staff profile and fixture is not a production rou[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mstaff contract is relaxed without changing viewer passwords[39m[90m         [39m [90m0.01s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\AdminUiTest[39m
+  [32;1m✓[39;22m[90m [39m[90musd round trips without float or a hundredfold change[39m[90m               [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90musd rejects wrong types precision notation and overflow[39m[90m             [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtabs render one selected panel and escape labels[39m[90m                    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlivewire tabs call the module method without using inline user code[39m[90m [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mshared styles are loaded only in the staff panel and do not bypass[39m[90m… [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdialog has accessible title and real submit button can target its f[39m[90m…[39m [90m0.01s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\BillingLocalLoadingTest[39m
+  [32;1m✓[39;22m[90m [39m[90mbilling allowlist does not enable an unaccepted module[39m[90m              [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexplicit local loading only changes billing and never grants fixtur[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mbilling opt in rejects nonlocal missing invalid and replacement pro[39m[90m…[39m [90m0.01s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\RuntimeEnvironmentGuardTest[39m
+  [32;1m✓[39;22m[90m [39m[90mdefault off does not release an origin and every call rechecks[39m[90m      [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mboolean environment and nonlocal overrides fail closed[39m[90m              [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mopt in never enables production or local and local mail remains ava[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90morigin cannot contain unsafe components or non domain hosts[39m[90m         [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmail checks follow real nested paths and refuse downgrade or url ov[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mapproved smtp configuration builds real tls transport without conne[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdirect connection discards previous proxy trust and hosting auto de[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mnonlocal http requires direct tls canonical host and default port[39m[90m   [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal staging boot and cached configuration are checked without netw[39m[90m…[39m [90m0.88s[39m  
+  [32;1m✓[39;22m[90m [39m[90mreal uncached environment loading preserves invalid booleans[39m[90m        [39m [90m1.27s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\SharedContractsTest[39m
+  [32;1m✓[39;22m[90m [39m[90mconsumer can confirm original terms after the public price changes[39m[90m  [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhome consumer can follow a category and banner without media or ext[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mnew ports require the real provider even when empty examples exist[39m[90m  [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpublic home and categories remain accessible to guests but unavaila[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mresume quote and submission require an audience session[39m[90m             [39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Contracts\SharedInfrastructureTest[39m
+  [32;1m✓[39;22m[90m [39m[90mruntime contract version matches the published openapi[39m[90m              [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mabsent local opt in preserves the missing provider and unresolved r[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mallowlisted local provider can load without a root config edit[39m[90m      [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlocal loading rejects unknown missing invalid and nonlocal provider[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90maudience and acquisition can opt in without replacing other modules[39m[90m [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexplicit us fixture is limited to direct loopback http[39m[90m              [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mproduction never accepts forged country headers or local region ove[39m[90m…[39m [90m0.01s[39m  
+
+  [90mTests:[39m    [32;1m256 passed[39;22m[90m (3626 assertions)[39m
+  [90mDuration:[39m [39m16.29s[39m
+

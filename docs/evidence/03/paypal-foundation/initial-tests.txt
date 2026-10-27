@@ -1,0 +1,114 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\PayPalProtocolTest[39m
+  [32;1m✓[39;22m[90m [39m[90musd conversion never uses floating point or rounds an invalid amount[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #6[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #7[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #8[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #9[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #10[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #11[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #12[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #13[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #14[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #15[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #16[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #17[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #18[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #19[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid money is rejected without coercion with data set #20[39m
+  [32;1m✓[39;22m[90m [39m[90mfirst week is one paid week followed by original regular weekly price[39m
+  [32;1m✓[39;22m[90m [39m[90mreturning customer has no trial and changed prices have new fingerprints[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid plan never becomes a free or overpriced trial with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90mverification embeds original json bytes and does not claim verified or paid[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #6[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #7[39m
+  [32;1m✓[39;22m[90m [39m[90mnotifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #8[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #6[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #7[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #8[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #9[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #10[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #11[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #12[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #13[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #14[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #15[39m
+  [32;1m✓[39;22m[90m [39m[90mmalformed or unsafe headers fail before verification with data set #16[39m
+  [32;1m✓[39;22m[90m [39m[90mduplicate case variant headers are rejected[39m
+  [32;1m✓[39;22m[90m [39m[90mmissing header is rejected[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #0[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #1[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #2[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #3[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #4[39m
+  [32;1m✓[39;22m[90m [39m[90minvalid json or event shape is rejected with data set #5[39m
+  [32;1m✓[39;22m[90m [39m[90mold delivery and fractional seconds are retained for fact reconciliation[39m
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\PayPalSandboxApiTest[39m
+  [32;1m✓[39;22m[90m [39m[90mcalls fixed sandbox with tls no redirects and server generated week[39m[90m…[39m [90m0.09s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuspend is only an operation response and does not claim membership[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mverification failure is false and success still requires fact looku[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown verification status never becomes success[39m[90m                   [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mredirect is not followed or retried[39m[90m                                 [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90munknown mutation response is not automatically retried or logged[39m[90m    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmissing configuration blocks even a cached token without http[39m[90m       [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mconfiguration change discards old merchant token[39m[90m                    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mlive environment and fake transport outside testing are rejected[39m[90m    [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpath injection is rejected before oauth[39m[90m                             [39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmissing enablement is not inferred from credentials[39m[90m                 [39m [90m0.01s[39m  
+
+  [39;41;1m FAIL [39;49;22m[39m Tests\Feature\Billing\ProviderOperationStoreTest[39m
+  [31;1m⨯[39;22m[90m [39m[90msame intent reuses payload key and deadline after unknown result[39m[90m    [39m [90m0.23s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexpired provider idempotency window requires reconciliation not new[39m[90m…[39m [90m0.04s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmutated payload cannot reuse the original idempotency intent[39m[90m        [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcross merchant cannot complete another scope intent[39m[90m                 [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90muncommitted intent cannot be dispatched[39m[90m                             [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90msame external id is isolated by provider and merchant[39m[90m               [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mone owner cannot acquire a second external subscription in the same[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mupgrade preserves legacy subscription and cross channel one open co[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrollback refuses to drop new provider evidence[39m[90m                      [39m [90m0.03s[39m  
+  [31m────────────────────────────────────────────────────────────────────────────[39m  
+  [41;1m FAILED [49;22m [1mTests\Feature\Billing\ProviderOperationStoreTest[22m…  [41;1m ErrorException [49;22m  
+[39;1m  Undefined property: stdClass::$state[39;22m
+
+  at [32mtests/Feature/Billing/ProviderOperationStoreTest.php[39m:[32m34[39m
+     30▕         $again = $store->reserve($scope, 'create_subscription', $owner, 1, ['custom_id' => $owner, 'plan_id' => 'P-LOCAL']);
+     31▕         self::assertSame($first->id, $again->id);
+     32▕         self::assertSame($first->request_key, $again->request_key);
+     33▕         $sent = $store->beginAttempt($scope, $first->id);
+  ➜  34▕         self::assertSame('unknown', $sent->state);
+     35▕         $this->travel(1)->hours();
+     36▕         $retry = $store->beginAttempt($scope, $first->id);
+     37▕         self::assertSame($sent->retry_before, $retry->retry_before);
+     38▕         self::assertSame($sent->first_attempted_at, $retry->first_attempted_at);
+
+
+  [90mTests:[39m    [31;1m1 failed[39;22m[90m,[39m[39m [39m[32;1m85 passed[39;22m[90m (154 assertions)[39m
+  [90mDuration:[39m [39m0.82s[39m
+

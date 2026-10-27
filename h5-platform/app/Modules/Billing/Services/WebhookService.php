@@ -3,6 +3,9 @@
 namespace App\Modules\Billing\Services;
 
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\PayPal\SandboxWebhookEnvelope;
+use App\Modules\Billing\Gateway\ProviderGatewayRouter;
+use App\Modules\Billing\Gateway\ProviderScope;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Throwable;
@@ -14,11 +17,7 @@ final class WebhookService
     public function receive(string $payload, string $signature): void
     {
         $event = $this->gateway->verifyEvent($payload, $signature);
-        DB::table('billing_inbox')->insertOrIgnore([
-            'id' => BillingStore::id(), 'provider_event_id' => $event['id'], 'event_type' => $event['type'],
-            'object_id' => $event['object_id'], 'related_object_id' => $event['related_object_id'] ?? null,
-            'is_test' => $event['is_test'], 'occurred_at' => $event['created'], 'created_at' => now(),
-        ]);
+        app(ProviderInboxStore::class)->receive(ProviderScope::legacyStripe(), $event);
     }
 
     public function processPending(int $limit = 100): int
@@ -59,12 +58,16 @@ final class WebhookService
         if (! $event->is_test) {
             throw new RuntimeException('LIVE_PAYMENTS_DISABLED');
         }
+        if ($event->provider === 'paypal' && SandboxWebhookEnvelope::classify($event->event_type) === 'ignore') {
+            return false;
+        }
+        (new ProviderGatewayRouter($this->gateway))->forRecord($event);
         if (str_starts_with($event->event_type, 'invoice.')) {
             $this->settlement->settleInvoice($event->object_id);
         } elseif (str_starts_with($event->event_type, 'customer.subscription.')) {
             $this->settlement->syncSubscription($event->object_id);
         } elseif (str_starts_with($event->event_type, 'checkout.session.')) {
-            $order = DB::table('billing_orders')->where('checkout_id', $event->object_id)->first();
+            $order = DB::table('billing_orders')->where(ProviderScope::fromRecord($event)->columns())->where('checkout_id', $event->object_id)->first();
             if (! $order) {
                 throw new RuntimeException('BILLING_ORDER_NOT_FOUND');
             }

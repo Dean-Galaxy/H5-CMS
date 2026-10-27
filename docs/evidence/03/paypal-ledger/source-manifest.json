@@ -1,0 +1,23 @@
+{
+  "source_commit": "b0c731763a310297d51b4eb0942038e9540dcde4",
+  "sha256": {
+    "h5-platform/app/Modules/Billing/Console/ReconcileBilling.php": "f665e3ca20b7a96ccc5eb544ff5691d937a499769ad22d78e3ca50171577aeb7",
+    "h5-platform/app/Modules/Billing/Data/ExternalPayment.php": "867a683d0b6288ac04ba9b201757417fc8de38ff82844c64eea7044140b79b4a",
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxWebhookEnvelope.php": "8f75dbc98ac8cf8a41d131b049537e0e594c477134a6a0aadc06e6985f8cf7e2",
+    "h5-platform/app/Modules/Billing/Gateway/ProviderGatewayRouter.php": "c077e5f62b20e6c06cbe0bdb4fdfeecd3fd1a1267d1a592fb332442814306c6c",
+    "h5-platform/app/Modules/Billing/Gateway/ProviderScope.php": "b636411a307000c5112e44e25bccb75e25cbb8ac972f8aba246689dba334b8e4",
+    "h5-platform/app/Modules/Billing/Services/BillingEngine.php": "682dae0e17b0cda1a04543badb7a8e233f12fc33c5048e514c6532c33ac8dfd9",
+    "h5-platform/app/Modules/Billing/Services/PayPalWebhookReceiver.php": "f500436a7dad0fb48608ccbf0266b6f1e0dd64b0a5f29f126d54676b54e250b8",
+    "h5-platform/app/Modules/Billing/Services/PaymentLedger.php": "8653d91fa9e6ee6bd52f9874b3288a6be240844c5ca3f4b4bb895fdb0e93cc81",
+    "h5-platform/app/Modules/Billing/Services/ProviderInboxStore.php": "4d977bf83dd744f7af42d0f431aa8bcb5ea249ea4e83a606444bd9ca522d7a67",
+    "h5-platform/app/Modules/Billing/Services/SettlementService.php": "765d0c6fed89f587e0e1f5a2944669df06553c1d6eb56d9215a3b8c6d6afcf5a",
+    "h5-platform/app/Modules/Billing/Services/WebhookService.php": "0a9a2513c95d444534a2f359bd0f94f0b57e15cb38f4c923814960d9b0de9b22",
+    "h5-platform/database/migrations/2026_10_26_200500_scope_billing_external_identifiers.php": "8ed8aaca73dfc1f7eb57ce9a1a1e236e2a7e6cecaf93f4861a2bf91ffeb2cb42",
+    "h5-platform/tests/Feature/Billing/BillingConcurrencyTest.php": "836318000c152f0017e257b82277f35275e22f66a89ccf0234a71215d6363e2e",
+    "h5-platform/tests/Feature/Billing/ProviderInboxTest.php": "42450dc8c0f85044c89512c263011f562c119d56379b08026b4ac655ad47816b",
+    "h5-platform/tests/Feature/Billing/ProviderOperationStoreTest.php": "53e499c09ae5d7d2715e71ab2f812dd40347b822a5edb1cd44326d309a4f1c48",
+    "h5-platform/tests/Feature/Billing/ProviderPaymentLedgerTest.php": "2ab5d80bb852703b7a8d93364ec3aee2d852834e57b2abbf1dbda28599d85df4",
+    "h5-platform/tests/Feature/Billing/Support/ProviderLedgerFixture.php": "6704cc893d4f39d2b9e8ce7b763e2331f0a5c3e1a4862a6f18b3c8e2cbda8de8",
+    "h5-platform/tests/Feature/Billing/Support/billing-worker.php": "b404e027b6594abde64f8b3ef67e13488efb9cfbf54bf0d3ca814f32cba53be0"
+  }
+}
