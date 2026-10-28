@@ -36,13 +36,16 @@ final class PayPalRuntime
     public function assertPurchaseReady(): ProviderScope
     {
         $scope = $this->scope();
+        $stamp = $this->api->configurationStamp($scope);
+        $productId = config('billing.paypal.product_id');
         try {
             $this->api->assertWebhookRegistration($scope);
-            $product = $this->api->product(config('billing.paypal.product_id'));
+            $product = $this->api->product($productId);
         } catch (Throwable) {
             throw new DependencyNotReady('Billing / PayPal merchant binding and webhook registration');
         }
-        if (($product['id'] ?? null) !== config('billing.paypal.product_id') || ($product['type'] ?? null) !== 'DIGITAL') {
+        if (($product['id'] ?? null) !== $productId || ($product['type'] ?? null) !== 'DIGITAL'
+            || $productId !== config('billing.paypal.product_id') || ! hash_equals($stamp, $this->api->configurationStamp($scope))) {
             throw new DependencyNotReady('Billing / PayPal sandbox digital product');
         }
 
