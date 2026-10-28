@@ -1,0 +1,25 @@
+{
+  "stop_requested": true,
+  "processes": [
+    {
+      "process": "tunnel",
+      "pid": 89724,
+      "matched_before": true,
+      "running_after": false
+    },
+    {
+      "process": "bridge",
+      "pid": 89723,
+      "matched_before": true,
+      "running_after": false
+    }
+  ],
+  "ports_after": {
+    "8406": true,
+    "5906": true,
+    "8407": false,
+    "8408": false,
+    "8409": false
+  },
+  "passed": true
+}
