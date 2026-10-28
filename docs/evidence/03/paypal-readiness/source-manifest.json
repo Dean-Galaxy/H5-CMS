@@ -1,0 +1,8 @@
+{
+  "code_commit": "e50d7f2cb6852f31b46ac6ea8f9c0f5dd1217a0e",
+  "sha256": {
+    "h5-platform/app/Modules/Billing/Console/PayPalPrepare.php": "d25c271e36f76a41a895f038466a7f7a03d0d7a3a91918605dbf30634fda217d",
+    "h5-platform/app/Modules/Billing/Services/PayPalRuntime.php": "2c7cd963652e0c752161a06b10e9ce8f8ca2a903f6c487ccf99de41f1e845c77",
+    "h5-platform/tests/Feature/Billing/PayPalMerchantBindingTest.php": "b317f080518126540fd3179fa95b1762abd03f0aa66ab9619fa999bb6a38264d"
+  }
+}
