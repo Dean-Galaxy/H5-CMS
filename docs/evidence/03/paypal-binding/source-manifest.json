@@ -1,0 +1,15 @@
+{
+  "code_commit": "518c425c3001ee04f24d5b5f79fafabdeb6e61b5",
+  "shared_baseline": "ef321908e53965e79f2c4f3f5bca32f17ded00ac",
+  "sha256": {
+    "h5-platform/app/Modules/Billing/Console/PayPalPrepare.php": "4c71931cd6b039c66b64da2c2c39731df4e104068c952852d258b636a97a4c8e",
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxApi.php": "080c33568fc2abb63bb93f4956fe8db4bf4e20afa0f46c41d45955f02577f368",
+    "h5-platform/app/Modules/Billing/Services/PayPalMerchantBinding.php": "5195540c4d90d8ef19c1906fec77080fd140ea290726ee2b4f76792940fb6398",
+    "h5-platform/app/Modules/Billing/Services/PayPalRuntime.php": "02a4682817b2b0b5aee4d15550c5cfa479f627305bf0d1f559143c48da58a356",
+    "h5-platform/app/Modules/Billing/Services/PayPalWebhookReceiver.php": "5a5b3f326a9368f91835b874104e3611f0b83ed80e20f3ecb2ad38c7de9cfcfc",
+    "h5-platform/database/migrations/2026_10_28_200700_add_paypal_merchant_bindings.php": "d0598965f887dcd61efa7e60ca4cf82fcf059a85aea36af64dfa7cf3b16c0a8e",
+    "h5-platform/tests/Feature/Billing/PayPalMerchantBindingTest.php": "91eb18d13f27aa41c579ae1107d7b808ad74eeaf88483cd6b37c7eedc6f44a8b",
+    "h5-platform/tests/Feature/Billing/PayPalRuntimeTest.php": "d852399acb489cb392ada7142844bd957eab14f31170bb8a15ae14c51591cbc9",
+    "h5-platform/tests/Feature/Billing/ProviderInboxTest.php": "54ec9cc6937ccd663193eef37947c20f04a28b30d3508c049a4972e9d942720d"
+  }
+}
