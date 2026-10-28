@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Billing\Gateway\PayPal;
 
 use App\Modules\Billing\Gateway\ProviderScope;
+use App\Modules\Billing\Services\PayPalMerchantBinding;
 use App\Support\DependencyNotReady;
 use App\Support\RuntimeEnvironmentGuard;
 use GuzzleHttp\Client;
@@ -17,6 +18,13 @@ use Throwable;
 final class SandboxApi
 {
     public const ORIGIN = 'https://api-m.sandbox.paypal.com';
+
+    public const REQUIRED_WEBHOOK_EVENTS = [
+        'PAYMENT.SALE.COMPLETED', 'PAYMENT.SALE.REFUNDED', 'PAYMENT.SALE.REVERSED',
+        'BILLING.SUBSCRIPTION.CREATED', 'BILLING.SUBSCRIPTION.ACTIVATED', 'BILLING.SUBSCRIPTION.UPDATED',
+        'BILLING.SUBSCRIPTION.SUSPENDED', 'BILLING.SUBSCRIPTION.CANCELLED', 'BILLING.SUBSCRIPTION.EXPIRED',
+        'BILLING.SUBSCRIPTION.PAYMENT.FAILED',
+    ];
 
     private ?string $token = null;
 
@@ -73,30 +81,69 @@ final class SandboxApi
         return ['name' => 'TEST H5 weekly membership', 'type' => 'DIGITAL', 'description' => 'Sandbox-only H5 membership integration test'];
     }
 
-    /** Read the account identity, never log or persist returned balances. */
+    /** Fixed operator-attested binding plus App authentication; not API merchant identification. */
     public function assertMerchant(ProviderScope $scope): void
     {
         $stamp = $this->configurationStamp($scope);
-        $accountId = $this->merchantIdentity();
-        if ($accountId !== config('billing.paypal.merchant_id')
-            || ! hash_equals($stamp, $this->configurationStamp($scope))) {
-            throw new RuntimeException('PAYPAL_MERCHANT_MISMATCH');
+        (new PayPalMerchantBinding($this))->assertBound($scope);
+        $this->authenticateApp();
+        if (! hash_equals($stamp, $this->configurationStamp($scope))) {
+            throw new RuntimeException('PAYPAL_MERCHANT_BINDING_REQUIRED_OR_MISMATCH');
         }
     }
 
-    /** Setup read requires only explicitly enabled sandbox Client ID/Secret, not a webhook. */
-    public function merchantIdentity(): string
+    public function appFingerprint(): string
+    {
+        $this->assertAvailable(credentialsOnly: true);
+
+        return hash('sha256', config('billing.paypal.client_id'));
+    }
+
+    /** Does not expose the token or treat OAuth app_id as merchant identity. */
+    public function authenticateApp(bool $fresh = false): void
     {
         $this->assertAvailable(credentialsOnly: true);
         $stamp = $this->configurationFingerprint;
-        $reply = $this->call('GET', '/v1/reporting/balances', credentialsOnly: true);
-        $this->assertAvailable(credentialsOnly: true);
-        $id = $reply['account_id'] ?? null;
-        if (! is_string($id) || preg_match('/\A[A-Z0-9]{1,64}\z/D', $id) !== 1 || $stamp !== $this->configurationFingerprint) {
-            throw new RuntimeException('PAYPAL_MERCHANT_IDENTITY_UNKNOWN');
+        if ($fresh) {
+            $this->token = null;
         }
+        $this->accessToken();
+        $this->assertAvailable(credentialsOnly: true);
+        if ($stamp !== $this->configurationFingerprint) {
+            throw new RuntimeException('PAYPAL_AUTHENTICATION_UNKNOWN');
+        }
+    }
 
-        return $id;
+    public function assertWebhookRegistration(ProviderScope $scope): void
+    {
+        $this->assertMerchant($scope);
+        $stamp = $this->configurationStamp($scope);
+        $id = config('billing.paypal.webhook_id');
+        $url = config('billing.paypal.webhook_url');
+        $parts = is_string($url) ? parse_url($url) : false;
+        if (! is_array($parts) || ($parts['scheme'] ?? null) !== 'https' || empty($parts['host'])
+            || ($parts['path'] ?? null) !== '/webhooks/paypal'
+            || isset($parts['query']) || isset($parts['fragment']) || isset($parts['user']) || isset($parts['pass'])
+            || (isset($parts['port']) && $parts['port'] !== 443)) {
+            throw new RuntimeException('PAYPAL_WEBHOOK_REGISTRATION_MISMATCH');
+        }
+        $webhook = $this->call('GET', '/v1/notifications/webhooks/'.$this->identifier($id, ''));
+        $events = $webhook['event_types'] ?? null;
+        $names = [];
+        if (is_array($events) && array_is_list($events)) {
+            foreach ($events as $event) {
+                if (! is_array($event) || ! is_string($event['name'] ?? null)) {
+                    throw new RuntimeException('PAYPAL_WEBHOOK_REGISTRATION_MISMATCH');
+                }
+                $names[] = $event['name'];
+            }
+        }
+        // Official Webhooks v1 explicitly defines '*' as all present and future events.
+        $covered = in_array('*', $names, true) || array_diff(self::REQUIRED_WEBHOOK_EVENTS, $names) === [];
+        if (! $covered || ($webhook['id'] ?? null) !== $id || ($webhook['url'] ?? null) !== $url
+            || ! hash_equals($stamp, $this->configurationStamp($scope))) {
+            throw new RuntimeException('PAYPAL_WEBHOOK_REGISTRATION_MISMATCH');
+        }
     }
 
     public function transactions(string $id, \DateTimeImmutable $from, \DateTimeImmutable $until): array
@@ -232,9 +279,9 @@ final class SandboxApi
                 app(RuntimeEnvironmentGuard::class)->controlledStagingOrigin();
             }
             $configuration = [];
-            foreach (['client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope'] as $key) {
+            foreach (['client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope', 'webhook_url'] as $key) {
                 $value = config('billing.paypal.'.$key);
-                if ((! $credentialsOnly || in_array($key, ['client_id', 'client_secret'], true))
+                if ($key !== 'webhook_url' && (! $credentialsOnly || in_array($key, ['client_id', 'client_secret'], true))
                     && (! is_string($value) || preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $value) !== 1)) {
                     throw new RuntimeException;
                 }

@@ -51,11 +51,11 @@ final class PayPalRuntimeTest extends TestCase
 
     private bool $failSuspend = false;
 
-    private bool $badMerchant = false;
-
     private bool $merchantUnavailable = false;
 
     private bool $missingPage = false;
+
+    private bool $missingWebhookEvents = false;
 
     private bool $validSignature = true;
 
@@ -68,8 +68,8 @@ final class PayPalRuntimeTest extends TestCase
         parent::setUp();
         $this->app->register(BillingServiceProvider::class);
         config(['billing.new_purchase_provider' => 'paypal', 'billing.paypal' => ['enabled' => true,
-            'client_id' => 'fixture-client', 'client_secret' => 'fixture-secret', 'webhook_id' => 'WH-FIXTURE',
-            'merchant_scope' => 'fixture-seller', 'merchant_id' => 'SELLERFIXTURE1', 'product_id' => self::PRODUCT]]);
+            'client_id' => 'fixture-client', 'client_secret' => 'fixture-secret', 'webhook_id' => '1AB23456CD789012E',
+            'merchant_scope' => 'fixture-seller', 'merchant_id' => 'SELLERFIXTURE1', 'product_id' => self::PRODUCT, 'webhook_url' => 'https://billing.example.test/webhooks/paypal']]);
         $this->travelTo(CarbonImmutable::parse('2026-10-27T06:00:00Z'));
         $handler = new MockHandler(array_fill(0, 500, fn ($request) => $this->respond($request)));
         $this->app->instance(SandboxApi::class, new SandboxApi(new Client(['handler' => HandlerStack::create($handler)])));
@@ -84,11 +84,17 @@ final class PayPalRuntimeTest extends TestCase
             'password' => bcrypt('LocalFixture9!'), 'active' => true, 'email_verified_at' => now()]);
         DB::table('billing_prices')->insert(['id' => BillingStore::id(), 'version' => 1, 'regular_amount_minor' => 1200,
             'first_week_amount_minor' => 300, 'currency' => 'USD', 'is_test' => true, 'created_at' => now()]);
+        // Explicit test-only operator-attested binding. This is not official identity evidence.
+        DB::table('billing_paypal_merchant_bindings')->insert(['merchant_scope' => 'fixture-seller',
+            'client_id_sha256' => hash('sha256', 'fixture-client'), 'merchant_id' => 'SELLERFIXTURE1',
+            'environment' => 'sandbox', 'binding_source' => 'operator_dashboard', 'evidence_ref' => 'TEST-receipt',
+            'receipt_sha256' => hash('sha256', 'fixture'), 'verified_at' => now(), 'created_at' => now()]);
         $this->billing = app(BillingEngine::class);
     }
 
     protected function tearDown(): void
     {
+        DB::table('billing_paypal_merchant_bindings')->delete();
         DB::table('billing_paypal_observations')->delete();
         DB::table('billing_provider_resources')->delete();
         DB::table('billing_provider_intents')->delete();
@@ -201,7 +207,7 @@ final class PayPalRuntimeTest extends TestCase
 
     public function test_wrong_merchant_blocks_creation_and_empty_unconfigured_cannot_buy(): void
     {
-        $this->badMerchant = true;
+        config(['billing.paypal.merchant_id' => 'OTHERSELLER']);
         try {
             $this->checkout();
             self::fail('Wrong merchant');
@@ -250,14 +256,14 @@ final class PayPalRuntimeTest extends TestCase
         self::assertNull(DB::table('billing_accounts')->first()->first_paid_at);
     }
 
-    public function test_setup_only_client_credentials_can_discover_seller_and_create_one_product_without_webhook(): void
+    public function test_setup_checks_existing_binding_and_creates_one_product_without_webhook(): void
     {
         config(['billing.new_purchase_provider' => 'unconfigured', 'billing.paypal.webhook_id' => null,
-            'billing.paypal.merchant_id' => null, 'billing.paypal.product_id' => null]);
+            'billing.paypal.webhook_url' => null, 'billing.paypal.product_id' => null]);
         $this->artisan('billing:paypal-prepare')->expectsOutputToContain('PAYPAL_NOT_CONFIGURED')->assertExitCode(1);
         self::assertCount(0, $this->calls);
         $this->artisan('billing:paypal-prepare', ['--check-merchant' => true])
-            ->expectsOutputToContain('"merchant_id":"SELLERFIXTURE1"')->assertExitCode(0);
+            ->expectsOutputToContain('"merchant_binding_valid":true,"binding_source":"operator_dashboard","api_merchant_identity_verified":false')->assertExitCode(0);
         $this->artisan('billing:paypal-prepare', ['--create-product' => true])
             ->expectsOutputToContain('"product_id":"'.self::PRODUCT.'"')->assertExitCode(0);
         $this->artisan('billing:paypal-prepare', ['--create-product' => true])->assertExitCode(0);
@@ -323,11 +329,11 @@ final class PayPalRuntimeTest extends TestCase
         self::assertDatabaseCount('billing_payments', 1);
     }
 
-    public function test_unavailable_merchant_api_is_a_safe_diagnostic_and_cannot_create_orders(): void
+    public function test_unavailable_app_authentication_is_a_safe_diagnostic_and_cannot_create_orders(): void
     {
         $this->merchantUnavailable = true;
         $this->artisan('billing:paypal-prepare', ['--check-merchant' => true])
-            ->expectsOutputToContain('PAYPAL_MERCHANT_CHECK_UNAVAILABLE_OR_MISMATCH')->assertExitCode(1);
+            ->expectsOutputToContain('PAYPAL_SETUP_UNAVAILABLE')->assertExitCode(1);
         try {
             $this->checkout();
             self::fail('No merchant proof');
@@ -424,6 +430,18 @@ final class PayPalRuntimeTest extends TestCase
         self::assertFalse(DB::table('billing_subscriptions')->first()->renewal_enabled);
     }
 
+    public function test_incomplete_webhook_events_cannot_create_checkout(): void
+    {
+        $this->missingWebhookEvents = true;
+        try {
+            $this->checkout();
+            self::fail('Incomplete event coverage');
+        } catch (DependencyNotReady $e) {
+            self::assertSame('DEPENDENCY_NOT_READY', $e->errorCode);
+        }
+        self::assertDatabaseCount('billing_orders', 0);
+    }
+
     private function checkout(): object
     {
         $offer = $this->billing->offer($this->viewer());
@@ -481,12 +499,12 @@ final class PayPalRuntimeTest extends TestCase
         $method = $request->getMethod();
         $this->calls[] = $method.' '.$path;
         $body = json_decode((string) $request->getBody(), true);
-        if ($path === '/v1/reporting/balances' && $this->merchantUnavailable) {
+        if ($path === '/v1/oauth2/token' && $this->merchantUnavailable) {
             return new Response(403, [], '{"debug_id":"private-fixture-diagnostic"}');
         }
         $data = match (true) {
             $path === '/v1/oauth2/token' => ['access_token' => 'fixture-access', 'token_type' => 'Bearer', 'expires_in' => 3600],
-            $path === '/v1/reporting/balances' => ['account_id' => $this->badMerchant ? 'OTHERSELLER' : 'SELLERFIXTURE1'],
+            $path === '/v1/notifications/webhooks/1AB23456CD789012E' => ['id' => '1AB23456CD789012E', 'url' => 'https://billing.example.test/webhooks/paypal', 'event_types' => array_map(fn ($name) => ['name' => $name], $this->missingWebhookEvents ? ['PAYMENT.SALE.COMPLETED'] : SandboxApi::REQUIRED_WEBHOOK_EVENTS)],
             $path === '/v1/catalogs/products' && $method === 'POST' => ['id' => self::PRODUCT, 'type' => 'DIGITAL'],
             str_starts_with($path, '/v1/catalogs/products/') => ['id' => self::PRODUCT, 'type' => 'DIGITAL'],
             $path === '/v1/billing/plans' && $method === 'POST' => $this->plan = ['id' => self::PLAN] + $body,

@@ -36,8 +36,12 @@ final class PayPalRuntime
     public function assertPurchaseReady(): ProviderScope
     {
         $scope = $this->scope();
-        $this->api->assertMerchant($scope);
-        $product = $this->api->product(config('billing.paypal.product_id'));
+        try {
+            $this->api->assertWebhookRegistration($scope);
+            $product = $this->api->product(config('billing.paypal.product_id'));
+        } catch (Throwable) {
+            throw new DependencyNotReady('Billing / PayPal merchant binding and webhook registration');
+        }
         if (($product['id'] ?? null) !== config('billing.paypal.product_id') || ($product['type'] ?? null) !== 'DIGITAL') {
             throw new DependencyNotReady('Billing / PayPal sandbox digital product');
         }
@@ -51,7 +55,7 @@ final class PayPalRuntime
         $sub = DB::table('billing_subscriptions')->find($order->subscription_id);
         $scope = ProviderScope::fromRecord($order);
         $this->api->configurationStamp($scope);
-        $this->api->assertMerchant($scope); // retries must recheck the actual seller as well
+        $this->api->assertWebhookRegistration($scope); // retries must recheck the actual seller as well
         if ($order->checkout_request === null) {
             $snapshot = new SandboxWeeklyPlan($sub->price_version, $sub->regular_amount_minor, $sub->first_week_amount_minor, $order->discount_applied);
             $product = config('billing.paypal.product_id');
