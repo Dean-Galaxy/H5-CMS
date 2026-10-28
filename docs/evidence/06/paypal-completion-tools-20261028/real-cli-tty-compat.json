@@ -1,0 +1,46 @@
+{
+  "application_candidate": "518c425c3001ee04f24d5b5f79fafabdeb6e61b5",
+  "context_real_cli": true,
+  "context_api_off_empty_merchant": true,
+  "context_network_requested": false,
+  "tty_cases": [
+    {
+      "check": "client_cancel",
+      "exit_code": 0,
+      "inputs_not_echoed": true,
+      "passed": true
+    },
+    {
+      "check": "client_mismatch",
+      "exit_code": 1,
+      "inputs_not_echoed": true,
+      "passed": true
+    },
+    {
+      "check": "third_confirmation_cancel",
+      "exit_code": 0,
+      "inputs_not_echoed": true,
+      "passed": true
+    },
+    {
+      "check": "explicit_all_confirmed",
+      "exit_code": 0,
+      "inputs_not_echoed": true,
+      "passed": true
+    }
+  ],
+  "synthetic_receipt_0600": true,
+  "original_client_and_secret_preserved": true,
+  "env_byte_identical": true,
+  "database_started": false,
+  "official_binding_or_authentication": false,
+  "real_user_configuration_accessed": false,
+  "scope": "synthetic inputs and confirmations only; not user evidence",
+  "passed": true,
+  "tool_commit": "eec81f75fdc89d4dd5420e4173ec2b463fea8ef8",
+  "tool_source_sha256": {
+    "paypal_complete_webhook_url.py": "3ed08e3ff57d7406f814047dc6563001529fb8a5d261532a97c23649b60209d8",
+    "paypal_merchant_receipt.py": "94f3f74046925b133e8e1d2ea1656311352cecfefea5238d8d78c7f5feb84457"
+  },
+  "application_tracked_files_unchanged": true
+}

@@ -3,16 +3,20 @@
   "shared_contract_commit": "ef321908e53965e79f2c4f3f5bca32f17ded00ac",
   "source_sha256": {
     "scripts/ops/paypal_complete_webhook_url.py": "3ed08e3ff57d7406f814047dc6563001529fb8a5d261532a97c23649b60209d8",
-    "scripts/ops/paypal_merchant_receipt.py": "857d5fa71399d36f5b9be0cd22bd152a2b623ee7bd90b401555f5a7803f81e6d",
+    "scripts/ops/paypal_merchant_receipt.py": "94f3f74046925b133e8e1d2ea1656311352cecfefea5238d8d78c7f5feb84457",
     "scripts/ops/tests/test_paypal_complete_webhook_url.py": "4fa9c33d5e1fa4677d3754c5bbe0bc4ea26024ef51418a1756a9aa4d40df9ae8",
-    "scripts/ops/tests/test_paypal_merchant_receipt.py": "7a2acaa9f86a4b870deb9fb255181e14224fce556956be71fadb5c9194162abd"
+    "scripts/ops/tests/test_paypal_merchant_receipt.py": "a30e4bb319c7773f6e29f6af1eac88deef6b2a57fd06063330bb9092858d6035"
   },
   "url_tests": 18,
   "merchant_tests": 13,
   "real_dotenv": true,
-  "merchant_cli_adapter": "synthetic output; fixed 03 candidate integration pending",
+  "merchant_cli_adapter": "real 03 CLI on isolated 518c425 synthetic environment; four actual PTY cases passed",
   "real_credentials_read": false,
   "actual_env_changed": false,
   "actual_receipt_created": false,
-  "public_window": "closed"
+  "public_window": "closed",
+  "final_tool_commit": "eec81f75fdc89d4dd5420e4173ec2b463fea8ef8",
+  "merchant_tests_final": 16,
+  "real_cli_evidence_sha256": "23d5fdae6b9ed54f43d48de9398566993def809353c67aa3c7c71f38c76fb534",
+  "real_cli_probe_sha256": "800f03a29de172daf4f87edb8cab3db08a315ffdcba65422ef8c2c5a55db354e"
 }
