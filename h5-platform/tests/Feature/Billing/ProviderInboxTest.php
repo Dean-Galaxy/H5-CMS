@@ -28,7 +28,9 @@ final class ProviderInboxTest extends TestCase
     {
         parent::setUp();
         config(['billing.paypal' => ['enabled' => true, 'client_id' => 'local-fixture', 'client_secret' => 'local-fixture',
-            'webhook_id' => 'LOCAL-WEBHOOK', 'merchant_id' => 'LOCAL-MERCHANT', 'merchant_scope' => 'merchant-a']]);
+            'webhook_id' => '1AB23456CD789012E', 'merchant_id' => 'LOCALMERCHANT', 'merchant_scope' => 'merchant-a',
+            'webhook_url' => 'https://callback.example.test/webhooks/paypal']]);
+        $this->fixtureBinding();
     }
 
     public function test_verified_sandbox_event_is_durable_deduplicated_and_does_not_grant_membership(): void
@@ -76,7 +78,8 @@ final class ProviderInboxTest extends TestCase
     public function test_identical_event_id_in_another_merchant_or_provider_does_not_collide(): void
     {
         $this->receiver(['SUCCESS'])->receive($this->body(), $this->headers());
-        config(['billing.paypal.merchant_scope' => 'merchant-b']);
+        config(['billing.paypal.merchant_scope' => 'merchant-b', 'billing.paypal.client_id' => 'other-fixture', 'billing.paypal.merchant_id' => 'OTHERMERCHANT']);
+        $this->fixtureBinding();
         $this->receiver(['SUCCESS'])->receive($this->body(), $this->headers());
         app(ProviderInboxStore::class)->receive(ProviderScope::legacyStripe(), [
             'id' => 'WH-LOCAL', 'type' => 'invoice.paid', 'object_id' => 'invoice-local', 'is_test' => true, 'created' => '2026-10-26T00:00:00Z',
@@ -134,14 +137,50 @@ final class ProviderInboxTest extends TestCase
         (new ProviderGatewayRouter(new FakeGateway))->forScope(new ProviderScope('stripe', 'test', 'another-merchant'));
     }
 
+    public function test_unbound_or_wrong_callback_cannot_reach_signature_acceptance(): void
+    {
+        $receiver = $this->receiver(['SUCCESS']);
+        DB::table('billing_paypal_merchant_bindings')->delete();
+        try {
+            $receiver->receive($this->body(), $this->headers());
+            self::fail('No binding');
+        } catch (RuntimeException $e) {
+            self::assertInstanceOf(DependencyNotReady::class, $e);
+        }
+        $this->fixtureBinding();
+        config(['billing.paypal.webhook_url' => 'https://different.example.test/webhooks/paypal']);
+        try {
+            $receiver->receive($this->body(), $this->headers());
+            self::fail('Wrong callback registration');
+        } catch (RuntimeException $e) {
+            self::assertInstanceOf(DependencyNotReady::class, $e);
+        }
+        self::assertDatabaseCount('billing_inbox', 0);
+    }
+
+    private function fixtureBinding(): void
+    {
+        DB::table('billing_paypal_merchant_bindings')->insert([
+            'merchant_scope' => config('billing.paypal.merchant_scope'),
+            'client_id_sha256' => hash('sha256', config('billing.paypal.client_id')),
+            'merchant_id' => config('billing.paypal.merchant_id'), 'environment' => 'sandbox',
+            'binding_source' => 'operator_dashboard', 'evidence_ref' => 'TEST-receipt',
+            'receipt_sha256' => hash('sha256', 'fixture'), 'verified_at' => now(), 'created_at' => now(),
+        ]);
+    }
+
     private function receiver(array $statuses): PayPalWebhookReceiver
     {
         $responses = [new Response(200, [], '{"access_token":"local-fixture","token_type":"Bearer","expires_in":3600}')];
         foreach ($statuses as $status) {
+            $responses[] = new Response(200, [], json_encode(['id' => config('billing.paypal.webhook_id'), 'url' => config('billing.paypal.webhook_url'), 'event_types' => array_map(fn ($name) => ['name' => $name], SandboxApi::REQUIRED_WEBHOOK_EVENTS)]));
             $responses[] = new Response(200, [], json_encode(['verification_status' => $status]));
         }
 
-        return new PayPalWebhookReceiver(new SandboxApi(new Client(['handler' => new MockHandler($responses)])), new ProviderInboxStore);
+        $api = new SandboxApi(new Client(['handler' => new MockHandler($responses)]));
+        app()->instance(SandboxApi::class, $api);
+
+        return new PayPalWebhookReceiver($api, new ProviderInboxStore);
     }
 
     private function headers(): array

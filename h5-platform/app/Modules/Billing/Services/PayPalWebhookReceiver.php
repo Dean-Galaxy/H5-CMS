@@ -28,6 +28,11 @@ final class PayPalWebhookReceiver
         } catch (InvalidArgumentException) {
             throw new ApiProblem('VALIDATION_FAILED', 400, '无效的付款平台通知');
         }
+        try {
+            $this->api->assertWebhookRegistration($scope);
+        } catch (\Throwable) {
+            throw new DependencyNotReady('Billing / PayPal merchant binding and webhook registration');
+        }
         if (! $this->api->verify($envelope)) {
             throw new ApiProblem('VALIDATION_FAILED', 400, '无效的付款平台通知');
         }
