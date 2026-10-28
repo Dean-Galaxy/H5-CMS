@@ -1,0 +1,38 @@
+{
+  "runtime_candidate": "cfd24cbb6fe42ab959bd547d7ca70a02a8f2ae35",
+  "membership_access_active": true,
+  "renewal_enabled": false,
+  "default_free_count": 5,
+  "synthetic_video_duration_seconds": 140,
+  "video_ready_and_playable": true,
+  "sixth_episode_published": true,
+  "accounting_counts": {
+    "billing_payments": 1,
+    "billing_entitlements": 1,
+    "billing_refunds": 0
+  },
+  "browser": {
+    "checks": {
+      "health": true,
+      "free_page": true,
+      "free_video_decodes": true,
+      "sixth_page": true,
+      "anonymous_sixth_denied": true,
+      "no_media_on_denial": true,
+      "no_external_requests": true
+    },
+    "uses_existing_synthetic_video": true,
+    "paid_user_session_used": false,
+    "paid_manual_playback_verified": false
+  },
+  "local_services": {
+    "web": true,
+    "database": true,
+    "queue": false,
+    "scheduler": false,
+    "paypal_api": false,
+    "new_purchase": "unconfigured",
+    "public_callback": false,
+    "credentials_form": false
+  }
+}
