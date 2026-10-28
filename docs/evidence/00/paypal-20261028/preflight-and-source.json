@@ -1,0 +1,34 @@
+{
+  "recorded_at": "2026-10-28T04:32:17.932784+00:00",
+  "official_preflight": {
+    "source": "00 actual API calls in isolated 06 runtime before binding correction",
+    "runtime_checkout": "5a4019e3815ae70ac9763e1954d165d5bfe1f08c",
+    "oauth_http": 200,
+    "balances_http": 403,
+    "diagnostic_name": "NOT_AUTHORIZED",
+    "balances_read_scope": false,
+    "merchant_identity_verified": false,
+    "products_created": 0,
+    "payments_performed": 0,
+    "official_signature_verified": false
+  },
+  "subsequent_runtime_state": {
+    "sandbox_api": false,
+    "new_purchase": "unconfigured",
+    "callback_window": "closed; independently confirmed process exit"
+  },
+  "correction_source": {
+    "shared": "ef321908e53965e79f2c4f3f5bca32f17ded00ac",
+    "billing": "518c425c3001ee04f24d5b5f79fafabdeb6e61b5"
+  },
+  "files": {
+    "h5-platform/config/billing.php": "f4eba7fe0154d83a370fce59189d0817033321888b2bb78b914ea0db79afe6e0",
+    "h5-platform/app/Support/RuntimeEnvironmentGuard.php": "9b1b4334d7ad366dd02678ddffecc019dda45f3114c97d086df64ee4f83d3f6b",
+    "h5-platform/app/Modules/Billing/Services/PayPalMerchantBinding.php": "5195540c4d90d8ef19c1906fec77080fd140ea290726ee2b4f76792940fb6398",
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxApi.php": "080c33568fc2abb63bb93f4956fe8db4bf4e20afa0f46c41d45955f02577f368",
+    "h5-platform/app/Modules/Billing/Console/PayPalPrepare.php": "4c71931cd6b039c66b64da2c2c39731df4e104068c952852d258b636a97a4c8e",
+    "h5-platform/app/Modules/Billing/Services/PayPalRuntime.php": "02a4682817b2b0b5aee4d15550c5cfa479f627305bf0d1f559143c48da58a356",
+    "h5-platform/app/Modules/Billing/Services/PayPalWebhookReceiver.php": "5a5b3f326a9368f91835b874104e3611f0b83ed80e20f3ecb2ad38c7de9cfcfc"
+  },
+  "scope": "No actual identifiers, credentials, private receipts or tunnel URL included."
+}
