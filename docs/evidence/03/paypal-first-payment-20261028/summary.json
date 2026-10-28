@@ -1,0 +1,21 @@
+{
+  "source_commit": "526857d444ac99eaf662b52895f022aa44550969",
+  "baseline": "ec3f6124f4e2e0c575c08ac144b2768de4a55b3f",
+  "contract": "1.0.5",
+  "test_environment": "03 isolated test database; mocked PayPal HTTP only",
+  "tests": 413,
+  "assertions": 5546,
+  "contract_examples": 59,
+  "runtime_checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "migrations_ran": 19,
+  "new_migrations": 0,
+  "official_provider_calls_by_03": false,
+  "official_original_payment_settlement_verified_by_03": false,
+  "official_webhook_verified_by_03": false
+}
