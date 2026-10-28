@@ -26,3 +26,12 @@
 03快速方案经00接收为带官方Dashboard来源的人工初始化绑定，随后固定App指纹/scope/Merchant ID并继续官方资源/真实付款链核验。语义见[共享附录补充](../contracts/paypal-sandbox-v1.md)，代码和官方验证仍待交付。07先核已有本人记录是否已覆盖同一App关联Business账号及Merchant ID，缺项才安排一次私密补齐，不重新申请余额权限。
 
 06初步回传：系统curl正常TLS对原外部/admin得到404、ssl_verify_result=0，原URL当前可达，不需要立即重建；夜间QUIC/DNS曾间歇断线重连。完整当前原始透传与Python差异诊断仍待交付，不能据此认定官方回调通过。
+
+
+## 公共地址约束及06关闭回执接收
+
+共享补丁ef321908e53965e79f2c4f3f5bca32f17ded00ac已交03/06，新增webhook_url配置、样例及严格域名HTTPS精确路径校验。00独立PayPalSharedConfigurationTest与RuntimeEnvironmentGuardTest共15项384断言通过；覆盖缺省准备、合法地址及HTTP、用户信息、非443、路径/查询/片段、IP/localhost等拒绝。没有改变既有业务DTO或开放新支付渠道。
+
+06固定cf0dee7已接收。完整15项边界与5项透传核对通过，实际同正文直达8406和桥记录上游均400；这只证明未就绪处理器的原始传输及拒绝，非官方验签。旧探针缺create_time及固定503假设已修正，失败初次回执保留。00独立解析最终证据并复核停止工具：旧两进程已退出、8408/8409关闭，网站8406/PG5906健康；当前没有活动公网回调，昨日地址不可继续用于注册。
+
+07核查原用户记录后确认仍缺App关联Business账号与该账号Merchant ID的精确核对。03正在实现持久绑定CLI及负向测试，06预备仅补ID/URL及人工来源回执的安全工具；本人无需重输Client ID/Secret。未提前生成任何“已核对”声明。
