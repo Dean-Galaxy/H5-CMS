@@ -3,6 +3,7 @@
 namespace Tests\Feature\Billing;
 
 use App\Contracts\RegionResolver;
+use App\Data\Checkout;
 use App\Data\CheckoutInput;
 use App\Data\ResolvedRegion;
 use App\Data\ViewerIdentity;
@@ -23,6 +24,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -54,6 +56,12 @@ final class PayPalRuntimeTest extends TestCase
     private bool $merchantUnavailable = false;
 
     private bool $missingPage = false;
+
+    private ?array $pageMetadata = null;
+
+    private int $unstableReads = -1;
+
+    private bool $subscriptionUnavailable = false;
 
     private bool $missingWebhookEvents = false;
 
@@ -442,6 +450,180 @@ final class PayPalRuntimeTest extends TestCase
         self::assertDatabaseCount('billing_orders', 0);
     }
 
+    public function test_actual_response_shape_settles_one_original_order_and_recheck_never_reopens_approval(): void
+    {
+        $order = $this->checkout();
+        $this->observedFirstCycle();
+        $this->travel(2)->minutes();
+        $result = $this->retryCheckout($order);
+        self::assertNull($result->checkout_url);
+        self::assertSame('paid', $result->state->value);
+        $this->sync($order);
+        $this->retryCheckout($order);
+        self::assertDatabaseCount('billing_orders', 1);
+        self::assertDatabaseCount('billing_subscriptions', 1);
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertDatabaseCount('billing_entitlements', 1);
+        self::assertDatabaseCount('billing_outbox', 1);
+        $payment = DB::table('billing_payments')->first();
+        self::assertSame('2026-10-27T06:00:00Z', BillingStore::iso($payment->period_start));
+        self::assertSame('2026-11-02T10:00:00Z', BillingStore::iso($payment->period_end));
+        self::assertSame(300, $payment->amount_minor);
+        self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+        self::assertSame(1, count(array_filter($this->calls, fn ($call) => $call === 'POST /v1/billing/subscriptions')));
+    }
+
+    public function test_observed_first_boundary_is_preserved_when_the_next_week_is_paid(): void
+    {
+        $order = $this->checkout();
+        $this->observedFirstCycle();
+        $this->sync($order);
+        $first = DB::table('billing_payments')->first();
+        $firstTransaction = $this->transactions[0];
+        $firstSale = $this->sales[self::SALE];
+        $this->travelTo(CarbonImmutable::parse('2026-11-02T10:01:00Z'));
+        $this->paid(2);
+        $this->transactions[0] = $firstTransaction;
+        $this->sales[self::SALE] = $firstSale;
+        $this->transactions[1]['time'] = $this->sales['RENEWAL1']['create_time'] = '2026-11-02T10:00:00Z';
+        $this->remote['billing_info']['last_payment']['time'] = '2026-11-02T10:00:00Z';
+        $this->remote['billing_info']['next_billing_time'] = '2026-11-09T10:00:00Z';
+        $this->sync($order);
+        $this->sync($order);
+        self::assertDatabaseCount('billing_payments', 2);
+        self::assertDatabaseCount('billing_entitlements', 2);
+        self::assertDatabaseCount('billing_outbox', 2);
+        self::assertSame((array) $first, (array) DB::table('billing_payments')->find($first->id));
+        $renewal = DB::table('billing_payments')->where('provider_charge_id', 'RENEWAL1')->first();
+        self::assertSame('2026-11-02T10:00:00Z', BillingStore::iso($renewal->period_start));
+        self::assertSame('2026-11-09T10:00:00Z', BillingStore::iso($renewal->period_end));
+    }
+
+    #[DataProvider('unprovenResponses')]
+    public function test_optional_metadata_does_not_weaken_payment_or_period_evidence(string $case): void
+    {
+        $order = $this->checkout();
+        $this->observedFirstCycle();
+        match ($case) {
+            'next-link' => $this->pageMetadata = ['links' => [['rel' => 'NEXT']]],
+            'mixed-next-link' => $this->pageMetadata = ['links' => [['rel' => 'NeXt']]],
+            'wrong-total' => $this->pageMetadata = ['total_items' => 2],
+            'zero-pages-with-items' => $this->pageMetadata = ['total_pages' => 0],
+            'future-payment' => $this->transactions[0]['time'] = '2026-10-28T06:01:22Z',
+            'future-price' => $this->plan['billing_cycles'][0]['pricing_scheme']['next_pricing_scheme'] = ['fixed_price' => ['value' => '4.0', 'currency_code' => 'USD']],
+            'null-total' => $this->pageMetadata = ['total_items' => null],
+            'too-long' => $this->remote['billing_info']['next_billing_time'] = '2026-11-03T06:00:01Z',
+            'inverted' => $this->remote['billing_info']['next_billing_time'] = '2026-10-27T05:00:00Z',
+            'paid-at-end' => $this->remote['billing_info']['next_billing_time'] = '2026-10-27T06:01:22Z',
+            'paid-before-start' => $this->remote['start_time'] = '2026-10-27T06:02:00Z',
+            'missing-transaction' => $this->remote['billing_info']['cycle_executions'][1]['cycles_completed'] = 1,
+            'missing-history' => $this->transactions = [],
+            'wrong-price' => $this->plan['billing_cycles'][0]['pricing_scheme']['fixed_price']['value'] = '4.0',
+            'wrong-sale' => $this->sales[self::SALE]['billing_agreement_id'] = 'I-OTHER',
+            'wrong-last-payment' => $this->remote['billing_info']['last_payment']['amount']['value'] = '12.0',
+            'debt' => $this->remote['billing_info']['outstanding_balance']['value'] = '0.01',
+            'failure' => $this->remote['billing_info']['failed_payments_count'] = 1,
+            'changed-read' => $this->unstableReads = 0,
+        };
+        try {
+            $this->sync($order);
+        } catch (RuntimeException) {
+        }
+        self::assertDatabaseCount('billing_payments', 0);
+        self::assertDatabaseCount('billing_entitlements', 0);
+        self::assertDatabaseCount('billing_outbox', 0);
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+        $diagnostic = DB::table('billing_orders')->first()->last_error;
+        if ($case !== 'missing-history') {
+            self::assertMatchesRegularExpression('/^PAYPAL_RECONCILE_(TRANSACTIONS|PLAN|SALES|STABLE_READ|CYCLE|HISTORY)$/', $diagnostic);
+        }
+    }
+
+    public static function unprovenResponses(): array
+    {
+        return array_map(fn ($case) => [$case], ['next-link', 'mixed-next-link', 'wrong-total', 'null-total', 'zero-pages-with-items', 'future-payment', 'future-price', 'too-long',
+            'inverted', 'paid-at-end', 'paid-before-start', 'missing-transaction', 'missing-history', 'wrong-price',
+            'wrong-sale', 'wrong-last-payment', 'debt', 'failure', 'changed-read']);
+    }
+
+    public function test_unobserved_short_first_period_cannot_be_backfilled_from_multiple_payments(): void
+    {
+        $order = $this->checkout();
+        $this->travel(8)->days();
+        $this->paid(2);
+        $this->pageMetadata = ['links' => [['rel' => 'SELF']]];
+        $this->remote['billing_info']['next_billing_time'] = '2026-11-09T10:00:00Z';
+        try {
+            $this->sync($order);
+            self::fail('Cannot infer an unobserved first boundary');
+        } catch (RuntimeException) {
+        }
+        self::assertDatabaseCount('billing_payments', 0);
+    }
+
+    public function test_changed_historical_anchor_cannot_rewrite_or_extend_paid_access(): void
+    {
+        $order = $this->checkout();
+        $this->observedFirstCycle();
+        $this->sync($order);
+        $original = (array) DB::table('billing_payments')->first();
+        $this->travel(8)->days();
+        $this->paid(2);
+        $this->remote['start_time'] = '2026-10-27T06:00:01Z';
+        try {
+            $this->sync($order);
+            self::fail('Changed anchor must fail');
+        } catch (RuntimeException) {
+        }
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertSame($original, (array) DB::table('billing_payments')->first());
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+    }
+
+    public function test_active_without_payment_or_unavailable_read_never_returns_stored_approval_url(): void
+    {
+        $order = $this->checkout();
+        $this->remote['status'] = 'ACTIVE';
+        self::assertNull($this->retryCheckout($order)->checkout_url);
+        self::assertDatabaseCount('billing_payments', 0);
+        $this->subscriptionUnavailable = true;
+        self::assertNull($this->retryCheckout($order)->checkout_url);
+        self::assertDatabaseCount('billing_orders', 1);
+        self::assertDatabaseCount('billing_subscriptions', 1);
+    }
+
+    public function test_explicit_recheck_reads_only_and_never_cancels_an_expired_approval(): void
+    {
+        $order = $this->checkout();
+        $this->travel(32)->minutes();
+        self::assertNull($this->retryCheckout($order)->checkout_url);
+        self::assertNotContains('POST /v1/billing/subscriptions/I-FIXTURE/cancel', $this->calls);
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+    }
+
+    private function retryCheckout(object $order): Checkout
+    {
+        return $this->billing->checkout($this->viewer(), new CheckoutInput($order->offer_id, $order->price_version, '/membership'),
+            substr($order->idempotency_key, strlen('client:')), null);
+    }
+
+    /** Reproduces the redacted field SHAPE, with synthetic IDs and dates. Not official evidence. */
+    private function observedFirstCycle(): void
+    {
+        $this->paid();
+        $this->pageMetadata = ['links' => [['rel' => 'SELF', 'method' => 'GET']]];
+        $this->remote['billing_info']['outstanding_balance']['value'] = '0.0';
+        $this->remote['billing_info']['last_payment']['amount']['value'] = '3.0';
+        $this->remote['billing_info']['last_payment']['time'] = '2026-10-27T06:01:22Z';
+        $this->remote['billing_info']['next_billing_time'] = '2026-11-02T10:00:00Z';
+        $this->transactions[0]['time'] = '2026-10-27T06:01:22.000Z';
+        $this->sales[self::SALE]['create_time'] = '2026-10-27T06:01:22Z';
+        $this->plan['billing_cycles'][0]['pricing_scheme']['fixed_price']['value'] = '3.0';
+        $this->plan['billing_cycles'][1]['pricing_scheme']['fixed_price']['value'] = '12.0';
+        $this->plan['payment_preferences']['setup_fee'] = ['value' => '0.0', 'currency_code' => 'USD'];
+        $this->travel(2)->minutes();
+    }
+
     private function checkout(): object
     {
         $offer = $this->billing->offer($this->viewer());
@@ -502,6 +684,14 @@ final class PayPalRuntimeTest extends TestCase
         if ($path === '/v1/oauth2/token' && $this->merchantUnavailable) {
             return new Response(403, [], '{"debug_id":"private-fixture-diagnostic"}');
         }
+        if ($path === '/v1/billing/subscriptions/I-FIXTURE') {
+            if ($this->subscriptionUnavailable) {
+                return new Response(503);
+            }
+            if ($this->unstableReads >= 0 && ++$this->unstableReads === 2) {
+                $this->remote['billing_info']['last_payment']['amount']['value'] = '4.00';
+            }
+        }
         $data = match (true) {
             $path === '/v1/oauth2/token' => ['access_token' => 'fixture-access', 'token_type' => 'Bearer', 'expires_in' => 3600],
             $path === '/v1/notifications/webhooks/1AB23456CD789012E' => ['id' => '1AB23456CD789012E', 'url' => 'https://billing.example.test/webhooks/paypal', 'event_types' => array_map(fn ($name) => ['name' => $name], $this->missingWebhookEvents ? ['PAYMENT.SALE.COMPLETED'] : SandboxApi::REQUIRED_WEBHOOK_EVENTS)],
@@ -512,7 +702,7 @@ final class PayPalRuntimeTest extends TestCase
             $path === '/v1/billing/subscriptions' && $method === 'POST' => $this->remote = ['id' => 'I-FIXTURE', 'plan_id' => $body['plan_id'], 'custom_id' => $body['custom_id'],
                 'quantity' => '1', 'plan_overridden' => false, 'status' => 'APPROVAL_PENDING', 'links' => [['rel' => 'approve', 'method' => 'GET', 'href' => 'https://www.sandbox.paypal.com/webapps/billing/subscriptions?ba_token=BA-FIXTURE']]],
             $path === '/v1/billing/subscriptions/I-FIXTURE' => $this->remote,
-            str_ends_with($path, '/transactions') => ['transactions' => $this->transactions, 'total_items' => count($this->transactions), 'total_pages' => $this->missingPage ? 2 : 1],
+            str_ends_with($path, '/transactions') => ['transactions' => $this->transactions] + ($this->pageMetadata ?? ['total_items' => count($this->transactions), 'total_pages' => $this->missingPage ? 2 : 1]),
             str_starts_with($path, '/v1/payments/sale/') => $this->sales[basename($path)] ?? [],
             str_starts_with($path, '/v1/payments/refund/') => $this->refund,
             $path === '/v1/notifications/verify-webhook-signature' => ['verification_status' => $this->validSignature ? 'SUCCESS' : 'FAILURE'],

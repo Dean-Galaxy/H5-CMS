@@ -26,7 +26,6 @@ use App\Enums\SubscriptionAction;
 use App\Enums\SubscriptionState;
 use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
-use App\Modules\Billing\Gateway\PayPal\SandboxSubscriptionRequest;
 use App\Modules\Billing\Gateway\ProviderGatewayRouter;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Support\CheckoutSafety;
@@ -135,6 +134,15 @@ final class BillingEngine implements BillingService, MembershipReader
         });
         if ($order->state === 'processing' && $order->checkout_id === null) {
             $this->executeCheckout($order->id);
+        }
+        if ($priorOrder && $order->provider === 'paypal' && $order->checkout_id
+            && in_array($order->state, ['processing', 'pending'], true)) {
+            try {
+                // Explicit retry of this viewer's original checkout. No provider lifecycle writes.
+                app(PayPalReconciliation::class)->sync($order->subscription_id, allowLifecycleChanges: false);
+            } catch (\Throwable) {
+                // Preserve occupancy; an incomplete observation never grants membership.
+            }
         }
         $order = DB::table('billing_orders')->find($order->id);
         if ($order->checkout_id === null && in_array($order->state, ['processing', 'review_required'], true)) {
@@ -607,15 +615,7 @@ final class BillingEngine implements BillingService, MembershipReader
         if ($order->provider === 'paypal') {
             $url = null;
             try {
-                app(SandboxApi::class)->configurationStamp(ProviderScope::fromRecord($order));
-                $prepared = BillingStore::json($order->checkout_request);
-                $expected = new SandboxSubscriptionRequest($prepared['params']['plan_id'], $order->id, $order);
-                if ($prepared['params'] == $expected->payload() && $order->state === 'pending' && $order->checkout_prepared_at
-                    && now()->lt(CarbonImmutable::parse($order->checkout_prepared_at)->addMinutes(31))) {
-                    $url = SandboxSubscriptionRequest::approvalUrl([
-                        'status' => 'APPROVAL_PENDING', 'links' => [['rel' => 'approve', 'method' => 'GET', 'href' => $order->checkout_url]],
-                    ]);
-                }
+                $url = app(PayPalReconciliation::class)->approvalUrl($order);
             } catch (\Throwable) {
                 // Never expose an unsafe or stale persisted approval URL.
             }
