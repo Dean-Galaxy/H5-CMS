@@ -31,8 +31,13 @@ final readonly class ExternalPayment
                 throw new InvalidArgumentException('BILLING_PAYMENT_FACT_INVALID');
             }
         }
+        $seconds = $periodEnd->getTimestamp() - $periodStart->getTimestamp();
+        // PayPal's observed first next-billing boundary may be shorter than 168 hours.
+        // Only its evidence verifier may produce this fact; Stripe and renewals stay exact WEEK.
+        $validPeriod = $scope->provider === 'paypal' && $firstCycle
+            ? $seconds > 0 && $seconds <= 604800 : $seconds === 604800;
         if ($currency !== 'USD' || $amountMinor < 1 || $regularAmountMinor < $amountMinor
-            || $regularAmountMinor > 99999999 || $periodEnd->getTimestamp() - $periodStart->getTimestamp() !== 604800) {
+            || $regularAmountMinor > 99999999 || ! $validPeriod) {
             throw new InvalidArgumentException('BILLING_PAYMENT_FACT_INVALID');
         }
     }

@@ -30,8 +30,21 @@ final class WeeklyCycleEvidence
         }
         $this->check($executed > 0 && count($transactions) === $executed && count($sales) === $executed);
         $end = self::time($info['next_billing_time'] ?? null);
-        $this->check($end->getTimestamp() === $start->getTimestamp() + $executed * 604800);
         usort($transactions, fn ($a, $b) => self::time($a['time'] ?? null) <=> self::time($b['time'] ?? null));
+        // A single completed execution has an unambiguous provider-reported next boundary.
+        // Persist that first boundary. Later reads must never shift an already paid interval.
+        $firstKnown = $known[$transactions[0]['id'] ?? ''] ?? null;
+        if ($firstKnown) {
+            $this->check(CarbonImmutable::parse($firstKnown->period_start)->equalTo($start));
+            $firstEnd = CarbonImmutable::parse($firstKnown->period_end)->utc();
+        } elseif ($executed === 1) {
+            $firstEnd = $end;
+        } else {
+            // Without a first-cycle observation, only the original exact WEEK sequence is provable.
+            $firstEnd = $start->addSeconds(604800);
+        }
+        $this->check($firstEnd->gt($start) && $firstEnd->lte($start->addSeconds(604800))
+            && $end->equalTo($firstEnd->addSeconds(($executed - 1) * 604800)));
         $facts = [];
         $ids = [];
         foreach ($transactions as $i => $transaction) {
@@ -47,8 +60,8 @@ final class WeeklyCycleEvidence
                 && PayPalAmount::minor($sale['amount']['total'] ?? null, $sale['amount']['currency'] ?? null) === $amount);
             $paid = self::time($transaction['time'] ?? null);
             $this->check(self::time($sale['create_time'] ?? null)->equalTo($paid));
-            $from = $start->addSeconds($i * 604800);
-            $until = $from->addSeconds(604800);
+            $from = $i === 0 ? $start : $firstEnd->addSeconds(($i - 1) * 604800);
+            $until = $i === 0 ? $firstEnd : $from->addSeconds(604800);
             // Time alone NEVER chooses a period: execution counts, anchor, next boundary,
             // complete history and an independently read Sale must all agree first.
             $this->check($paid->gte($from) && $paid->lt($until));

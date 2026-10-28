@@ -6,6 +6,7 @@ namespace App\Modules\Billing\Services;
 
 use App\Modules\Billing\Gateway\PayPal\PayPalAmount;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
+use App\Modules\Billing\Gateway\PayPal\SandboxSubscriptionRequest;
 use App\Modules\Billing\Gateway\PayPal\SandboxWeeklyPlan;
 use App\Modules\Billing\Gateway\PayPal\WeeklyCycleEvidence;
 use App\Modules\Billing\Gateway\PayPal\WeeklyPlanVerifier;
@@ -25,10 +26,11 @@ final class PayPalReconciliation
         $this->api->configurationStamp(ProviderScope::fromRecord($sub));
     }
 
-    public function sync(string $subscriptionId): void
+    public function sync(string $subscriptionId, bool $allowLifecycleChanges = true): void
     {
+        $stage = 'IDENTITY';
         try {
-            DB::transaction(function () use ($subscriptionId) {
+            DB::transaction(function () use ($subscriptionId, $allowLifecycleChanges, &$stage) {
                 $sub = DB::table('billing_subscriptions')->find($subscriptionId) ?? throw new RuntimeException('PAYPAL_SUBSCRIPTION_UNKNOWN');
                 BillingStore::lock($sub->viewer_id);
                 $sub = DB::table('billing_subscriptions')->find($subscriptionId);
@@ -39,31 +41,38 @@ final class PayPalReconciliation
                 $paidUntil = DB::table('billing_payments')->where('subscription_id', $sub->id)->max('period_end');
                 $expiredSuspension = $status === 'SUSPENDED' && $sub->desired_renewal === false
                     && ($paidUntil === null || now()->gte(CarbonImmutable::parse($paidUntil)));
-                if ($expiredApproval || $expiredSuspension) {
+                if ($allowLifecycleChanges && ($expiredApproval || $expiredSuspension)) {
                     $this->api->cancel($sub->provider_id);
                     [$order, $remote, $scope, $stamp] = $this->read($sub);
                     $this->require(in_array($remote['status'], ['CANCELLED', 'EXPIRED'], true));
                     $status = $remote['status'];
                 }
+                $stage = 'TRANSACTIONS';
                 $transactions = $this->transactions($sub, $order);
                 $this->sameConfiguration($scope, $stamp);
                 $known = DB::table('billing_payments')->where('subscription_id', $sub->id)->get()->keyBy('provider_charge_id');
                 $unknown = array_filter($transactions, fn ($t) => ! isset($known[$t['id'] ?? '']));
                 if ($unknown) {
+                    $stage = 'PLAN';
                     $this->verifyPlan($sub, $order, $remote);
+                    $stage = 'SALES';
                     $sales = [];
                     foreach ($transactions as $transaction) {
                         $id = $transaction['id'] ?? null;
                         $this->require(is_string($id));
                         $sales[$id] = $this->api->sale($id);
                     }
+                    $stage = 'STABLE_READ';
                     // Detect state/cycle changes across the multi-read observation.
                     $again = $this->api->subscription($sub->provider_id);
                     $this->sameConfiguration($scope, $stamp);
                     foreach (['id', 'custom_id', 'plan_id', 'start_time', 'status', 'billing_info', 'subscriber', 'plan_overridden'] as $key) {
                         $this->require(($again[$key] ?? null) === ($remote[$key] ?? null));
                     }
-                    foreach ((new WeeklyCycleEvidence)->payments($sub, $order, $remote, $transactions, $sales, $known->all()) as $fact) {
+                    $stage = 'CYCLE';
+                    $facts = (new WeeklyCycleEvidence)->payments($sub, $order, $remote, $transactions, $sales, $known->all());
+                    $stage = 'LEDGER';
+                    foreach ($facts as $fact) {
                         $this->observe($sub, 'paid_cycle', $fact->reference, [
                             'period_start' => BillingStore::iso($fact->periodStart), 'period_end' => BillingStore::iso($fact->periodEnd),
                             'paid_at' => BillingStore::iso($fact->paidAt), 'amount_minor' => $fact->amountMinor, 'currency' => 'USD',
@@ -73,6 +82,7 @@ final class PayPalReconciliation
                         $this->ledger->record($sub->id, $fact);
                     }
                 }
+                $stage = 'HISTORY';
                 $known = DB::table('billing_payments')->where('subscription_id', $sub->id)->get()->keyBy('provider_charge_id');
                 $this->require(count($transactions) === count($known));
                 foreach ($transactions as $transaction) {
@@ -122,9 +132,31 @@ final class PayPalReconciliation
             });
         } catch (Throwable $error) {
             // Preserve a reversal stop intent even when the observation transaction rolls back.
-            $this->markPending($subscriptionId, $error->getMessage() === 'PAYPAL_SALE_REVIEW_REQUIRED');
+            $this->markPending($subscriptionId, $error->getMessage() === 'PAYPAL_SALE_REVIEW_REQUIRED', 'PAYPAL_RECONCILE_'.$stage);
             throw new RuntimeException('PAYPAL_RECONCILIATION_REQUIRED');
         }
+    }
+
+    /** Fresh official read only: a stored URL never proves that approval is still needed. */
+    public function approvalUrl(object $order): ?string
+    {
+        return DB::transaction(function () use ($order) {
+            BillingStore::lock($order->viewer_id);
+            $order = DB::table('billing_orders')->find($order->id);
+            $sub = DB::table('billing_subscriptions')->find($order->subscription_id);
+            if ($order->state !== 'pending' || $order->payment_state !== 'pending' || $sub->state !== 'pending'
+                || $sub->desired_renewal === false || $sub->refund_stopped || ! $order->checkout_prepared_at
+                || now()->gte(CarbonImmutable::parse($order->checkout_prepared_at)->addMinutes(31))) {
+                return null;
+            }
+            [, $remote, $scope, $stamp] = $this->read($sub);
+            $prepared = BillingStore::json($order->checkout_request);
+            $this->require(($prepared['params'] ?? null) == (new SandboxSubscriptionRequest($remote['plan_id'], $order->id, $order))->payload());
+            $this->verifyPlan($sub, $order, $remote);
+            $this->sameConfiguration($scope, $stamp);
+
+            return SandboxSubscriptionRequest::approvalUrl($remote);
+        });
     }
 
     /** Called while BillingEngine holds the account lock and current operation version. */
@@ -307,10 +339,12 @@ final class PayPalReconciliation
             $end = $from->addDays(30)->min($until);
             $page = $this->api->transactions($sub->provider_id, $from->toDateTimeImmutable(), $end->toDateTimeImmutable());
             $items = $page['transactions'] ?? null;
-            $this->require(is_array($items) && array_is_list($items) && ($page['total_items'] ?? null) === count($items)
-                && in_array($page['total_pages'] ?? null, [0, 1], true));
+            $this->require(is_array($items) && array_is_list($items)
+                && (! array_key_exists('total_items', $page) || $page['total_items'] === count($items))
+                && (! array_key_exists('total_pages', $page) || in_array($page['total_pages'], count($items) ? [1] : [0, 1], true))
+                && (! array_key_exists('links', $page) || (is_array($page['links']) && array_is_list($page['links']))));
             foreach ($page['links'] ?? [] as $link) {
-                $this->require(($link['rel'] ?? null) !== 'next');
+                $this->require(is_array($link) && is_string($link['rel'] ?? null) && strtolower($link['rel']) !== 'next');
             }
             foreach ($items as $item) {
                 $id = $item['id'] ?? null;
@@ -334,14 +368,18 @@ final class PayPalReconciliation
             'fingerprint' => $fingerprint, 'facts' => json_encode($facts, JSON_THROW_ON_ERROR), 'observed_at' => now()]);
     }
 
-    private function markPending(string $subId, bool $stop = false): void
+    private function markPending(string $subId, bool $stop = false, ?string $diagnostic = null): void
     {
         $sub = DB::table('billing_subscriptions')->find($subId);
         if (! $sub) {
             return;
         }
-        DB::transaction(function () use ($sub, $stop) {
+        DB::transaction(function () use ($sub, $stop, $diagnostic) {
             BillingStore::lock($sub->viewer_id);
+            if ($diagnostic !== null) {
+                DB::table('billing_orders')->where('id', $sub->first_order_id)->whereIn('state', ['processing', 'pending'])
+                    ->update(['last_error' => $diagnostic, 'updated_at' => now()]);
+            }
             DB::table('billing_subscriptions')->where('id', $sub->id)->update(['resolution_required' => true, 'updated_at' => now()]
                 + ($stop ? ['desired_renewal' => false] : []));
         });
