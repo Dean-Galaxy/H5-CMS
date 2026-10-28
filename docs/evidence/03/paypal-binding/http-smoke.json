@@ -1,0 +1,24 @@
+{
+  "network": "loopback only",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 503,
+      "expected": 503
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/billing/subscription/cancel",
+      "status": 419,
+      "expected": 419
+    }
+  ],
+  "official_verification": "not performed"
+}

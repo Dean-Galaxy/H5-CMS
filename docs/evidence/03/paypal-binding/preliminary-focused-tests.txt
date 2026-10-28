@@ -1,0 +1,82 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   FAIL  Tests\Feature\Billing\PayPalMerchantBindingTest
+  ⨯ offline context does not authenticate or claim identity              0.28s
+  ✓ oauth success and hand filled merchant never create binding          0.15s
+  ⨯ explicit private receipt and oauth bind without product webhook or…  0.14s
+  ✓ incomplete wrong or stale operator evidence cannot bind              0.12s
+  ✓ unsafe receipt files are rejected before authentication              0.12s
+  ✓ failed authentication never seals operator receipt                   0.12s
+  ✓ client merchant and scope changes never rebind existing context      0.11s
+  ✓ secret rotation requires new authentication but preserves binding    0.11s
+  ✓ official webhook read must match id and expected callback            0.11s
+
+   FAIL  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.18s
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.15s
+  ✓ renewal uses original price and original period when delivery is la… 0.14s
+  ✓ failed renewal never adds access and blocks second purchase          0.13s
+  ✓ partial then full refund only revokes its payment and stops renewal  0.14s
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.11s
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.14s
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.13s
+  ⨯ setup checks existing binding and creates one product without webho… 0.13s
+  ✓ unconfigured new purchase stays disabled even after setup            0.11s
+  ✓ refund correction restores only original interval without restoring… 0.14s
+  ✓ terminal without proof of no payment retains unique occupancy        0.12s
+  ✓ late cancel event rereads current provider state and cannot extend…  0.14s
+  ✓ unavailable app authentication is a safe diagnostic and cannot crea… 0.12s
+  ✓ wrong sale binding amount or currency cannot grant access            0.13s
+  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 0.13s
+  ✓ lagging transaction history cannot release a terminal subscription   0.14s
+  ✓ reversal stop intent survives failed read transaction                0.14s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\PayPalMerchantBinding…  AssertionFailedError
+  Output does not contain ""merchant_binding_valid":false".
+
+  at tests/Feature/Billing/PayPalMerchantBindingTest.php:80
+     76▕     {
+     77▕         $this->artisan('billing:paypal-prepare', ['--binding-context' => true])
+     78▕             ->expectsOutputToContain('"client_id_sha256":"'.hash('sha256', 'private-fixture-client').'"')
+     79▕             ->expectsOutputToContain('"merchant_binding_valid":false')
+  ➜  80▕             ->expectsOutputToContain('"api_merchant_identity_verified":false')->assertExitCode(0);
+     81▕         self::assertSame([], $this->calls);
+     82▕         self::assertDatabaseCount('billing_paypal_merchant_bindings', 0);
+     83▕     }
+     84▕
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\PayPalMerchantBinding…  AssertionFailedError
+  Output does not contain ""binding_source":"operator_dashboard"".
+
+  at tests/Feature/Billing/PayPalMerchantBindingTest.php:100
+     96▕         $file = $this->receipt();
+     97▕         $this->artisan('billing:paypal-prepare', ['--bind-merchant' => $file])
+     98▕             ->expectsOutputToContain('"merchant_binding_valid":true')
+     99▕             ->expectsOutputToContain('"binding_source":"operator_dashboard"')
+  ➜ 100▕             ->expectsOutputToContain('"api_merchant_identity_verified":false')->assertExitCode(0);
+    101▕         $before = DB::table('billing_paypal_merchant_bindings')->first();
+    102▕         $this->binding->bindReceipt($file);
+    103▕         self::assertEquals($before, DB::table('billing_paypal_merchant_bindings')->first());
+    104▕         self::assertSame(['POST /v1/oauth2/token', 'POST /v1/oauth2/token'], $this->calls);
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\PayPalRuntimeTest > s…  AssertionFailedError
+  Output does not contain ""api_merchant_identity_verified":false".
+
+  at tests/Feature/Billing/PayPalRuntimeTest.php:264
+    260▕             'billing.paypal.webhook_url' => null, 'billing.paypal.product_id' => null]);
+    261▕         $this->artisan('billing:paypal-prepare')->expectsOutputToContain('PAYPAL_NOT_CONFIGURED')->assertExitCode(1);
+    262▕         self::assertCount(0, $this->calls);
+    263▕         $this->artisan('billing:paypal-prepare', ['--check-merchant' => true])
+  ➜ 264▕             ->expectsOutputToContain('"merchant_binding_valid":true')->expectsOutputToContain('"api_merchant_identity_verified":false')->assertExitCode(0);
+    265▕         $this->artisan('billing:paypal-prepare', ['--create-product' => true])
+    266▕             ->expectsOutputToContain('"product_id":"'.self::PRODUCT.'"')->assertExitCode(0);
+    267▕         $this->artisan('billing:paypal-prepare', ['--create-product' => true])->assertExitCode(0);
+    268▕         self::assertSame(1, count(array_filter($this->calls, fn ($call) => $call === 'POST /v1/catalogs/products')));
+
+
+  Tests:    3 failed, 24 passed (519 assertions)
+  Duration: 3.85s
