@@ -45,7 +45,8 @@ def state(root,candidate,enable,autoload=None,after_write=False):
 
 def official_readiness(root,values):
     result=subprocess.run([PHP,str(root/'h5-platform/artisan'),'billing:paypal-prepare','--check-readiness'],
-                          cwd=root/'h5-platform',capture_output=True,text=True,timeout=120)
+                          cwd=root/'h5-platform',capture_output=True,text=True,timeout=120,
+                          env={'PATH':'/opt/homebrew/bin:/usr/bin:/bin','LANG':'C'})
     if result.returncode!=0:raise ValueError('OFFICIAL_READINESS_FAILED')
     report=json.loads(result.stdout)
     required=('configuration_valid','network_requested','merchant_binding_valid','app_authenticated',
@@ -54,7 +55,9 @@ def official_readiness(root,values):
         or report.get('binding_source')!='operator_dashboard' or report.get('diagnostic_code') is not None
         or report.get('missing')!=[] or report.get('api_merchant_identity_verified') is not False
         or report.get('merchant_verified') is not False
-        or report.get('official_payment_verification')!='not_performed'):
+        or report.get('official_payment_verification')!='not_performed'
+        or not values.get(PREFIX+'MERCHANT_ID') or report.get('merchant_id')!=values.get(PREFIX+'MERCHANT_ID')
+        or not values.get(PREFIX+'PRODUCT_ID') or report.get('product_id')!=values.get(PREFIX+'PRODUCT_ID')):
         raise ValueError('OFFICIAL_READINESS_INCOMPLETE')
     # All resource ownership/amount/event judgments stay in 03, not this tool.
 

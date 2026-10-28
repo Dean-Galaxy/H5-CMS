@@ -132,17 +132,19 @@ class PurchaseSwitchTests(unittest.TestCase):
     def test_official_cli_requires_all_ready_flags_and_no_error(self):
         self.ready_patch.stop()
         valid={k:True for k in ('configuration_valid','network_requested','merchant_binding_valid','app_authenticated','webhook_registration_valid','product_valid','purchase_readiness_valid')}
-        valid.update(binding_source='operator_dashboard',diagnostic_code=None,missing=[],api_merchant_identity_verified=False,merchant_verified=False,official_payment_verification='not_performed')
+        expected={legacy.PREFIX+'MERCHANT_ID':'SYNTHETICMERCHANT',legacy.PREFIX+'PRODUCT_ID':'PROD-SYNTHETIC'}
+        valid.update(merchant_id='SYNTHETICMERCHANT',product_id='PROD-SYNTHETIC',binding_source='operator_dashboard',diagnostic_code=None,missing=[],api_merchant_identity_verified=False,merchant_verified=False,official_payment_verification='not_performed')
         with patch.object(module.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout=json.dumps(valid))) as run:
-            module.official_readiness(self.root,{})
+            module.official_readiness(self.root,expected)
             self.assertEqual('--check-readiness',run.call_args.args[0][-1])
+            self.assertEqual({'PATH':'/opt/homebrew/bin:/usr/bin:/bin','LANG':'C'},run.call_args.kwargs['env'])
         for key in ('configuration_valid','network_requested','merchant_binding_valid','app_authenticated','webhook_registration_valid','product_valid','purchase_readiness_valid'):
             for value in (False,'true',1):
                 with patch.object(module.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout=json.dumps({**valid,key:value}))):
-                    with self.assertRaises(ValueError):module.official_readiness(self.root,{})
-        for update in ({'diagnostic_code':'FAILED'},{'missing':['webhook_url']},{'binding_source':'guessed'},{'api_merchant_identity_verified':True}):
+                    with self.assertRaises(ValueError):module.official_readiness(self.root,expected)
+        for update in ({'diagnostic_code':'FAILED'},{'missing':['webhook_url']},{'binding_source':'guessed'},{'api_merchant_identity_verified':True},{'merchant_id':'OTHER'},{'product_id':'PROD-OTHER'}):
             with patch.object(module.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout=json.dumps({**valid,**update}))):
-                with self.assertRaises(ValueError):module.official_readiness(self.root,{})
+                with self.assertRaises(ValueError):module.official_readiness(self.root,expected)
         self.ready_patch.start()
  
     def test_unreviewed_operation_source_refused(self):
