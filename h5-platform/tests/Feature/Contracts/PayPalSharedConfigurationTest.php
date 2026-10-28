@@ -45,6 +45,41 @@ class PayPalSharedConfigurationTest extends TestCase
         }
     }
 
+    public function test_webhook_registration_target_is_optional_but_strictly_callback_only(): void
+    {
+        $guard = app(RuntimeEnvironmentGuard::class);
+        foreach ([null, '', 'https://callback.example.test/webhooks/paypal', 'https://callback.example.test:443/webhooks/paypal'] as $url) {
+            config(['billing.paypal.webhook_url' => $url]);
+            $guard->assertSafeRuntime();
+            $this->assertSame($url, config('billing.paypal.webhook_url'));
+        }
+        foreach ([
+            'http://callback.example.test/webhooks/paypal',
+            'https://user:password@callback.example.test/webhooks/paypal',
+            'https://callback.example.test:8443/webhooks/paypal',
+            'https://callback.example.test/webhooks/paypal?x=1',
+            'https://callback.example.test/webhooks/paypal#fragment',
+            'https://callback.example.test/webhooks/paypal/',
+            'https://callback.example.test/admin',
+            'https://callback.example.test/%77ebhooks/paypal',
+            'https://127.0.0.1/webhooks/paypal',
+            'https://localhost/webhooks/paypal',
+            'https://a.localhost/webhooks/paypal',
+            'https://callback.example.test./webhooks/paypal',
+            '//callback.example.test/webhooks/paypal',
+            'https://callback.example.test/webhooks/paypal' . "\n",
+            false,
+        ] as $url) {
+            config(['billing.paypal.webhook_url' => $url]);
+            try {
+                $guard->assertSafeRuntime();
+                $this->fail('Unsafe webhook registration target accepted');
+            } catch (LogicException $e) {
+                $this->assertContains($e->getMessage(), ['PAYPAL_WEBHOOK_URL_INVALID', 'PAYPAL_CONFIGURATION_INVALID']);
+            }
+        }
+    }
+
     public function test_paypal_is_rejected_in_production_and_uncontrolled_staging(): void
     {
         $before = [$_SERVER['APP_ENV'] ?? null, $_ENV['APP_ENV'] ?? null, getenv('APP_ENV')];

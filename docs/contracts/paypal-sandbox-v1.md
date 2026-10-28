@@ -13,6 +13,7 @@
 | billing.paypal.client_id | H5_BILLING_PAYPAL_SANDBOX_CLIENT_ID | 服务器专用，默认空 |
 | billing.paypal.client_secret | H5_BILLING_PAYPAL_SANDBOX_CLIENT_SECRET | 秘密，默认空，不输出 |
 | billing.paypal.webhook_id | H5_BILLING_PAYPAL_SANDBOX_WEBHOOK_ID | 本App实际注册ID；拒绝模拟器字面量WEBHOOK_ID |
+| billing.paypal.webhook_url | H5_BILLING_PAYPAL_SANDBOX_WEBHOOK_URL | 可空以完成准备；运行需实际注册HTTPS地址，03官方读回后精确比较。只允许域名、可选443端口及/webhooks/paypal，不含用户信息、查询或片段；不作为出站请求目标 |
 | billing.paypal.merchant_id | H5_BILLING_PAYPAL_SANDBOX_MERCHANT_ID | Sandbox卖家ID，由03核对实际收款方 |
 | billing.paypal.merchant_scope | H5_BILLING_PAYPAL_SANDBOX_MERCHANT_SCOPE | 固定商户别名，首位小写字母/数字，其余小写字母/数字/下划线/连字符，最长64；换商户另scope |
 | billing.paypal.product_id | H5_BILLING_PAYPAL_SANDBOX_PRODUCT_ID | 本App Sandbox产品ID，由03核验；无虚构默认产品 |
@@ -52,7 +53,7 @@ F01恢复续费未完成官方原价、原时间、不立即扣款验证前不�
 
 ## 2026-10-28 商户初始化绑定补充（00接收方向，运行实现待验）
 
-本轮官方OAuth200、余额接口403且无余额读取scope，确认不能将余额接口作为普通订阅应用的必需前置。配置字段、公共业务DTO/OpenAPI1.0.5不变；下述仅明确商户初始化的证明来源，不是付款或商户资格通过。
+本轮官方OAuth200、余额接口403且无余额读取scope，确认不能将余额接口作为普通订阅应用的必需前置。新增可选webhook_url配置以核对专用桥的真实外部地址（不能用本机APP_URL代替）；公共业务DTO/OpenAPI1.0.5不变；下述仅明确商户初始化的证明来源，不是付款或商户资格通过。
 
 - 07指导本人核对已私密保存凭据对应的同一Sandbox Merchant App，以及该App关联的Business账号；再核对该账号详情中的Merchant/Account ID。记录实际核对来源、时间和本机私密回执引用。单独填入ID、另一账号的截图、OAuth app_id或OAuth200都不能替代此对应关系核对。
 - 03以显式管理CLI封存带来源的人工绑定，持久绑定scope、Client ID SHA256、Merchant ID和核对回执。运行缺失/不匹配时拒绝相应付款操作，不能自动创建绑定或静默换账号。Secret轮换不等同改App，仍需官方认证通过；更换Client ID、Merchant ID或scope必须独立审查及迁移，不能重用原账务归属。

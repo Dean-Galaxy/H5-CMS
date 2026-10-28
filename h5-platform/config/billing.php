@@ -9,6 +9,7 @@ return [
         'client_id' => env('H5_BILLING_PAYPAL_SANDBOX_CLIENT_ID'),
         'client_secret' => env('H5_BILLING_PAYPAL_SANDBOX_CLIENT_SECRET'),
         'webhook_id' => env('H5_BILLING_PAYPAL_SANDBOX_WEBHOOK_ID'),
+        'webhook_url' => env('H5_BILLING_PAYPAL_SANDBOX_WEBHOOK_URL'),
         'merchant_id' => env('H5_BILLING_PAYPAL_SANDBOX_MERCHANT_ID'),
         'merchant_scope' => env('H5_BILLING_PAYPAL_SANDBOX_MERCHANT_SCOPE'),
         'product_id' => env('H5_BILLING_PAYPAL_SANDBOX_PRODUCT_ID'),

@@ -46,13 +46,18 @@ final class RuntimeEnvironmentGuard
         $this->require(in_array($provider, ['unconfigured', 'stripe', 'paypal'], true), 'BILLING_PURCHASE_PROVIDER_INVALID');
         $paypal = config('billing.paypal', ['enabled' => false]);
         $this->require(is_array($paypal) && is_bool($paypal['enabled'] ?? null), 'PAYPAL_ENABLED_INVALID');
-        $keys = ['enabled', 'client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope', 'product_id'];
+        $keys = ['enabled', 'client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope', 'product_id', 'webhook_url'];
         $this->require(array_diff(array_keys($paypal), $keys) === [], 'PAYPAL_CONFIGURATION_INVALID');
         foreach (array_slice($keys, 1) as $key) {
             $value = $paypal[$key] ?? null;
             $this->require($value === null || $value === '' || (is_string($value)
                 && preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $value) === 1), 'PAYPAL_CONFIGURATION_INVALID');
         }
+        $webhookUrl = $paypal['webhook_url'] ?? null;
+        // Comparison target only. No network request is ever made to this configured URL.
+        $this->require($webhookUrl === null || $webhookUrl === '' || (strlen($webhookUrl) <= 2048
+            && preg_match('~\Ahttps://([a-zA-Z0-9.-]+)(?::443)?/webhooks/paypal\z~D', $webhookUrl, $match) === 1
+            && $this->hostname($match[1])), 'PAYPAL_WEBHOOK_URL_INVALID');
         $scope = $paypal['merchant_scope'] ?? null;
         $this->require($scope === null || $scope === '' || preg_match('/\A[a-z0-9][a-z0-9_-]{0,63}\z/D', $scope) === 1,
             'PAYPAL_SCOPE_INVALID');
