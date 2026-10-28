@@ -1,0 +1,74 @@
+{
+  "runtime_candidate": "cfd24cbb6fe42ab959bd547d7ca70a02a8f2ae35",
+  "manual_first_payment_page_confirmed": true,
+  "manual_cancel_page_confirmed": true,
+  "read_only_verification": {
+    "official_subscription_matches": true,
+    "official_status": "SUSPENDED",
+    "official_cancel_reason_matches_customer_stop": true,
+    "local_state": "canceling",
+    "local_provider_status": "SUSPENDED",
+    "renewal_enabled": false,
+    "desired_renewal": false,
+    "resolution_required": false,
+    "refund_stopped": false,
+    "order_state": "paid",
+    "payment_state": "succeeded",
+    "membership_access_active": true,
+    "subscription_interval_preserved": true,
+    "payment_interval_matches_paid_interval": true,
+    "entitlement_interval_matches_payment": true,
+    "entitlement_revoked": false,
+    "amount_and_currency_preserved": true,
+    "refunded_amount_minor": 0,
+    "official_transaction_count": 1,
+    "official_original_transaction_only": true,
+    "official_sale_state": "completed",
+    "official_sale_scope_matches": true,
+    "cancel_operations": [
+      {
+        "kind": "cancel",
+        "state": "succeeded",
+        "last_error": null
+      }
+    ],
+    "cancellation_event_count": 1,
+    "cancellation_inbox": {
+      "event_type": "BILLING.SUBSCRIPTION.SUSPENDED",
+      "state": "processed",
+      "attempts": 1,
+      "last_error": null,
+      "processed": true
+    },
+    "last_reconciled_after_cancel_event": true,
+    "counts": {
+      "billing_orders": 1,
+      "billing_subscriptions": 1,
+      "billing_payments": 1,
+      "billing_entitlements": 1,
+      "billing_refunds": 0,
+      "billing_inbox": 2,
+      "billing_outbox": 1
+    }
+  },
+  "shutdown": {
+    "api_enabled": "false",
+    "new_purchase_provider": "unconfigured",
+    "closed_ports": {
+      "8406": true,
+      "5906": true,
+      "8407": true,
+      "8408": true,
+      "8409": true
+    },
+    "credentials_preserved": true,
+    "database_backup_archive_readable": true,
+    "database_backup_bytes": 131666,
+    "runtime_candidate": "cfd24cbb6fe42ab959bd547d7ca70a02a8f2ae35"
+  },
+  "extra_official_duplicate_delivery_observed": false,
+  "automatic_renewal_verified": false,
+  "paid_period_expiry_verified": false,
+  "resume_verified": false,
+  "live_enabled": false
+}
