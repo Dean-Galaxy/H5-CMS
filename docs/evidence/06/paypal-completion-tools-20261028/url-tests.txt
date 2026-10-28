@@ -1,0 +1,23 @@
+test_actual_command_extra_origin_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_actual_command_extra_origin_rejected) ... ok
+test_api_on_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_api_on_rejected) ... ok
+test_candidate_mismatch_and_missing_shared_field_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_candidate_mismatch_and_missing_shared_field_rejected) ... ok
+test_candidate_without_field_even_when_clean_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_candidate_without_field_even_when_clean_rejected) ... ok
+test_change_during_backup_refused (test_paypal_complete_webhook_url.URLCompletionTests.test_change_during_backup_refused) ... ok
+test_check_is_readonly (test_paypal_complete_webhook_url.URLCompletionTests.test_check_is_readonly) ... ok
+test_closed_or_recycled_window_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_closed_or_recycled_window_rejected) ... ok
+test_old_url_replaced_without_identity_change (test_paypal_complete_webhook_url.URLCompletionTests.test_old_url_replaced_without_identity_change) ... ok
+test_only_url_changes_without_secret_output (test_paypal_complete_webhook_url.URLCompletionTests.test_only_url_changes_without_secret_output) ... ok
+test_other_worktree_record_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_other_worktree_record_rejected) ... ok
+test_post_write_guard_reports_written_state_without_blind_rollback (test_paypal_complete_webhook_url.URLCompletionTests.test_post_write_guard_reports_written_state_without_blind_rollback) ... ok
+test_private_record_mode_and_symlink_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_private_record_mode_and_symlink_rejected) ... ok
+test_running_application_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_running_application_rejected) ... ok
+test_shared_apply_lock_blocks_concurrent_writer (test_paypal_complete_webhook_url.URLCompletionTests.test_shared_apply_lock_blocks_concurrent_writer) ... ok
+test_staged_credentials_not_needed_or_read (test_paypal_complete_webhook_url.URLCompletionTests.test_staged_credentials_not_needed_or_read) ... ok
+test_untracked_application_source_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_untracked_application_source_rejected) ... ok
+test_url_input_cannot_escape_authorized_origin (test_paypal_complete_webhook_url.URLCompletionTests.test_url_input_cannot_escape_authorized_origin) ... ok
+test_wider_tunnel_command_rejected (test_paypal_complete_webhook_url.URLCompletionTests.test_wider_tunnel_command_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 7.795s
+
+OK

@@ -1,0 +1,18 @@
+{
+  "base_checkout": "cf0dee7ca5fa9ba123ebbb406bc02c66830dd332",
+  "shared_contract_commit": "ef321908e53965e79f2c4f3f5bca32f17ded00ac",
+  "source_sha256": {
+    "scripts/ops/paypal_complete_webhook_url.py": "3ed08e3ff57d7406f814047dc6563001529fb8a5d261532a97c23649b60209d8",
+    "scripts/ops/paypal_merchant_receipt.py": "857d5fa71399d36f5b9be0cd22bd152a2b623ee7bd90b401555f5a7803f81e6d",
+    "scripts/ops/tests/test_paypal_complete_webhook_url.py": "4fa9c33d5e1fa4677d3754c5bbe0bc4ea26024ef51418a1756a9aa4d40df9ae8",
+    "scripts/ops/tests/test_paypal_merchant_receipt.py": "7a2acaa9f86a4b870deb9fb255181e14224fce556956be71fadb5c9194162abd"
+  },
+  "url_tests": 18,
+  "merchant_tests": 13,
+  "real_dotenv": true,
+  "merchant_cli_adapter": "synthetic output; fixed 03 candidate integration pending",
+  "real_credentials_read": false,
+  "actual_env_changed": false,
+  "actual_receipt_created": false,
+  "public_window": "closed"
+}
