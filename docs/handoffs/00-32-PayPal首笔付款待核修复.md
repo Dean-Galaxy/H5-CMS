@@ -16,3 +16,14 @@
 03源码e0435f9（周期与原单恢复）、526857d（固定枚举transport诊断）及最终交付9364987已串行接收。06只读报告ff7ebe3接收，仅文档未改运行桥。00独立组合Billing+Audience+Contracts **413项5546断言通过**（242.51秒）；03自测同组合413项为独立来源，不叠加计数。无新迁移和公共DTO字段变化。
 
 只读模式sync(..., allowLifecycleChanges:false)可按原账务对象核实并入账，不进行平台创建/取消/暂停。该恢复仍需真实官方完整证据才能写入，不能用测试夹具替代。transport只记录operation/http_status/failure_class/provider_code四项受控字段；原响应与身份不进入日志。此处为工程接收，实际原单恢复/官方通知验证继续待下段实测。
+
+
+## 原付款实际恢复与剩余通知缺陷
+
+00私密备份真实06数据库后，将应用从ec3f612停机快进到fd5d51ffc360198e375c15a4bcffa41c4bd3bb30。env及暂存凭据哈希保持，无新增迁移。只对原订阅执行sync(..., allowLifecycleChanges:false)，官方证据链通过后正常账本写入：原单paid/payment succeeded，订阅active/ACTIVE、resolution_required=false，付款1/权益1/订单1/订阅1/outbox1。没有第二笔支付、退款、取消或数据库手工赋权。五项健康恢复，07已获准请本人刷新查看；UI人工结果另记。
+
+回调原Sale重送返回202，仅表明接受重送请求。实际仍500且inbox0，没有新增transport_failure，不能当作验签闭环成功。00发现PG occurred_at精度0会对毫秒四舍五入，BillingStore::iso却截断到秒，导致收件事务把同一事件误报冲突并回滚。03在独立PG通过签名SUCCESS的完整Receiver链重现，正在统一收件元数据canonical秒精度；原签名正文不能更改，实际付款时间/周期不降精度，此修复待下一次接收。
+
+04仅测试交付3993542已接收，00独立3项43断言通过；确认ACTIVE但未完成入账时停留原单中性待核对、重复重查不新增购买、GET刷新不调用平台。没有改获批UI或添加DTO字段。
+
+GitHub当前应用分支及h5-paypal-first-payment-repair-2026-10-28均回读fd5d51f；此前因网络未上传的h5-paypal-buyer-entry-2026-10-28已补传并回读254936f，周四固定标签仍78cb664。原报告上传待办已解除；本段及后续小修仍须随最后交付留存，不能混称所有最新文档已上传。
