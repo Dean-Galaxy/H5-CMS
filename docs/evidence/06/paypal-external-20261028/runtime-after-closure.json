@@ -1,0 +1,24 @@
+{
+  "workspace": "h5_0a65842d38",
+  "database": "h5_0a65842d38",
+  "db_port": 5906,
+  "app_env": "local",
+  "contract": "1.0.5",
+  "paypal_enabled": false,
+  "purchase_provider": "unconfigured",
+  "local_region_fixture": true,
+  "mail": "preview",
+  "acquisition_ready": false,
+  "migrations": 18,
+  "counts": {
+    "billing_orders": 0,
+    "billing_subscriptions": 0,
+    "billing_payments": 0,
+    "billing_refunds": 0,
+    "billing_entitlements": 0,
+    "billing_inbox": 0,
+    "billing_outbox": 0,
+    "billing_provider_intents": 0,
+    "billing_paypal_observations": 0
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+  "checkout": "5a4019e3815ae70ac9763e1954d165d5bfe1f08c",
+  "system_curl": {
+    "path": "/admin",
+    "exit": 0,
+    "status": 404,
+    "ssl_verify_result": 0
+  },
+  "python_tls": [
+    {
+      "runtime": "Apple CommandLineTools Python / LibreSSL 2.8.3",
+      "environment_proxy_status": 404,
+      "direct_status": 404
+    },
+    {
+      "runtime": "Homebrew Python3.14 / OpenSSL3.6.5",
+      "environment_proxy_status": 404,
+      "direct_status": 404
+    }
+  ],
+  "certificate_verification_disabled": false,
+  "prior_failure_root_cause": "not established; no CA failure reproduced",
+  "historical_tunnel_diagnostics": "QUIC idle timeouts and local DNS timeouts followed by successful reconnections observed; this does not prove cause of previous failed client request",
+  "tunnel_rebuilt": false,
+  "business_or_env_changed": false,
+  "credentials_read_by_06": false,
+  "old_probe_issue": "synthetic event lacked create_time and assumed prior unconfigured 503; fixed own fixture and compare identical body direct application refusal to freshly observed bridge upstream"
+}
