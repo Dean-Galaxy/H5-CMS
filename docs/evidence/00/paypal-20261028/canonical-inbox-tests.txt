@@ -1,0 +1,29 @@
+
+   PASS  Tests\Feature\Billing\ProviderInboxTest
+  ✓ verified sandbox event is durable deduplicated and does not grant…  10.99s  
+  ✓ verified fractional event time is canonicalized before sql and repl… 0.02s  
+  ✓ verified fractional event time is canonicalized before sql and repl… 0.01s  
+  ✓ verified fractional event time is canonicalized before sql and repl… 0.01s  
+  ✓ verified fractional event time is canonicalized before sql and repl… 0.01s  
+  ✓ verified fractional event time is canonicalized before sql and repl… 0.01s  
+  ✓ verified fractional event time is canonicalized before sql and repl… 0.02s  
+  ✓ verified fractional event time is canonicalized before sql and repl… 0.01s  
+  ✓ verified same second fraction variants are the same inbox hint       0.02s  
+  ✓ second resolution does not accept conflicting verified event identi… 0.04s  
+  ✓ second resolution does not accept conflicting verified event identi… 0.02s  
+  ✓ second resolution does not accept conflicting verified event identi… 0.01s  
+  ✓ second resolution does not accept conflicting verified event identi… 0.01s  
+  ✓ canonicalization preserves related object conflict and legacy secon… 0.01s  
+  ✓ failed or unknown verification never acknowledges inbox              0.38s  
+  ✓ header injection fails before any verification request               0.01s  
+  ✓ identical event id in another merchant or provider does not collide  0.01s  
+  ✓ verified event id with conflicting resource is rejected without ove… 0.02s  
+  ✓ paypal inbox stays pending until its fact processor is ready instea… 0.15s  
+  ✓ orders capture event is ignored without using subscription payment…  0.02s  
+  ✓ gateway routing uses persisted scope and never new purchase configu… 0.04s  
+  ✓ other stripe merchant cannot use the legacy stripe account           0.01s  
+  ✓ unbound or wrong callback cannot reach signature acceptance          0.01s  
+
+  Tests:    23 passed (95 assertions)
+  Duration: 14.86s
+

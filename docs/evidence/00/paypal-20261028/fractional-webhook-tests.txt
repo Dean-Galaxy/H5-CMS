@@ -1,0 +1,55 @@
+
+   PASS  Tests\Feature\Audience\PayPalBillingReturnUiTest
+  ✓ active but unreconciled checkout stays on the original order witho… 11.39s  
+  ✓ repeated explicit recheck reuses one order and never creates anothe… 0.68s  
+  ✓ get refresh only reads the original local order without provider cr… 0.90s  
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 2.01s  
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.81s  
+  ✓ renewal uses original price and original period when delivery is la… 0.88s  
+  ✓ failed renewal never adds access and blocks second purchase          0.97s  
+  ✓ partial then full refund only revokes its payment and stops renewal  1.50s  
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.41s  
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.49s  
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.62s  
+  ✓ setup checks existing binding and creates one product without webho… 0.58s  
+  ✓ unconfigured new purchase stays disabled even after setup            0.51s  
+  ✓ refund correction restores only original interval without restoring… 1.63s  
+  ✓ terminal without proof of no payment retains unique occupancy        0.38s  
+  ✓ late cancel event rereads current provider state and cannot extend…  0.65s  
+  ✓ unavailable app authentication is a safe diagnostic and cannot crea… 0.35s  
+  ✓ wrong sale binding amount or currency cannot grant access            0.47s  
+  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 1.46s  
+  ✓ lagging transaction history cannot release a terminal subscription   0.57s  
+  ✓ reversal stop intent survives failed read transaction                0.66s  
+  ✓ incomplete webhook events cannot create checkout                     0.48s  
+  ✓ actual response shape settles one original order and recheck never…  1.35s  
+  ✓ observed first boundary is preserved when the next week is paid      0.46s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.44s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.41s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.17s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.36s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.42s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.48s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.69s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.44s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.38s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.71s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 2.17s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.50s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.52s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.39s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.44s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.38s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.76s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.37s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.72s  
+  ✓ unobserved short first period cannot be backfilled from multiple pa… 0.42s  
+  ✓ changed historical anchor cannot rewrite or extend paid access       0.70s  
+  ✓ active without payment or unavailable read never returns stored app… 0.70s  
+  ✓ explicit recheck reads only and never cancels an expired approval    0.73s  
+
+  Tests:    47 passed (1070 assertions)
+  Duration: 51.07s
+
