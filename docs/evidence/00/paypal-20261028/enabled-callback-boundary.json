@@ -1,0 +1,38 @@
+{
+  "scope": "current active window; non-payment range/unsigned-body rejection only",
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/",
+      "expected": 404,
+      "status": 404,
+      "tls_verified": true,
+      "exit": 0
+    },
+    {
+      "method": "GET",
+      "path": "/admin",
+      "expected": 404,
+      "status": 404,
+      "tls_verified": true,
+      "exit": 0
+    },
+    {
+      "method": "GET",
+      "path": "/webhooks/paypal",
+      "expected": 404,
+      "status": 404,
+      "tls_verified": true,
+      "exit": 0
+    },
+    {
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "expected": 400,
+      "status": 400,
+      "tls_verified": true,
+      "exit": 0
+    }
+  ],
+  "passed": true
+}

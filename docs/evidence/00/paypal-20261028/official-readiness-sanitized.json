@@ -1,0 +1,17 @@
+{
+  "candidate": "ec3f6124f4e2e0c575c08ac144b2768de4a55b3f",
+  "source": "00 actual official CLI; IDs and credentials omitted",
+  "configuration_valid": true,
+  "network_requested": true,
+  "merchant_binding_valid": true,
+  "app_authenticated": true,
+  "webhook_registration_valid": true,
+  "product_valid": true,
+  "purchase_readiness_valid": true,
+  "binding_source": "operator_dashboard",
+  "api_merchant_identity_verified": false,
+  "merchant_verified": false,
+  "official_payment_verification": "not_performed",
+  "diagnostic_code": null,
+  "missing": []
+}

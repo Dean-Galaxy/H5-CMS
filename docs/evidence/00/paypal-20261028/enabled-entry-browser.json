@@ -1,0 +1,15 @@
+{
+  "browser": "156.0.8078.49",
+  "checks": {
+    "guest_http_200": true,
+    "test_prices_shown": true,
+    "guest_login_link": true,
+    "generated_viewer_login": true,
+    "viewer_http_200": true,
+    "purchase_form_shown": true,
+    "confirmation_required": true,
+    "purchase_button_enabled": true,
+    "no_script_errors_or_external_requests": true
+  },
+  "scope": "actual local Chrome and generated viewer; checkout never submitted; no official payment or buyer approval"
+}
