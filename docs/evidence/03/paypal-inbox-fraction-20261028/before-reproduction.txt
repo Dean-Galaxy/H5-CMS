@@ -1,0 +1,159 @@
+INFO  Configuration cache cleared successfully.  
+
+
+   FAIL  Tests\Feature\Billing\ProviderInboxTest
+  ✓ verified sandbox event is durable deduplicated and does not grant m… 0.23s  
+  ⨯ verified fractional event time is preserved and identical replay is… 0.02s  
+  ⨯ verified fractional event time is preserved and identical replay is… 0.01s  
+  ⨯ verified fractional event time is preserved and identical replay is… 0.01s  
+  ⨯ verified fractional event time is preserved and identical replay is… 0.01s  
+  ⨯ verified fractional event time is preserved and identical replay is… 0.01s  
+  ⨯ verified fractional event time is preserved and identical replay is… 0.01s  
+  ⨯ verified fractional event time is preserved and identical replay is… 0.01s  
+  ✓ failed or unknown verification never acknowledges inbox              0.02s  
+  ✓ header injection fails before any verification request               0.01s  
+  ✓ identical event id in another merchant or provider does not collide  0.01s  
+  ✓ verified event id with conflicting resource is rejected without ove… 0.01s  
+  ✓ paypal inbox stays pending until its fact processor is ready instea… 0.02s  
+  ✓ orders capture event is ignored without using subscription payment…  0.02s  
+  ✓ gateway routing uses persisted scope and never new purchase configu… 0.01s  
+  ✓ other stripe merchant cannot use the legacy stripe account           0.01s  
+  ✓ unbound or wrong callback cannot reach signature acceptance          0.01s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\ProviderInboxTest > verif…  RuntimeException   
+  BILLING_PROVIDER_EVENT_CONFLICT
+
+  at app/Modules/Billing/Services/ProviderInboxStore.php:29
+     25▕             $row = DB::table('billing_inbox')->where($identity)->lockForUpdate()->first();
+     26▕             if (! $row || $row->event_type !== $event['type'] || $row->object_id !== $event['object_id']
+     27▕                 || $row->related_object_id !== ($event['related_object_id'] ?? null)
+     28▕                 || BillingStore::iso($row->occurred_at) !== BillingStore::iso($event['created'])) {
+  ➜  29▕                 throw new RuntimeException('BILLING_PROVIDER_EVENT_CONFLICT');
+     30▕             }
+     31▕ 
+     32▕             return $row->id;
+     33▕         });
+
+  1   app/Modules/Billing/Services/ProviderInboxStore.php:29
+      +3 vendor frames 
+  5   app/Modules/Billing/Services/ProviderInboxStore.php:19
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\ProviderInboxTest > verif…  RuntimeException   
+  BILLING_PROVIDER_EVENT_CONFLICT
+
+  at app/Modules/Billing/Services/ProviderInboxStore.php:29
+     25▕             $row = DB::table('billing_inbox')->where($identity)->lockForUpdate()->first();
+     26▕             if (! $row || $row->event_type !== $event['type'] || $row->object_id !== $event['object_id']
+     27▕                 || $row->related_object_id !== ($event['related_object_id'] ?? null)
+     28▕                 || BillingStore::iso($row->occurred_at) !== BillingStore::iso($event['created'])) {
+  ➜  29▕                 throw new RuntimeException('BILLING_PROVIDER_EVENT_CONFLICT');
+     30▕             }
+     31▕ 
+     32▕             return $row->id;
+     33▕         });
+
+  1   app/Modules/Billing/Services/ProviderInboxStore.php:29
+      +3 vendor frames 
+  5   app/Modules/Billing/Services/ProviderInboxStore.php:19
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\ProviderInboxTest > verif…  RuntimeException   
+  BILLING_PROVIDER_EVENT_CONFLICT
+
+  at app/Modules/Billing/Services/ProviderInboxStore.php:29
+     25▕             $row = DB::table('billing_inbox')->where($identity)->lockForUpdate()->first();
+     26▕             if (! $row || $row->event_type !== $event['type'] || $row->object_id !== $event['object_id']
+     27▕                 || $row->related_object_id !== ($event['related_object_id'] ?? null)
+     28▕                 || BillingStore::iso($row->occurred_at) !== BillingStore::iso($event['created'])) {
+  ➜  29▕                 throw new RuntimeException('BILLING_PROVIDER_EVENT_CONFLICT');
+     30▕             }
+     31▕ 
+     32▕             return $row->id;
+     33▕         });
+
+  1   app/Modules/Billing/Services/ProviderInboxStore.php:29
+      +3 vendor frames 
+  5   app/Modules/Billing/Services/ProviderInboxStore.php:19
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\ProviderInboxTest > verified fractional eve…   
+  Failed asserting that two strings are identical.
+  -'2026-10-26T00:00:00.000001Z'
+  +'2026-10-26T00:00:00.000000Z'
+  
+
+  at tests/Feature/Billing/ProviderInboxTest.php:61
+     57▕         $body = str_replace('2026-10-26T00:00:00Z', '2026-10-26T00:00:00.'.$fraction.'Z', $this->body());
+     58▕         $id = $receiver->receive($body, $this->headers());
+     59▕         self::assertSame($id, $receiver->receive($body, $this->headers()));
+     60▕         self::assertDatabaseCount('billing_inbox', 1);
+  ➜  61▕         self::assertSame('2026-10-26T00:00:00.'.str_pad($fraction, 6, '0').'Z',
+     62▕             CarbonImmutable::parse(DB::table('billing_inbox')->first()->occurred_at)->utc()->format('Y-m-d\TH:i:s.u\Z'));
+     63▕         self::assertDatabaseCount('billing_payments', 0);
+     64▕         self::assertDatabaseCount('billing_entitlements', 0);
+     65▕         self::assertDatabaseCount('billing_outbox', 0);
+
+  1   tests/Feature/Billing/ProviderInboxTest.php:61
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\ProviderInboxTest > verified fractional eve…   
+  Failed asserting that two strings are identical.
+  -'2026-10-26T00:00:00.499999Z'
+  +'2026-10-26T00:00:00.000000Z'
+  
+
+  at tests/Feature/Billing/ProviderInboxTest.php:61
+     57▕         $body = str_replace('2026-10-26T00:00:00Z', '2026-10-26T00:00:00.'.$fraction.'Z', $this->body());
+     58▕         $id = $receiver->receive($body, $this->headers());
+     59▕         self::assertSame($id, $receiver->receive($body, $this->headers()));
+     60▕         self::assertDatabaseCount('billing_inbox', 1);
+  ➜  61▕         self::assertSame('2026-10-26T00:00:00.'.str_pad($fraction, 6, '0').'Z',
+     62▕             CarbonImmutable::parse(DB::table('billing_inbox')->first()->occurred_at)->utc()->format('Y-m-d\TH:i:s.u\Z'));
+     63▕         self::assertDatabaseCount('billing_payments', 0);
+     64▕         self::assertDatabaseCount('billing_entitlements', 0);
+     65▕         self::assertDatabaseCount('billing_outbox', 0);
+
+  1   tests/Feature/Billing/ProviderInboxTest.php:61
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\ProviderInboxTest > verif…  RuntimeException   
+  BILLING_PROVIDER_EVENT_CONFLICT
+
+  at app/Modules/Billing/Services/ProviderInboxStore.php:29
+     25▕             $row = DB::table('billing_inbox')->where($identity)->lockForUpdate()->first();
+     26▕             if (! $row || $row->event_type !== $event['type'] || $row->object_id !== $event['object_id']
+     27▕                 || $row->related_object_id !== ($event['related_object_id'] ?? null)
+     28▕                 || BillingStore::iso($row->occurred_at) !== BillingStore::iso($event['created'])) {
+  ➜  29▕                 throw new RuntimeException('BILLING_PROVIDER_EVENT_CONFLICT');
+     30▕             }
+     31▕ 
+     32▕             return $row->id;
+     33▕         });
+
+  1   app/Modules/Billing/Services/ProviderInboxStore.php:29
+      +3 vendor frames 
+  5   app/Modules/Billing/Services/ProviderInboxStore.php:19
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\ProviderInboxTest > verif…  RuntimeException   
+  BILLING_PROVIDER_EVENT_CONFLICT
+
+  at app/Modules/Billing/Services/ProviderInboxStore.php:29
+     25▕             $row = DB::table('billing_inbox')->where($identity)->lockForUpdate()->first();
+     26▕             if (! $row || $row->event_type !== $event['type'] || $row->object_id !== $event['object_id']
+     27▕                 || $row->related_object_id !== ($event['related_object_id'] ?? null)
+     28▕                 || BillingStore::iso($row->occurred_at) !== BillingStore::iso($event['created'])) {
+  ➜  29▕                 throw new RuntimeException('BILLING_PROVIDER_EVENT_CONFLICT');
+     30▕             }
+     31▕ 
+     32▕             return $row->id;
+     33▕         });
+
+  1   app/Modules/Billing/Services/ProviderInboxStore.php:29
+      +3 vendor frames 
+  5   app/Modules/Billing/Services/ProviderInboxStore.php:19
+
+
+  Tests:    7 failed, 10 passed (34 assertions)
+  Duration: 0.59s
