@@ -1,0 +1,38 @@
+{
+  "runtime_candidate": "cfd24cbb6fe42ab959bd547d7ca70a02a8f2ae35",
+  "membership_access_active": true,
+  "renewal_enabled": false,
+  "resolution_required": false,
+  "local_provider_status": "SUSPENDED",
+  "paid_interval_preserved": true,
+  "manual_paid_sixth_playback": true,
+  "manual_anonymous_sixth_denied": true,
+  "manual_paid_relogin_playback": true,
+  "manual_unpaid_logged_in_viewer_tested": false,
+  "manual_phone_compatibility_tested": false,
+  "counts": {
+    "billing_orders": 1,
+    "billing_subscriptions": 1,
+    "billing_payments": 1,
+    "billing_entitlements": 1,
+    "billing_refunds": 0
+  },
+  "original_viewer_progress_present": true,
+  "shutdown": {
+    "ports_closed": {
+      "8406": true,
+      "5906": true,
+      "8407": true,
+      "8408": true,
+      "8409": true
+    },
+    "api_enabled": "false",
+    "new_purchase_provider": "unconfigured",
+    "env_preserved": true,
+    "credentials_preserved": true,
+    "database_archive_readable": true,
+    "database_archive_bytes": 125031
+  },
+  "source": "User confirmation in 07 verified by 00; local read-only accounting check and shutdown verification",
+  "new_official_api_calls": false
+}
