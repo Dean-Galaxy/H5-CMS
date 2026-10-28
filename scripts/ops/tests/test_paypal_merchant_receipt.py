@@ -32,7 +32,7 @@ class MerchantReceiptTests(unittest.TestCase):
 
     def complete(self,answers=None,merchant='SYNTHETICMERCHANT'):
         _,_,context,before=self.state()
-        return module.complete(self.root,self.sha,merchant,self.answers if answers is None else answers,before,context,AUTOLOAD)
+        return module.complete(self.root,self.sha,merchant,self.answers if answers is None else answers,before,context,AUTOLOAD,official_client_id=self.fixture.fixture.values['client_id'])
 
     def receipts(self):return list(self.directory.glob('merchant-dashboard-*.json'))
 
@@ -66,7 +66,7 @@ class MerchantReceiptTests(unittest.TestCase):
 
     def test_cancel_main_does_not_write_or_complete(self):
         state=self.state()
-        with patch.object(module,'ROOT',self.root),patch.object(sys,'argv',['tool','--candidate',self.sha]),patch.object(sys.stdin,'isatty',return_value=True),patch.object(module,'checked_state',return_value=state),patch.object(module.getpass,'getpass',return_value='SYNTHETICMERCHANT'),patch.object(module,'prompt_confirmations',return_value=None),patch.object(module,'complete') as complete,contextlib.redirect_stdout(io.StringIO()):
+        with patch.object(module,'ROOT',self.root),patch.object(sys,'argv',['tool','--candidate',self.sha]),patch.object(sys.stdin,'isatty',return_value=True),patch.object(module,'checked_state',return_value=state),patch.object(module.getpass,'getpass',side_effect=['SYNTHETICMERCHANT',self.fixture.fixture.values['client_id']]),patch.object(module,'prompt_confirmations',return_value=None),patch.object(module,'complete') as complete,contextlib.redirect_stdout(io.StringIO()):
             module.main();complete.assert_not_called()
         self.assertEqual([],self.receipts());self.assertEqual(self.staged,(self.directory/'credentials.json').read_bytes())
 
@@ -100,7 +100,7 @@ class MerchantReceiptTests(unittest.TestCase):
     def test_changed_identity_after_user_confirmation_refused(self):
         _,_,context,before=self.state()
         doc=json.loads(self.staged);doc['credentials']['product_id']='PROD-CHANGED';self.fixture.write('credentials.json',doc)
-        with self.assertRaises(ValueError):module.complete(self.root,self.sha,'SYNTHETICMERCHANT',self.answers,before,context,AUTOLOAD)
+        with self.assertRaises(ValueError):module.complete(self.root,self.sha,'SYNTHETICMERCHANT',self.answers,before,context,AUTOLOAD,official_client_id=self.fixture.fixture.values['client_id'])
         self.assertEqual([],self.receipts())
 
     def test_failure_after_stage_leaves_no_receipt_and_same_id_retry_allowed(self):
@@ -138,6 +138,34 @@ class MerchantReceiptTests(unittest.TestCase):
             with patch.object(module.subprocess,'run',return_value=SimpleNamespace(returncode=0,stdout=json.dumps({**valid,**changes}))):
                 with self.assertRaises(ValueError):module.offline_context(self.root)
         self.patch.start()
+
+    def test_exact_app_match_uses_full_constant_time_comparison(self):
+        saved=self.fixture.fixture.values['client_id']
+        with patch.object(module.hmac,'compare_digest',wraps=module.hmac.compare_digest) as compare:
+            self.assertTrue(module.exact_app_match(saved,saved))
+            self.assertFalse(module.exact_app_match(saved,saved+'X'))
+            self.assertFalse(module.exact_app_match(saved,' '+saved))
+            self.assertFalse(module.exact_app_match(saved,''))
+            self.assertFalse(module.exact_app_match(saved,None))
+            self.assertEqual(3,compare.call_count)
+            self.assertEqual(saved.encode(),compare.call_args_list[0].args[0])
+
+    def test_wrong_official_app_refuses_before_stage(self):
+        _,_,context,before=self.state()
+        with self.assertRaises(ValueError):module.complete(self.root,self.sha,'SYNTHETICMERCHANT',self.answers,before,context,AUTOLOAD,official_client_id='WRONG')
+        self.assertEqual(self.staged,(self.directory/'credentials.json').read_bytes());self.assertEqual([],self.receipts())
+
+    def test_official_app_cancel_and_mismatch_do_not_echo_or_write(self):
+        state=self.state()
+        for pasted in ('','WRONG-CLIENT'):
+            out=io.StringIO()
+            with patch.object(module,'ROOT',self.root),patch.object(sys,'argv',['tool','--candidate',self.sha]),patch.object(sys.stdin,'isatty',return_value=True),patch.object(module,'checked_state',return_value=state),patch.object(module.getpass,'getpass',side_effect=['SYNTHETICMERCHANT',pasted]) as secret_prompt,patch.object(module,'prompt_confirmations') as confirmations,patch.object(module,'complete') as complete,contextlib.redirect_stdout(out):
+                if pasted:
+                    with self.assertRaises(SystemExit):module.main()
+                else:module.main()
+                self.assertEqual(2,secret_prompt.call_count);confirmations.assert_not_called();complete.assert_not_called()
+            self.assertNotIn('WRONG-CLIENT',out.getvalue());self.assertNotIn(self.fixture.fixture.values['client_id'],out.getvalue())
+            self.assertEqual(self.staged,(self.directory/'credentials.json').read_bytes());self.assertEqual([],self.receipts())
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

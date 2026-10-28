@@ -9,6 +9,7 @@ import datetime
 import fcntl
 import getpass
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -71,6 +72,10 @@ def locked(root):
 
 
 
+def exact_app_match(saved,pasted):
+    return isinstance(pasted,str) and bool(pasted) and hmac.compare_digest(saved.encode('utf-8'),pasted.encode('utf-8'))
+
+
 def prompt_confirmations(ask=input):
     answers={}
     for key,label in CONFIRMATIONS:
@@ -84,13 +89,14 @@ class StagedButUnconfirmed(ValueError):
     pass
 
 
-def complete(root,candidate,merchant,confirmed,expected_snapshot,expected_context,autoload=None):
+def complete(root,candidate,merchant,confirmed,expected_snapshot,expected_context,autoload=None,official_client_id=None):
     if not isinstance(merchant,str) or not re.fullmatch('[A-Z0-9]{1,64}',merchant):
         raise ValueError('MERCHANT_ID_INVALID')
     if set(confirmed)!=set(key for key,_ in CONFIRMATIONS) or any(value is not True for value in confirmed.values()):
         raise ValueError('EXPLICIT_CONFIRMATIONS_REQUIRED')
     with locked(root):
         doc,existing,context,current=checked_state(root,candidate,autoload)
+        if not exact_app_match(doc['credentials']['client_id'],official_client_id):raise ValueError('OFFICIAL_APP_CLIENT_ID_MISMATCH')
         if current!=expected_snapshot or context!=expected_context:raise ValueError('IDENTITY_CHANGED_AFTER_CONFIRMATION')
         for old in (doc['credentials']['merchant_id'],existing.get(PREFIX+'MERCHANT_ID',''),context['merchant_id']):
             if old and old!=merchant:raise ValueError('MERCHANT_REBIND_REFUSED')
@@ -126,15 +132,19 @@ def main():
     args=parser.parse_args()
     try:
         if not sys.stdin.isatty():raise ValueError('PRIVATE_TTY_REQUIRED')
-        _,_,context,before=checked_state(ROOT,args.candidate)
+        document,_,context,before=checked_state(ROOT,args.candidate)
         merchant=getpass.getpass('上述同一Sandbox Business的Merchant/Account ID（不回显；留空取消）：')
         if not merchant:
             print('已取消；未修改或生成核对回执。');return
         if not re.fullmatch('[A-Z0-9]{1,64}',merchant):raise ValueError('MERCHANT_ID_INVALID')
+        official_client_id=getpass.getpass('粘贴当前官方Sandbox App的Client ID（仅完整比对，不保存/替换；不回显；留空取消；不要粘贴Client Secret）：')
+        if not official_client_id:
+            print('已取消；未修改或生成核对回执。');return
+        if not exact_app_match(document['credentials']['client_id'],official_client_id):raise ValueError('OFFICIAL_APP_CLIENT_ID_MISMATCH')
         answers=prompt_confirmations()
         if answers is None:
             print('已取消；未修改或生成核对回执。');return
-        path=complete(ROOT,args.candidate,merchant,answers,before,context)
+        path=complete(ROOT,args.candidate,merchant,answers,before,context,official_client_id=official_client_id)
         print('Merchant ID与人工核对回执已私密保存：'+str(path))
         print('尚未应用env、调用官方API或绑定账务；由00安全应用后调用03绑定CLI。')
     except StagedButUnconfirmed:
