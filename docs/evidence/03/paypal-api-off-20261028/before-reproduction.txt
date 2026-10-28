@@ -1,0 +1,86 @@
+INFO  Configuration cache cleared successfully.  
+
+
+   FAIL  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.40s  
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.18s  
+  ✓ renewal uses original price and original period when delivery is la… 0.16s  
+  ✓ failed renewal never adds access and blocks second purchase          0.15s  
+  ✓ partial then full refund only revokes its payment and stops renewal  0.15s  
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.12s  
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.13s  
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.14s  
+  ✓ setup checks existing binding and creates one product without webho… 0.13s  
+  ✓ unconfigured new purchase stays disabled even after setup            0.13s  
+  ✓ refund correction restores only original interval without restoring… 0.16s  
+  ✓ terminal without proof of no payment retains unique occupancy        0.13s  
+  ✓ late cancel event rereads current provider state and cannot extend…  0.13s  
+  ✓ unavailable app authentication is a safe diagnostic and cannot crea… 0.11s  
+  ✓ wrong sale binding amount or currency cannot grant access            0.13s  
+  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 0.14s  
+  ✓ lagging transaction history cannot release a terminal subscription   0.14s  
+  ✓ reversal stop intent survives failed read transaction                0.15s  
+  ✓ incomplete webhook events cannot create checkout                     0.11s  
+  ✓ actual response shape settles one original order and recheck never…  0.13s  
+  ✓ observed first boundary is preserved when the next week is paid      0.13s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.12s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.12s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.12s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.13s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.12s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.13s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.14s  
+  ✓ unobserved short first period cannot be backfilled from multiple pa… 0.14s  
+  ✓ changed historical anchor cannot rewrite or extend paid access       0.14s  
+  ✓ active without payment or unavailable read never returns stored app… 0.13s  
+  ✓ explicit recheck reads only and never cancels an expired approval    0.12s  
+  ⨯ explicitly disabled paypal reconciliation preserves confirmed cance… 0.15s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\PayPalRuntimeTest > explicitly disabled pay…   
+  Disabled provider rows changed
+Failed asserting that two arrays are identical.
+   Array &0 [
+       'billing_accounts' => 'f65ef09e0e2ec4a813ac47d195e27b866ecd0fbecd229c83fb11d8d8b8658db5',
+       'billing_orders' => 'cafcbf2a92b7963be2af1d9612347a961c1529ab130a7778c7ab5f2cf1c29725',
+  -    'billing_subscriptions' => '1dc2bf066e07be6ffbd92fba7bdb1eb1893f5c473016d24629d61dc958cb03b4',
+  -    'billing_payments' => '6181376251cc2a3cd9d556ade77944fc7a9ed3a2d89bbd642bf00e864cc2c0e5',
+  +    'billing_subscriptions' => '8e40d7c3cb406a50659cca38a6a3918708aac04c0462e43fba18dba5fdc79a60',
+  +    'billing_payments' => 'cad7a8934bf8284269dd545e1829db2d9254c9ba6fc2b86d0bec646fcbdc4b8c',
+       'billing_entitlements' => '919f3cea2e304a7b1a1c9815abd66b0c5190c39c6ced2975a69e776530851fce',
+  -    'billing_inbox' => 'aedded838b9a906446a48e503187a86232a233eac1c3e5ba2a0e6de84f62b271',
+  -    'billing_outbox' => '7c769d3c742d29c5d9a9d8196fd6ccc9e5e24de2ce03e3194d5c9d0259610a37',
+  +    'billing_inbox' => '4b89fb75157c7063b0fc2b6ec6262e4718ce27a36ab86014f0eed33eff9d01d6',
+  +    'billing_outbox' => '13e0d6948a36a4d79ade8f0b4fe576c07aeb078c80f6da44494ab31f96e69b20',
+       'billing_operations' => '5177150ffc0b90b4479234f9bd1eafa0c5bf734633a3b301ff9e3088e5c22509',
+       'billing_refunds' => '4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945',
+       'billing_resume_quotes' => '4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945',
+  
+
+  at tests/Feature/Billing/PayPalRuntimeTest.php:621
+    617▕         $calls = $this->calls;
+    618▕         $this->travel(2)->minutes();
+    619▕         $exit = \Illuminate\Support\Facades\Artisan::call('billing:reconcile', ['--limit' => 1]);
+    620▕         self::assertSame($calls, $this->calls, 'Disabled PayPal made a network call');
+  ➜ 621▕         self::assertSame($before, $this->billingSnapshot(), 'Disabled provider rows changed');
+    622▕         self::assertSame(0, $exit);
+    623▕         $member = $this->billing->membership($this->user->id, now()->toDateTimeImmutable());
+    624▕         self::assertTrue($member->access_active);
+    625▕         self::assertFalse($member->renewal_enabled);
+
+  1   tests/Feature/Billing/PayPalRuntimeTest.php:621
+
+
+  Tests:    1 failed, 44 passed (1054 assertions)
+  Duration: 6.51s
