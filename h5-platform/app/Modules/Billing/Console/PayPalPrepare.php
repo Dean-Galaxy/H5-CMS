@@ -5,6 +5,7 @@ namespace App\Modules\Billing\Console;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Services\PayPalMerchantBinding;
+use App\Modules\Billing\Services\PayPalRuntime;
 use App\Modules\Billing\Services\ProviderOperationStore;
 use App\Support\RuntimeEnvironmentGuard;
 use Illuminate\Console\Command;
@@ -15,14 +16,14 @@ use Throwable;
 /** Explicit setup operations. Output is a fixed whitelist, never credentials or balances. */
 final class PayPalPrepare extends Command
 {
-    protected $signature = 'billing:paypal-prepare {--create-product : Create or recover the one TEST digital sandbox product} {--check-merchant : Check operator binding and authenticate the App} {--binding-context : Offline receipt context without credentials} {--bind-merchant= : Private operator Dashboard receipt file} {--check-webhook : Read actual App webhook and match configured URL}';
+    protected $signature = 'billing:paypal-prepare {--create-product : Create or recover the one TEST digital sandbox product} {--check-merchant : Check operator binding and authenticate the App} {--binding-context : Offline receipt context without credentials} {--bind-merchant= : Private operator Dashboard receipt file} {--check-webhook : Read actual App webhook and match configured URL} {--check-readiness : Read-only purchase admission check; never enables purchasing}';
 
     protected $description = 'Offline PayPal readiness or explicitly requested sandbox setup/checks; never charges.';
 
     public function handle(SandboxApi $api, ProviderOperationStore $operations): int
     {
         $result = ['configuration_valid' => false, 'missing' => [], 'network_requested' => false,
-            'merchant_verified' => false, 'merchant_binding_valid' => false, 'binding_source' => null,
+            'purchase_readiness_valid' => false, 'product_valid' => false, 'merchant_verified' => false, 'merchant_binding_valid' => false, 'binding_source' => null,
             'api_merchant_identity_verified' => false, 'app_authenticated' => false, 'webhook_registration_valid' => false, 'merchant_id' => null, 'product_id' => null, 'official_payment_verification' => 'not_performed', 'diagnostic_code' => null];
         try {
             app(RuntimeEnvironmentGuard::class)->assertSafeRuntime();
@@ -36,6 +37,26 @@ final class PayPalPrepare extends Command
                 $result['missing'][] = 'sandbox_enabled';
             }
             $binding = app(PayPalMerchantBinding::class);
+            if ($this->option('check-readiness')) {
+                foreach (['create-product', 'bind-merchant', 'binding-context', 'check-merchant', 'check-webhook'] as $option) {
+                    if ($this->option($option)) {
+                        throw new RuntimeException('PAYPAL_READINESS_OPTIONS_CONFLICT');
+                    }
+                }
+                $result['network_requested'] = true;
+                $api->authenticateApp(fresh: true);
+                $scope = app(PayPalRuntime::class)->assertPurchaseReady();
+                $record = $binding->assertBound($scope);
+                $result['purchase_readiness_valid'] = true;
+                $result['product_valid'] = true;
+                $result['merchant_binding_valid'] = true;
+                $result['app_authenticated'] = true;
+                $result['webhook_registration_valid'] = true;
+                $result['binding_source'] = $record->binding_source;
+                $result['merchant_id'] = $record->merchant_id;
+                $result['product_id'] = config('billing.paypal.product_id');
+            }
+
             if ($this->option('binding-context')) {
                 $result['binding_context'] = $binding->offlineContext();
             }
@@ -91,11 +112,11 @@ final class PayPalPrepare extends Command
                 }
             }
             if (! $this->option('create-product') && ! $this->option('check-merchant') && ! $this->option('check-webhook')
-                && ! $this->option('binding-context') && ! $this->option('bind-merchant') && $result['missing']) {
+                && ! $this->option('binding-context') && ! $this->option('bind-merchant') && ! $this->option('check-readiness') && $result['missing']) {
                 $result['diagnostic_code'] = 'PAYPAL_NOT_CONFIGURED';
             }
         } catch (Throwable $e) {
-            $known = ['PAYPAL_SETUP_CONFIGURATION_REQUIRED', 'PAYPAL_SETUP_RECONCILIATION_REQUIRED',
+            $known = ['PAYPAL_READINESS_OPTIONS_CONFLICT', 'PAYPAL_SETUP_CONFIGURATION_REQUIRED', 'PAYPAL_SETUP_RECONCILIATION_REQUIRED',
                 'PAYPAL_PRODUCT_RECONCILIATION_REQUIRED', 'PAYPAL_MERCHANT_BINDING_REQUIRED_OR_MISMATCH', 'PAYPAL_WEBHOOK_REGISTRATION_MISMATCH'];
             $result['diagnostic_code'] = in_array($e->getMessage(), $known, true) ? $e->getMessage() : 'PAYPAL_SETUP_UNAVAILABLE';
         }
