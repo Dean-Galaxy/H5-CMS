@@ -11,11 +11,13 @@ use App\Modules\Billing\Services\ProviderInboxStore;
 use App\Modules\Billing\Services\WebhookService;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
+use Carbon\CarbonImmutable;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\Feature\Billing\Support\FakeGateway;
 use Tests\TestCase;
@@ -47,6 +49,88 @@ final class ProviderInboxTest extends TestCase
         $row = (array) DB::table('billing_inbox')->first();
         self::assertArrayNotHasKey('raw_body', $row);
         self::assertArrayNotHasKey('signature', $row);
+    }
+
+    #[DataProvider('fractionalEventTimes')]
+    public function test_verified_fractional_event_time_is_canonicalized_before_sql_and_replay_is_deduplicated(string $fraction): void
+    {
+        $receiver = $this->receiver(['SUCCESS', 'SUCCESS']);
+        $body = str_replace('2026-10-26T00:00:00Z', '2026-10-26T00:00:00.'.$fraction.'Z', $this->body());
+        $id = $receiver->receive($body, $this->headers());
+        self::assertSame($id, $receiver->receive($body, $this->headers()));
+        self::assertDatabaseCount('billing_inbox', 1);
+        self::assertSame('2026-10-26T00:00:00.000000Z',
+            CarbonImmutable::parse(DB::table('billing_inbox')->first()->occurred_at)->utc()->format('Y-m-d\TH:i:s.u\Z'));
+        self::assertDatabaseCount('billing_payments', 0);
+        self::assertDatabaseCount('billing_entitlements', 0);
+        self::assertDatabaseCount('billing_outbox', 0);
+    }
+
+    public function test_verified_same_second_fraction_variants_are_the_same_inbox_hint(): void
+    {
+        $receiver = $this->receiver(['SUCCESS', 'SUCCESS', 'SUCCESS', 'SUCCESS']);
+        $id = null;
+        foreach (['.936', '.936000', '.001', ''] as $fraction) {
+            $body = str_replace('00:00:00Z', '00:00:00'.$fraction.'Z', $this->body());
+            $received = $receiver->receive($body, $this->headers());
+            $id ??= $received;
+            self::assertSame($id, $received);
+        }
+        self::assertDatabaseCount('billing_inbox', 1);
+        self::assertDatabaseCount('billing_payments', 0);
+    }
+
+    #[DataProvider('conflictingEventHints')]
+    public function test_second_resolution_does_not_accept_conflicting_verified_event_identity(string $case): void
+    {
+        $receiver = $this->receiver(['SUCCESS', 'SUCCESS']);
+        $body = str_replace('00:00:00Z', '00:00:00.936Z', $this->body());
+        $receiver->receive($body, $this->headers());
+        $before = (array) DB::table('billing_inbox')->first();
+        $changed = match ($case) {
+            'next-second' => str_replace('00:00:00.936Z', '00:00:01.001Z', $body),
+            'previous-second' => str_replace('2026-10-26T00:00:00.936Z', '2026-10-25T23:59:59.999Z', $body),
+            'resource' => str_replace('I-LOCAL', 'I-DIFFERENT', $body),
+            'event-type' => str_replace('BILLING.SUBSCRIPTION.ACTIVATED', 'BILLING.SUBSCRIPTION.CANCELLED', $body),
+        };
+        try {
+            $receiver->receive($changed, $this->headers());
+            self::fail('Expected identity conflict');
+        } catch (RuntimeException $e) {
+            self::assertSame('BILLING_PROVIDER_EVENT_CONFLICT', $e->getMessage());
+        }
+        self::assertDatabaseCount('billing_inbox', 1);
+        self::assertSame($before, (array) DB::table('billing_inbox')->first());
+        self::assertDatabaseCount('billing_payments', 0);
+    }
+
+    public static function conflictingEventHints(): array
+    {
+        return [['next-second'], ['previous-second'], ['resource'], ['event-type']];
+    }
+
+    public function test_canonicalization_preserves_related_object_conflict_and_legacy_second_event(): void
+    {
+        $scope = ProviderScope::legacyStripe();
+        $event = ['id' => 'EVT-LOCAL', 'type' => 'invoice.paid', 'object_id' => 'INVOICE-LOCAL',
+            'related_object_id' => 'SUB-LOCAL', 'is_test' => true, 'created' => '2026-10-26T00:00:00Z'];
+        $store = app(ProviderInboxStore::class);
+        $id = $store->receive($scope, $event);
+        self::assertSame($id, $store->receive($scope, $event));
+        $event['created'] = '2026-10-26T00:00:00.936Z';
+        $event['related_object_id'] = 'SUB-DIFFERENT';
+        try {
+            $store->receive($scope, $event);
+            self::fail('Expected related object conflict');
+        } catch (RuntimeException $e) {
+            self::assertSame('BILLING_PROVIDER_EVENT_CONFLICT', $e->getMessage());
+        }
+        self::assertSame('SUB-LOCAL', DB::table('billing_inbox')->first()->related_object_id);
+    }
+
+    public static function fractionalEventTimes(): array
+    {
+        return array_map(fn ($fraction) => [$fraction], ['936', '914', '915', '000001', '499999', '500000', '999999']);
     }
 
     public function test_failed_or_unknown_verification_never_acknowledges_inbox(): void

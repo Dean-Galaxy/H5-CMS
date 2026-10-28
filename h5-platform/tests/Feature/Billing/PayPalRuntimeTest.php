@@ -118,7 +118,7 @@ final class PayPalRuntimeTest extends TestCase
         self::assertNull($order->expires_at);
         self::assertFalse($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
         $this->paid();
-        $body = json_encode(['id' => 'WH-LOCAL-PAID', 'event_type' => 'PAYMENT.SALE.COMPLETED', 'create_time' => now()->toIso8601ZuluString(), 'resource' => ['id' => self::SALE]]);
+        $body = json_encode(['id' => 'WH-LOCAL-PAID', 'event_type' => 'PAYMENT.SALE.COMPLETED', 'create_time' => now()->format('Y-m-d\TH:i:s').'.936Z', 'resource' => ['id' => self::SALE]]);
         $headers = ['paypal-auth-algo' => 'SHA256withRSA', 'paypal-cert-url' => 'https://api.sandbox.paypal.com/v1/notifications/certs/CERT-fixture',
             'paypal-transmission-id' => 'fixture-delivery', 'paypal-transmission-sig' => base64_encode('fixture'), 'paypal-transmission-time' => now()->toIso8601ZuluString()];
         $this->postJson('/webhooks/paypal', json_decode($body, true), $headers)->assertOk();
