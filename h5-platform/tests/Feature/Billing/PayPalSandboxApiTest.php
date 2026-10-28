@@ -13,7 +13,9 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -93,7 +95,7 @@ final class PayPalSandboxApiTest extends TestCase
         }
     }
 
-    public function test_unknown_mutation_response_is_not_automatically_retried_or_logged(): void
+    public function test_unknown_mutation_response_is_not_automatically_retried_or_exposed(): void
     {
         $error = new ConnectException('secret response and authorization must not escape', new Request('POST', 'https://irrelevant.test'));
         $api = $this->api([$this->token(), $error]);
@@ -167,6 +169,70 @@ final class PayPalSandboxApiTest extends TestCase
         config(['billing.paypal.enabled' => false]);
         $this->expectException(DependencyNotReady::class);
         $api->subscription('I-LOCAL');
+    }
+
+    #[DataProvider('transportFailures')]
+    public function test_verification_transport_diagnostics_contain_only_fixed_safe_fields(string $case, ?int $status, string $failure, string $providerCode): void
+    {
+        Log::spy();
+        $private = 'PRIVATE-email@example.test Authorization Bearer PRIVATE-TOKEN SECRET transmission-signature';
+        $response = match ($case) {
+            'network' => new ConnectException($private, new Request('POST', 'https://private.example.test/PRIVATE-ID', ['Authorization' => $private], $private)),
+            'rejected' => new Response(422, ['Private-Header' => $private], json_encode(['name' => 'INVALID_REQUEST', 'message' => $private, 'details' => [['issue' => $private]], 'debug_id' => $private])),
+            'unknown-code' => new Response(500, [], json_encode(['name' => $private])),
+            'invalid-json' => new Response(200, [], $private),
+            'invalid-object' => new Response(200, [], json_encode([$private])),
+            'oversize' => new Response(200, [], str_repeat('x', 1048577)),
+            'oauth' => new Response(403, [], json_encode(['name' => 'PERMISSION_DENIED', 'message' => $private])),
+        };
+        $api = $this->api($case === 'oauth' ? [$response] : [$this->token(), $response]);
+        try {
+            $api->verify($this->envelope());
+            self::fail('Expected safe transport rejection');
+        } catch (RuntimeException $e) {
+            self::assertSame('PAYPAL_RECONCILIATION_REQUIRED', $e->getMessage());
+            self::assertNull($e->getPrevious());
+        }
+        Log::shouldHaveReceived('warning')->once()->with('billing.paypal.transport_failure', [
+            'operation' => $case === 'oauth' ? 'oauth' : 'verify_webhook_signature',
+            'http_status' => $status, 'failure_class' => $failure, 'provider_code' => $providerCode,
+        ]);
+    }
+
+    public static function transportFailures(): array
+    {
+        return [
+            ['network', null, 'network', 'unknown'],
+            ['rejected', 422, 'api_rejected', 'INVALID_REQUEST'],
+            ['unknown-code', 500, 'api_rejected', 'unknown'],
+            ['invalid-json', 200, 'invalid_json', 'unknown'],
+            ['invalid-object', 200, 'invalid_response', 'unknown'],
+            ['oversize', 200, 'invalid_response', 'unknown'],
+            ['oauth', 403, 'api_rejected', 'PERMISSION_DENIED'],
+        ];
+    }
+
+    public function test_diagnostics_do_not_log_subscription_id_query_or_redirect_location(): void
+    {
+        Log::spy();
+        $api = $this->api([$this->token(), new Response(302, ['Location' => 'https://private.example.test/PRIVATE'], 'PRIVATE')]);
+        try {
+            $api->transactions('I-PRIVATE', new \DateTimeImmutable('2026-10-01Z'), new \DateTimeImmutable('2026-10-02Z'));
+            self::fail('Redirect not allowed');
+        } catch (RuntimeException $e) {
+            self::assertNull($e->getPrevious());
+        }
+        Log::shouldHaveReceived('warning')->once()->with('billing.paypal.transport_failure', [
+            'operation' => 'read_transactions', 'http_status' => 302, 'failure_class' => 'api_rejected', 'provider_code' => 'unknown',
+        ]);
+    }
+
+    public function test_successful_transport_and_signature_failure_do_not_emit_sensitive_diagnostics(): void
+    {
+        Log::spy();
+        $api = $this->api([$this->token(), new Response(200, [], '{"verification_status":"FAILURE"}')]);
+        self::assertFalse($api->verify($this->envelope()));
+        Log::shouldNotHaveReceived('warning');
     }
 
     private function api(array $responses): SandboxApi

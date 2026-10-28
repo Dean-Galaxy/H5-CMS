@@ -10,6 +10,7 @@ use App\Support\DependencyNotReady;
 use App\Support\RuntimeEnvironmentGuard;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
@@ -190,6 +191,7 @@ final class SandboxApi
         }
         $reply = $this->call('POST', '/v1/notifications/verify-webhook-signature', $envelope->verificationRequestBody());
         if (! in_array($reply['verification_status'] ?? null, ['SUCCESS', 'FAILURE'], true)) {
+            $this->diagnostic('verify_webhook_signature', null, 'invalid_response');
             throw new RuntimeException('PAYPAL_VERIFICATION_UNKNOWN');
         }
 
@@ -230,8 +232,43 @@ final class SandboxApi
         return $this->token;
     }
 
+    /** Only literals leave this mapper. IDs, query strings and origins are never logged. */
+    private function operation(string $method, string $path): string
+    {
+        return match (true) {
+            $path === '/v1/oauth2/token' => 'oauth',
+            $path === '/v1/notifications/verify-webhook-signature' => 'verify_webhook_signature',
+            str_starts_with($path, '/v1/notifications/webhooks/') => 'read_webhook',
+            $path === '/v1/billing/plans' => 'create_plan',
+            str_starts_with($path, '/v1/billing/plans/') => 'read_plan',
+            $path === '/v1/catalogs/products' => 'create_product',
+            str_starts_with($path, '/v1/catalogs/products/') => 'read_product',
+            $path === '/v1/billing/subscriptions' => 'create_subscription',
+            str_starts_with($path, '/v1/billing/subscriptions/') && str_contains($path, '/transactions?') => 'read_transactions',
+            str_starts_with($path, '/v1/billing/subscriptions/') && str_ends_with($path, '/cancel') => 'cancel_subscription',
+            str_starts_with($path, '/v1/billing/subscriptions/') && str_ends_with($path, '/suspend') => 'suspend_subscription',
+            $method === 'GET' && str_starts_with($path, '/v1/billing/subscriptions/') => 'read_subscription',
+            str_starts_with($path, '/v1/payments/sale/') => 'read_sale',
+            str_starts_with($path, '/v1/payments/refund/') => 'read_refund',
+            default => 'unknown',
+        };
+    }
+
+    private function diagnostic(string $operation, ?int $status, string $failure, string $providerCode = 'unknown'): void
+    {
+        try {
+            Log::warning('billing.paypal.transport_failure', ['operation' => $operation, 'http_status' => $status,
+                'failure_class' => $failure, 'provider_code' => $providerCode]);
+        } catch (Throwable) {
+            // A logger failure must not reveal the original vendor exception or alter the API error.
+        }
+    }
+
     private function send(string $method, string $path, array $options): array
     {
+        $status = null;
+        $failure = 'network';
+        $providerCode = 'unknown';
         try {
             $client = $this->testingTransport ?? new Client;
             $response = $client->request($method, self::ORIGIN.$path, $options + [
@@ -240,22 +277,33 @@ final class SandboxApi
             ]);
             $status = $response->getStatusCode();
             if ($status < 200 || $status >= 300) {
+                $failure = 'api_rejected';
+                $errorBody = $response->getBody()->read(65537);
+                $name = strlen($errorBody) <= 65536 ? (json_decode($errorBody, true)['name'] ?? null) : null;
+                if (is_string($name) && in_array($name, ['MALFORMED_REQUEST_JSON', 'INVALID_REQUEST', 'AUTHENTICATION_FAILURE',
+                    'PERMISSION_DENIED', 'RESOURCE_NOT_FOUND', 'VALIDATION_ERROR', 'INTERNAL_SERVICE_ERROR', 'UNPROCESSABLE_ENTITY'], true)) {
+                    $providerCode = $name;
+                }
                 throw new RuntimeException('PAYPAL_RECONCILIATION_REQUIRED');
             }
             if ($status === 204) {
                 return [];
             }
+            $failure = 'invalid_response';
             $body = $response->getBody()->read(1048577);
             if (strlen($body) > 1048576) {
                 throw new RuntimeException('PAYPAL_RESPONSE_INVALID');
             }
+            $failure = 'invalid_json';
             $decoded = json_decode($body, false, 64, JSON_THROW_ON_ERROR);
+            $failure = 'invalid_response';
             if (! $decoded instanceof \stdClass) {
                 throw new RuntimeException('PAYPAL_RESPONSE_INVALID');
             }
 
             return json_decode($body, true, 64, JSON_THROW_ON_ERROR | JSON_BIGINT_AS_STRING);
         } catch (Throwable) {
+            $this->diagnostic($this->operation($method, $path), $status, $failure, $providerCode);
             // Do not chain vendor exceptions: requests may contain authorization or webhook bodies.
             throw new RuntimeException('PAYPAL_RECONCILIATION_REQUIRED');
         }
