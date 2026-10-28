@@ -34,6 +34,12 @@ final class PayPalMerchantBindingTest extends TestCase
 
     private array $webhook = ['id' => '1AB23456CD789012E', 'url' => 'https://callback.example.test/webhooks/paypal'];
 
+    private array $product = ['id' => 'PROD-ABCDEFGHIJKLMNOPQ', 'type' => 'DIGITAL'];
+
+    private bool $failProduct = false;
+
+    private bool $changeProductConfiguration = false;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -54,6 +60,13 @@ final class PayPalMerchantBindingTest extends TestCase
             }
             if ($path === '/v1/notifications/webhooks/1AB23456CD789012E') {
                 return new Response(200, [], json_encode($this->webhook));
+            }
+            if ($path === '/v1/catalogs/products/PROD-ABCDEFGHIJKLMNOPQ') {
+                if ($this->changeProductConfiguration) {
+                    config(['billing.paypal.product_id' => 'PROD-QPONMLKJIHGFEDCBA']);
+                }
+
+                return new Response($this->failProduct ? 503 : 200, [], json_encode($this->product));
             }
             throw new RuntimeException('UNEXPECTED_REQUEST');
         }));
@@ -222,6 +235,94 @@ final class PayPalMerchantBindingTest extends TestCase
         $this->api->assertWebhookRegistration($scope);
         $this->webhook['event_types'] = [];
         $this->rejected(fn () => $this->api->assertWebhookRegistration($scope));
+    }
+
+    public function test_readiness_works_before_new_purchase_enablement_with_fresh_auth_and_no_writes(): void
+    {
+        $this->prepareReadiness();
+        $config = config('billing');
+        $binding = DB::table('billing_paypal_merchant_bindings')->first();
+        $this->calls = [];
+        $writes = [];
+        DB::listen(function ($event) use (&$writes) {
+            if (preg_match('/^\s*(insert|update|delete|alter|create|drop|truncate)\b/i', $event->sql)) {
+                $writes[] = $event->sql;
+            }
+        });
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            self::assertSame(0, Artisan::call('billing:paypal-prepare', ['--check-readiness' => true]));
+            $output = json_decode(Artisan::output(), true, 32, JSON_THROW_ON_ERROR);
+            foreach (['purchase_readiness_valid', 'product_valid', 'merchant_binding_valid', 'app_authenticated', 'webhook_registration_valid'] as $key) {
+                self::assertTrue($output[$key], $key);
+            }
+            self::assertSame('operator_dashboard', $output['binding_source']);
+            self::assertFalse($output['api_merchant_identity_verified']);
+            self::assertSame('not_performed', $output['official_payment_verification']);
+        }
+        self::assertSame(array_merge(...array_fill(0, 2, ['POST /v1/oauth2/token',
+            'GET /v1/notifications/webhooks/1AB23456CD789012E', 'GET /v1/catalogs/products/PROD-ABCDEFGHIJKLMNOPQ'])), $this->calls);
+        self::assertSame([], $writes);
+        self::assertSame($config, config('billing'));
+        self::assertEquals($binding, DB::table('billing_paypal_merchant_bindings')->first());
+        foreach (['billing_orders', 'billing_payments', 'billing_entitlements', 'billing_subscriptions', 'billing_provider_intents'] as $table) {
+            self::assertDatabaseCount($table, 0);
+        }
+    }
+
+    public function test_readiness_rejects_bad_product_binding_authentication_or_webhook_without_writes(): void
+    {
+        $this->prepareReadiness();
+        $configuration = config('billing.paypal');
+        $product = $this->product;
+        $webhook = $this->webhook;
+        foreach (['product_id', 'product_type', 'product_error', 'webhook_events', 'webhook_url', 'binding', 'oauth', 'disabled', 'missing_product', 'configuration_changed'] as $fault) {
+            config(['billing.paypal' => $configuration]);
+            $this->product = $product;
+            $this->webhook = $webhook;
+            $this->rejectAuth = $fault === 'oauth';
+            $this->failProduct = $fault === 'product_error';
+            $this->changeProductConfiguration = $fault === 'configuration_changed';
+            match ($fault) {
+                'product_id' => $this->product['id'] = 'PROD-QPONMLKJIHGFEDCBA',
+                'product_type' => $this->product['type'] = 'PHYSICAL',
+                'webhook_events' => $this->webhook['event_types'] = [['name' => 'PAYMENT.SALE.COMPLETED']],
+                'webhook_url' => $this->webhook['url'] = 'https://other.example.test/webhooks/paypal',
+                'binding' => config(['billing.paypal.merchant_id' => 'OTHERSELLER']),
+                'disabled' => config(['billing.paypal.enabled' => false]),
+                'missing_product' => config(['billing.paypal.product_id' => null]),
+                default => null,
+            };
+            self::assertSame(1, Artisan::call('billing:paypal-prepare', ['--check-readiness' => true]), $fault);
+            $output = json_decode(Artisan::output(), true, 32, JSON_THROW_ON_ERROR);
+            self::assertFalse($output['purchase_readiness_valid'], $fault);
+            self::assertFalse($output['product_valid'], $fault);
+            self::assertNotNull($output['diagnostic_code']);
+            self::assertSame('unconfigured', config('billing.new_purchase_provider'));
+            foreach (['billing_orders', 'billing_subscriptions', 'billing_provider_intents'] as $table) {
+                self::assertDatabaseCount($table, 0);
+            }
+        }
+    }
+
+    public function test_readiness_cannot_be_combined_with_any_other_setup_option(): void
+    {
+        foreach (['create-product' => true, 'bind-merchant' => '/not/read/receipt.json', 'binding-context' => true, 'check-merchant' => true, 'check-webhook' => true] as $key => $value) {
+            self::assertSame(1, Artisan::call('billing:paypal-prepare', ['--check-readiness' => true, '--'.$key => $value]));
+            $output = json_decode(Artisan::output(), true, 32, JSON_THROW_ON_ERROR);
+            self::assertSame('PAYPAL_READINESS_OPTIONS_CONFLICT', $output['diagnostic_code']);
+            self::assertFalse($output['network_requested']);
+            self::assertFalse($output['purchase_readiness_valid']);
+        }
+        self::assertSame([], $this->calls);
+        self::assertDatabaseCount('billing_provider_intents', 0);
+        self::assertDatabaseCount('billing_paypal_merchant_bindings', 0);
+    }
+
+    private function prepareReadiness(): void
+    {
+        $this->binding->bindReceipt($this->receipt());
+        config(['billing.paypal.webhook_id' => $this->webhook['id'], 'billing.paypal.webhook_url' => $this->webhook['url'],
+            'billing.paypal.product_id' => $this->product['id']]);
     }
 
     private function receipt(array $changes = []): string
