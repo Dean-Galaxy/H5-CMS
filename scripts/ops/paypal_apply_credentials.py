@@ -50,7 +50,7 @@ def quote(value):
     return '"' + value.replace('\\', '\\\\').replace('"', '\\"').replace('$', '\\$') + '"'
 
 
-def bound_environment(root, autoload=None):
+def bound_environment(root, autoload=None, allowed_purchase_providers=('unconfigured', '')):
     runtime = root / '.runtime'
     for directory in (runtime, runtime / 'paypal-sandbox', root / 'h5-platform'):
         if directory.is_symlink() or not directory.is_dir() or directory.stat().st_uid != os.getuid() or directory.stat().st_mode & 0o022:
@@ -72,7 +72,7 @@ def bound_environment(root, autoload=None):
                 'CACHE_PREFIX': c['workspace'], 'DB_QUEUE': c['workspace']}
     if any(existing.get(k) != value for k, value in expected.items()):
         raise ValueError('ENV_WORKSPACE_MISMATCH')
-    if existing.get('H5_BILLING_NEW_PURCHASE_PROVIDER', 'unconfigured') not in ('unconfigured', '') or existing.get('H5_BILLING_DRIVER', 'unconfigured') not in ('unconfigured', ''):
+    if existing.get('H5_BILLING_NEW_PURCHASE_PROVIDER', 'unconfigured') not in allowed_purchase_providers or existing.get('H5_BILLING_DRIVER', 'unconfigured') not in ('unconfigured', ''):
         raise ValueError('ACTIVE_PAYMENT_CONFIGURATION_REFUSED')
     return env_path, original, existing, loader, runtime / 'paypal-sandbox'
 
