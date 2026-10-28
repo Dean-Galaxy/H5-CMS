@@ -48,3 +48,16 @@ F01恢复续费未完成官方原价、原时间、不立即扣款验证前不�
 
 官方Quick Tunnel用于临时开发测试，网址每次重启会变且无可用性保证；停进程后不可达。网址变化须在原Sandbox App更新Webhook并核对ID，不能直接沿用旧URL。
 来源：https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/
+
+
+## 2026-10-28 商户初始化绑定补充（00接收方向，运行实现待验）
+
+本轮官方OAuth200、余额接口403且无余额读取scope，确认不能将余额接口作为普通订阅应用的必需前置。配置字段、公共业务DTO/OpenAPI1.0.5不变；下述仅明确商户初始化的证明来源，不是付款或商户资格通过。
+
+- 07指导本人核对已私密保存凭据对应的同一Sandbox Merchant App，以及该App关联的Business账号；再核对该账号详情中的Merchant/Account ID。记录实际核对来源、时间和本机私密回执引用。单独填入ID、另一账号的截图、OAuth app_id或OAuth200都不能替代此对应关系核对。
+- 03以显式管理CLI封存带来源的人工绑定，持久绑定scope、Client ID SHA256、Merchant ID和核对回执。运行缺失/不匹配时拒绝相应付款操作，不能自动创建绑定或静默换账号。Secret轮换不等同改App，仍需官方认证通过；更换Client ID、Merchant ID或scope必须独立审查及迁移，不能重用原账务归属。
+- 诊断必须将人工绑定有效与API自动识别商户分开：例如merchant_binding_valid、binding_source=operator_dashboard、api_merchant_identity_verified=false。不得把这种初始化写成官方自动返回Merchant ID，更不得冒充订阅资格、签名或已付款。
+- OAuth只证明当前App凭据有效。官方资源读权限只证明该凭据有权访问相应资源，不推断Catalog/计划为该App独占。产品、计划、订阅、本地订单关联、scope、金额/币种/周期和实际付款仍按原链路逐项核对。Webhook ID需由当前凭据官方读回，核对该App注册入口；不能采用模拟器ID或用其他App的事件。
+- 不新增非订阅Orders测试对象来探测商户，不放宽正式环境检查、回调签名或唯一账本规则。CLI输入/回执和官方资源验收由03固定交付后经00复核；部署和本人操作入口由06/07衔接。
+
+依据：[PayPal REST凭据创建说明](https://www.paypal.com/us/cshelp/article/how-do-i-create-paypal-rest-api-credentials-ts1949)说明Merchant App选择关联Sandbox Business账号；[REST入门](https://developer.paypal.com/api/rest/)区分Client ID标识App与Secret认证App。人工核对方案为本项目在这些官方边界下的工程设计，不是PayPal新增的身份API。
