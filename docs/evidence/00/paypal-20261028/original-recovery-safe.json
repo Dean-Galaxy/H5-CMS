@@ -1,0 +1,30 @@
+{
+  "order_state": "paid",
+  "subscription_state": "active",
+  "membership_access_active": true,
+  "paid_interval_preserved": true,
+  "original_sale_inbox_count": 1,
+  "original_sale_inbox": [
+    {
+      "event_type": "PAYMENT.SALE.COMPLETED",
+      "state": "processed",
+      "attempts": 1,
+      "last_error": null
+    }
+  ],
+  "counts": {
+    "billing_orders": 1,
+    "billing_subscriptions": 1,
+    "billing_payments": 1,
+    "billing_entitlements": 1,
+    "billing_inbox": 1,
+    "billing_outbox": 1
+  },
+  "outbox_delivered_count": 0,
+  "runtime_candidate": "cfd24cbb6fe42ab959bd547d7ca70a02a8f2ae35",
+  "official_sandbox_sale_callback_processed": true,
+  "extra_official_duplicate_delivery_observed": false,
+  "manual_membership_refresh_confirmed": false,
+  "official_cancellation_verified": false,
+  "live_enabled": false
+}
