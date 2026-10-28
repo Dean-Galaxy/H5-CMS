@@ -6,6 +6,7 @@ use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Gateway\PayPal\SandboxWebhookEnvelope;
 use App\Modules\Billing\Gateway\ProviderGatewayRouter;
 use App\Modules\Billing\Gateway\ProviderScope;
+use App\Modules\Billing\Support\ProviderActivity;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 use Throwable;
@@ -23,13 +24,13 @@ final class WebhookService
     public function processPending(int $limit = 100): int
     {
         $done = 0;
-        $ids = DB::table('billing_inbox')->where(function ($q) {
+        $ids = ProviderActivity::eligible(DB::table('billing_inbox'))->where(function ($q) {
             $q->where('state', 'pending')->orWhere(fn ($q) => $q->where('state', 'processing')->where('processed_at', '<', now()->subMinutes(5)));
         })->orderByRaw('last_attempted_at ASC NULLS FIRST')->orderBy('created_at')->limit(max(1, min($limit, 1000)))->pluck('id');
         foreach ($ids as $id) {
             $event = DB::transaction(function () use ($id) {
                 $event = DB::table('billing_inbox')->where('id', $id)->lockForUpdate()->first();
-                if (! $event || $event->state === 'processed' || $event->state === 'ignored'
+                if (! $event || ProviderActivity::disabled($event->provider) || $event->state === 'processed' || $event->state === 'ignored'
                     || ($event->state === 'processing' && $event->processed_at > now()->subMinutes(5)->toDateTimeString())) {
                     return null;
                 }

@@ -29,6 +29,7 @@ use App\Modules\Billing\Gateway\PayPal\SandboxApi;
 use App\Modules\Billing\Gateway\ProviderGatewayRouter;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Support\CheckoutSafety;
+use App\Modules\Billing\Support\ProviderActivity;
 use App\Modules\Identity\Services\SafeReturn;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
@@ -158,6 +159,7 @@ final class BillingEngine implements BillingService, MembershipReader
         if (! $initial) {
             return;
         }
+        ProviderActivity::assertEnabled($initial->provider);
         if ($initial->provider === 'paypal') {
             try {
                 app(PayPalRuntime::class)->checkout($orderId);
@@ -367,6 +369,7 @@ final class BillingEngine implements BillingService, MembershipReader
         if (! $sub || $sub->state === 'ended') {
             return;
         }
+        ProviderActivity::assertEnabled($sub->provider);
         try {
             $this->cancelAccount($sub->viewer_id, $sub->id, $expectedVersion ?? $sub->confirmation_version);
         } catch (ApiProblem $e) {
@@ -480,6 +483,7 @@ final class BillingEngine implements BillingService, MembershipReader
         if (! $op) {
             return;
         }
+        ProviderActivity::assertEnabled(DB::table('billing_subscriptions')->where('id', $op->subscription_id)->value('provider') ?? '');
         DB::transaction(function () use ($op) {
             BillingStore::lock($op->viewer_id);
             $op = DB::table('billing_operations')->find($op->id);
@@ -488,6 +492,7 @@ final class BillingEngine implements BillingService, MembershipReader
             }
             $sub = DB::table('billing_subscriptions')->find($op->subscription_id);
             $enabled = $op->kind === 'resume';
+            ProviderActivity::assertEnabled($sub->provider);
             if ($sub->confirmation_version !== $op->expected_version || ($enabled && $sub->refund_stopped)) {
                 DB::table('billing_operations')->where('id', $op->id)->update(['state' => 'superseded', 'last_error' => 'STALE_VERSION', 'updated_at' => now()]);
                 if ($op->quote_id) {
@@ -567,14 +572,14 @@ final class BillingEngine implements BillingService, MembershipReader
     public function retryPendingOperations(): int
     {
         $count = 0;
-        foreach (DB::table('billing_operations')->where('state', 'pending')->orderBy('updated_at')->limit(100)->get() as $op) {
+        foreach (DB::table('billing_operations')->whereIn('subscription_id', ProviderActivity::eligible(DB::table('billing_subscriptions'))->select('id'))->where('state', 'pending')->orderBy('updated_at')->limit(100)->get() as $op) {
             $this->executeOperation($op->id);
             $count++;
         }
-        foreach (DB::table('billing_orders')->where('state', 'processing')->whereNull('checkout_id')->orderBy('updated_at')->limit(100)->get() as $order) {
+        foreach (ProviderActivity::eligible(DB::table('billing_orders'))->where('state', 'processing')->whereNull('checkout_id')->orderBy('updated_at')->limit(100)->get() as $order) {
             $this->executeCheckout($order->id);
         }
-        foreach (DB::table('billing_subscriptions')->where(fn ($q) => $q->where('refund_stopped', true)->orWhere('desired_renewal', false))->where('state', '<>', 'ended')->where('renewal_enabled', true)->limit(100)->get() as $sub) {
+        foreach (ProviderActivity::eligible(DB::table('billing_subscriptions'))->where(fn ($q) => $q->where('refund_stopped', true)->orWhere('desired_renewal', false))->where('state', '<>', 'ended')->where('renewal_enabled', true)->limit(100)->get() as $sub) {
             $this->cancelSubscriptionForRefund($sub->id);
         }
 

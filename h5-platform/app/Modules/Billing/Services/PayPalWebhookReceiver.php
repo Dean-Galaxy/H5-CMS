@@ -5,6 +5,7 @@ namespace App\Modules\Billing\Services;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
 use App\Modules\Billing\Gateway\PayPal\SandboxWebhookEnvelope;
 use App\Modules\Billing\Gateway\ProviderScope;
+use App\Modules\Billing\Support\ProviderActivity;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
 use InvalidArgumentException;
@@ -16,6 +17,9 @@ final class PayPalWebhookReceiver
 
     public function receive(string $body, array $headers): string
     {
+        if (ProviderActivity::disabled('paypal')) {
+            throw new DependencyNotReady('Billing / PayPal API explicitly disabled');
+        }
         $configuration = config('billing.paypal');
         if (! is_array($configuration) || ! is_string($configuration['merchant_scope'] ?? null)
             || ! is_string($configuration['webhook_id'] ?? null)) {

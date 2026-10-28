@@ -11,6 +11,7 @@ use App\Modules\Billing\Gateway\PayPal\SandboxWeeklyPlan;
 use App\Modules\Billing\Gateway\PayPal\WeeklyCycleEvidence;
 use App\Modules\Billing\Gateway\PayPal\WeeklyPlanVerifier;
 use App\Modules\Billing\Gateway\ProviderScope;
+use App\Modules\Billing\Support\ProviderActivity;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -28,6 +29,7 @@ final class PayPalReconciliation
 
     public function sync(string $subscriptionId, bool $allowLifecycleChanges = true): void
     {
+        ProviderActivity::assertEnabled('paypal');
         $stage = 'IDENTITY';
         try {
             DB::transaction(function () use ($subscriptionId, $allowLifecycleChanges, &$stage) {
@@ -181,6 +183,7 @@ final class PayPalReconciliation
 
     public function process(object $event): bool
     {
+        ProviderActivity::assertEnabled('paypal');
         $scope = ProviderScope::fromRecord($event);
         $this->api->configurationStamp($scope);
         if (str_starts_with($event->event_type, 'BILLING.SUBSCRIPTION.')) {
@@ -208,6 +211,7 @@ final class PayPalReconciliation
 
     public function refund(ProviderScope $scope, string $refundId): void
     {
+        ProviderActivity::assertEnabled('paypal');
         $stamp = $this->api->configurationStamp($scope);
         $this->api->assertMerchant($scope);
         $refund = $this->api->refund($refundId);
@@ -232,6 +236,7 @@ final class PayPalReconciliation
 
     public function syncRefunds(string $paymentId): void
     {
+        ProviderActivity::assertEnabled('paypal');
         $payment = DB::table('billing_payments')->find($paymentId) ?? throw new RuntimeException('PAYPAL_PAYMENT_UNKNOWN');
         $scope = ProviderScope::fromRecord($payment);
         $stamp = $this->api->configurationStamp($scope);
