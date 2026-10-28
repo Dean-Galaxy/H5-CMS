@@ -1,0 +1,13 @@
+04 Audience PayPal return consumer regression
+Base: e0435f9ddd7ab6c1f194a1ea6bcab768018fcfc9
+Run: python3 ../scripts/ops/run_acceptance.py tests/Feature/Audience
+Result: 42 tests passed, 398 assertions
+
+Coverage:
+- A fresh synthetic PayPal APPROVAL_PENDING checkout navigates to the provider approval URL once.
+- When the fixed Billing code observes ACTIVE without locally verified payment evidence, recheck returns no approval URL; the browser remains on the original local pending order and the page shows the neutral verification state.
+- Repeated explicit rechecks keep the same order and idempotency key; the synthetic transport observes one subscription-creation POST total.
+- GET refresh reads the original local order and does not make any PayPal transport request.
+- No entitlement is granted by ACTIVE alone.
+
+The HTTP transport is an in-process synthetic Sandbox fixture. No official PayPal request, payment, application, or production configuration was used by this test run.
