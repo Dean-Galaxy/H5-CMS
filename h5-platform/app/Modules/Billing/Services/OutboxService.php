@@ -3,6 +3,7 @@
 namespace App\Modules\Billing\Services;
 
 use App\Data\PaymentSettled;
+use App\Modules\Billing\Support\ProviderActivity;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -14,12 +15,13 @@ final class OutboxService
     public function dispatchPending(int $limit = 100): int
     {
         $sent = 0;
-        $ids = DB::table('billing_outbox')->whereNull('delivered_at')->orderByRaw('last_attempted_at ASC NULLS FIRST')->orderBy('created_at')->limit(max(1, min($limit, 1000)))->pluck('id');
+        $ids = DB::table('billing_outbox')->whereIn('payment_id', ProviderActivity::eligible(DB::table('billing_payments'))->select('id'))->whereNull('delivered_at')->orderByRaw('last_attempted_at ASC NULLS FIRST')->orderBy('created_at')->limit(max(1, min($limit, 1000)))->pluck('id');
         foreach ($ids as $id) {
             try {
                 $delivered = DB::transaction(function () use ($id) {
                     $row = DB::table('billing_outbox')->where('id', $id)->lockForUpdate()->first();
-                    if (! $row || $row->delivered_at) {
+                    if (! $row || $row->delivered_at
+                        || ProviderActivity::disabled(DB::table('billing_payments')->where('id', $row->payment_id)->value('provider') ?? '')) {
                         return false;
                     }
                     if (! $this->events->hasListeners(PaymentSettled::class)) {

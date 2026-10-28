@@ -9,6 +9,7 @@ use App\Modules\Billing\Services\OutboxService;
 use App\Modules\Billing\Services\PayPalReconciliation;
 use App\Modules\Billing\Services\SettlementService;
 use App\Modules\Billing\Services\WebhookService;
+use App\Modules\Billing\Support\ProviderActivity;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -33,7 +34,7 @@ final class ReconcileBilling extends Command
         };
         $run(fn () => $inbox->processPending($limit));
         $run(fn () => $billing->retryPendingOperations());
-        foreach (DB::table('billing_orders')->whereNotNull('checkout_id')->whereIn('state', ['pending', 'processing', 'failed', 'review_required'])->orderByRaw('last_reconciled_at ASC NULLS FIRST')->orderBy('updated_at')->limit($limit)->get() as $order) {
+        foreach (ProviderActivity::eligible(DB::table('billing_orders'))->whereNotNull('checkout_id')->whereIn('state', ['pending', 'processing', 'failed', 'review_required'])->orderByRaw('last_reconciled_at ASC NULLS FIRST')->orderBy('updated_at')->limit($limit)->get() as $order) {
             $run(function () use ($router, $order, $settlement) {
                 if ($order->provider === 'paypal') {
                     app(PayPalReconciliation::class)->sync($order->subscription_id);
@@ -45,7 +46,7 @@ final class ReconcileBilling extends Command
             });
             DB::table('billing_orders')->where('id', $order->id)->update(['last_reconciled_at' => now()]);
         }
-        foreach (DB::table('billing_subscriptions')->whereNotNull('provider_id')->orderByRaw('last_reconciled_at ASC NULLS FIRST')->orderBy('updated_at')->limit($limit)->get() as $sub) {
+        foreach (ProviderActivity::eligible(DB::table('billing_subscriptions'))->whereNotNull('provider_id')->orderByRaw('last_reconciled_at ASC NULLS FIRST')->orderBy('updated_at')->limit($limit)->get() as $sub) {
             $run(function () use ($router, $sub, $settlement) {
                 if ($sub->provider === 'paypal') {
                     app(PayPalReconciliation::class)->sync($sub->id);
@@ -65,7 +66,7 @@ final class ReconcileBilling extends Command
             });
             DB::table('billing_subscriptions')->where('id', $sub->id)->update(['last_reconciled_at' => now()]);
         }
-        foreach (DB::table('billing_payments')->whereNotNull('provider_charge_id')->orderByRaw('last_reconciled_at ASC NULLS FIRST')->orderBy('created_at')->limit($limit)->get() as $payment) {
+        foreach (ProviderActivity::eligible(DB::table('billing_payments'))->whereNotNull('provider_charge_id')->orderByRaw('last_reconciled_at ASC NULLS FIRST')->orderBy('created_at')->limit($limit)->get() as $payment) {
             $run(function () use ($router, $payment, $settlement) {
                 if ($payment->provider === 'paypal') {
                     app(PayPalReconciliation::class)->syncRefunds($payment->id);

@@ -2,17 +2,22 @@
 
 namespace Tests\Feature\Billing;
 
+use App\Contracts\MembershipReader;
 use App\Contracts\RegionResolver;
 use App\Data\Checkout;
 use App\Data\CheckoutInput;
+use App\Data\PaymentSettled;
 use App\Data\ResolvedRegion;
 use App\Data\ViewerIdentity;
 use App\Modules\Billing\BillingServiceProvider;
+use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Services\BillingEngine;
 use App\Modules\Billing\Services\BillingStore;
+use App\Modules\Billing\Services\PaymentLedger;
 use App\Modules\Billing\Services\PayPalReconciliation;
+use App\Modules\Billing\Services\ProviderInboxStore;
 use App\Modules\Billing\Services\WebhookService;
 use App\Modules\Identity\Models\Viewer;
 use App\Support\ApiProblem;
@@ -23,9 +28,12 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
+use Tests\Feature\Billing\Support\FakeGateway;
+use Tests\Feature\Billing\Support\ProviderLedgerFixture;
 use Tests\TestCase;
 
 /** End-to-end module calls with an explicit HTTP sandbox fixture, never official evidence. */
@@ -599,6 +607,205 @@ final class PayPalRuntimeTest extends TestCase
         self::assertNull($this->retryCheckout($order)->checkout_url);
         self::assertNotContains('POST /v1/billing/subscriptions/I-FIXTURE/cancel', $this->calls);
         self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+    }
+
+    public function test_explicitly_disabled_paypal_reconciliation_preserves_confirmed_cancellation_and_all_rows(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $member = $this->billing->cancel($this->viewer());
+        self::assertFalse($member->payment_resolution_required);
+        app(ProviderInboxStore::class)->receive(ProviderScope::fromRecord($order), [
+            'id' => 'WH-OFFLINE', 'type' => 'PAYMENT.SALE.COMPLETED', 'object_id' => self::SALE,
+            'created' => now()->toIso8601ZuluString(), 'is_test' => true,
+        ]);
+        config(['billing.paypal.enabled' => false, 'billing.new_purchase_provider' => 'unconfigured']);
+        $before = $this->billingSnapshot();
+        $calls = $this->calls;
+        $this->travel(2)->minutes();
+        $exit = Artisan::call('billing:reconcile', ['--limit' => 1]);
+        self::assertSame($calls, $this->calls, 'Disabled PayPal made a network call');
+        self::assertSame($before, $this->billingSnapshot(), 'Disabled provider rows changed');
+        self::assertSame(0, $exit);
+        $member = $this->billing->membership($this->user->id, now()->toDateTimeImmutable());
+        self::assertTrue($member->access_active);
+        self::assertFalse($member->renewal_enabled);
+        self::assertFalse($member->payment_resolution_required);
+    }
+
+    public function test_disabled_direct_calls_and_callback_report_unavailable_without_modifying_payment_facts(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $payment = DB::table('billing_payments')->first();
+        config(['billing.paypal.enabled' => false]);
+        $before = $this->billingSnapshot();
+        $calls = $this->calls;
+        $service = app(PayPalReconciliation::class);
+        foreach ([fn () => $service->sync($order->subscription_id), fn () => $service->syncRefunds($payment->id),
+            fn () => $service->refund(ProviderScope::fromRecord($order), 'REFUNDLOCAL1'),
+            fn () => $this->billing->executeCheckout($order->id),
+            fn () => $this->billing->cancelSubscriptionForRefund($order->subscription_id)] as $action) {
+            try {
+                $action();
+                self::fail('An explicit provider call must remain unavailable');
+            } catch (DependencyNotReady) {
+            }
+        }
+        $this->postJson('/webhooks/paypal', ['id' => 'untrusted'])->assertStatus(503);
+        $this->getJson('/api/v1/me/membership')->assertUnauthorized();
+        $this->actingAs($this->user, 'web')->withSession(['identity.version.web' => $this->user->session_version])->getJson('/api/v1/me/membership')->assertOk()->assertJsonPath('access_active', true);
+        self::assertTrue(app(MembershipReader::class)->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+        $until = CarbonImmutable::parse($payment->period_end)->toDateTimeImmutable();
+        self::assertFalse(app(MembershipReader::class)->membership($this->user->id, $until)->access_active);
+        self::assertSame($before, $this->billingSnapshot());
+        self::assertSame($calls, $this->calls);
+    }
+
+    public function test_disabled_retry_preserves_pending_cancel_and_resumes_only_after_api_enabled(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $this->failSuspend = true;
+        $this->pending(fn () => $this->billing->cancel($this->viewer()));
+        $operation = DB::table('billing_operations')->first();
+        config(['billing.paypal.enabled' => false]);
+        $before = $this->billingSnapshot();
+        $calls = $this->calls;
+        $this->travel(2)->minutes();
+        self::assertSame(0, $this->billing->retryPendingOperations());
+        try {
+            $this->billing->executeOperation($operation->id);
+            self::fail('Direct execution must be unavailable');
+        } catch (DependencyNotReady) {
+        }
+        self::assertSame($before, $this->billingSnapshot());
+        self::assertSame($calls, $this->calls);
+        config(['billing.paypal.enabled' => true, 'billing.new_purchase_provider' => 'unconfigured']);
+        $this->failSuspend = false;
+        self::assertSame(1, $this->billing->retryPendingOperations());
+        self::assertSame('succeeded', DB::table('billing_operations')->first()->state);
+        self::assertFalse(DB::table('billing_subscriptions')->first()->renewal_enabled);
+        self::assertDatabaseCount('billing_payments', 1);
+    }
+
+    public function test_disabled_checkout_retry_keeps_its_original_intent_untouched(): void
+    {
+        $order = $this->checkout();
+        // Synthetic interrupted creation: still processing with no local checkout identity.
+        DB::table('billing_orders')->where('id', $order->id)->update(['state' => 'processing', 'checkout_id' => null]);
+        config(['billing.paypal.enabled' => false]);
+        $before = $this->billingSnapshot();
+        $calls = $this->calls;
+        $this->travel(2)->minutes();
+        self::assertSame(0, $this->billing->retryPendingOperations());
+        self::assertSame($before, $this->billingSnapshot());
+        self::assertSame($calls, $this->calls);
+    }
+
+    public function test_enabled_network_failure_is_not_silently_treated_as_an_operator_pause(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required);
+        $calls = count($this->calls);
+        $this->subscriptionUnavailable = true;
+        try {
+            $this->sync($order);
+            self::fail('Actual network failure must remain unresolved');
+        } catch (RuntimeException $e) {
+            self::assertSame('PAYPAL_RECONCILIATION_REQUIRED', $e->getMessage());
+        }
+        self::assertGreaterThan($calls, count($this->calls));
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+        self::assertDatabaseCount('billing_payments', 1);
+    }
+
+    #[DataProvider('notExplicitlyDisabled')]
+    public function test_invalid_or_missing_enablement_is_not_an_operator_pause(mixed $enabled): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        config(['billing.paypal.enabled' => $enabled]);
+        try {
+            $this->sync($order);
+            self::fail('Broken configuration must remain a real failure');
+        } catch (RuntimeException $e) {
+            self::assertSame('PAYPAL_RECONCILIATION_REQUIRED', $e->getMessage());
+        }
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+    }
+
+    public static function notExplicitlyDisabled(): array
+    {
+        return [[null], [0], ['false']];
+    }
+
+    public function test_disabled_paypal_does_not_starve_stripe_at_limit_one_and_pending_work_resumes(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $paypalPayment = DB::table('billing_payments')->first();
+        $inbox = app(ProviderInboxStore::class);
+        $paypalInboxId = $inbox->receive(ProviderScope::fromRecord($order), ['id' => 'WH-OFFLINE', 'type' => 'PAYMENT.SALE.COMPLETED',
+            'object_id' => self::SALE, 'created' => now()->toIso8601ZuluString(), 'is_test' => true]);
+        $paypalBefore = [(array) DB::table('billing_subscriptions')->find($order->subscription_id), (array) $paypalPayment,
+            (array) DB::table('billing_inbox')->find($paypalInboxId), (array) DB::table('billing_outbox')->where('payment_id', $paypalPayment->id)->first()];
+        $this->travel(1)->minutes();
+        [$viewer, $stripeOrder, $stripeSub, $fact] = ProviderLedgerFixture::create(ProviderScope::legacyStripe());
+        $stripePaymentId = app(PaymentLedger::class)->record($stripeSub->id, $fact);
+        $fake = new FakeGateway;
+        $fake->subscriptions[$stripeSub->provider_id] = ['id' => $stripeSub->provider_id, 'customer_id' => $stripeSub->customer_id,
+            'status' => 'active', 'cancel_at_period_end' => false, 'period_start' => BillingStore::iso($fact->periodStart), 'period_end' => BillingStore::iso($fact->periodEnd),
+            'regular_amount_minor' => 1200, 'currency' => 'USD', 'order_id' => $stripeOrder->id, 'latest_invoice_id' => $fact->reference, 'is_test' => true];
+        $fake->invoices[$fact->reference] = ['id' => $fact->reference, 'subscription_id' => $stripeSub->provider_id, 'customer_id' => $stripeSub->customer_id,
+            'order_id' => $stripeOrder->id, 'amount_minor' => 300, 'currency' => 'USD', 'period_start' => BillingStore::iso($fact->periodStart),
+            'period_end' => BillingStore::iso($fact->periodEnd), 'paid_at' => BillingStore::iso($fact->paidAt), 'status' => 'paid', 'paid' => true,
+            'verified_payment' => true, 'charge_id' => $fact->chargeId, 'is_test' => true, 'billing_reason' => 'subscription_create', 'regular_amount_minor' => 1200, 'discount_amount_minor' => 900];
+        app()->instance(PaymentGateway::class, $fake);
+        $stripeInboxId = $inbox->receive(ProviderScope::legacyStripe(), ['id' => 'EVT-STRIPE', 'type' => 'invoice.paid',
+            'object_id' => $fact->reference, 'created' => now()->toIso8601ZuluString(), 'is_test' => true]);
+        $delivered = [];
+        app('events')->listen(PaymentSettled::class, function ($event) use (&$delivered) {
+            $delivered[] = $event->payment_id;
+        });
+        config(['billing.paypal.enabled' => false, 'billing.new_purchase_provider' => 'unconfigured']);
+        $calls = $this->calls;
+        self::assertSame(0, Artisan::call('billing:reconcile', ['--limit' => 1]));
+        self::assertSame($calls, $this->calls);
+        self::assertSame([$stripePaymentId], $delivered);
+        self::assertSame('processed', DB::table('billing_inbox')->find($stripeInboxId)->state);
+        self::assertNotNull(DB::table('billing_subscriptions')->find($stripeSub->id)->last_reconciled_at);
+        self::assertNotNull(DB::table('billing_payments')->find($stripePaymentId)->last_reconciled_at);
+        self::assertSame($paypalBefore, [(array) DB::table('billing_subscriptions')->find($order->subscription_id), (array) DB::table('billing_payments')->find($paypalPayment->id),
+            (array) DB::table('billing_inbox')->find($paypalInboxId), (array) DB::table('billing_outbox')->where('payment_id', $paypalPayment->id)->first()]);
+        config(['billing.paypal.enabled' => true]); // New purchases remain disabled; old work must resume.
+        self::assertSame(0, Artisan::call('billing:reconcile', ['--limit' => 1]));
+        self::assertSame('processed', DB::table('billing_inbox')->find($paypalInboxId)->state);
+        self::assertSame([$stripePaymentId, $paypalPayment->id], $delivered);
+        self::assertDatabaseCount('billing_payments', 2);
+        self::assertDatabaseCount('billing_entitlements', 2);
+        self::assertDatabaseCount('billing_outbox', 2);
+    }
+
+    private function billingSnapshot(): array
+    {
+        $snapshot = [];
+        foreach (['billing_accounts', 'billing_orders', 'billing_subscriptions', 'billing_payments', 'billing_entitlements',
+            'billing_inbox', 'billing_outbox', 'billing_operations', 'billing_refunds', 'billing_resume_quotes',
+            'billing_provider_intents', 'billing_provider_resources', 'billing_paypal_observations'] as $table) {
+            $rows = array_map(fn ($row) => (array) $row, DB::table($table)->get()->all());
+            usort($rows, fn ($a, $b) => json_encode($a) <=> json_encode($b));
+            $snapshot[$table] = hash('sha256', json_encode($rows));
+        }
+
+        return $snapshot;
     }
 
     private function retryCheckout(object $order): Checkout
