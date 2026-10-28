@@ -3,12 +3,15 @@
 namespace Tests\Feature\Contracts;
 
 use App\Support\RuntimeEnvironmentGuard;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Route;
 use LogicException;
 use Tests\TestCase;
 
 class PayPalSharedConfigurationTest extends TestCase
 {
+    use DatabaseMigrations;
+
     public function test_default_is_off_and_missing_credentials_do_not_make_network_calls(): void
     {
         $this->assertFalse(config('billing.paypal.enabled'));
