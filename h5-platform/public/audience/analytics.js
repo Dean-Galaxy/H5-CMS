@@ -106,10 +106,11 @@
   function clickContext() {
     // Called only inside the granted + visible + pending landing branch. Do not persist or synthesize identifiers.
     const result = {}, params = new URL(location.href).searchParams;
-    const opaque = /^[A-Za-z0-9_-]{1,512}$/;
+    const clickPatterns = {fbclid: /^[A-Za-z0-9_-]{1,512}$/, ttclid: /^[A-Za-z0-9_.-]{1,512}$/};
     for (const key of ['fbclid', 'ttclid']) {
       const values = params.getAll(key);
-      if (values.length === 1 && opaque.test(values[0])) result[key] = values[0];
+      // JavaScript's $ also permits a final newline; reject whitespace explicitly.
+      if (values.length === 1 && !/\s/.test(values[0]) && clickPatterns[key].test(values[0])) result[key] = values[0];
     }
     const patterns = {
       fbc: /^fb\.[0-9]{1,2}\.[0-9]{13}\.[A-Za-z0-9_-]+$/,

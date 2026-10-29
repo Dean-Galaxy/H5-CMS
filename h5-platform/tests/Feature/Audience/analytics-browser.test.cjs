@@ -270,7 +270,7 @@ test('buffer count/bytes stay bounded and disabled analytics never blocks actual
   } finally { await disabled.ctx.close(); }
 });
 
-const clicks = {fbclid: 'SYNTHETIC_FB_CLICK_ABC-123', ttclid: 'SYNTHETIC_TT_CLICK_DEF-456',
+const clicks = {fbclid: 'SYNTHETIC_FB_CLICK_ABC-123', ttclid: 'E.C.P.SYNTHETIC_06-CLICK',
   fbc: 'fb.1.1770000000000.SYNTHETIC_OLD_FB_CLICK', fbp: 'fb.1.1770000000000.1234567890', ttp: 'SYNTHETIC.TTP_COOKIE-ABC123'};
 const clickQuery = '&fbclid='+clicks.fbclid+'&ttclid='+clicks.ttclid+'&keep=normal#chapter';
 const cookieProbe = '_fbc='+clicks.fbc+'; _fbp='+clicks.fbp+'; _ttp='+clicks.ttp+'; private_other=NEVER-READ-INTO-CONTEXT';
@@ -347,6 +347,8 @@ test('oversized, script/URL and ambiguous duplicate click/cookie input never ent
     {clickQuery: '&fbclid='+('A'.repeat(513))+'&ttclid='+encodeURIComponent('<script>alert(1)</script>'), cookieProbe: '_fbc='+encodeURIComponent('fb.1.1770000000000.<script>')+'; _fbp=fb.1.1770000000000.https://evil.invalid; _ttp='+('B'.repeat(513))},
     {clickQuery: '&fbclid=ONE&fbclid=TWO&ttclid='+encodeURIComponent('https://evil.invalid/?x=y'), cookieProbe: '_fbc=fb.1.1770000000000.A; _fbc=fb.1.1770000000000.B; _fbp=fb.1.1770000000000.123; _fbp=fb.1.1770000000000.456; _ttp='+encodeURIComponent('<img src=x onerror=alert(1)>')},
     {clickQuery: '&fbclid='+encodeURIComponent('mail@example.test')+'&ttclid='+encodeURIComponent('line\nbreak'), cookieProbe: '_fbc=fb.123.1770000000000.A; _fbp=fb.1.1770000000000.'+('1'.repeat(31))+'; _ttp=one%2Ftwo'},
+    {clickQuery: '&ttclid=E.C.P.'+('A'.repeat(507)), cookieProbe: ''},
+    {clickQuery: '&ttclid='+encodeURIComponent('E.C.P.SYNTHETIC_06-CLICK\n'), cookieProbe: ''},
   ]) {
     const f = await fixture({consent: 'denied', advertising: 'granted', ...malicious});
     try {
