@@ -17,4 +17,8 @@
 @endif
 <main id="main">{{ $slot }}
 @if($audience && request()->is('identity/account'))<p><a class="button" href="/membership">{{ __('audience::messages.membership') }}</a></p>@endif
-</main><footer>@if($audience)<strong>{{ __('audience::messages.brand') }}</strong><p>{{ __('audience::messages.footer') }}</p>@if(app()->environment('local'))<small>{{ __('audience::messages.local_detail') }}</small>@endif @else{{ __('identity.local_boundary') }}@endif</footer>@stack('scripts')</body></html>
+</main><footer>@if($audience)<strong>{{ __('audience::messages.brand') }}</strong><p>{{ __('audience::messages.footer') }}</p>@if(app()->environment('local'))<small>{{ __('audience::messages.local_detail') }}</small>@endif @else{{ __('identity.local_boundary') }}@endif</footer>
+@if($audience && config('h5.modules.acquisition.ready'))
+    @includeIf('audience.partials.tracking')
+@endif
+@stack('scripts')</body></html>
