@@ -144,6 +144,7 @@ async function run(candidate, fixtureFile) {
   });
   try {
     for (const [index, step] of fixture.steps.entries()) {
+      result.active_step = {index,kind:step.kind};
       switch (step.kind) {
         case 'goto': await page.goto(base + localPath(step.path)); break;
         case 'click': assert(typeof step.selector === 'string'); await page.locator(step.selector).click(); break;
@@ -196,11 +197,12 @@ async function run(candidate, fixtureFile) {
               if(verificationLink(await anchors.nth(index).getAttribute('href'),base)) { target=anchors.nth(index); break; }
             }
             assert(target, 'No same-origin signed verification link in own preview');
-            const response = mailPage.waitForResponse(r => verificationLink(r.url(),base));
+            // Laravel mail buttons use target=_blank. Observe the shared browser context, including its popup.
+            const response = context.waitForEvent('response',{predicate:r => verificationLink(r.url(),base)});
             await target.click();
             assert([200,302,303].includes((await response).status()));
             result.steps.push({index,kind:'signed_preview_link_clicked',completed:true});
-          } finally { await mailPage.close(); }
+          } finally { for (const opened of context.pages()) if(opened !== page) await opened.close(); }
           // Server email_verified and resulting real account state are independently checked in DB evidence.
           break;
         }
@@ -234,7 +236,12 @@ async function run(candidate, fixtureFile) {
     await Promise.allSettled([...pending]);
     assert.equal(result.external_attempts, 0, 'External HTTP requests attempted while external delivery is off');
     result.completed = true;
+    delete result.active_step;
     return 0;
+  } catch(error) {
+    result.failure_type = ['TimeoutError','AssertionError'].includes(error?.name) ? error.name : 'HarnessError';
+    result.last_path = new URL(page.url()).pathname.replace(/[a-f0-9]{8}-[a-f0-9-]{27}/g,':id');
+    throw error;
   } finally {
     finished = true;
     await context.close(); await browser.close();
