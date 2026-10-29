@@ -493,11 +493,15 @@ final class PayPalRuntimeTest extends TestCase
         $this->billing->cancel($this->viewer());
         $this->billing->cancel($this->viewer());
         self::assertSame(['subscription_cancelled'], DB::table('billing_behavior_outbox')->pluck('event_name')->all());
+        $this->travelTo(now()->utc()->startOfSecond()->addMicroseconds(200000));
         $this->refunds['REFUNDLOCAL1'] = ['id' => 'REFUNDLOCAL1', 'sale_id' => self::SALE,
             'amount' => ['total' => '1.00', 'currency' => 'USD'], 'state' => 'completed'];
         $this->sales[self::SALE]['state'] = 'partially_refunded';
         app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
         app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
+        $firstBehavior = DB::table('billing_behavior_outbox')->where('event_name', 'refund_confirmed')->sole();
+        self::assertSame(now()->utc()->format('Y-m-d\TH:i:s.u\Z'), BillingStore::json($firstBehavior->properties)['occurred_at']);
+        self::assertSame(now()->utc()->format('Y-m-d\TH:i:s.u\Z'), CarbonImmutable::parse($firstBehavior->occurred_at)->utc()->format('Y-m-d\TH:i:s.u\Z'));
         $this->refunds['REFUNDLOCAL2'] = ['id' => 'REFUNDLOCAL2', 'sale_id' => self::SALE,
             'amount' => ['total' => '2.00', 'currency' => 'USD'], 'state' => 'completed'];
         $this->sales[self::SALE]['state'] = 'refunded';

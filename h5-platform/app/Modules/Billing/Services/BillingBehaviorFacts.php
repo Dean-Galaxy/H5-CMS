@@ -68,13 +68,14 @@ final class BillingBehaviorFacts
             return;
         }
         $version = $previous ? $previous->fact_version + 1 : ($emitInitial ? 1 : 0);
+        // Bind the explicit UTC string: query-builder DateTime bindings use a whole-second format.
+        $observedAt = now()->utc()->format('Y-m-d\TH:i:s.u\Z');
         DB::table('billing_analytics_states')->updateOrInsert(['aggregate_key' => $aggregate],
-            ['fact_version' => $version, 'value' => $value, 'observed_at' => now()]);
+            ['fact_version' => $version, 'value' => $value, 'observed_at' => $observedAt]);
         if (! $previous && ! $emitInitial) {
             return;
         }
-        $observedAt = now()->utc()->startOfSecond();
-        $properties['occurred_at'] = BillingStore::iso($observedAt);
+        $properties['occurred_at'] = $observedAt;
         if ($event === 'refund_confirmed') {
             $properties['fact_version'] = $version;
         }
