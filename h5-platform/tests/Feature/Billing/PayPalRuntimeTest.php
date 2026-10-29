@@ -261,9 +261,180 @@ final class PayPalRuntimeTest extends TestCase
         self::assertDatabaseCount('billing_outbox', 1);
         self::assertDatabaseCount('billing_refunds', 2);
         self::assertDatabaseCount('billing_inbox', 2);
+        self::assertDatabaseCount('billing_operations', 1);
         self::assertNotNull(DB::table('billing_entitlements')->first()->revoked_at);
         self::assertSame('refunded', DB::table('billing_orders')->first()->payment_state);
         self::assertSame(1, count(array_filter($this->calls, fn ($call) => $call === 'POST /v1/billing/subscriptions/I-FIXTURE/suspend')));
+    }
+
+    public static function refundArrivalOrders(): array
+    {
+        return ['notification_first' => [false], 'sale_poll_before_refund_notification' => [true]];
+    }
+
+    #[DataProvider('refundArrivalOrders')]
+    public function test_confirmed_refund_stop_survives_repeated_full_reconciliation_without_new_cancel_operations(bool $pollFirst): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $payment = DB::table('billing_payments')->first();
+        $entitlement = DB::table('billing_entitlements')->first();
+        $firstOfferUsed = DB::table('billing_accounts')->first()->first_offer_used_at;
+        $this->sales[self::SALE]['state'] = 'partially_refunded';
+        $this->transactions[0]['status'] = 'PARTIALLY_REFUNDED';
+        $this->refund = ['id' => 'REFUNDLOCAL1', 'sale_id' => self::SALE, 'amount' => ['total' => '1.00', 'currency' => 'USD'], 'state' => 'completed'];
+        $headers = ['paypal-auth-algo' => 'SHA256withRSA', 'paypal-cert-url' => 'https://api.sandbox.paypal.com/v1/notifications/certs/CERT-fixture',
+            'paypal-transmission-id' => 'fixture-refund-delivery', 'paypal-transmission-sig' => base64_encode('fixture'), 'paypal-transmission-time' => now()->toIso8601ZuluString()];
+        $event = ['id' => 'WH-LOCAL-REFUND-STOP', 'event_type' => 'PAYMENT.SALE.REFUNDED',
+            'create_time' => now()->toIso8601ZuluString(), 'resource' => ['id' => 'REFUNDLOCAL1']];
+        if ($pollFirst) {
+            app(PayPalReconciliation::class)->syncRefunds($payment->id);
+            self::assertDatabaseCount('billing_refunds', 0); // Sale alone does not reveal a partial Refund ID/amount.
+            self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+            $this->billing->cancelSubscriptionForRefund($order->subscription_id);
+            self::assertSame('SUSPENDED', $this->remote['status']);
+            self::assertSame(1, DB::table('billing_operations')->count());
+            self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required);
+        }
+        $this->postJson('/webhooks/paypal', $event, $headers)->assertOk();
+        self::assertSame(1, app(WebhookService::class)->processPending());
+        self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required);
+        $operationCount = DB::table('billing_operations')->count();
+        self::assertSame(1, $operationCount);
+        for ($i = 0; $i < 2; $i++) {
+            self::assertSame(0, Artisan::call('billing:reconcile'));
+            self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required, 'Full reconciliation re-opened a confirmed refund stop');
+            app(PayPalReconciliation::class)->syncRefunds($payment->id);
+            self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required);
+            // A different delivery/event ID about the same refund must not reserve another cancel.
+            $event['id'] = 'WH-LOCAL-REFUND-STOP-REPLAY-'.$i;
+            $this->postJson('/webhooks/paypal', $event, $headers)->assertOk();
+            self::assertSame(1, app(WebhookService::class)->processPending());
+            self::assertSame($operationCount, DB::table('billing_operations')->count());
+        }
+        $sub = DB::table('billing_subscriptions')->first();
+        self::assertFalse($sub->renewal_enabled);
+        self::assertFalse($sub->desired_renewal);
+        self::assertTrue($sub->refund_stopped);
+        self::assertSame('SUSPENDED', $sub->provider_status);
+        self::assertSame('succeeded', DB::table('billing_operations')->sole()->state);
+        self::assertSame(100, DB::table('billing_payments')->first()->refunded_amount_minor);
+        self::assertNull(DB::table('billing_entitlements')->first()->revoked_at);
+        self::assertSame($entitlement->access_from, DB::table('billing_entitlements')->first()->access_from);
+        self::assertSame($entitlement->access_until, DB::table('billing_entitlements')->first()->access_until);
+        self::assertSame($firstOfferUsed, DB::table('billing_accounts')->first()->first_offer_used_at);
+        self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+        self::assertDatabaseCount('billing_refunds', 1);
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertDatabaseCount('billing_entitlements', 1);
+        self::assertDatabaseCount('billing_outbox', 1);
+    }
+
+    public static function refundStopStates(): array
+    {
+        return [
+            'confirmed_suspension' => ['SUSPENDED', false, false, false, false],
+            'confirmed_cancellation' => ['CANCELLED', false, false, false, false],
+            'confirmed_expiry' => ['EXPIRED', false, false, false, false],
+            'unrelated_review_stays_pending' => ['SUSPENDED', false, false, true, true],
+            'active_provider' => ['ACTIVE', true, false, false, true],
+            'unknown_provider' => ['UNKNOWN', false, false, false, true],
+            'inconsistent_renewal_flag' => ['SUSPENDED', true, false, false, true],
+            'no_original_stop_intent' => ['SUSPENDED', false, null, false, true],
+        ];
+    }
+
+    #[DataProvider('refundStopStates')]
+    public function test_refund_reader_preserves_only_confirmed_stop_without_clearing_existing_review(string $status, bool $renewal, ?bool $desired, bool $review, bool $expected): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $payment = DB::table('billing_payments')->first();
+        $this->sales[self::SALE]['state'] = 'partially_refunded';
+        DB::table('billing_subscriptions')->where('id', $order->subscription_id)->update([
+            'provider_status' => $status, 'renewal_enabled' => $renewal, 'desired_renewal' => $desired, 'resolution_required' => $review,
+        ]);
+        $calls = $this->calls;
+        app(PayPalReconciliation::class)->syncRefunds($payment->id);
+        $sub = DB::table('billing_subscriptions')->first();
+        self::assertSame($expected, $sub->resolution_required);
+        self::assertFalse($sub->desired_renewal);
+        self::assertTrue($sub->refund_stopped);
+        self::assertSame($renewal, $sub->renewal_enabled);
+        self::assertSame($status, $sub->provider_status);
+        self::assertNull(DB::table('billing_entitlements')->first()->revoked_at);
+        self::assertSame(['GET /v1/payments/sale/'.self::SALE], array_slice($this->calls, count($calls)));
+        self::assertDatabaseCount('billing_operations', 0);
+    }
+
+    public static function unrelatedRefundReviews(): array
+    {
+        return [['amount'], ['cycle'], ['payment_time'], ['unavailable']];
+    }
+
+    #[DataProvider('unrelatedRefundReviews')]
+    public function test_refund_replay_cannot_create_another_cancel_to_clear_an_unrelated_review(string $cause): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $payment = DB::table('billing_payments')->first();
+        $this->sales[self::SALE]['state'] = 'partially_refunded';
+        $this->refund = ['id' => 'REFUNDLOCAL1', 'sale_id' => self::SALE, 'amount' => ['total' => '1.00', 'currency' => 'USD'], 'state' => 'completed'];
+        app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
+        self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required);
+        match ($cause) {
+            'amount' => $this->remote['billing_info']['last_payment']['amount']['value'] = '4.00',
+            'cycle' => $this->remote['billing_info']['cycle_executions'][1]['cycles_completed'] = 1,
+            'payment_time' => $this->remote['billing_info']['last_payment']['time'] = '2026-10-27T06:00:01Z',
+            'unavailable' => $this->subscriptionUnavailable = true,
+        };
+        try {
+            app(PayPalReconciliation::class)->sync($order->subscription_id);
+            self::assertNotSame('unavailable', $cause);
+        } catch (RuntimeException $error) {
+            self::assertSame('unavailable', $cause);
+            self::assertSame('PAYPAL_RECONCILIATION_REQUIRED', $error->getMessage());
+        }
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+        $operations = DB::table('billing_operations')->get()->map(fn ($row) => (array) $row)->all();
+        app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+        self::assertSame($operations, DB::table('billing_operations')->get()->map(fn ($row) => (array) $row)->all());
+        self::assertSame(100, DB::table('billing_payments')->first()->refunded_amount_minor);
+        self::assertNull(DB::table('billing_entitlements')->first()->revoked_at);
+        self::assertFalse(DB::table('billing_subscriptions')->first()->renewal_enabled);
+    }
+
+    public function test_refund_replay_completes_the_original_pending_stop_after_provider_suspension_is_observed(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $payment = DB::table('billing_payments')->first();
+        $this->sales[self::SALE]['state'] = 'partially_refunded';
+        $this->refund = ['id' => 'REFUNDLOCAL1', 'sale_id' => self::SALE, 'amount' => ['total' => '1.00', 'currency' => 'USD'], 'state' => 'completed'];
+        $this->failSuspend = true;
+        app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
+        $operation = DB::table('billing_operations')->sole();
+        self::assertSame('pending', $operation->state);
+        // A later authoritative read can observe success after an unknown response.
+        $this->remote['status'] = 'SUSPENDED';
+        $this->failSuspend = false;
+        app(PayPalReconciliation::class)->sync($order->subscription_id, allowLifecycleChanges: false);
+        self::assertFalse(DB::table('billing_subscriptions')->first()->renewal_enabled);
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+        $postCalls = array_values(array_filter($this->calls, fn ($call) => str_starts_with($call, 'POST ')));
+        app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
+        self::assertDatabaseCount('billing_operations', 1);
+        self::assertSame($operation->id, DB::table('billing_operations')->sole()->id);
+        self::assertSame('succeeded', DB::table('billing_operations')->sole()->state);
+        self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required);
+        self::assertSame($postCalls, array_values(array_filter($this->calls, fn ($call) => str_starts_with($call, 'POST '))));
+        self::assertSame(100, DB::table('billing_payments')->first()->refunded_amount_minor);
+        self::assertNull(DB::table('billing_entitlements')->first()->revoked_at);
     }
 
     public function test_partial_refund_stop_failure_keeps_payment_fact_and_retries_only_its_operation(): void
