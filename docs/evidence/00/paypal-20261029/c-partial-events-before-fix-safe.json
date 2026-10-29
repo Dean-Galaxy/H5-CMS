@@ -1,0 +1,24 @@
+{
+  "official_read_only": true,
+  "events": [
+    {
+      "type": "BILLING.SUBSCRIPTION.SUSPENDED",
+      "local_event_count": 1,
+      "state": "processed",
+      "attempts": 1,
+      "official_event_http": 200,
+      "resource_matches": true,
+      "processed_without_error": true
+    },
+    {
+      "type": "PAYMENT.SALE.REFUNDED",
+      "local_event_count": 1,
+      "state": "processed",
+      "attempts": 1,
+      "official_event_http": 200,
+      "resource_matches": true,
+      "processed_without_error": true
+    }
+  ],
+  "all_processed_and_matched": true
+}

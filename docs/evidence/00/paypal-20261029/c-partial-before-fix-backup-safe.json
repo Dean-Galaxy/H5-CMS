@@ -1,0 +1,9 @@
+{
+  "database_bytes": 134982,
+  "archive_list_readable": true,
+  "full_restore_executed": false,
+  "media_files": 42,
+  "runtime_candidate": "ca279acad01793203c7976154acca9fd3e71c248",
+  "queue_and_scheduler_intentionally_paused": true,
+  "refund_facts_preserved_in_private_archive": true
+}
