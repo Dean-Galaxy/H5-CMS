@@ -1,0 +1,13 @@
+{
+  "source_candidate": "7b02431005d4ab2583c55acfc6c55d2dc5f3469a",
+  "source_sha256": {
+    "h5-platform/tests/Integration/AnalyticsCombined/LifecycleMicrosecondsTest.php": "1a1af86238eb047b4745c963ad09906396fb3bb47354b1c9c010eef51f0ddc28"
+  },
+  "new_consumer_tests_written": 2,
+  "new_consumer_tests_executed": false,
+  "complete_candidate_received": false,
+  "requires_03_precision_fix_and_new_migration": true,
+  "database_or_runtime_started": false,
+  "protected_environment_touched": false,
+  "adopted_200800_sha256": "51ea007985109d0719a6405217b1753f4de221bb2c6e6f4c18bb155510edbf4c"
+}
