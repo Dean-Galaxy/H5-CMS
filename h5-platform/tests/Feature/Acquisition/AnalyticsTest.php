@@ -418,4 +418,25 @@ final class AnalyticsTest extends AcquisitionTestCase
         $this->assertSame(0, app(AnalyticsReport::class)->read()['visitors']);
         $this->problem('NOT_FOUND', fn () => app(AnalyticsReport::class)->read(['link_id' => $this->link['id']]));
     }
+
+    public function test_own_links_remain_visible_after_redundant_assignment_revocation_without_exposing_foreign_links(): void
+    {
+        $foreign = $this->link;
+        $operator = $this->staff();
+        $this->signIn($operator);
+        [$pixel,$own] = $this->assets();
+        $this->link = $own;
+        $this->seedLanding();
+        $report = app(AnalyticsReport::class)->read(['link_id' => $own['id']]);
+        $this->assertSame(1, $report['visitors']);
+        $this->assertSame([], $report['diagnostics']['capture_failures']);
+        $this->problem('NOT_FOUND', fn () => app(AnalyticsReport::class)->read(['link_id' => $foreign['id']]));
+        $this->signIn($this->staff(Role::Owner));
+        app(AssetManager::class)->share('link', $own['id'], 1, [$operator->id]);
+        app(AssetManager::class)->share('link', $own['id'], 2, []);
+        $this->signIn($operator);
+        $this->assertSame(1, app(AnalyticsReport::class)->read(['link_id' => $own['id']])['visitors']);
+        $this->assertSame(1, app(AnalyticsReport::class)->read()['visitors']);
+        $this->problem('NOT_FOUND', fn () => app(AnalyticsReport::class)->read(['link_id' => $foreign['id']]));
+    }
 }

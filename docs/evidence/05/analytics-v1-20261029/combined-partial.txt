@@ -1,0 +1,77 @@
+
+   PASS  Tests\Integration\AnalyticsCombined\LifecycleMicrosecondsTest
+  ✓ refund after consent in the same second keeps real microseconds and… 0.57s
+  ✓ schema has precision six via a new migration without rewriting adop… 0.10s
+
+   PASS  Tests\Integration\AnalyticsCombined\MatchingContextTest
+  ✓ slow or reordered landing does not freeze empty context or leak pla… 0.10s
+  ✓ unknown or denied advertising never persists matching identifiers    0.06s
+  ✓ matching context size and value limits are enforced on the dedicate… 0.06s
+
+   FAIL  Tests\Integration\AnalyticsCombined\PaymentAttributionTest
+  ⨯ real source registration verification checkout payment and replay s… 0.15s
+  ⨯ logout is not withdrawal for a delayed payment and new account does… 0.12s
+  ⨯ explicit withdrawal prevents old delayed conversion but keeps finan… 0.10s
+  ✓ refund cumulative versions use real reader not sum of behavior even… 0.20s
+  ✓ advertising only visible landing creates source without an analytic… 0.05s
+
+   PASS  Tests\Integration\AnalyticsCombined\PrivacyApiTest
+  ✓ server events and client authority properties cannot fabricate succ… 0.08s
+  ✓ same uuid retries are idempotent but different content is rejected   0.05s
+  ✓ collection storage failure does not undo paid access and reliable p… 0.10s
+  ✓ denial and cross origin requests do not create behavior or financia… 0.04s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Integration\AnalyticsCombined\PaymentAttributionTest > real…
+  Failed asserting that 1 is identical to 0.
+
+  at tests/Integration/AnalyticsCombined/PaymentAttributionTest.php:47
+     43▕         $this->postJson('/audience/dramas/'.$this->drama->id.'/episodes/'.$this->drama->episodes[5]->id.'/playback', ['play_session_id' => null])
+     44▕             ->assertOk()->assertJsonPath('allowed', true);
+     45▕         $this->assertDatabaseCount('billing_payments', 1); $this->assertDatabaseCount('billing_entitlements', 1);
+     46▕         $this->assertDatabaseCount('acquisition_receipts', 1);
+  ➜  47▕         $this->assertSame(0, app(DeliveryWorker::class)->run()); Http::assertNothingSent();
+     48▕     }
+     49▕
+     50▕     public function test_logout_is_not_withdrawal_for_a_delayed_payment_and_new_account_does_not_inherit(): void
+     51▕     {
+
+  1   tests/Integration/AnalyticsCombined/PaymentAttributionTest.php:47
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Integration\AnalyticsCombined\PaymentAttributionTest > logo…
+  Expected response status code [200] but received 401.
+Failed asserting that 401 is identical to 200.
+
+  at tests/Integration/AnalyticsCombined/Support/CombinedTestCase.php:99
+     95▕         $this->postJson('/api/v1/auth/register', ['name' => '06 synthetic viewer', 'email' => $email,
+     96▕             'password' => 'Synthetic06Password!', 'password_confirmation' => 'Synthetic06Password!'])->assertOk();
+     97▕         $viewer = Viewer::where('email', $email)->sole();
+     98▕         $this->assertNull($viewer->email_verified_at);
+  ➜  99▕         $this->getJson(app(Verification::class)->url($viewer->fresh()))->assertOk();
+    100▕         $this->assertTrue($viewer->fresh()->hasVerifiedEmail());
+    101▕         return $viewer->fresh();
+    102▕     }
+    103▕
+
+  1   tests/Integration/AnalyticsCombined/PaymentAttributionTest.php:58
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Integration\AnalyticsCombined\PaymentAttributionTest > expl…
+  Failed asserting that 1 is identical to 0.
+
+  at tests/Integration/AnalyticsCombined/PaymentAttributionTest.php:77
+     73▕         $this->consent(false, false);
+     74▕         app(OutboxService::class)->dispatchPending();
+     75▕         $this->assertSame(0, DB::table('acquisition_behaviors')->where('event_name', 'payment_confirmed')->count());
+     76▕         $this->assertDatabaseCount('billing_payments', 1); $this->assertDatabaseCount('billing_entitlements', 1);
+  ➜  77▕         $this->assertSame(0, app(DeliveryWorker::class)->run()); Http::assertNothingSent();
+     78▕     }
+     79▕
+     80▕     public function test_refund_cumulative_versions_use_real_reader_not_sum_of_behavior_events(): void
+     81▕     {
+
+  1   tests/Integration/AnalyticsCombined/PaymentAttributionTest.php:77
+
+
+  Tests:    3 failed, 11 passed (331 assertions)
+  Duration: 1.90s
