@@ -12,7 +12,7 @@ if (! $app->environment('testing') || $workspace['root'] !== $root
     || config('acquisition.external_enabled') !== false || config('acquisition.transport') !== 'disabled') {
     throw new LogicException('06 analytics preflight requires own test database and disabled external transports.');
 }
-$required = ['api/v1/tracking/context' => 'GET', 'api/v1/tracking/consent' => 'POST', 'api/v1/tracking/events' => 'POST'];
+$required = ['api/v1/tracking/context' => 'GET', 'api/v1/tracking/consent' => 'POST', 'api/v1/tracking/events' => 'POST', 'api/v1/tracking/landing' => 'POST'];
 $routes = [];
 foreach ($required as $uri => $method) {
     $routes[$uri] = false;

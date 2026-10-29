@@ -39,7 +39,10 @@ async function run(candidate, fixtureFile) {
   assert.equal(cp.execFileSync('git', ['rev-parse', 'HEAD'], {cwd: ROOT, encoding: 'utf8'}).trim(), candidate);
   assert.equal(cp.execFileSync('git', ['status', '--porcelain', '--', 'h5-platform', 'scripts/ops/analytics_acceptance.py', 'scripts/ops/analytics_preflight.php'], {cwd: ROOT, encoding: 'utf8'}), '');
   const ws = privateJson(ROOT + '/.runtime/workspace.json'), base = workspace(ROOT, ws, candidate);
-  const fixture = privateJson(fixtureFile);
+  assert(typeof fixtureFile === 'string');
+  const fixturePath = fs.realpathSync(fixtureFile);
+  assert(fixturePath.startsWith(fs.realpathSync(ROOT + '/.runtime/06') + path.sep));
+  const fixture = privateJson(fixturePath);
   assert.equal(fixture.candidate, candidate);
   assert.equal(fixture.synthetic_only, true);
   assert(Array.isArray(fixture.steps) && fixture.steps.length <= 100);
@@ -47,6 +50,8 @@ async function run(candidate, fixtureFile) {
   const readiness = privateJson(path.join(ROOT, '.runtime/06/analytics-browser-readiness.json'));
   assert.equal(readiness.candidate, candidate);
   if (!readiness.combined_ready) { console.log(JSON.stringify({candidate, result: 'blocked_missing_consumers', browser_executed: false})); return 77; }
+  const flags = JSON.parse(cp.execFileSync(process.env.H5_PHP_BIN || '/opt/homebrew/opt/php@8.4/bin/php', [ROOT + '/scripts/ops/analytics_browser_runtime.php'], {cwd: ROOT, encoding: 'utf8', stdio: ['ignore','pipe','pipe']}));
+  assert.equal(flags.runtime_safe, true); assert.equal(flags.external_enabled, false); assert.equal(flags.purchase_enabled, false);
   const { chromium } = require(process.env.H5_PLAYWRIGHT_MODULE || 'playwright');
   const browser = await chromium.launch({headless: true, executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
   const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block'});

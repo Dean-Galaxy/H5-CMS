@@ -14,7 +14,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 PROTECTED_PORTS = {8377, 5877, 8406, 5906, 8407, 8408, 8409, 8303}
-SOURCE_PATHS = ['h5-platform', 'scripts/ops/analytics_acceptance.py', 'scripts/ops/analytics_preflight.php']
+SOURCE_PATHS = ['h5-platform', 'scripts/ops/analytics_acceptance.py', 'scripts/ops/analytics_preflight.php', 'scripts/ops/analytics_browser_runtime.php']
 
 
 def private_json(path):
@@ -95,7 +95,7 @@ def main():
     with os.fdopen(fd,'w') as stream: json.dump(browser_ready,stream);stream.write('\n')
     target.chmod(0o600)
     report = {'candidate':args.candidate,'contract':'analytics-v1','stage':args.stage,'database':config['db']+'_test',
-              'preparation_passed':False,'combined_acceptance':'not_executed','missing':ready['missing'],
+              'preparation_passed':None,'combined_acceptance':'not_executed','missing':ready['missing'],
               'official_platform_verified':False,'external_delivery_enabled':False}
     if args.stage == 'combined':
         # The consumers + 00's candidate are required before extending the concrete combination tests.
