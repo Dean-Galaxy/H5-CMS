@@ -1,0 +1,79 @@
+{
+  "checks": [
+    "unknown consent creates no source or analytics",
+    "slow dedicated landing precedes analytics and carries only allowed matching data",
+    "raw identifiers absent from event JSON and browser buffers",
+    "missing token and trusted Fetch Metadata is rejected by CSRF guard",
+    "video preload creates no play-start",
+    "actual time advancement records play-start and startup",
+    "complete generated episode records bounded watched time",
+    "temporary failure retains a bounded analytics buffer",
+    "refresh replays buffered event and clears accepted buffer",
+    "buffer replay records one semantic observation",
+    "explicit withdrawal revokes source and clears buffer",
+    "withdrawal preserves payment ledger",
+    "withdrawn sample does not continue collection",
+    "TikTok advertising-only persists matching without analytics",
+    "real staff MFA reaches Chinese analytics report",
+    "mobile report keeps document within viewport",
+    "short mobile screen reaches query action",
+    "shared dark theme renders analytics",
+    "all external calls disabled",
+    "no browser JavaScript exceptions"
+  ],
+  "failures": [],
+  "external_requests": 0,
+  "javascript_errors": 0,
+  "final": {
+    "enabled": true,
+    "external_disabled": true,
+    "contexts": {
+      "meta": {
+        "sources": 6,
+        "revoked": true,
+        "query_free": true,
+        "has_fbc": true,
+        "has_fbp": true,
+        "has_ttclid": false,
+        "has_ttp": false,
+        "synthetic_click": true
+      },
+      "tiktok": {
+        "sources": 5,
+        "revoked": false,
+        "query_free": true,
+        "has_fbc": false,
+        "has_fbp": false,
+        "has_ttclid": true,
+        "has_ttp": false,
+        "synthetic_click": true
+      }
+    },
+    "events": {
+      "drama_view": 18,
+      "episode_completed": 6,
+      "landing_view": 6,
+      "play_started": 6,
+      "page_view": 18,
+      "watch_progress": 12,
+      "paywall_view": 6,
+      "play_requested": 6,
+      "player_startup": 6
+    },
+    "watched_seconds": 66,
+    "billing_counts": [
+      0,
+      0,
+      0
+    ],
+    "leaked_fields": 0
+  },
+  "screenshots": [
+    "audience-player.png",
+    "admin-analytics-desktop.png",
+    "admin-analytics-mobile.png",
+    "admin-analytics-mobile-episodes.png",
+    "admin-analytics-short.png",
+    "admin-analytics-dark.png"
+  ]
+}

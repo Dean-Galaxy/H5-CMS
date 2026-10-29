@@ -2,12 +2,22 @@
 <div class="h5-card">
     <h3>站内分析</h3>
     <p class="h5-note">仅已同意的观测样本；未知来源/设备单列，不能反推全部用户或平台归因。日期按UTC。投流员工仅查询自己或获分配的链接。</p>
+    <form wire:submit="searchAnalyticsLinks" class="h5-form-grid" data-analytics-link-search>
+        <label class="h5-field">搜索推广链接名称<input type="search" class="h5-input" wire:model="analyticsLinkSearch" maxlength="100" placeholder="搜索全部有权链接" aria-describedby="analytics-link-search-help"></label>
+        <div><button type="submit" class="h5-button" wire:loading.attr="disabled" wire:target="searchAnalyticsLinks">搜索链接</button></div>
+    </form>
+    @error('analyticsLinkSearch')<p class="h5-error" role="alert">{{ $message }}</p>@enderror
+    <p class="h5-note" id="analytics-link-search-help">按名称搜索全部自己或获分配的链接，不受推广链接列表页影响。每页最多50条；仍有权的已选链接会保留。当前搜索：{{ $analyticsLinkQuery === '' ? '全部可见链接' : $analyticsLinkQuery }} · 共{{ $analyticsLinks['total'] }}条 · 第{{ $analyticsLinks['page'] }}/{{ $analyticsLinks['last_page'] }}页</p>
+    <div class="h5-toolbar" data-analytics-link-pagination>
+        @if($analyticsLinks['page'] > 1)<button type="button" class="h5-button" wire:click="paginateAnalyticsLinks({{ $analyticsLinks['page'] - 1 }})">上一页链接选项</button>@endif
+        @if($analyticsLinks['page'] < $analyticsLinks['last_page'])<button type="button" class="h5-button" wire:click="paginateAnalyticsLinks({{ $analyticsLinks['page'] + 1 }})">下一页链接选项</button>@endif
+    </div>
     <form wire:submit="refreshAnalytics" class="h5-form-grid">
         <label class="h5-field">入口/付款开始日期<input type="date" class="h5-input" wire:model="analyticsFilters.from"></label>
         <label class="h5-field">结束日期<input type="date" class="h5-input" wire:model="analyticsFilters.until"></label>
         <label class="h5-field">渠道<select class="h5-input" wire:model="analyticsFilters.channel"><option value="">全部</option><option value="meta">Meta</option><option value="tiktok">TikTok</option><option value="unknown">未知/无归属</option></select></label>
         <label class="h5-field">设备<select class="h5-input" wire:model="analyticsFilters.device"><option value="">全部</option>@foreach(['desktop'=>'桌面','mobile'=>'手机','tablet'=>'平板','unknown'=>'未知'] as $v=>$label)<option value="{{ $v }}">{{ $label }}</option>@endforeach</select></label>
-        <label class="h5-field">链接<select class="h5-input" wire:model="analyticsFilters.link_id"><option value="">当前授权范围全部</option>@foreach($links as $item)<option value="{{ $item['id'] }}">{{ $item['name'] }}</option>@endforeach</select></label>
+        <label class="h5-field">链接<select class="h5-input" wire:model="analyticsFilters.link_id"><option value="">当前授权范围全部</option>@foreach($analyticsLinks['items'] as $item)<option value="{{ $item['id'] }}" @disabled($item['unavailable'])>{{ $item['name'] }}</option>@endforeach</select></label>
         <label class="h5-field">剧目<select class="h5-input" wire:model="analyticsFilters.drama_id"><option value="">全部剧目</option>@foreach($analytics['dimensions']['dramas'] ?? [] as $id=>$title)<option value="{{ $id }}">{{ $title }}</option>@endforeach</select></label>
         <label class="h5-field">分集<select class="h5-input" wire:model="analyticsFilters.episode_id"><option value="">全部分集</option>@foreach($analytics['dimensions']['episodes'] ?? [] as $id=>$title)<option value="{{ $id }}">{{ $title }}</option>@endforeach</select></label>
         <label class="h5-field">环境<select class="h5-input" wire:model="analyticsFilters.test"><option value="all">测试/真实分别核对</option><option value="test">仅测试</option><option value="real">仅真实</option></select></label>
@@ -16,7 +26,7 @@
     @if($analyticsError)<p class="h5-error" role="alert">{{ $analyticsError }}</p>@endif
     @if($analytics)
         <p class="h5-note">{{ $analytics['definition'] }} {{ $analytics['from'] }} — {{ $analytics['until'] }}</p>
-        @if($analytics['limited'])<p class="h5-alert">样本超过单次10000条上限，结果不完整，转化率不计算；请缩小日期或筛选。</p>@endif
+        @if($analytics['limited'])<p class="h5-alert">入口主体共{{ $analytics['funnel_entry_people'] }}人，超过10000人上限；漏斗仅处理前{{ $analytics['funnel_processed_people'] }}个入口，不计算漏斗转化率。独立计数、观看、分集和财务仍为完整筛选结果；请缩小入口日期或筛选。</p>@endif
         <p>访问人数 {{ $analytics['visitors'] ?? '—' }} · 会话 {{ $analytics['sessions'] ?? '—' }} · 有效观看累计 {{ $analytics['watched_seconds'] ?? '—' }} 秒 · 仍在7天观察窗 {{ $analytics['observing_people'] }} 人</p>
         <h3>各环节独立计数</h3>
         <div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>事件</th><th>次数</th><th>去重人数</th></tr></thead><tbody>@forelse($analytics['counts'] ?? [] as $event=>$row)<tr><td>{{ $labels::event($event) }}</td><td>{{ $row['events'] }}</td><td>{{ $row['people'] }}</td></tr>@empty<tr><td colspan="3">暂无已同意样本或采集未启用；不代表全站没有行为。</td></tr>@endforelse</tbody></table></div>

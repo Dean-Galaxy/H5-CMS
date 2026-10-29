@@ -1,0 +1,9 @@
+
+   PASS  Tests\Feature\Acquisition\AnalyticsTest
+  ✓ report authorized scope zero denominator and out of order funnel ar… 0.32s
+  ✓ analytics tab renders with scope and invalid date keeps filter inpu… 0.08s
+  ✓ assigned operator sees only its link aggregates and revocation remo… 0.05s
+  ✓ own links remain visible after redundant assignment revocation with… 0.06s
+
+  Tests:    4 passed (27 assertions)
+  Duration: 0.68s

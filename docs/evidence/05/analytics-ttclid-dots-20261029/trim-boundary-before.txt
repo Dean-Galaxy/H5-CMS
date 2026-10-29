@@ -1,0 +1,27 @@
+
+   FAIL  Tests\Feature\Acquisition\ClickMatchingTest
+  ✓ meta and dotted tiktok url to encrypted source to fake http payload… 0.35s
+  ✓ unknown denied malformed and oversized matching is not persisted     0.06s
+  ✓ late landing confirmation retries entry events then attributes with… 0.05s
+  ⨯ dotted tiktok boundary retains case and rejects urls scripts whites… 0.03s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\ClickMatchingTest > dotted tiktok bound…
+  Failed asserting that two strings are equal.
+  -'...63-717a-96a0-21a4aba9a8eb'
+  +'...63-717a-96a0-21a4aba9a8eb?ttclid=E.C.P.TRAILING'
+
+
+  at tests/Feature/Acquisition/ClickMatchingTest.php:145
+    141▕     {
+    142▕         [$pixel, $link] = $this->assets('tiktok');
+    143▕         $badValues = ['https://attacker.invalid/click', '<script>', 'E.C.P. WITH_SPACE', "E.C.P.TRAILING\n", "E.C.P.\tTAB", str_repeat('A', 513)];
+    144▕         foreach ($badValues as $bad) {
+  ➜ 145▕             $this->get($link['url'].'?'.http_build_query(['ttclid'=>$bad]))->assertRedirect('/dramas/'.$link['drama_id']);
+    146▕         }
+    147▕         $this->postJson('/api/v1/tracking/consent', ['analytics'=>false,'advertising'=>true,'policy_version'=>'analytics-v1'])->assertOk();
+    148▕         foreach ($badValues as $bad) {
+    149▕             $this->postJson('/api/v1/tracking/landing', $this->landing($link, ['ttclid'=>$bad]))->assertUnprocessable();
+
+
+  Tests:    1 failed, 3 passed (74 assertions)
+  Duration: 0.62s

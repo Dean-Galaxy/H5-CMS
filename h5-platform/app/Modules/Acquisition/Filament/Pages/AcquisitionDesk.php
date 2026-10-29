@@ -5,12 +5,14 @@ namespace App\Modules\Acquisition\Filament\Pages;
 use App\Contracts\IdentityContext;
 use App\Enums\Role;
 use App\Modules\Acquisition\Analytics\AnalyticsReport;
+use App\Modules\Acquisition\Analytics\LinkFilter;
 use App\Modules\Acquisition\Analytics\TrackingContext;
 use App\Modules\Acquisition\Services\AssetAccess;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Support\ApiProblem;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 
 final class AcquisitionDesk extends Page
@@ -36,6 +38,13 @@ final class AcquisitionDesk extends Page
     public string $tab = 'links';
 
     public array $analyticsFilters = ['from' => '', 'until' => '', 'channel' => '', 'link_id' => '', 'drama_id' => '', 'episode_id' => '', 'device' => '', 'test' => 'all'];
+
+    public string $analyticsLinkSearch = '';
+
+    #[Locked]
+    public string $analyticsLinkQuery = '';
+
+    public int $analyticsLinkPage = 1;
 
     public int $pixelPage = 1;
 
@@ -90,6 +99,20 @@ final class AcquisitionDesk extends Page
     private function allowedTabs(): array
     {
         return app(TrackingContext::class)->enabled() ? ['links', 'pixels', 'payments', 'deliveries', 'analytics'] : ['links', 'pixels', 'payments', 'deliveries'];
+    }
+
+    public function searchAnalyticsLinks(): void
+    {
+        app(AssetAccess::class)->actor();
+        $this->validate(['analyticsLinkSearch' => ['string', 'max:100']], ['analyticsLinkSearch.max' => '链接名称搜索不能超过100个字符']);
+        $this->analyticsLinkQuery = trim($this->analyticsLinkSearch);
+        $this->analyticsLinkPage = 1;
+    }
+
+    public function paginateAnalyticsLinks(int $page): void
+    {
+        app(AssetAccess::class)->actor();
+        $this->analyticsLinkPage = max(1, $page);
     }
 
     public function refreshAnalytics(): void
@@ -281,12 +304,19 @@ final class AcquisitionDesk extends Page
 
         $analytics = null;
         $analyticsError = null;
+        $analyticsLinks = ['items' => [], 'total' => 0, 'page' => 1, 'last_page' => 1, 'selected_unavailable' => false];
         if (app(TrackingContext::class)->enabled()) {
             $tabs[] = ['id' => 'analytics', 'label' => '站内分析'];
         }
         if ($this->tab === 'analytics') {
             try {
+                $analyticsLinks = app(LinkFilter::class)->page($this->analyticsLinkQuery, $this->analyticsLinkPage, $this->analyticsFilters['link_id'] ?? null);
+                if ($analyticsLinks['selected_unavailable']) {
+                    throw new ApiProblem('NOT_FOUND', 404, '已选链接不存在或当前无权查看，请重新选择');
+                }
                 $analytics = app(AnalyticsReport::class)->read(array_filter($this->analyticsFilters, fn ($v) => $v !== ''));
+            } catch (ApiProblem $e) {
+                $analyticsError = $e->errorCode === 'NOT_FOUND' ? '已选链接不存在或当前无权查看，请重新选择' : '分析暂不可用，请稍后重试；未将未知结果显示为0';
             } catch (\InvalidArgumentException) {
                 $analyticsError = '请选择最多90天有效日期范围及合法筛选项';
             } catch (\Throwable) {
@@ -294,7 +324,7 @@ final class AcquisitionDesk extends Page
             }
         }
 
-        return ['analytics' => $analytics, 'analyticsError' => $analyticsError, 'pixels' => $pixels['items'], 'links' => $links['items'], 'pixelOptions' => $options,
+        return ['analyticsLinks' => $analyticsLinks, 'analytics' => $analytics, 'analyticsError' => $analyticsError, 'pixels' => $pixels['items'], 'links' => $links['items'], 'pixelOptions' => $options,
             'pixelPagination' => $pixels, 'linkPagination' => $links,
             'summary' => $this->summaryId ? $manager->summary($this->summaryId) : null,
             'owner' => $owner, 'tabs' => $tabs];

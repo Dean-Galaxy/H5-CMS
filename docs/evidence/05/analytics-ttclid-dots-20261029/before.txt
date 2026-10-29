@@ -1,0 +1,43 @@
+
+   FAIL  Tests\Feature\Acquisition\ClickMatchingTest
+  ⨯ meta and dotted tiktok url to encrypted source to fake http payload… 0.32s
+  ✓ unknown denied malformed and oversized matching is not persisted     0.05s
+  ✓ late landing confirmation retries entry events then attributes with… 0.05s
+  ⨯ dotted tiktok boundary retains case and rejects urls scripts whites… 0.05s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\ClickMatchingTest > meta and dotted tik…
+  Expected response status code [200] but received 422.
+Failed asserting that 422 is identical to 200.
+
+  at tests/Feature/Acquisition/ClickMatchingTest.php:51
+     47▕             $this->assertDatabaseCount('acquisition_sources', $platform === 'meta' ? 0 : 1);
+     48▕             $this->assertStringNotContainsString($click, json_encode(session('tracking')));
+     49▕             $this->postJson('/api/v1/tracking/consent', ['analytics' => false, 'advertising' => true, 'policy_version' => 'analytics-v1'])->assertOk();
+     50▕             $body = $this->landing($link, ['fbclid' => 'EXPLICIT_LOCAL_CLICK_meta', 'ttclid' => 'E.C.P.SYNTHETIC_06-CLICK', 'fbc' => 'fb.1.1700000000000.OLD_CLICK', 'fbp' => 'fb.1.1700000000000.123456', 'ttp' => 'TEST_TTP-123']);
+  ➜  51▕             $this->postJson('/api/v1/tracking/landing', $body)->assertOk()->assertJsonPath('confirmed', true);
+     52▕             $before = app(AttributionRecorder::class)->snapshot(null);
+     53▕             $this->travel(2)->seconds();
+     54▕             $this->postJson('/api/v1/tracking/landing', $body)->assertJsonPath('confirmed', true);
+     55▕             $this->assertSame($before->captured_at, app(AttributionRecorder::class)->snapshot(null)->captured_at);
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\ClickMatchingTest > dotted tiktok bound…
+  Failed asserting that two strings are equal.
+  -'...3e-7214-abcc-8b9cce9af101?ttclid=E.C.P.aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-aB_7-Z'
+  +'...3e-7214-abcc-8b9cce9af101'
+
+
+  at tests/Feature/Acquisition/ClickMatchingTest.php:154
+    150▕         }
+    151▕         $this->assertDatabaseCount('acquisition_sources', 0);
+    152▕         $boundary='E.C.P.'.str_repeat('aB_7-', 101).'Z';
+    153▕         $this->assertSame(512, strlen($boundary));
+  ➜ 154▕         $this->get($link['url'].'?'.http_build_query(['ttclid'=>$boundary]))->assertRedirect('/dramas/'.$link['drama_id'].'?ttclid='.$boundary);
+    155▕         $this->postJson('/api/v1/tracking/landing', $this->landing($link, ['ttclid'=>$boundary]))->assertJsonPath('confirmed', true);
+    156▕         $source=DB::table('acquisition_sources')->sole();
+    157▕         $context=json_decode(Crypt::decryptString($source->context_encrypted), true);
+    158▕         $this->assertSame($boundary, $context['ttclid']);
+
+
+  Tests:    2 failed, 2 passed (58 assertions)
+  Duration: 0.62s

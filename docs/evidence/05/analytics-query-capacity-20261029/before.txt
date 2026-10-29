@@ -1,0 +1,23 @@
+
+   FAIL  Tests\Feature\Acquisition\AnalyticsCapacityTest
+  ⨯ heartbeats cannot displace filtered complete cohorts or independent… 0.86s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\AnalyticsCapacityTest > heartbeats cann…
+  Failed asserting that true is false.
+
+  at tests/Feature/Acquisition/AnalyticsCapacityTest.php:88
+     84▕         DB::table('acquisition_behaviors')->insert($this->row($busy,$this->target,'watch_progress',$this->day->subMicrosecond(),['watched_delta'=>999]));
+     85▕         $this->travelTo($this->day->addDay()->addHours(12));
+     86▕         $filters=['from'=>$this->day->toDateString(),'until'=>$this->day->toDateString(),'link_id'=>$this->target['id'],'drama_id'=>$this->target['drama_id'],'episode_id'=>$this->episode,'device'=>'desktop','test'=>'test'];
+     87▕         $report=app(AnalyticsReport::class)->read($filters);
+  ➜  88▕         $this->assertFalse($report['limited']);
+     89▕         $this->assertSame(2,$report['visitors']);
+     90▕         $this->assertSame([2,2,2,2,2],array_column($report['funnel'],'people'));
+     91▕         $this->assertSame([2,2,2,2,2,2,2,2],array_column($report['registration_funnel'],'people'));
+     92▕         $this->assertSame(100.0,$report['funnel'][4]['rate']);
+
+  1   tests/Feature/Acquisition/AnalyticsCapacityTest.php:88
+
+
+  Tests:    1 failed (1 assertions)
+  Duration: 1.02s
