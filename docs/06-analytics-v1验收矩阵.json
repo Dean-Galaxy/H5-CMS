@@ -2,7 +2,7 @@
   "schema": 1,
   "contract": "analytics-v1",
   "preparation_candidate": "bb947dcb7a56b04d5ce27433ab4dfdffeef26a31",
-  "combined_candidate": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+  "combined_candidate": "d7cbaed2dd4abb155aeea5c129364e5a3c91a2fa",
   "scenarios": [
     {
       "id": "AN06-P01",
@@ -36,9 +36,10 @@
       "scenario": "消费者缺失闸门",
       "method": "prepare能力清单；combined及browser入口实际返回77",
       "expected": "不启动浏览器、不记组合通过",
-      "status": "passed_local_php",
+      "status": "passed_historical_preparation_gate",
       "preparation_status": "passed_preparation",
-      "latest_evidence": "analytics-local-20261029/full-php.json"
+      "latest_evidence": "analytics-local-20261029/full-php.json",
+      "evidence_candidate": "bb947dcb7a56b04d5ce27433ab4dfdffeef26a31"
     },
     {
       "id": "AN06-P05",
@@ -145,10 +146,10 @@
       "scenario": "可靠财务待发",
       "method": "Accepted同重放/Skipped无同意与永久无效/Retry临时故障；进程重启",
       "expected": "稳定key有界退避，拒绝不永久卡待发，暂未就绪不丢事实；有安全诊断",
-      "status": "partial_php_and_independent_pg_restart",
+      "status": "passed_actual_independent_cli_restart",
       "preparation_status": "pending_consumers",
-      "latest_evidence": "analytics-local-20261029/full-php.json",
-      "not_executed": "queue service pending-backlog restart not executed"
+      "latest_evidence": "analytics-report-delta-20261029/outbox-restart.json",
+      "not_executed": "permanent queue/cloud server restart not executed"
     },
     {
       "id": "AN06-M01",
@@ -173,10 +174,10 @@
       "scenario": "同入口7天漏斗",
       "method": "A完整/B只有后半/C先后逆序/D跨日/E窗口外/F重复/G观察中；入口期与后续窗分开",
       "expected": "每步去重且按时间递进；不拿全站总量相除；分母0为—，观察中单列",
-      "status": "blocked_known_large_sample_issue",
+      "status": "passed_targeted_capacity_and_scoped_funnel",
       "preparation_status": "pending_consumers",
-      "latest_evidence": "analytics-local-20261029/full-php.json",
-      "not_executed": "00 reported global first-10000 raw truncation; await05 patch and06 targeted reproduction/regression"
+      "latest_evidence": "analytics-report-delta-20261029/targeted-php.json",
+      "not_executed": "real production throughput/lock window not benchmarked"
     },
     {
       "id": "AN06-R02",
@@ -244,13 +245,18 @@
     }
   ],
   "wiring_candidate": "4ba3ede74067ecf7d2c88733b858a1fd8361f550",
-  "wiring_consumer_tests_executed": false,
   "precision_wiring_candidate": "7b02431005d4ab2583c55acfc6c55d2dc5f3469a",
   "requires_03_precision_fix_and_new_migration": false,
   "landing_wiring_candidate": "c5ccb4d771ff1bc5c0c7acb7a81fc6a238748ce6",
   "actual_php_candidate": "a7570f3e02d78d49f786dce9a61eea22dfd9ba43",
   "actual_browser_candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
-  "latest_result": "local_chain_passed_large_report_pending_external_not_ready",
+  "latest_result": "authorized_local_acceptance_passed_external_and_manual_pending",
   "report": "06-analytics-v1本地组合验收报告.md",
-  "current_precision_fix_received": true
+  "current_precision_fix_received": true,
+  "base_combined_candidate": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+  "incremental_actual_php_candidate": "c770d4b3a43558e677f9f98d29cec77962c9eb4a",
+  "actual_outbox_restart_candidate": "e7e8575fefdc8fe05e82341773817301c867beff",
+  "current_consumer_tests_executed": true,
+  "incremental_report": "06-analytics-v1报表增量与待发恢复验收.md",
+  "historical_wiring_consumer_tests_executed": false
 }

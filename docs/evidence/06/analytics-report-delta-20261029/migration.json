@@ -1,0 +1,20 @@
+{
+  "candidate": "c770d4b3a43558e677f9f98d29cec77962c9eb4a",
+  "migrations": 23,
+  "non_migration_table_count": 61,
+  "all_existing_data_rows_unchanged": true,
+  "new_indexes": [
+    {
+      "name": "acq_behavior_link_period",
+      "definition": "CREATE INDEX acq_behavior_link_period ON public.acquisition_behaviors USING btree (link_id, occurred_at)"
+    },
+    {
+      "name": "acq_behavior_subject_stage_order",
+      "definition": "CREATE INDEX acq_behavior_subject_stage_order ON public.acquisition_behaviors USING btree (subject_id, is_test, event_name, ordered_at, sequence)"
+    }
+  ],
+  "original_browser_fixture_retained": true,
+  "gross_minor": 300,
+  "refund_minor": 0,
+  "net_minor": 300
+}

@@ -1,0 +1,21 @@
+{
+  "candidate": "e7e8575fefdc8fe05e82341773817301c867beff",
+  "passed": true,
+  "original_browser_database_untouched": true,
+  "new_testing_database_only": true,
+  "seed_producer_exited": true,
+  "independent_processes": 8,
+  "pending_survived_worker_exit": true,
+  "real_backoff_seconds": 60.58,
+  "standard_command": "billing:behavior-dispatch",
+  "attempts_after_restart": 2,
+  "refund_behaviors": 1,
+  "payments": 1,
+  "entitlements": 1,
+  "stable_key_sha256": "ecb153f341271e2a132f574132d70881d9e08d1e1bf338256f082b9f14438ab7",
+  "five_financial_tables_identical": true,
+  "repeat_dispatch_unchanged": true,
+  "permanent_worker_started": false,
+  "official_payment": false,
+  "external_delivery_enabled": false
+}

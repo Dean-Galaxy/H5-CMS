@@ -1,0 +1,10 @@
+{
+  "candidate": "e7e8575fefdc8fe05e82341773817301c867beff",
+  "original_restore_candidate": "bb4803f7b2f72e58806c6163a9d0bbcf8c7a71b3",
+  "restored_indexes": [
+    "acq_behavior_link_period",
+    "acq_behavior_subject_stage_order"
+  ],
+  "checked_after_actual_independent_restart": true,
+  "passed": true
+}

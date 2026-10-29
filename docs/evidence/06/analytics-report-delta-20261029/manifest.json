@@ -1,0 +1,22 @@
+{
+  "received_delivery": "d7cbaed2dd4abb155aeea5c129364e5a3c91a2fa",
+  "application_source": "6effb469002466d509c6dbdd8a7145167ac600ba",
+  "actual_targeted_php_candidate": "c770d4b3a43558e677f9f98d29cec77962c9eb4a",
+  "actual_restore_candidate": "bb4803f7b2f72e58806c6163a9d0bbcf8c7a71b3",
+  "actual_restart_candidate": "e7e8575fefdc8fe05e82341773817301c867beff",
+  "business_files_identical_to_received_delivery": true,
+  "base_full_php_and_real_browser": "../analytics-local-20261029/manifest.json",
+  "full_767_and_core_browser_not_repeated": true,
+  "official_payment": false,
+  "official_platform": false,
+  "real_device": false,
+  "files": {
+    "targeted-php.json": "d7256cd8fb5d2ee581b3184c9a0eaed010a2d2ea52b8f7ff98eb964f453bfa99",
+    "outbox-restart.json": "8547042ee8ee6924219d315a09165d3589acf9ad8baacdbe82ccd9376f04dc28",
+    "shutdown.json": "5924763665f027452010992a3182ebc8c3eeaf0ae2141f582fd1f0c3ebaf341c",
+    "restored-indexes.json": "93543bd463c51a610bd1b471584b4bfe008f772a171e7025075c0d18fde216f6",
+    "retained-payment-report.json": "a39a354286ae027ef4a6324f627b2626e381a01b156d048612ca638542d53926",
+    "migration.json": "43350298a263c49453508d17dcdb6eee935af376f64be7e086c53848fa0725ed",
+    "independent-recovery.json": "faccf349bd0c1d618ad20bd26c7535eab770c8b4a7747a3a991d9c00b33b313a"
+  }
+}
