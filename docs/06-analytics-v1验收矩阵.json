@@ -178,8 +178,17 @@
       "method": "合成fbclid/ttclid与已有_fbc/_fbp/_ttp；独立landing先于入口事件；慢1秒/乱序；加密context和双平台HTTP替身payload核对",
       "expected": "未知/拒绝不存；值<=512bytes/整包<=4KiB；按平台隔离；当前点击优先旧fbc；普通events/报表/log无原ID；不假造匹配成功或改旧单快照",
       "status": "pending_consumers"
+    },
+    {
+      "id": "AN06-M03",
+      "scenario": "同秒同意后真实退款的微秒顺序及新迁移",
+      "method": "真实本地业务链同意.100→确认退款.200；比较03属性/DB/05行为时间、可靠投递/去重、财务区间；核新precision6迁移与200800固定摘要",
+      "expected": "同意不被错误判断为晚于退款；不放宽consumer、不动paid_at/权益、不改已采用迁移；旧秒级证据不虚构微秒或伪造新通过",
+      "status": "pending_03_precision_fix_and_full_candidate"
     }
   ],
   "wiring_candidate": "4ba3ede74067ecf7d2c88733b858a1fd8361f550",
-  "wiring_consumer_tests_executed": false
+  "wiring_consumer_tests_executed": false,
+  "precision_wiring_candidate": "7b02431005d4ab2583c55acfc6c55d2dc5f3469a",
+  "requires_03_precision_fix_and_new_migration": true
 }

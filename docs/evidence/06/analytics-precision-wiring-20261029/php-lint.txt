@@ -1,0 +1,3 @@
+Source candidate: 7b02431005d4ab2583c55acfc6c55d2dc5f3469a
+Syntax only; no PHP bootstrap/database/consumer execution
+No syntax errors detected in h5-platform/tests/Integration/AnalyticsCombined/LifecycleMicrosecondsTest.php

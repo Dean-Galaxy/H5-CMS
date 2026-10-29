@@ -45,3 +45,11 @@
 新增MatchingContextTest三项（也未执行）：当前合成fbclid优先不匹配旧fbc、Meta按平台隔离/加密保存，行为与完整报表无原ID；unknown/denied不保存source匹配ID；每值512bytes/整包4KiB及未知字段拒绝。generic landing_view先到后再过1秒独立landing，必须仍能为同一次pending确认正确匹配context，不能生成重复或永久空context。此为乱序PHP断言，不能代替04真实浏览器慢网顺序证据。
 
 浏览器私密计划还增加 `promotional_entry:{code,platform,click_id}`（click_id仅明显SYNTHETIC06前缀）、`landing_delay`（独立确认请求慢1秒）、`assert_landing_before_events`。只记录landing请求/响应与普通events的顺序/HTTP状态，不记录click_context原文。完整浏览器执行时需先设delay，再真实/r进入并同意，确认独立landing已响应后才有入口事件；实际加密context及Meta/TikTok HTTP替身payload仍须双重核对，不能靠200或请求顺序推断匹配字段已送达。已存在_fbc/_fbp/_ttp的合成cookie分支、TikTok payload、拒绝后缓冲/日志无标识和旧单快照保护，仍列总矩阵待执行。
+
+## 03同秒精度缺陷追加（仍未执行）
+
+接线增量源码 `7b02431005d4ab2583c55acfc6c55d2dc5f3469a`；在此前12个用例之外新增2个，实际仍全未执行，只新增PHP语法检查。最终完整候选必须包含03保留真实微秒的修复和新增precision(6)迁移，不能只接05或用旧occurred_at.startOfSecond版本运行后声称通过。
+
+新的LifecycleMicrosecondsTest将同意及合法来源/身份/订单链固定在同一秒.100，.200由真实本地SettlementService处理confirmed的合成退款，核03 outbox属性/DB及05行为均为200000微秒、退款事实delivered且重放不加计、已付时间/权益区间保持。另一用例核新schema精度6和既有200800源码摘要不变，paid_at/权益字段不顺带改精度。05仍按真实发生时同意严格判断；不能把consumer放宽到整秒来掩盖生产者回拨。
+
+本轮没有运行迁移、应用或测试库，没有修旧outbox/Skipped记录，也不把旧秒精度证据虚构成可恢复的微秒。详见[新增语法/未执行回执](evidence/06/analytics-precision-wiring-20261029/README.md)。
