@@ -78,7 +78,7 @@
       "id": "AN06-J06",
       "scenario": "换号和同意时间",
       "method": "A登录/退出/B登录，注册前后贯通；事件发生后再同意；后台无request事实",
-      "expected": "合法本次链路合并；换号旋转，不补采后同意之前事件；撤回优先",
+      "expected": "合法本次链路合并；换号旋转，不补采后同意之前事件；撤回优先；logout不撤回历史已建单授权，付款后立即退出的迟到PaymentSettled仍应记录/生成原授权待发，实际撤回才阻断",
       "status": "pending_consumers"
     },
     {
@@ -171,6 +171,15 @@
       "method": "投流同事账号/像素授权/官方测试事件面板；实际手机完整链路",
       "expected": "另取外部及真机证据；本机替身与浏览器模拟不能代证",
       "status": "external_pending"
+    },
+    {
+      "id": "AN06-A03",
+      "scenario": "广告同意后的点击匹配字段完整链路",
+      "method": "合成fbclid/ttclid与已有_fbc/_fbp/_ttp；独立landing先于入口事件；慢1秒/乱序；加密context和双平台HTTP替身payload核对",
+      "expected": "未知/拒绝不存；值<=512bytes/整包<=4KiB；按平台隔离；当前点击优先旧fbc；普通events/报表/log无原ID；不假造匹配成功或改旧单快照",
+      "status": "pending_consumers"
     }
-  ]
+  ],
+  "wiring_candidate": "4ba3ede74067ecf7d2c88733b858a1fd8361f550",
+  "wiring_consumer_tests_executed": false
 }
