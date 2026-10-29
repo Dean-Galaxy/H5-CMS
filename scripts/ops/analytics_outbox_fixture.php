@@ -11,7 +11,7 @@ function bound():void {
     if(!app()->environment('testing') || getenv('H5_ANALYTICS_RESTART_FIXTURE')!=='1'
         || $db!==getenv('H5_TEST_DATABASE') || !preg_match('/^'.preg_quote($c['db'],'/').'_analytics_restart_[a-f0-9]{6}_test$/D',$db)
         || (int)config('database.connections.pgsql.port')!==$c['db_port'] || config('billing.paypal.enabled')!==false
-        || config('acquisition.external_enabled')!==false || config('acquisition.transport')!=='disabled') throw new LogicException('OWN NEW RESTART TEST DATABASE REQUIRED');
+        || config('acquisition.external_enabled',false)!==false || config('acquisition.transport','disabled')!=='disabled') throw new LogicException('OWN NEW RESTART TEST DATABASE REQUIRED');
 }
 $action=$argv[1]??'';
 if($action==='seed') {
