@@ -1,0 +1,2 @@
+03 isolated workspace only. Local HTTP/consumer fixtures are not official provider or advertisement evidence.
+Lifecycle facts completed: 0; pending: 0.

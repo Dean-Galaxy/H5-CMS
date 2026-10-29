@@ -1,0 +1,13 @@
+{
+  "passed": false,
+  "advisories": [
+    {
+      "package": "symfony/mime",
+      "advisory_id": "PKSA-wtxr-p26d-nn42",
+      "title": "CVE-2026-45070: Email Header Injection via Non-Token Characters in Mime Parameter Names",
+      "link": "https://symfony.com/cve-2026-45070"
+    }
+  ],
+  "dependency_files_modified": false,
+  "owner_notified": "00"
+}

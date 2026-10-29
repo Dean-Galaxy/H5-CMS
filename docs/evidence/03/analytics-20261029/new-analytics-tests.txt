@@ -1,0 +1,23 @@
+03 isolated workspace only. Local HTTP/consumer fixtures are not official provider or advertisement evidence.
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Billing\BillingAnalyticsTest
+  ✓ internal reader returns only authoritative whitelisted payment fact… 0.25s  
+  ✓ reader rejects invalid or over limit original inputs without silent… 0.02s  
+  ✓ damaged snapshot returns null and safe diagnostic                    0.04s  
+  ✓ successful refund snapshots are versioned and corrections can reduc… 0.06s  
+  ✓ cancel resume confirmations are durable and replay does not create…  0.05s  
+  ✓ unknown cancel does not emit success until the original operation i… 0.03s  
+  ✓ recorder failure isolated from finance backoffs and retries with sa… 0.04s  
+  ✓ recorder failure isolated from finance backoffs and retries with sa… 0.04s  
+  ✓ refused consent is final and replay cannot retrack after later cons… 0.03s  
+  ✓ missing consumer is retryable and versions are delivered in order    0.04s  
+  ✓ financial rollback does not leave a phantom behavior fact            0.03s  
+  ✓ upgrade baselines existing refunds and cancellations without retroa… 0.05s  
+  ✓ blocked aggregate cannot starve others at limit one and backoff cap… 0.05s  
+
+  Tests:    13 passed (122 assertions)
+  Duration: 0.87s
+
