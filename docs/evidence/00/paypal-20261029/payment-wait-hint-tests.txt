@@ -1,0 +1,33 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Audience\BillingUiTest
+  ✓ guest uses real offer and empty price is not filled with sample dat… 5.23s  
+  ✓ email verification precedes checkout and keeps only current return…  0.40s  
+  ✓ unconfigured stripe is an explicit failure without order or members… 0.41s  
+  ✓ checkout uses its own fixed deadline and repeated click reuses the…  0.32s  
+  ✓ unknown checkout can recover only the confirmed original after quot… 0.08s  
+  ✓ missing or other account recovery credentials cannot guess or creat… 0.04s  
+  ✓ temporarily unavailable recheck keeps original recovery credentials  0.03s  
+  ✓ successful checkout remains reachable from membership                0.03s  
+  ✓ payment return login keeps only a controlled order path              0.01s  
+  ✓ browser success parameters cannot grant access and other orders are… 0.03s  
+  ✓ checkout without provider expiry never displays a cached link or fa… 0.04s  
+  ✓ recheck post reuses only the confirmed attempt without creating ano… 0.03s  
+  ✓ return rejects untrusted or non https checkout approval links        0.03s  
+  ✓ cancel and resume read original quote and require explicit confirma… 0.30s  
+  ✓ stale or tampered resume rereads but does not resume automatically   0.13s  
+  ✓ expired offer requires new price confirmation without creating orde… 0.03s  
+  ✓ partial refund shows original access and unresolved renewal separat… 0.06s  
+  ✓ language choice keeps usd and does not change offer terms            0.05s  
+  ✓ payment wait hint is bilingual and only shown for pending payment r… 0.04s  
+
+   PASS  Tests\Feature\Audience\PayPalBillingReturnUiTest
+  ✓ active but unreconciled checkout stays on the original order withou… 2.03s  
+  ✓ repeated explicit recheck reuses one order and never creates anothe… 2.14s  
+  ✓ get refresh only reads the original local order without provider cr… 0.64s  
+
+  Tests:    22 passed (273 assertions)
+  Duration: 14.10s
+

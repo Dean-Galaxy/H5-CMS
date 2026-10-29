@@ -21,3 +21,11 @@
 - replay-observer-summary-safe.json及replay-observer-tests.txt：00系统Python独立61项、0skip。工具已接收未部署，当前窗口不变；未实际重送或观察第二次官方通知。首次汇总脚本误把测试名中的skipped当skip，修汇总后最终完整61项通过。
 
 当前最新交接见[00-38](../../../handoffs/00-38-B首款核验与C退款准备.md)。
+
+## C首款与付款等待提示追加
+
+- c-first-payment-safe.json：00实际只读核同一C官方3USD首款、周Plan、本地唯一付款/权益/outbox及真实签名收件，A/B官方状态保留；当前不代表退款或B续扣通过。
+- c-before-refund-backup-safe.json：退款前新增归档133372字节可读、A/B/C前置私密快照及准确本机交易核对单；实际ID/日期/账号不在本文件，00没有代退。
+- payment-wait-hint-tests.txt：00集成后22项273断言通过；条件显示/中英文案与既有PayPal重查规则，HTTP Mock，不算新官方付款。04样例窄屏截图由00只读复看，新文案仍未部署到实际06。
+
+最新交接见[00-39](../../../handoffs/00-39-C首款核验与付款等待提示.md)。
