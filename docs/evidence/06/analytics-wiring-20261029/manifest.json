@@ -1,0 +1,32 @@
+{
+  "wiring_source": "4ba3ede74067ecf7d2c88733b858a1fd8361f550",
+  "received_consumers_reference": {
+    "identity": "8a2f108",
+    "billing": "d09d5ff",
+    "audience": "d74efb22",
+    "main": "95cde420078170cba0fb8007f6e29e64f545c93f",
+    "logout_contract": "0e026b76e114e37613b7cba73796f064d4e52a59",
+    "matching_contract": "fbafae0f47cf4818563c7353528d62c5527f8996"
+  },
+  "python_helper_tests": 6,
+  "node_helper_tests": 7,
+  "php_lint_files": 6,
+  "consumer_tests_written": 12,
+  "consumer_tests_executed": false,
+  "browser_execution": false,
+  "database_started": false,
+  "runtime_started": false,
+  "platform_requests": false,
+  "full_combination_candidate": null,
+  "source_sha256": {
+    "h5-platform/tests/Integration/AnalyticsCombined/MatchingContextTest.php": "d44f6788a8fcbb3cb07149d722267293393762f6cc046e5fc18d4ddd01756479",
+    "h5-platform/tests/Integration/AnalyticsCombined/PaymentAttributionTest.php": "72c3d6ee5b1afa99e6f283764991161d53e761e5710cf7b8bf0ccd516beae79d",
+    "h5-platform/tests/Integration/AnalyticsCombined/PrivacyApiTest.php": "c102d09fcaaee339877fdd3be534ffdf06132b960158ca5d2b2406475190f843",
+    "h5-platform/tests/Integration/AnalyticsCombined/Support/CombinedTestCase.php": "c29b3175efe533e1b686ea905f7d2a1c4d9b44a69d64ab631067fc74c48d4e98",
+    "h5-platform/tests/Integration/AnalyticsCombined/Support/ControlledPayment.php": "fd75dc20e19a1903e4936ada161bbd5aab6c6b4fb653b983a940f0dca015cded",
+    "scripts/ops/analytics_preflight.php": "78be28d8de0adebbd3cd35aa78e03426c21d58bb6e6e1090d03ec65e02c57bc0",
+    "h5-platform/tests/Browser/analytics-journey.cjs": "5e063544c96e313bf6fe6e3260326ae17ff28bf116f55efe6d8de6ae040f862a",
+    "h5-platform/tests/Browser/analytics-journey.test.cjs": "8f2e911b072b445ba3f069ae1323a210a64a66d29d799faa639c10b031868221",
+    "scripts/ops/analytics_acceptance.py": "bcf5e60426ac279c034b7246293cb280a70752f3225e641ca974459d152f58ee"
+  }
+}

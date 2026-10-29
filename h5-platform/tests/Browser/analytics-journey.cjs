@@ -30,6 +30,35 @@ function localPath(value) {
   assert(typeof value === 'string' && /^\/[A-Za-z0-9/_-]*$/.test(value) && !value.startsWith('//'));
   return value;
 }
+function privateText(file, limit = 1048576) {
+  const info = fs.lstatSync(file);
+  assert(info.isFile() && !info.isSymbolicLink() && info.nlink === 1 && info.uid === process.getuid() && (info.mode & 0o077) === 0 && info.size <= limit);
+  return fs.readFileSync(file, 'utf8');
+}
+function verificationLink(value, base) {
+  try {
+    const url = new URL(value);
+    return url.origin === base && /^\/api\/v1\/auth\/email\/verify\/[a-f0-9-]{36}\/[a-f0-9]{40}$/.test(url.pathname)
+      && ['expires','nonce','signature'].every(key => url.searchParams.has(key));
+  } catch { return false; }
+}
+function previewFiles(root, email, after) {
+  assert(typeof email === 'string' && /^[A-Za-z0-9._+-]+@example\.test$/.test(email));
+  const directory = path.join(root, '.runtime/mail');
+  assert.equal(fs.realpathSync(directory), directory);
+  const results = [];
+  for (const name of fs.readdirSync(directory)) {
+    if (!name.endsWith('.eml')) continue;
+    const file = path.join(directory,name), info = fs.lstatSync(file);
+    if (info.mtimeMs < after) continue;
+    const mail = privateText(file), header = mail.split(/\r?\n\r?\n/)[0].replace(/\r?\n[ \t]+/g,'');
+    const to = header.split(/\r?\n/).find(line => /^to:/i.test(line)) || '';
+    if (!to.toLowerCase().includes(email.toLowerCase())) continue;
+    const html = file.slice(0,-4)+'.html';
+    if (fs.existsSync(html)) results.push({html, modified: info.mtimeMs});
+  }
+  return results.sort((a,b) => b.modified-a.modified);
+}
 function summarizeBatch(raw) {
   // Do not serialize request properties, identity, names, payment/media URLs, page paths or errors.
   try {
@@ -64,8 +93,9 @@ async function run(candidate, fixtureFile) {
   const browser = await chromium.launch({headless: true, executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
   const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block'});
   const result = {candidate, contract: 'analytics-v1', scope: 'browser observations only; DB/funnel/money/authority acceptance is separate',
-    browser: browser.version(), external_attempts: 0, tracking: [], playback: [], steps: [], media_requests: 0,
+    browser: browser.version(), external_attempts: 0, tracking: [], playback: [], steps: [], media_requests: 0, landing_sequence: [],
     official_platform_verified: false, real_device: false, completed: false};
+  const startedAt = Date.now();
   const page = await context.newPage();
   const pending = new Set(); let finished = false;
   await context.route('**/*', async route => {
@@ -78,7 +108,9 @@ async function run(candidate, fixtureFile) {
     if (finished) return;
     const url = new URL(req.url());
     if (url.origin !== base) return;
+    if (url.pathname === '/api/v1/tracking/landing' && result.landing_sequence.length < 200) result.landing_sequence.push({kind:'landing_request'});
     if (url.pathname === '/api/v1/tracking/events' && result.tracking.length < 200) {
+      if(result.landing_sequence.length < 200) result.landing_sequence.push({kind:'events_request'});
       result.tracking.push(summarizeBatch(req.postData() || ''));
     }
     if (url.pathname.startsWith('/api/v1/content/playback/')) result.media_requests++;
@@ -86,6 +118,7 @@ async function run(candidate, fixtureFile) {
   page.on('response', response => {
     if (finished) return;
     const url = new URL(response.url());
+    if (url.origin === base && url.pathname === '/api/v1/tracking/landing' && result.landing_sequence.length < 200) result.landing_sequence.push({kind:'landing_response',status:response.status()});
     if (url.origin === base && url.pathname.endsWith('/playback') && result.playback.length < 100) {
       const work = response.json().then(data => result.playback.push({status: response.status(), allowed: data.allowed === true,
         reason: typeof data.reason === 'string' && /^[A-Z_a-z]{1,40}$/.test(data.reason) ? data.reason : 'unknown'})).catch(() => result.playback.push({status: response.status(), invalid_json: true}));
@@ -99,6 +132,41 @@ async function run(candidate, fixtureFile) {
         case 'click': assert(typeof step.selector === 'string'); await page.locator(step.selector).click(); break;
         case 'fill': assert(typeof step.selector === 'string' && typeof step.value === 'string'); await page.locator(step.selector).fill(step.value); break;
         case 'wait_url': await page.waitForURL(base + localPath(step.path)); break;
+        case 'promotional_entry': {
+          assert.match(step.code,/^[A-Za-z0-9_-]{1,128}$/); assert(['meta','tiktok'].includes(step.platform));
+          assert.match(step.click_id,/^SYNTHETIC06[A-Za-z0-9_-]{0,480}$/);
+          const key=step.platform==='meta'?'fbclid':'ttclid';
+          await page.goto(base+'/r/'+step.code+'?'+key+'='+encodeURIComponent(step.click_id));
+          break;
+        }
+        case 'landing_delay': await page.route('**/api/v1/tracking/landing',async r => {await new Promise(resolve=>setTimeout(resolve,1000));await r.continue();}); break;
+        case 'assert_landing_before_events': {
+          const list=result.landing_sequence, response=list.findIndex(x=>x.kind==='landing_response'&&x.status===200), event=list.findIndex(x=>x.kind==='events_request');
+          assert(response>=0 && event>response,'Dedicated landing must respond before the first entrance behavior request');
+          break;
+        }
+        case 'membership_offer': await page.goto(base + '/membership?purchase=1'); break;
+        case 'verify_preview_mail': {
+          // Read this run's OWN preview mail, render it, and click its actual signed link in the same cookie context.
+          let files = [], deadline = Date.now()+10000;
+          while (!(files=previewFiles(ROOT,step.email,startedAt)).length && Date.now()<deadline) await page.waitForTimeout(100);
+          assert(files.length, 'Own preview verification mail not received');
+          const mailPage = await context.newPage();
+          try {
+            await mailPage.setContent(privateText(files[0].html));
+            const anchors = mailPage.locator('a[href]'); let target = null;
+            for(let index=0;index<await anchors.count();index++) {
+              if(verificationLink(await anchors.nth(index).getAttribute('href'),base)) { target=anchors.nth(index); break; }
+            }
+            assert(target, 'No same-origin signed verification link in own preview');
+            const response = mailPage.waitForResponse(r => verificationLink(r.url(),base));
+            await target.click();
+            assert([200,302,303].includes((await response).status()));
+            result.steps.push({index,kind:'signed_preview_link_clicked',completed:true});
+          } finally { await mailPage.close(); }
+          // Server email_verified and resulting real account state are independently checked in DB evidence.
+          break;
+        }
         case 'tracking_offline': await page.route('**/api/v1/tracking/events', r => r.abort('internetdisconnected')); break;
         case 'tracking_online': await page.unroute('**/api/v1/tracking/events'); break;
         case 'reload': await page.reload(); break;
@@ -137,7 +205,7 @@ async function run(candidate, fixtureFile) {
     console.log(JSON.stringify({candidate, browser_observation_completed: result.completed, external_attempts: result.external_attempts, official_platform_verified: false}));
   }
 }
-module.exports = {workspace, privateJson, localPath, summarizeBatch, ownWebCommand};
+module.exports = {workspace, privateJson, localPath, summarizeBatch, ownWebCommand, verificationLink, previewFiles};
 if (require.main === module) {
   const [candidate, fixture] = process.argv.slice(2);
   run(candidate, fixture).then(code => {process.exitCode = code;}).catch(() => {console.error('06 browser refused/failed; inspect own private evidence. No raw inputs printed.');process.exitCode = 1;});

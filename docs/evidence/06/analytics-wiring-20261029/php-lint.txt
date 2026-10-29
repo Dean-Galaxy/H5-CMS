@@ -1,0 +1,8 @@
+Source candidate: 4ba3ede74067ecf7d2c88733b858a1fd8361f550
+Syntax only; no bootstrap/database/consumer test execution
+No syntax errors detected in h5-platform/tests/Integration/AnalyticsCombined/MatchingContextTest.php
+No syntax errors detected in h5-platform/tests/Integration/AnalyticsCombined/PaymentAttributionTest.php
+No syntax errors detected in h5-platform/tests/Integration/AnalyticsCombined/PrivacyApiTest.php
+No syntax errors detected in h5-platform/tests/Integration/AnalyticsCombined/Support/CombinedTestCase.php
+No syntax errors detected in h5-platform/tests/Integration/AnalyticsCombined/Support/ControlledPayment.php
+No syntax errors detected in scripts/ops/analytics_preflight.php

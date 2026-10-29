@@ -1,0 +1,13 @@
+Source candidate: 4ba3ede74067ecf7d2c88733b858a1fd8361f550
+Scope: pure helpers and synthetic mail fixtures only; no application/runtime started
+test_bad_port_types_or_equal_refused (test_analytics_acceptance.AnalyticsIsolationTests.test_bad_port_types_or_equal_refused) ... ok
+test_env_forces_own_test_db_and_disables_transports (test_analytics_acceptance.AnalyticsIsolationTests.test_env_forces_own_test_db_and_disables_transports) ... ok
+test_foreign_database_or_root_refused (test_analytics_acceptance.AnalyticsIsolationTests.test_foreign_database_or_root_refused) ... ok
+test_own_binding_accepted (test_analytics_acceptance.AnalyticsIsolationTests.test_own_binding_accepted) ... ok
+test_private_json_rejects_symlink_permissions_and_hardlink (test_analytics_acceptance.AnalyticsIsolationTests.test_private_json_rejects_symlink_permissions_and_hardlink) ... ok
+test_protected_runtime_ports_refused (test_analytics_acceptance.AnalyticsIsolationTests.test_protected_runtime_ports_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.002s
+
+OK

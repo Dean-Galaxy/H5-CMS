@@ -1,0 +1,17 @@
+Source candidate: 4ba3ede74067ecf7d2c88733b858a1fd8361f550
+Scope: pure helpers and synthetic mail fixtures only; no application/runtime started
+✔ metadata discards actor/price/token/body and hashes event IDs (1.059083ms)
+✔ arbitrary malformed event names and oversized batches omitted (0.09825ms)
+✔ fixture navigation never allows external or signed query URLs (5.886416ms)
+✔ browser guard refuses protected ports and foreign workspaces (1.123917ms)
+✔ browser checks the own live web process binding before connecting (3.061583ms)
+✔ preview verification only accepts actual same-origin signed identity links (0.412666ms)
+✔ preview matching reads only new private mail for a synthetic recipient (2.5935ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 57.086083

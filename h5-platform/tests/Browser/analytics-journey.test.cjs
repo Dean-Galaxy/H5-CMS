@@ -27,3 +27,22 @@ test('browser checks the own live web process binding before connecting',()=>{
  assert.throws(()=>m.ownWebCommand({...record,marker:'/other/router'},cmd,root,8726));
  assert.throws(()=>m.ownWebCommand(record,cmd+' --other',root,8726));
 });
+
+test('preview verification only accepts actual same-origin signed identity links',()=>{
+ const base='http://127.0.0.1:8726',p='/api/v1/auth/email/verify/'+ 'a'.repeat(8)+'-'+ 'b'.repeat(4)+'-'+ 'c'.repeat(4)+'-'+ 'd'.repeat(4)+'-'+ 'e'.repeat(12)+'/'+'f'.repeat(40);
+ assert(m.verificationLink(base+p+'?expires=123&nonce=synthetic&signature=synthetic',base));
+ for(const url of ['https://foreign.invalid'+p+'?expires=1&nonce=x&signature=y',base+p+'?expires=1',base+'/identity/account?expires=1&nonce=x&signature=y'])assert(!m.verificationLink(url,base));
+});
+test('preview matching reads only new private mail for a synthetic recipient',()=>{
+ const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),root=fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'06-mail-fixture-')));
+ try {
+  const d=path.join(root,'.runtime/mail');fs.mkdirSync(d,{recursive:true,mode:0o700});
+  const eml=path.join(d,'synthetic.eml'),html=path.join(d,'synthetic.html');
+  fs.writeFileSync(eml,'To: Synthetic <sample06@example.test>\r\nSubject: Verify\r\n\r\nlocal only',{mode:0o600});fs.writeFileSync(html,'<a>local</a>',{mode:0o600});
+  assert.equal(m.previewFiles(root,'sample06@example.test',Date.now()-1000).length,1);
+  assert.equal(m.previewFiles(root,'other06@example.test',Date.now()-1000).length,0);
+  assert.equal(m.previewFiles(root,'sample06@example.test',Date.now()+1000).length,0);
+  assert.throws(()=>m.previewFiles(root,'real@external.invalid',0));
+  fs.chmodSync(eml,0o644);assert.throws(()=>m.previewFiles(root,'sample06@example.test',0));
+ } finally {fs.rmSync(root,{recursive:true,force:true});}
+});
