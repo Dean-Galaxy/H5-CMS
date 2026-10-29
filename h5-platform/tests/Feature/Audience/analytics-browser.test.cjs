@@ -20,12 +20,21 @@ async function eventually(predicate, timeout = 8000) {
   assert.ok(predicate(), 'Expected observation before deadline');
 }
 
-async function fixture({consent = 'unknown', advertising = 'unknown', locale = 'en', media = false, hidden = false, enabled = true} = {}) {
+async function fixture({consent = 'unknown', advertising = 'unknown', locale = 'en', media = false, hidden = false, enabled = true,
+  clickQuery = '', cookieProbe = null, pendingLanding = true, landingDelay = 0, landingConfirmed = true, consentResponse = null} = {}) {
   const ctx = await browser.newContext({viewport: {width: 390, height: 844}});
-  let server = {enabled, policy_version: 'analytics-v1', consent: {analytics: consent, advertising}, pending_landing: true};
-  const observations = {posts: [], events: new Map(), landing: [], consent: [], external: [], errors: [], playback: 0};
+  let server = {enabled, policy_version: 'analytics-v1', consent: {analytics: consent, advertising}, pending_landing: pendingLanding};
+  const observations = {posts: [], events: new Map(), landing: [], consent: [], external: [], errors: [], playback: 0, timeline: [], referrers: []};
   const fault = {events: 0, status: 503, consent: 0};
   let scope = 'synthetic-browser-scope', member = true;
+  if (cookieProbe !== null) await ctx.addInitScript(cookieValue => {
+    window.syntheticCookieReads = 0; window.syntheticCookieWrites = 0;
+    Object.defineProperty(document, 'cookie', {
+      configurable: true,
+      get() { window.syntheticCookieReads++; return cookieValue; },
+      set() { window.syntheticCookieWrites++; },
+    });
+  }, cookieProbe);
   if (hidden) await ctx.addInitScript(() => {
     let visible = false;
     Object.defineProperty(document, 'visibilityState', {get: () => visible ? 'visible' : 'hidden'});
@@ -34,19 +43,27 @@ async function fixture({consent = 'unknown', advertising = 'unknown', locale = '
   await ctx.route('**/*', async route => {
     const req = route.request(), url = new URL(req.url());
     if (url.origin !== origin) { observations.external.push(url.origin); return route.abort(); }
+    if (url.pathname.startsWith('/api/v1/tracking/')) observations.referrers.push(req.headers().referer || '');
     const json = body => route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(body)});
     if (url.pathname === '/api/v1/tracking/context') return json(server);
     if (url.pathname === '/api/v1/tracking/consent') {
       const p = req.postDataJSON(); observations.consent.push(p);
       if (fault.consent-- > 0) return route.fulfill({status: 503});
+      if (consentResponse) return json(consentResponse);
       server.consent = {analytics: p.analytics ? 'granted' : 'denied', advertising: p.advertising ? 'granted' : 'denied'};
       return json(server);
     }
     if (url.pathname === '/api/v1/tracking/landing') {
-      observations.landing.push(req.postDataJSON()); server.pending_landing = false; return json({confirmed: true});
+      observations.landing.push(req.postDataJSON()); observations.timeline.push('landing_started');
+      assert.ok(Buffer.byteLength(req.postData()) <= 4096);
+      if (landingDelay) await pause(landingDelay);
+      if (landingConfirmed) server.pending_landing = false;
+      observations.timeline.push(landingConfirmed ? 'landing_confirmed' : 'landing_unconfirmed');
+      return json({confirmed: landingConfirmed});
     }
     if (url.pathname === '/api/v1/tracking/events') {
       const events = req.postDataJSON().events; observations.posts.push(events);
+      observations.timeline.push('events');
       assert.ok(events.length <= 20 && Buffer.byteLength(req.postData()) <= 32768);
       if (fault.events-- > 0) return route.fulfill({status: fault.status});
       for (const event of events) {
@@ -86,7 +103,7 @@ async function fixture({consent = 'unknown', advertising = 'unknown', locale = '
     const original = HTMLMediaElement.prototype.canPlayType;
     HTMLMediaElement.prototype.canPlayType = function (type) { return /mpegurl/.test(type) ? 'probably' : original.call(this, type); };
   });
-  const url = origin+'/dramas/'+drama+(media ? '/episodes/'+episode : '')+'?token=NEVER-COLLECT-ME&lang='+locale;
+  const url = origin+'/dramas/'+drama+(media ? '/episodes/'+episode : '')+'?token=NEVER-COLLECT-ME&lang='+locale+clickQuery;
   await page.goto(url);
   await page.waitForFunction(() => !!window.H5AudienceAnalytics);
   return {ctx, page, observations, fault, server, url, setScope: value => { scope = value; }, setMember: value => { member = value; }};
@@ -244,4 +261,147 @@ test('buffer count/bytes stay bounded and disabled analytics never blocks actual
     assert.ok(disabled.observations.playback > 0);
     assert.deepEqual(disabled.observations.errors, []);
   } finally { await disabled.ctx.close(); }
+});
+
+const clicks = {fbclid: 'SYNTHETIC_FB_CLICK_ABC-123', ttclid: 'SYNTHETIC_TT_CLICK_DEF-456',
+  fbc: 'fb.1.1770000000000.SYNTHETIC_OLD_FB_CLICK', fbp: 'fb.1.1770000000000.1234567890', ttp: 'SYNTHETIC.TTP_COOKIE-ABC123'};
+const clickQuery = '&fbclid='+clicks.fbclid+'&ttclid='+clicks.ttclid+'&keep=normal#chapter';
+const cookieProbe = '_fbc='+clicks.fbc+'; _fbp='+clicks.fbp+'; _ttp='+clicks.ttp+'; private_other=NEVER-READ-INTO-CONTEXT';
+async function storedValues(page) {
+  return page.evaluate(() => JSON.stringify({local: {...localStorage}, session: {...sessionStorage}}));
+}
+
+test('consented slow landing sends only whitelisted ephemeral click context before page events, then cleans only click parameters', async () => {
+  const f = await fixture({consent: 'granted', advertising: 'granted', clickQuery, cookieProbe, landingDelay: 1700});
+  try {
+    await eventually(() => f.observations.landing.length === 1);
+    await f.page.evaluate(({query, origin, drama}) => {
+      document.querySelector('.language a').href = origin+'/dramas/'+drama+'?lang=zh_CN'+query;
+      document.querySelector('[data-audience-login]').href = origin+'/identity/login?return_to='+encodeURIComponent('/dramas/'+drama+'?lang=en'+query);
+    }, {query: clickQuery, origin, drama});
+    await f.page.evaluate(() => window.H5AudienceAnalytics.emit('subscribe_click', {fbclid: 'DO-NOT-COPY'}));
+    await f.page.waitForTimeout(1100);
+    assert.equal(f.observations.posts.length, 0);
+    assert.ok(f.page.url().includes('fbclid='));
+    await eventually(() => f.observations.events.size > 0);
+    const payload = f.observations.landing[0];
+    assert.deepEqual(payload.click_context, clicks);
+    assert.deepEqual(Object.keys(payload).sort(), ['click_context', 'drama_id', 'page_instance_id', 'path']);
+    assert.ok(f.observations.timeline.indexOf('landing_confirmed') < f.observations.timeline.indexOf('events'));
+    const current = new URL(f.page.url());
+    assert.equal(current.searchParams.has('fbclid'), false); assert.equal(current.searchParams.has('ttclid'), false);
+    assert.equal(current.searchParams.get('lang'), 'en'); assert.equal(current.searchParams.get('keep'), 'normal'); assert.equal(current.hash, '#chapter');
+    const links = await f.page.locator('.language a, [data-audience-login]').evaluateAll(nodes => nodes.map(node => node.href));
+    assert.ok(links.every(href => !decodeURIComponent(href).includes(clicks.fbclid) && !decodeURIComponent(href).includes(clicks.ttclid)));
+    assert.equal(new URL(links.find(href => new URL(href).pathname.startsWith('/dramas/'))).searchParams.get('lang'), 'zh_CN');
+    const general = JSON.stringify(f.observations.posts), storage = await storedValues(f.page);
+    for (const value of Object.values(clicks)) { assert.equal(general.includes(value), false); assert.equal(storage.includes(value), false); }
+    assert.ok(f.observations.referrers.every(value => !value));
+    assert.equal(await f.page.evaluate(() => window.syntheticCookieWrites), 0);
+    assert.deepEqual(f.observations.errors, []);
+  } finally { await f.ctx.close(); }
+});
+
+test('only advertising consent permits reading cookies; independent advertising sends no analytics events', async () => {
+  for (const state of ['unknown', 'denied']) {
+    const f = await fixture({consent: 'granted', advertising: state, clickQuery, cookieProbe});
+    try {
+      await f.page.waitForTimeout(1200);
+      assert.equal(await f.page.evaluate(() => window.syntheticCookieReads), 0);
+      assert.equal(f.observations.landing.length, 0);
+      assert.ok(f.page.url().includes('fbclid='));
+      assert.equal(JSON.stringify(f.observations.posts).includes(clicks.fbclid), false);
+    } finally { await f.ctx.close(); }
+  }
+  const adOnly = await fixture({consent: 'denied', advertising: 'granted', clickQuery, cookieProbe});
+  try {
+    await eventually(() => adOnly.observations.landing.length === 1);
+    assert.deepEqual(adOnly.observations.landing[0].click_context, clicks);
+    assert.equal(adOnly.observations.posts.length, 0);
+    assert.ok(await adOnly.page.evaluate(() => window.syntheticCookieReads > 0));
+    const storage = await storedValues(adOnly.page);
+    for (const value of Object.values(clicks)) assert.equal(storage.includes(value), false);
+  } finally { await adOnly.ctx.close(); }
+});
+
+test('disabled, non-pending and hidden pages do not read matching cookies even with advertising consent', async () => {
+  for (const extra of [{enabled: false}, {pendingLanding: false}, {hidden: true}]) {
+    const f = await fixture({consent: 'granted', advertising: 'granted', clickQuery, cookieProbe, ...extra});
+    try {
+      await f.page.waitForTimeout(250);
+      assert.equal(await f.page.evaluate(() => window.syntheticCookieReads), 0);
+      assert.equal(f.observations.landing.length, 0);
+    } finally { await f.ctx.close(); }
+  }
+});
+
+test('oversized, script/URL and ambiguous duplicate click/cookie input never enters a landing payload', async () => {
+  for (const malicious of [
+    {clickQuery: '&fbclid='+('A'.repeat(513))+'&ttclid='+encodeURIComponent('<script>alert(1)</script>'), cookieProbe: '_fbc='+encodeURIComponent('fb.1.1770000000000.<script>')+'; _fbp=fb.1.1770000000000.https://evil.invalid; _ttp='+('B'.repeat(513))},
+    {clickQuery: '&fbclid=ONE&fbclid=TWO&ttclid='+encodeURIComponent('https://evil.invalid/?x=y'), cookieProbe: '_fbc=fb.1.1770000000000.A; _fbc=fb.1.1770000000000.B; _fbp=fb.1.1770000000000.123; _fbp=fb.1.1770000000000.456; _ttp='+encodeURIComponent('<img src=x onerror=alert(1)>')},
+    {clickQuery: '&fbclid='+encodeURIComponent('mail@example.test')+'&ttclid='+encodeURIComponent('line\nbreak'), cookieProbe: '_fbc=fb.123.1770000000000.A; _fbp=fb.1.1770000000000.'+('1'.repeat(31))+'; _ttp=one%2Ftwo'},
+  ]) {
+    const f = await fixture({consent: 'denied', advertising: 'granted', ...malicious});
+    try {
+      await eventually(() => f.observations.landing.length === 1);
+      assert.equal('click_context' in f.observations.landing[0], false);
+      assert.equal(f.observations.posts.length, 0);
+      assert.equal(await f.page.evaluate(() => window.syntheticCookieWrites), 0);
+    } finally { await f.ctx.close(); }
+  }
+});
+
+test('unconfirmed landing never lets generic landing_view race to fix missing context and does not clear click URL', async () => {
+  const f = await fixture({consent: 'granted', advertising: 'granted', clickQuery, cookieProbe, landingConfirmed: false});
+  try {
+    await eventually(() => f.observations.posts.length > 0);
+    assert.ok(f.page.url().includes('fbclid='+clicks.fbclid));
+    assert.equal([...f.observations.events.values()].some(x => x.event_name === 'landing_view'), false);
+    assert.ok(f.observations.landing.length <= 3);
+    for (const payload of f.observations.landing) assert.deepEqual(payload.click_context, clicks);
+  } finally { await f.ctx.close(); }
+});
+
+test('disabled or mismatched consent response preserves choices and dialog with conservative local pause', async () => {
+  for (const response of [
+    {enabled: false, policy_version: 'analytics-v1', consent: {analytics: 'granted', advertising: 'granted'}, pending_landing: true},
+    {enabled: true, policy_version: 'analytics-v1', consent: {analytics: 'granted', advertising: 'denied'}, pending_landing: true},
+  ]) {
+    const f = await fixture({clickQuery, cookieProbe, consentResponse: response});
+    try {
+      await f.page.locator('[data-privacy-dialog]').waitFor({state: 'visible'});
+      await f.page.locator('input[name=analytics]').check(); await f.page.locator('input[name=advertising]').check();
+      await f.page.locator('[data-privacy-form] button[type=submit]').click();
+      await f.page.getByText('Your choices could not be saved. Optional collection is paused in this browser. Retry when connected.', {exact: true}).waitFor({state: 'visible'});
+      assert.equal(await f.page.locator('[data-privacy-dialog]').isVisible(), true);
+      assert.equal(await f.page.locator('input[name=analytics]').isChecked(), true);
+      assert.equal(await f.page.locator('input[name=advertising]').isChecked(), true);
+      assert.ok(await f.page.evaluate(() => !!localStorage.getItem('h5.analytics.pause.v1')));
+      assert.equal(await f.page.evaluate(() => window.syntheticCookieReads), 0);
+      assert.equal(f.observations.posts.length, 0); assert.equal(f.observations.landing.length, 0);
+      await f.page.locator('[data-privacy-close]').click(); await f.page.locator('[data-privacy-open]').click();
+      await f.page.waitForTimeout(100);
+      assert.equal(await f.page.locator('input[name=analytics]').isChecked(), true);
+      assert.equal(await f.page.locator('input[name=advertising]').isChecked(), true);
+      assert.deepEqual(f.observations.errors, []);
+    } finally { await f.ctx.close(); }
+  }
+});
+
+test('a late landing acknowledgment after withdrawal cannot resume collection or clean the newer privacy state', async () => {
+  const f = await fixture({consent: 'granted', advertising: 'granted', clickQuery, cookieProbe, landingDelay: 1700});
+  try {
+    await eventually(() => f.observations.landing.length === 1);
+    const reads = await f.page.evaluate(() => window.syntheticCookieReads);
+    await f.page.locator('[data-privacy-open]').click();
+    await f.page.locator('[data-privacy-withdraw]').click();
+    await eventually(() => f.observations.consent.length === 1);
+    await eventually(() => f.observations.timeline.includes('landing_confirmed'));
+    await f.page.waitForTimeout(400);
+    assert.equal(f.observations.posts.length, 0);
+    assert.equal(await f.page.evaluate(() => window.syntheticCookieReads), reads);
+    assert.equal(await f.page.evaluate(() => sessionStorage.getItem('h5.analytics.buffer.v1')), null);
+    assert.ok(f.page.url().includes('fbclid='+clicks.fbclid));
+    assert.deepEqual(f.observations.errors, []);
+  } finally { await f.ctx.close(); }
 });
