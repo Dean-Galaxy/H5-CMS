@@ -1,0 +1,20 @@
+{
+  "baseline": "0bf0e806e431d351c1080b6398d22864de66d5e8",
+  "source_commit": "3d6278c70dd70f7fea169a819733b82efe222cfe",
+  "business_contract": "1.0.5",
+  "analytics_contract": "analytics-v1",
+  "regression": {
+    "passed": 176,
+    "assertions": 3387,
+    "seconds": 17.17
+  },
+  "previous_source_red": {
+    "failed": 1,
+    "assertions": 1
+  },
+  "old_migration_modified": false,
+  "legacy_BillingStore_iso_modified": false,
+  "official_api_calls": false,
+  "real_acquisition_recorder_integrated": false,
+  "producer_sha256": "7dbb4b717ef9b3153650b4c7eff3769bb1fd8347e1615b19fccbbf059dede2e5"
+}
