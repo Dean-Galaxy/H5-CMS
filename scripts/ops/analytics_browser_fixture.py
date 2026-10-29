@@ -7,11 +7,13 @@ import json
 import os
 from pathlib import Path
 import signal
+import secrets
 import socket
 import subprocess
 import sys
 import time
 import urllib.request
+import urllib.parse
 from analytics_acceptance import candidate_guard, mime_version_guard, private_json, validate_workspace, testing_environment
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,6 +36,25 @@ def command(config):
     return [PHP,'-d','expose_php=0','-S',f'127.0.0.1:{config["port"]}','-t',str(ROOT/'h5-platform/public'),str(ROUTER)]
 
 
+def journey_plan(fixture):
+    """Private one-run synthetic input; never print its generated credentials or signed mail link."""
+    viewer={**fixture['viewer'],'email':'06-viewer-'+secrets.token_hex(6)+'@example.test'}
+    drama=fixture['drama_id'];episodes=fixture['episodes'];steps=[]
+    def add(kind,**kw):steps.append({'kind':kind,**kw})
+    add('landing_delay');add('promotional_entry',code=urllib.parse.urlparse(fixture['links']['meta']['url']).path.rsplit('/',1)[1],platform='meta',click_id='SYNTHETIC06FinalMeta')
+    add('wait_selector',selector='[data-privacy-dialog]');add('screenshot',name='privacy-zh-mobile')
+    for name in ['analytics','advertising']:add('click',selector=f'[data-privacy-form] [name={name}]')
+    add('click',selector='[data-privacy-form] button[type=submit]');add('wait_selector',selector='[data-privacy-dialog]',hidden=True);add('wait_event',event_name='landing_view',minimum=1);add('assert_landing_before_events')
+    add('goto',path=f'/dramas/{drama}/episodes/{episodes[0]}');add('play');add('wait_event',event_name='play_started',minimum=1);add('screenshot',name='free-mse-player')
+    add('goto',path=f'/dramas/{drama}/episodes/{episodes[5]}');add('click',selector='[data-play]');add('click',selector='[data-player-status]');add('wait_event',event_name='paywall_view',minimum=1);add('screenshot',name='paid-episode-denied')
+    add('membership_offer');add('click',selector='a[href^="/identity/register"]');add('wait_selector',selector='[data-identity-form]')
+    for name in ['name','email','password','password_confirmation']:add('fill',selector=f'[data-identity-form] [name={name}]',value=viewer['password'] if name=='password_confirmation' else viewer[name])
+    add('click',selector='[data-identity-form] button');add('verify_preview_mail',email=viewer['email']);add('membership_offer');add('wait_selector',selector='[name=confirmed]');add('click',selector='[name=confirmed]');add('click',selector='form[action="/membership/checkout"] button');add('wait_selector',selector='.billing-panel h1')
+    add('controlled_settle');add('dispatch_local');add('goto',path=f'/dramas/{drama}/episodes/{episodes[5]}');add('play');add('wait_event',event_name='play_started',minimum=2);add('screenshot',name='member-mse-player')
+    add('tracking_offline');add('goto',path='/catalog');add('buffer_pending');add('tracking_online');add('reload');add('buffer_cleared');add('dispatch_local')
+    return {'candidate':fixture['candidate'],'synthetic_only':True,'force_mse':True,'controlled_provider_redirect':True,'steps':steps}
+
+
 def matching(record, config):
     if record.get('root')!=str(ROOT) or record.get('command')!=command(config):return False
     pid=record.get('pid')
@@ -46,7 +67,7 @@ def matching(record, config):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--candidate',required=True)
-    parser.add_argument('action',choices=['seed','start','stop','flags','settle','dispatch','state'])
+    parser.add_argument('action',choices=['seed','start','stop','flags','settle','dispatch','state','plan','rebind'])
     args=parser.parse_args();config=validate_workspace(ROOT,private_json(ROOT/'.runtime/workspace.json'))
     spec=importlib.util.spec_from_file_location('own_dev',ROOT/'scripts/dev.py');dev=importlib.util.module_from_spec(spec);spec.loader.exec_module(dev)
     if args.action=='stop':
@@ -69,6 +90,21 @@ def main():
     candidate_guard(ROOT,args.candidate);mime_version_guard(ROOT)
     env=environment(config,args.candidate);os.umask(0o077)
     DIRECTORY.mkdir(mode=0o700,parents=True,exist_ok=True)
+    if args.action=='rebind':
+        if any((ROOT/'.runtime/pids'/f'{n}.json').exists() for n in ['web','queue','scheduler']):raise ValueError('STOP_OWN_SERVICES_BEFORE_REBIND')
+        fixture=private_json(DIRECTORY/'fixture.json');previous=fixture.get('candidate','')
+        if fixture.get('synthetic_only') is not True or not __import__('re').fullmatch('[a-f0-9]{40}',previous):raise ValueError('SYNTHETIC_FIXTURE_REQUIRED')
+        paths=['app','bootstrap','config','database','public','resources','routes','composer.json','composer.lock']
+        diff=subprocess.run(['git','diff','--quiet',previous,args.candidate,'--',*[f'h5-platform/{p}' for p in paths]],cwd=ROOT)
+        if diff.returncode:raise ValueError('BUSINESS_CHANGED_REQUIRE_NEW_ACCEPTANCE_PREPARATION')
+        fixture.setdefault('seed_candidate',previous);fixture['previous_runtime_candidate']=previous;fixture['candidate']=args.candidate
+        dev.write_private(DIRECTORY/'fixture.json',json.dumps(fixture,indent=2))
+        print(json.dumps({'synthetic_data_retained':True,'business_files_identical':True,'historical_evidence_unchanged':True}));return 0
+    if args.action=='plan':
+        fixture=private_json(DIRECTORY/'fixture.json')
+        if fixture['candidate']!=args.candidate:raise ValueError('FIXTURE_CANDIDATE_MISMATCH')
+        plan=journey_plan(fixture);path=DIRECTORY/'journey-plan.json';dev.write_private(path,json.dumps(plan,indent=2))
+        print(json.dumps({'private_plan':str(path),'steps':len(plan['steps']),'synthetic_only':True}));return 0
     if args.action=='start':
         fixture=private_json(DIRECTORY/'fixture.json')
         if fixture['candidate']!=args.candidate:raise ValueError('FIXTURE_CANDIDATE_MISMATCH_REPREPARE_EXPLICITLY')

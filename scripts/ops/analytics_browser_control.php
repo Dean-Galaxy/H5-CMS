@@ -89,7 +89,10 @@ if ($action === 'flags') {
     $payment = DB::table('billing_payments')->first();
     $verified = DB::table('identity_viewers')->whereNotNull('email_verified_at')->count();
     $required = ['landing_view','registration_succeeded','email_verified','checkout_created','payment_confirmed'];
-    $stagesPresent = collect($required)->every(fn ($name) => $events->contains('event_name', $name));
+    // Earlier interrupted synthetic attempts remain intact; inspect the paid actor, not all actors mixed together.
+    $paidEvent = $events->firstWhere('event_name', 'payment_confirmed');
+    $chain = $paidEvent ? $events->where('subject_id', $paidEvent->subject_id) : collect();
+    $stagesPresent = collect($required)->every(fn ($name) => $chain->contains('event_name', $name));
     $owner = Staff::where('role', Role::Owner)->sole();
     $session = app('session.store'); $session->start(); request()->setLaravelSession($session);
     auth('staff')->login($owner); $session->put('identity.version.staff', $owner->session_version); $session->put('identity.mfa_staff', $owner->id);
@@ -107,6 +110,6 @@ if ($action === 'flags') {
         'gross_minor' => (int) DB::table('billing_payments')->sum('amount_minor'), 'refund_minor' => (int) DB::table('billing_payments')->sum('refunded_amount_minor'),
         'migrations' => DB::table('migrations')->count(), 'matching' => $matching,
         'report' => array_intersect_key($report, array_flip(['finance','funnel','registration_funnel','observing_people','watched_seconds','errors'])),
-        'one_subject_for_full_chain' => $stagesPresent && $events->whereIn('event_name', $required)->pluck('subject_id')->unique()->count() === 1,
+        'one_subject_for_full_chain' => $stagesPresent && $chain->whereIn('event_name', $required)->pluck('subject_id')->unique()->count() === 1,
         'provider_off' => config('billing.paypal.enabled') === false, 'external_disabled' => config('acquisition.transport') === 'disabled' && config('acquisition.external_enabled') === false], JSON_THROW_ON_ERROR)."\n";
 } else { throw new LogicException('EXPLICIT FIXTURE ACTION REQUIRED'); }
