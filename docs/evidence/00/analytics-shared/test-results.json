@@ -21,5 +21,12 @@
     "assertions": 2418,
     "seconds": 109.29,
     "passed": true
+  },
+  "audience_acceptance": {
+    "module_delivery": "d74efb22adc705007e207e512284b026114aa432",
+    "tests": 26,
+    "assertions": 295,
+    "seconds": 12.72,
+    "passed": true
   }
 }
