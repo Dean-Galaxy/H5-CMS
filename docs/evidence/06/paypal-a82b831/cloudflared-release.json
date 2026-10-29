@@ -1,0 +1,21 @@
+{
+  "tag": "2026.10.4",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-10-26T11:19:58Z",
+  "html_url": "https://github.com/cloudflare/cloudflared/releases/tag/2026.10.4",
+  "assets": [
+    {
+      "name": "cloudflared-darwin-arm64.tgz",
+      "size": 19834425,
+      "digest": "sha256:68b6bc4080ac1330234db2a9002d07f98b000537a1bd531a687b660d4160fa7f",
+      "browser_download_url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.4/cloudflared-darwin-arm64.tgz"
+    }
+  ],
+  "archive_sha256": "68b6bc4080ac1330234db2a9002d07f98b000537a1bd531a687b660d4160fa7f",
+  "binary_sha256": "49e7963072b2ca83fb44c09f4d4a7cda52d390c0c9c6f55bac83454a5bc43910",
+  "local_binary": ".runtime/tools/cloudflared-2026.10.4",
+  "executed_only_version_help": true,
+  "version_output": "cloudflared version 2026.10.4 (built 2026-10-26-11:13 UTC)",
+  "tunnel_started": false
+}

@@ -1,0 +1,18 @@
+test_api_enabled_refused (test_paypal_merchant_receipt.MerchantReceiptTests.test_api_enabled_refused) ... ok
+test_cancel_main_does_not_write_or_complete (test_paypal_merchant_receipt.MerchantReceiptTests.test_cancel_main_does_not_write_or_complete) ... ok
+test_changed_identity_after_user_confirmation_refused (test_paypal_merchant_receipt.MerchantReceiptTests.test_changed_identity_after_user_confirmation_refused) ... ok
+test_complete_preserves_secrets_env_and_exact_receipt_schema (test_paypal_merchant_receipt.MerchantReceiptTests.test_complete_preserves_secrets_env_and_exact_receipt_schema) ... ok
+test_context_fingerprint_or_scope_drift_refused (test_paypal_merchant_receipt.MerchantReceiptTests.test_context_fingerprint_or_scope_drift_refused) ... ok
+test_env_staged_identity_drift_refused (test_paypal_merchant_receipt.MerchantReceiptTests.test_env_staged_identity_drift_refused) ... ok
+test_every_confirmation_requires_explicit_yes (test_paypal_merchant_receipt.MerchantReceiptTests.test_every_confirmation_requires_explicit_yes) ... ok
+test_failure_after_stage_leaves_no_receipt_and_same_id_retry_allowed (test_paypal_merchant_receipt.MerchantReceiptTests.test_failure_after_stage_leaves_no_receipt_and_same_id_retry_allowed) ... ok
+test_false_missing_or_string_true_cannot_write (test_paypal_merchant_receipt.MerchantReceiptTests.test_false_missing_or_string_true_cannot_write) ... ok
+test_non_tty_refuses_before_reading_state (test_paypal_merchant_receipt.MerchantReceiptTests.test_non_tty_refuses_before_reading_state) ... ok
+test_nonempty_merchant_cannot_be_rebound (test_paypal_merchant_receipt.MerchantReceiptTests.test_nonempty_merchant_cannot_be_rebound) ... ok
+test_offline_cli_response_must_be_successful_and_no_network (test_paypal_merchant_receipt.MerchantReceiptTests.test_offline_cli_response_must_be_successful_and_no_network) ... ok
+test_receipt_removed_when_post_write_identity_changes (test_paypal_merchant_receipt.MerchantReceiptTests.test_receipt_removed_when_post_write_identity_changes) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 5.089s
+
+OK

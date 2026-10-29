@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-27",
+  "transport": "temporary Cloudflare HTTPS with default certificate and hostname verification",
+  "paths": [
+    {
+      "path": "/admin",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "path": "/.env",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "path": "/webhooks/paypal",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "path": "/webhooks/paypal",
+      "method": "POST",
+      "status": 400,
+      "input": "empty synthetic object and no PayPal headers"
+    }
+  ],
+  "passed": true,
+  "actual_url": "kept in private runtime record and 07 guidance, omitted from public evidence",
+  "provider_signature_or_payment_verified": false
+}

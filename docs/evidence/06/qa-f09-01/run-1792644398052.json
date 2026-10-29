@@ -1,0 +1,56 @@
+{
+  "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "checkout": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "base": "http://127.0.0.1:8391",
+  "dbPort": 5891,
+  "startedAt": "2026-10-22T04:46:38.083Z",
+  "checks": [
+    {
+      "name": "same normally enrolled synthetic account retains eight unused recovery codes",
+      "passed": true
+    },
+    {
+      "name": "normal password and fresh-window TOTP login succeeds",
+      "passed": true
+    },
+    {
+      "name": "explicit normal logout reaches login page",
+      "passed": true
+    },
+    {
+      "name": "password after explicit logout still requires MFA",
+      "passed": true
+    },
+    {
+      "name": "new session valid TOTP enters admin",
+      "passed": true
+    }
+  ],
+  "failures": [
+    {
+      "stage": "confirm recovery",
+      "type": "TimeoutError",
+      "path": "/admin/login",
+      "flags": {
+        "rateLimited": false,
+        "invalidRecovery": false,
+        "invalidCode": false
+      },
+      "state": {
+        "imagick": false,
+        "secret_set": true,
+        "recovery_count": 8,
+        "staff_count": 2
+      }
+    }
+  ],
+  "screenshots": false,
+  "trace": false,
+  "secretsExported": false,
+  "enrollmentRun": "run-1792644253971",
+  "scope": "Continuation on same normally enrolled synthetic account; no new or preseeded MFA.",
+  "browser": "155.0.8059.85",
+  "result": "failed",
+  "finishedAt": "2026-10-22T04:47:48.606Z",
+  "browserScriptErrors": 0
+}

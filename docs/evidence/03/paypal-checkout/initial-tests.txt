@@ -1,0 +1,52 @@
+INFO  Configuration cache cleared successfully.
+
+
+   FAIL  Tests\Feature\Billing\PayPalCheckoutTest
+  ⨯ server order preparation and remote reread never grant membership    0.28s
+  ✓ timeout retries original request and key without new intent          0.15s
+  ✓ returned identity survives followup failure and reentry only reads…  0.13s
+  ✓ unknown creation after local deadline keeps occupancy and never pos… 0.12s
+  ✓ old approval link is removed after local deadline without claiming…  0.13s
+  ✓ changed plan is rejected before creating subscription with data set… 0.11s
+  ✓ changed plan is rejected before creating subscription with data set… 0.11s
+  ✓ changed plan is rejected before creating subscription with data set… 0.11s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.11s
+  ✓ changed plan is rejected before creating subscription with data set… 0.12s
+  ✓ changed plan is rejected before creating subscription with data set… 0.12s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.12s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.12s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.12s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.11s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.11s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.11s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.11s
+  ✓ cancel between preparation and dispatch blocks post                  0.10s
+  ✓ plan provisioning preserves id on read failure and never updates ol… 0.09s
+  ✓ configuration switch after create preserves identity but blocks fol… 0.10s
+  ✓ unknown or other merchant plan cannot be prepared                    0.11s
+  ✓ only single exact sandbox approval relation is accepted              0.10s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\PayPalCheckoutTest > server order preparati…
+  Failed asserting that two strings are identical.
+  -'http://127.0.0.1:8303/account?order_id=01a17867-16e4-73ec-83c7-0de4a9831d1a'
+  +'http://127.0.0.1:8303/identity/account?order_id=01a17867-16e4-73ec-83c7-0de4a9831d1a'
+
+
+  at tests/Feature/Billing/PayPalCheckoutTest.php:74
+     70▕         $prepared = DB::table('billing_orders')->find($order->id);
+     71▕         self::assertNull($prepared->expires_at);
+     72▕         $params = BillingStore::json($prepared->checkout_request)['params'];
+     73▕         self::assertSame($order->id, $params['custom_id']);
+  ➜  74▕         self::assertSame('http://127.0.0.1:8303/account?order_id='.$order->id, $params['application_context']['return_url']);
+     75▕         self::assertArrayNotHasKey('plan', $params);
+     76▕         self::assertArrayNotHasKey('subscriber', $params);
+     77▕         self::assertArrayNotHasKey('start_time', $params);
+     78▕         self::assertSame(self::APPROVE, $flow->execute($order->id));
+
+  1   tests/Feature/Billing/PayPalCheckoutTest.php:74
+
+
+  Tests:    1 failed, 24 passed (86 assertions)
+  Duration: 3.11s

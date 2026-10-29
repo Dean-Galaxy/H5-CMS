@@ -1,0 +1,132 @@
+{
+  "passed": 13,
+  "cases": [
+    "real rows expose no inverted range",
+    "real thirty-five-episode withdrawn completion has no inverted range",
+    "已完结且全部公开",
+    "下架且全部公开",
+    "下架仍有未公开",
+    "正常下一批",
+    "最后不足一批",
+    "总集数未知",
+    "游标越界但有未公开",
+    "已结束但公开数不齐",
+    "real content payload is identical before and after",
+    "no content mutation requests",
+    "no browser script errors"
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/content"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/content"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/content"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/content"
+    }
+  ],
+  "realRows": [
+    [
+      "逆光之约 · 02 验证 1792635730320",
+      "尚未安排",
+      "无后续分集 · 已停用",
+      "已停用",
+      "查看设置"
+    ]
+  ],
+  "fixtureCases": [
+    {
+      "name": "已完结且全部公开",
+      "total": 35,
+      "published": 35,
+      "state": "published",
+      "planState": "finished",
+      "start": 36,
+      "size": 10,
+      "expected": "无后续分集"
+    },
+    {
+      "name": "下架且全部公开",
+      "total": 5,
+      "published": 5,
+      "state": "withdrawn",
+      "planState": "disabled",
+      "start": 6,
+      "size": 10,
+      "expected": "无后续分集 · 已停用"
+    },
+    {
+      "name": "下架仍有未公开",
+      "total": 35,
+      "published": 10,
+      "state": "withdrawn",
+      "planState": "disabled",
+      "start": 11,
+      "size": 10,
+      "expected": "已停用"
+    },
+    {
+      "name": "正常下一批",
+      "total": 35,
+      "published": 10,
+      "state": "published",
+      "planState": "active",
+      "start": 11,
+      "size": 10,
+      "expected": "第 11–20 集"
+    },
+    {
+      "name": "最后不足一批",
+      "total": 35,
+      "published": 30,
+      "state": "published",
+      "planState": "active",
+      "start": 31,
+      "size": 10,
+      "expected": "第 31–35 集"
+    },
+    {
+      "name": "总集数未知",
+      "total": null,
+      "published": 0,
+      "state": "draft",
+      "planState": "draft",
+      "start": 1,
+      "size": 10,
+      "expected": "总集数未确认"
+    },
+    {
+      "name": "游标越界但有未公开",
+      "total": 5,
+      "published": 3,
+      "state": "published",
+      "planState": "active",
+      "start": 6,
+      "size": 10,
+      "expected": "后续范围待核对"
+    },
+    {
+      "name": "已结束但公开数不齐",
+      "total": 5,
+      "published": 3,
+      "state": "published",
+      "planState": "finished",
+      "start": 6,
+      "size": 10,
+      "expected": "计划已结束，请核对未公开分集"
+    }
+  ],
+  "beforeSha256": "0f63b61b35deb4c7cb08fe3e7bb4fcf5797a2bc264dd55ca69703734e2083d02",
+  "afterSha256": "0f63b61b35deb4c7cb08fe3e7bb4fcf5797a2bc264dd55ca69703734e2083d02",
+  "boundary": "Actual screenshots are the unchanged real API list. response-fixture screenshots are explicitly intercepted browser-only rows, never database writes. Mobile table is horizontally scrolled to the next-batch column.",
+  "browser": "155.0.8059.85"
+}

@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-26",
+  "source_commit": "b0c731763a310297d51b4eb0942038e9540dcde4",
+  "previous_delivery": "038b1c409dfbffb51ce45a401d2096ec6c94f523",
+  "contract": "1.0.5",
+  "billing_contract_tests": {
+    "passed": 274,
+    "assertions": 3713,
+    "seconds": 16.29
+  },
+  "contract_examples": 59,
+  "official_paypal_test": false,
+  "public_paypal_route": false,
+  "payment_network": false,
+  "stable_site_changed": false,
+  "dependency_audit": "Existing Livewire advisory retained; 00 owns remediation",
+  "phase": "Shared ledger and scoped inbox; PayPal actual payment verifier and checkout not ready"
+}

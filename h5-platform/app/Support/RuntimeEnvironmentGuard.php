@@ -5,7 +5,7 @@ namespace App\Support;
 use Illuminate\Support\Env;
 use LogicException;
 
-/** Checks loaded configuration only. Never connects to mail, Stripe or a region service. */
+/** Checks loaded configuration only. Never connects to mail, payment providers or a region service. */
 final class RuntimeEnvironmentGuard
 {
     public function assertSafeRuntime(): void
@@ -18,6 +18,7 @@ final class RuntimeEnvironmentGuard
         }
         $this->require(is_string(config('h5.local_modules')), 'RUNTIME_MODULES_INVALID');
         $this->require(! config('h5.controlled_staging') || $environment === 'staging', 'STAGING_ENVIRONMENT_REQUIRED');
+        $this->paypal($environment);
         if (in_array($environment, ['local', 'testing'], true)) {
             return;
         }
@@ -36,6 +37,36 @@ final class RuntimeEnvironmentGuard
         $this->mailer(config('mail.default'), [], $visited);
         $from = config('mail.from.address');
         $this->require(is_string($from) && filter_var($from, FILTER_VALIDATE_EMAIL) !== false, 'RUNTIME_MAIL_FROM_INVALID');
+    }
+
+    /** Validate shape at boot; missing credentials remain unavailable to the adapter. */
+    private function paypal(string $environment): void
+    {
+        $provider = config('billing.new_purchase_provider', 'unconfigured');
+        $this->require(in_array($provider, ['unconfigured', 'stripe', 'paypal'], true), 'BILLING_PURCHASE_PROVIDER_INVALID');
+        $paypal = config('billing.paypal', ['enabled' => false]);
+        $this->require(is_array($paypal) && is_bool($paypal['enabled'] ?? null), 'PAYPAL_ENABLED_INVALID');
+        $keys = ['enabled', 'client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope', 'product_id', 'webhook_url'];
+        $this->require(array_diff(array_keys($paypal), $keys) === [], 'PAYPAL_CONFIGURATION_INVALID');
+        foreach (array_slice($keys, 1) as $key) {
+            $value = $paypal[$key] ?? null;
+            $this->require($value === null || $value === '' || (is_string($value)
+                && preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $value) === 1), 'PAYPAL_CONFIGURATION_INVALID');
+        }
+        $webhookUrl = $paypal['webhook_url'] ?? null;
+        // Comparison target only. No network request is ever made to this configured URL.
+        $this->require($webhookUrl === null || $webhookUrl === '' || (strlen($webhookUrl) <= 2048
+            && preg_match('~\Ahttps://([a-zA-Z0-9.-]+)(?::443)?/webhooks/paypal\z~D', $webhookUrl, $match) === 1
+            && $this->hostname($match[1])), 'PAYPAL_WEBHOOK_URL_INVALID');
+        $scope = $paypal['merchant_scope'] ?? null;
+        $this->require($scope === null || $scope === '' || preg_match('/\A[a-z0-9][a-z0-9_-]{0,63}\z/D', $scope) === 1,
+            'PAYPAL_SCOPE_INVALID');
+        $this->require(($paypal['webhook_id'] ?? null) !== 'WEBHOOK_ID', 'PAYPAL_SIMULATOR_WEBHOOK_FORBIDDEN');
+        $this->require($provider !== 'paypal' || $paypal['enabled'] === true, 'PAYPAL_PURCHASE_NOT_ENABLED');
+        if ($paypal['enabled']) {
+            $this->require(in_array($environment, ['local', 'testing', 'staging'], true), 'PAYPAL_PRODUCTION_FORBIDDEN');
+            $this->require($environment !== 'staging' || config('h5.controlled_staging') === true, 'PAYPAL_STAGING_NOT_ENABLED');
+        }
     }
 
     public function controlledStagingOrigin(): string

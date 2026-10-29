@@ -1,0 +1,34 @@
+{
+  "after-upgrade.json": {
+    "billing13_equal": true,
+    "protected45_equal": true,
+    "other_changed_tables": [],
+    "migration_count": 19,
+    "readonly_enforced": true
+  },
+  "after-reconcile.json": {
+    "billing13_equal": true,
+    "protected45_equal": true,
+    "other_changed_tables": [],
+    "migration_count": 19,
+    "readonly_enforced": true
+  },
+  "after-scheduler.json": {
+    "billing13_equal": true,
+    "protected45_equal": true,
+    "other_changed_tables": [
+      "sessions"
+    ],
+    "migration_count": 19,
+    "readonly_enforced": true
+  },
+  "after-window.json": {
+    "billing13_equal": true,
+    "protected45_equal": true,
+    "other_changed_tables": [
+      "sessions"
+    ],
+    "migration_count": 19,
+    "readonly_enforced": true
+  }
+}

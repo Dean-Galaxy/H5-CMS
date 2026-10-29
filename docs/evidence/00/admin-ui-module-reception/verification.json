@@ -16,5 +16,14 @@
   "database": "h5_5c78d05e4e_test",
   "official_payment": false,
   "external_ads": false,
-  "final_combination_acceptance": "pending"
+  "final_combination_acceptance": "pending",
+  "content_audience_contracts_integration_security": {
+    "tested_commit": "be7bb4f7c5585418883b777ce2e6f2676690f5ff",
+    "passed": 138,
+    "assertions": 1900,
+    "duration_seconds": 66.1,
+    "evidence": "content-audience-combination-tests.txt",
+    "execution": "previous turn",
+    "log_verified": "2026-10-21 follow-up"
+  }
 }

@@ -1,0 +1,94 @@
+{
+  "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "checkout": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "base": "http://127.0.0.1:8391",
+  "dbPort": 5891,
+  "startedAt": "2026-10-22T04:49:49.769Z",
+  "checks": [
+    {
+      "name": "password alone still requires MFA",
+      "passed": true
+    },
+    {
+      "name": "unused recovery code successfully logs in",
+      "passed": true
+    },
+    {
+      "name": "exactly one remaining code consumed",
+      "passed": true
+    },
+    {
+      "name": "normal logout returns to login",
+      "passed": true
+    },
+    {
+      "name": "same recovery code reuse is explicitly rejected",
+      "passed": true
+    },
+    {
+      "name": "rejected reuse preserves remaining count",
+      "passed": true
+    },
+    {
+      "name": "no browser script errors",
+      "passed": true
+    }
+  ],
+  "failures": [],
+  "screenshots": false,
+  "trace": false,
+  "secretsExported": false,
+  "enrollmentRun": "run-1792644253971",
+  "scope": "Same normally enrolled synthetic account; second unused recovery code, previous diagnostic consumed first asynchronously.",
+  "baselineRecoveryCount": 7,
+  "browser": "155.0.8059.85",
+  "postResponses": [
+    {
+      "path": "/admin/livewire/update",
+      "status": 200,
+      "at": "2026-10-22T04:49:50.944Z"
+    },
+    {
+      "path": "/admin/livewire/update",
+      "status": 200,
+      "at": "2026-10-22T04:49:51.393Z"
+    },
+    {
+      "path": "/admin/livewire/update",
+      "status": 200,
+      "at": "2026-10-22T04:49:51.473Z"
+    },
+    {
+      "path": "/admin/livewire/update",
+      "status": 200,
+      "at": "2026-10-22T04:49:53.521Z"
+    },
+    {
+      "path": "/admin/logout",
+      "status": 302,
+      "at": "2026-10-22T04:49:53.717Z"
+    },
+    {
+      "path": "/admin/livewire/update",
+      "status": 200,
+      "at": "2026-10-22T04:49:54.344Z"
+    },
+    {
+      "path": "/admin/livewire/update",
+      "status": 200,
+      "at": "2026-10-22T04:49:54.791Z"
+    },
+    {
+      "path": "/admin/livewire/update",
+      "status": 200,
+      "at": "2026-10-22T04:49:54.858Z"
+    },
+    {
+      "path": "/admin/livewire/update",
+      "status": 200,
+      "at": "2026-10-22T04:49:56.580Z"
+    }
+  ],
+  "result": "passed",
+  "finishedAt": "2026-10-22T04:49:56.821Z"
+}

@@ -1,0 +1,18 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.35s  
+  ✓ form save reopen local probe link edit disable and summary           0.14s  
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.05s  
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.03s  
+  ✓ workspace tabs are allowlisted and assignment tab is owner only      0.08s  
+  ✓ url tab restores only authorized context and invalid input falls ba… 0.06s  
+  ✓ asset dialog actions keep context and failed save preserves editor   0.08s  
+  ✓ editors are shared dialogs and tab list has only four entries        0.05s  
+  ✓ payment display uses shared exact usd format without float conversi… 0.04s  
+
+  Tests:    9 passed (99 assertions)
+  Duration: 1.02s
+

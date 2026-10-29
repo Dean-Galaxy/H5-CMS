@@ -6,11 +6,11 @@ use App\Contracts\IdentityContext;
 use App\Enums\Permission;
 use App\Enums\Role;
 use App\Modules\Identity\Models\Staff;
+use App\Modules\Identity\Services\StaffAudit;
 use App\Modules\Identity\Services\StaffManager;
 use App\Support\ApiProblem;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
@@ -137,7 +137,7 @@ class StaffAccounts extends Page
             'staffAccounts' => $this->tab === 'accounts' ? Staff::orderBy('created_at')->get() : collect(),
             'roles' => Role::cases(),
             'auditEvents' => $this->tab === 'audit'
-                ? DB::table('identity_audit_events')->orderByDesc('occurred_at')->orderByDesc('id')->limit(30)->get()
+                ? app(StaffAudit::class)->recent()
                 : collect(),
         ];
     }

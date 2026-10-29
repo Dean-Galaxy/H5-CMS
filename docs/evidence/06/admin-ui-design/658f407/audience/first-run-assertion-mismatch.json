@@ -1,0 +1,66 @@
+{
+  "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "checks": [
+    "real admin relist preserves 35 published episodes",
+    "published audience watch page available",
+    "guest first episode receives real free grant",
+    "actual non-native HLS decoded frames",
+    "actual manifest and TS segment read",
+    "unsigned media bypass refused",
+    "sixth guest membership gate sends no media request",
+    "real browser offline fails closed without automatic retry",
+    "reconnection waits for explicit retry",
+    "explicit retry resumes real decoding"
+  ],
+  "boundary": "Only 127.0.0.1 with explicit local US demo flag. Self-generated two-second media; real hls.js, MSE and decoder. Offline is real browser network disabling at authorization, not WAN/midstream loss. No real device, trusted external region or official payment.",
+  "decoder": {
+    "hlsVersion": "1.7.3",
+    "mseSupported": true,
+    "nativeSelected": "",
+    "nativeBefore": "maybe",
+    "sourceKind": "blob",
+    "readyState": 4,
+    "currentTime": 0.16192,
+    "decodedFrames": 5,
+    "videoWidth": 96,
+    "error": null
+  },
+  "mediaResponses": [
+    {
+      "file": "master.m3u8",
+      "status": 200
+    },
+    {
+      "file": "captions.m3u8",
+      "status": 200
+    },
+    {
+      "file": "index.m3u8",
+      "status": 200
+    },
+    {
+      "file": "subtitles.vtt",
+      "status": 200
+    },
+    {
+      "file": "segment-00000.ts",
+      "status": 200
+    }
+  ],
+  "unsignedStatus": 403,
+  "sixth": {
+    "http": 200,
+    "allowed": false,
+    "reason": "MEMBERSHIP_REQUIRED",
+    "mediaRequests": 0
+  },
+  "offline": {
+    "firstFailure": "playback authorization fetch",
+    "requestsWhileOffline": 1,
+    "noAutoRetryWindowMs": 2000,
+    "reconnectedNoAutoRetryWindowMs": 1000,
+    "explicitRetryDecoded": true
+  },
+  "result": "failed",
+  "firstFailure": "real withdrawal invalidates already issued media grant"
+}

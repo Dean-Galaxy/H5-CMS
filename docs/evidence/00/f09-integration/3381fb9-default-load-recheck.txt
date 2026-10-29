@@ -1,0 +1,13 @@
+
+   PASS  Tests\Feature\Contracts\AcceptedAudienceTest
+  ✓ default website and progress use the accepted provider without loca… 5.77s  
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 0.24s  
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.43s  
+
+  Tests:    3 passed (34 assertions)
+  Duration: 8.59s
+

@@ -1,0 +1,13 @@
+{
+  "phase": "before",
+  "checkout": "17528b5968f973358f2b7a1cb884f48ab20c935d",
+  "webPort": 8377,
+  "postgresPort": 5877,
+  "tables": 48,
+  "mediaFiles": 490,
+  "backupCreated": true,
+  "archiveListReadable": true,
+  "backupSha256": "864cb68782d2381a9d2b67e66a4342f4160055afbb13be80272e5c7ca4ee3659",
+  "backupBytes": 172098,
+  "restoreExecuted": false
+}

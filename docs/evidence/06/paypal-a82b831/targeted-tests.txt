@@ -1,0 +1,61 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Integration\EntitlementPlaybackTest
+  ✓ audience progress survives refund but media and renewal are revoked  0.36s  
+  ✓ original price resume and unpaid expiry reach audience authorizatio… 0.07s  
+
+   PASS  Tests\Integration\RecoveryScenarioTest
+  ✓ preexisting unpaid accounts do not select the recovery subject       0.07s  
+  ✓ manifest cannot switch to an existing unpaid viewer                  0.04s  
+  ✓ a payment for another viewer is rejected even when that payment exi… 0.04s  
+  ✓ changes to preexisting unpaid accounts fail verification             0.04s  
+
+   PASS  Tests\Security\CrossModuleBoundaryTest
+  ✓ viewer cannot use another order or bypass media after signout        0.11s  
+  ✓ content staff has no billing authority even with mfa                 0.03s  
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.17s  
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.14s  
+  ✓ renewal uses original price and original period when delivery is la… 0.13s  
+  ✓ failed renewal never adds access and blocks second purchase          0.13s  
+  ✓ partial then full refund only revokes its payment and stops renewal  0.15s  
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.10s  
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.12s  
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.12s  
+  ✓ setup only client credentials can discover seller and create one pr… 0.11s  
+  ✓ unconfigured new purchase stays disabled even after setup            0.10s  
+  ✓ refund correction restores only original interval without restoring… 0.13s  
+  ✓ terminal without proof of no payment retains unique occupancy        0.14s  
+  ✓ late cancel event rereads current provider state and cannot extend…  0.15s  
+  ✓ unavailable merchant api is a safe diagnostic and cannot create ord… 0.11s  
+  ✓ wrong sale binding amount or currency cannot grant access            0.13s  
+  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 0.14s  
+  ✓ lagging transaction history cannot release a terminal subscription   0.14s  
+  ✓ reversal stop intent survives failed read transaction                0.15s  
+
+   PASS  Tests\Feature\Audience\BillingUiTest
+  ✓ guest uses real offer and empty price is not filled with sample dat… 0.09s  
+  ✓ email verification precedes checkout and keeps only current return…  0.02s  
+  ✓ unconfigured stripe is an explicit failure without order or members… 0.02s  
+  ✓ checkout uses its own fixed deadline and repeated click reuses the…  0.04s  
+  ✓ unknown checkout can recover only the confirmed original after quot… 0.05s  
+  ✓ missing or other account recovery credentials cannot guess or creat… 0.04s  
+  ✓ temporarily unavailable recheck keeps original recovery credentials  0.03s  
+  ✓ successful checkout remains reachable from membership                0.03s  
+  ✓ payment return login keeps only a controlled order path              0.02s  
+  ✓ browser success parameters cannot grant access and other orders are… 0.03s  
+  ✓ checkout without provider expiry never displays a cached link or fa… 0.04s  
+  ✓ recheck post reuses only the confirmed attempt without creating ano… 0.04s  
+  ✓ return rejects untrusted or non https checkout approval links        0.03s  
+  ✓ cancel and resume read original quote and require explicit confirma… 0.06s  
+  ✓ stale or tampered resume rereads but does not resume automatically   0.05s  
+  ✓ expired offer requires new price confirmation without creating orde… 0.03s  
+  ✓ partial refund shows original access and unresolved renewal separat… 0.04s  
+  ✓ language choice keeps usd and does not change offer terms            0.02s  
+
+  Tests:    44 passed (787 assertions)
+  Duration: 3.93s
+

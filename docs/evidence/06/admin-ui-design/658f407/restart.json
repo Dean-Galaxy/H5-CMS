@@ -1,0 +1,43 @@
+{
+  "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "database": "h5_e5d3fdcfd4",
+  "port": 8377,
+  "dbPort": 5877,
+  "content": {
+    "content_dramas": {
+      "rows": 3,
+      "sha256": "bf49dc0da780689e2d41115a006a18ea28a6a38fa21ea472ab77f745ab518c4b"
+    },
+    "content_episodes": {
+      "rows": 105,
+      "sha256": "3abdf1b9e72e9c8ef93567a3326f28da86624aded33e7b54603f360e7f67f6ca"
+    },
+    "content_plans": {
+      "rows": 3,
+      "sha256": "9977a26252c09292f46355c64ab42a893083399b9e4f6e65698c4f40c3a380b9"
+    },
+    "content_publications": {
+      "rows": 6,
+      "sha256": "665dc996757fd6d398b03c89a913341a97e03666a2a595694104c1bc06f4c397"
+    }
+  },
+  "pids": {
+    "web": 68738,
+    "queue": 68739,
+    "scheduler": 68740
+  },
+  "alive": {
+    "web": true,
+    "queue": true,
+    "scheduler": true
+  },
+  "postgresPid": 68706,
+  "contentUnchanged": true,
+  "allProcessesReplaced": true,
+  "beforePids": {
+    "web": 22325,
+    "queue": 22326,
+    "scheduler": 22327
+  },
+  "passed": true
+}

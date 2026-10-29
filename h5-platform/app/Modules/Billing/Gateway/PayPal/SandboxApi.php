@@ -1,0 +1,364 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Modules\Billing\Gateway\PayPal;
+
+use App\Modules\Billing\Gateway\ProviderScope;
+use App\Modules\Billing\Services\PayPalMerchantBinding;
+use App\Support\DependencyNotReady;
+use App\Support\RuntimeEnvironmentGuard;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use RuntimeException;
+use Throwable;
+
+/** Sandbox protocol transport used by the PayPal-native runtime. */
+final class SandboxApi
+{
+    public const ORIGIN = 'https://api-m.sandbox.paypal.com';
+
+    public const REQUIRED_WEBHOOK_EVENTS = [
+        'PAYMENT.SALE.COMPLETED', 'PAYMENT.SALE.REFUNDED', 'PAYMENT.SALE.REVERSED',
+        'BILLING.SUBSCRIPTION.CREATED', 'BILLING.SUBSCRIPTION.ACTIVATED', 'BILLING.SUBSCRIPTION.UPDATED',
+        'BILLING.SUBSCRIPTION.SUSPENDED', 'BILLING.SUBSCRIPTION.CANCELLED', 'BILLING.SUBSCRIPTION.EXPIRED',
+        'BILLING.SUBSCRIPTION.PAYMENT.FAILED',
+    ];
+
+    private ?string $token = null;
+
+    private int $tokenUntil = 0;
+
+    private ?string $configurationFingerprint = null;
+
+    public function __construct(private ?ClientInterface $testingTransport = null) {}
+
+    public function plan(string $id): array
+    {
+        return $this->call('GET', '/v1/billing/plans/'.$this->identifier($id, 'P-'));
+    }
+
+    public function createPlan(SandboxWeeklyPlan $plan, string $productId, string $persistedRequestId): array
+    {
+        return $this->call('POST', '/v1/billing/plans', json_encode($plan->createRequest($productId), JSON_THROW_ON_ERROR), $persistedRequestId);
+    }
+
+    /** Scope and credential generation must stay fixed throughout a multi-call operation. */
+    public function configurationStamp(ProviderScope $scope): string
+    {
+        $this->assertAvailable();
+        if ($scope->provider !== 'paypal' || $scope->environment !== 'sandbox'
+            || $scope->merchantScope !== config('billing.paypal.merchant_scope')) {
+            throw new DependencyNotReady('Billing / PayPal persisted merchant scope');
+        }
+
+        return $this->configurationFingerprint;
+    }
+
+    public function createSubscription(SandboxSubscriptionRequest $request, string $persistedRequestId): array
+    {
+        return $this->call('POST', '/v1/billing/subscriptions', json_encode($request->payload(), JSON_THROW_ON_ERROR), $persistedRequestId);
+    }
+
+    public function subscription(string $id): array
+    {
+        return $this->call('GET', '/v1/billing/subscriptions/'.$this->identifier($id, 'I-'));
+    }
+
+    public function product(string $id): array
+    {
+        return $this->call('GET', '/v1/catalogs/products/'.$this->identifier($id, 'PROD-'), credentialsOnly: true);
+    }
+
+    public function createProduct(string $requestId): array
+    {
+        return $this->call('POST', '/v1/catalogs/products', json_encode(self::productRequest(), JSON_THROW_ON_ERROR), $requestId, credentialsOnly: true);
+    }
+
+    public static function productRequest(): array
+    {
+        return ['name' => 'TEST H5 weekly membership', 'type' => 'DIGITAL', 'description' => 'Sandbox-only H5 membership integration test'];
+    }
+
+    /** Fixed operator-attested binding plus App authentication; not API merchant identification. */
+    public function assertMerchant(ProviderScope $scope): void
+    {
+        $stamp = $this->configurationStamp($scope);
+        (new PayPalMerchantBinding($this))->assertBound($scope);
+        $this->authenticateApp();
+        if (! hash_equals($stamp, $this->configurationStamp($scope))) {
+            throw new RuntimeException('PAYPAL_MERCHANT_BINDING_REQUIRED_OR_MISMATCH');
+        }
+    }
+
+    public function appFingerprint(): string
+    {
+        $this->assertAvailable(credentialsOnly: true);
+
+        return hash('sha256', config('billing.paypal.client_id'));
+    }
+
+    /** Does not expose the token or treat OAuth app_id as merchant identity. */
+    public function authenticateApp(bool $fresh = false): void
+    {
+        $this->assertAvailable(credentialsOnly: true);
+        $stamp = $this->configurationFingerprint;
+        if ($fresh) {
+            $this->token = null;
+        }
+        $this->accessToken();
+        $this->assertAvailable(credentialsOnly: true);
+        if ($stamp !== $this->configurationFingerprint) {
+            throw new RuntimeException('PAYPAL_AUTHENTICATION_UNKNOWN');
+        }
+    }
+
+    public function assertWebhookRegistration(ProviderScope $scope): void
+    {
+        $this->assertMerchant($scope);
+        $stamp = $this->configurationStamp($scope);
+        $id = config('billing.paypal.webhook_id');
+        $url = config('billing.paypal.webhook_url');
+        $parts = is_string($url) ? parse_url($url) : false;
+        if (! is_array($parts) || ($parts['scheme'] ?? null) !== 'https' || empty($parts['host'])
+            || ($parts['path'] ?? null) !== '/webhooks/paypal'
+            || isset($parts['query']) || isset($parts['fragment']) || isset($parts['user']) || isset($parts['pass'])
+            || (isset($parts['port']) && $parts['port'] !== 443)) {
+            throw new RuntimeException('PAYPAL_WEBHOOK_REGISTRATION_MISMATCH');
+        }
+        $webhook = $this->call('GET', '/v1/notifications/webhooks/'.$this->identifier($id, ''));
+        $events = $webhook['event_types'] ?? null;
+        $names = [];
+        if (is_array($events) && array_is_list($events)) {
+            foreach ($events as $event) {
+                if (! is_array($event) || ! is_string($event['name'] ?? null)) {
+                    throw new RuntimeException('PAYPAL_WEBHOOK_REGISTRATION_MISMATCH');
+                }
+                $names[] = $event['name'];
+            }
+        }
+        // Official Webhooks v1 explicitly defines '*' as all present and future events.
+        $covered = in_array('*', $names, true) || array_diff(self::REQUIRED_WEBHOOK_EVENTS, $names) === [];
+        if (! $covered || ($webhook['id'] ?? null) !== $id || ($webhook['url'] ?? null) !== $url
+            || ! hash_equals($stamp, $this->configurationStamp($scope))) {
+            throw new RuntimeException('PAYPAL_WEBHOOK_REGISTRATION_MISMATCH');
+        }
+    }
+
+    public function transactions(string $id, \DateTimeImmutable $from, \DateTimeImmutable $until): array
+    {
+        if ($until <= $from || $until->getTimestamp() - $from->getTimestamp() > 31 * 86400) {
+            throw new InvalidArgumentException('PAYPAL_TRANSACTION_WINDOW_INVALID');
+        }
+        $utc = new \DateTimeZone('UTC');
+        $query = http_build_query(['start_time' => $from->setTimezone($utc)->format('Y-m-d\TH:i:s\Z'),
+            'end_time' => $until->setTimezone($utc)->format('Y-m-d\TH:i:s\Z')], '', '&', PHP_QUERY_RFC3986);
+
+        return $this->call('GET', '/v1/billing/subscriptions/'.$this->identifier($id, 'I-').'/transactions?'.$query);
+    }
+
+    public function sale(string $id): array
+    {
+        return $this->call('GET', '/v1/payments/sale/'.$this->identifier($id, ''));
+    }
+
+    public function refund(string $id): array
+    {
+        return $this->call('GET', '/v1/payments/refund/'.$this->identifier($id, ''));
+    }
+
+    /** Hard cancellation only for expired approval/paid periods; never a resume substitute. */
+    public function cancel(string $id): void
+    {
+        $this->call('POST', '/v1/billing/subscriptions/'.$this->identifier($id, 'I-').'/cancel', '{"reason":"Stop future renewal after local cancellation or checkout expiry"}');
+    }
+
+    /** Does not assert renewal stopped: the caller must re-read and confirm SUSPENDED. */
+    public function suspend(string $id): void
+    {
+        // This endpoint has no documented PayPal-Request-Id parameter. Re-read before retry.
+        $this->call('POST', '/v1/billing/subscriptions/'.$this->identifier($id, 'I-').'/suspend', '{"reason":"Customer requested stopping future renewal"}');
+    }
+
+    /** Deliberately no activate(), capture() or refund() in this first-stage transport. */
+    public function verify(SandboxWebhookEnvelope $envelope): bool
+    {
+        $this->assertAvailable();
+        if (! $envelope->belongsToWebhook(config('billing.paypal.webhook_id'))) {
+            throw new InvalidArgumentException('PAYPAL_WEBHOOK_SCOPE_MISMATCH');
+        }
+        $reply = $this->call('POST', '/v1/notifications/verify-webhook-signature', $envelope->verificationRequestBody());
+        if (! in_array($reply['verification_status'] ?? null, ['SUCCESS', 'FAILURE'], true)) {
+            $this->diagnostic('verify_webhook_signature', null, 'invalid_response');
+            throw new RuntimeException('PAYPAL_VERIFICATION_UNKNOWN');
+        }
+
+        return $reply['verification_status'] === 'SUCCESS';
+    }
+
+    private function call(string $method, string $path, ?string $body = null, ?string $requestId = null, bool $credentialsOnly = false): array
+    {
+        $this->assertAvailable($credentialsOnly);
+        if ($requestId !== null && preg_match('/\A[A-Za-z0-9-]{1,38}\z/D', $requestId) !== 1) {
+            throw new InvalidArgumentException('PAYPAL_REQUEST_ID_INVALID');
+        }
+        $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json', 'Authorization' => 'Bearer '.$this->accessToken()];
+        if ($requestId !== null) {
+            $headers['PayPal-Request-Id'] = $requestId;
+            $headers['Prefer'] = 'return=representation';
+        }
+
+        return $this->send($method, $path, ['headers' => $headers, 'body' => $body]);
+    }
+
+    private function accessToken(): string
+    {
+        if ($this->token !== null && time() < $this->tokenUntil) {
+            return $this->token;
+        }
+        $data = $this->send('POST', '/v1/oauth2/token', [
+            'auth' => [config('billing.paypal.client_id'), config('billing.paypal.client_secret')],
+            'headers' => ['Accept' => 'application/json'], 'form_params' => ['grant_type' => 'client_credentials'],
+        ]);
+        if (! is_string($data['access_token'] ?? null) || preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $data['access_token']) !== 1
+            || ($data['token_type'] ?? null) !== 'Bearer' || ! is_int($data['expires_in'] ?? null) || $data['expires_in'] <= 60) {
+            throw new RuntimeException('PAYPAL_AUTHENTICATION_UNKNOWN');
+        }
+        $this->token = $data['access_token'];
+        $this->tokenUntil = time() + min($data['expires_in'] - 60, 300);
+
+        return $this->token;
+    }
+
+    /** Only literals leave this mapper. IDs, query strings and origins are never logged. */
+    private function operation(string $method, string $path): string
+    {
+        return match (true) {
+            $path === '/v1/oauth2/token' => 'oauth',
+            $path === '/v1/notifications/verify-webhook-signature' => 'verify_webhook_signature',
+            str_starts_with($path, '/v1/notifications/webhooks/') => 'read_webhook',
+            $path === '/v1/billing/plans' => 'create_plan',
+            str_starts_with($path, '/v1/billing/plans/') => 'read_plan',
+            $path === '/v1/catalogs/products' => 'create_product',
+            str_starts_with($path, '/v1/catalogs/products/') => 'read_product',
+            $path === '/v1/billing/subscriptions' => 'create_subscription',
+            str_starts_with($path, '/v1/billing/subscriptions/') && str_contains($path, '/transactions?') => 'read_transactions',
+            str_starts_with($path, '/v1/billing/subscriptions/') && str_ends_with($path, '/cancel') => 'cancel_subscription',
+            str_starts_with($path, '/v1/billing/subscriptions/') && str_ends_with($path, '/suspend') => 'suspend_subscription',
+            $method === 'GET' && str_starts_with($path, '/v1/billing/subscriptions/') => 'read_subscription',
+            str_starts_with($path, '/v1/payments/sale/') => 'read_sale',
+            str_starts_with($path, '/v1/payments/refund/') => 'read_refund',
+            default => 'unknown',
+        };
+    }
+
+    private function diagnostic(string $operation, ?int $status, string $failure, string $providerCode = 'unknown'): void
+    {
+        try {
+            Log::warning('billing.paypal.transport_failure', ['operation' => $operation, 'http_status' => $status,
+                'failure_class' => $failure, 'provider_code' => $providerCode]);
+        } catch (Throwable) {
+            // A logger failure must not reveal the original vendor exception or alter the API error.
+        }
+    }
+
+    private function send(string $method, string $path, array $options): array
+    {
+        $status = null;
+        $failure = 'network';
+        $providerCode = 'unknown';
+        try {
+            $client = $this->testingTransport ?? new Client;
+            $response = $client->request($method, self::ORIGIN.$path, $options + [
+                'verify' => true, 'allow_redirects' => false, 'http_errors' => false,
+                'connect_timeout' => 5, 'timeout' => 15, 'proxy' => '',
+            ]);
+            $status = $response->getStatusCode();
+            if ($status < 200 || $status >= 300) {
+                $failure = 'api_rejected';
+                $errorBody = $response->getBody()->read(65537);
+                $name = strlen($errorBody) <= 65536 ? (json_decode($errorBody, true)['name'] ?? null) : null;
+                if (is_string($name) && in_array($name, ['MALFORMED_REQUEST_JSON', 'INVALID_REQUEST', 'AUTHENTICATION_FAILURE',
+                    'PERMISSION_DENIED', 'RESOURCE_NOT_FOUND', 'VALIDATION_ERROR', 'INTERNAL_SERVICE_ERROR', 'UNPROCESSABLE_ENTITY'], true)) {
+                    $providerCode = $name;
+                }
+                throw new RuntimeException('PAYPAL_RECONCILIATION_REQUIRED');
+            }
+            if ($status === 204) {
+                return [];
+            }
+            $failure = 'invalid_response';
+            $body = $response->getBody()->read(1048577);
+            if (strlen($body) > 1048576) {
+                throw new RuntimeException('PAYPAL_RESPONSE_INVALID');
+            }
+            $failure = 'invalid_json';
+            $decoded = json_decode($body, false, 64, JSON_THROW_ON_ERROR);
+            $failure = 'invalid_response';
+            if (! $decoded instanceof \stdClass) {
+                throw new RuntimeException('PAYPAL_RESPONSE_INVALID');
+            }
+
+            return json_decode($body, true, 64, JSON_THROW_ON_ERROR | JSON_BIGINT_AS_STRING);
+        } catch (Throwable) {
+            $this->diagnostic($this->operation($method, $path), $status, $failure, $providerCode);
+            // Do not chain vendor exceptions: requests may contain authorization or webhook bodies.
+            throw new RuntimeException('PAYPAL_RECONCILIATION_REQUIRED');
+        }
+    }
+
+    private function assertAvailable(bool $credentialsOnly = false): void
+    {
+        try {
+            app(RuntimeEnvironmentGuard::class)->assertSafeRuntime();
+            $environment = app()->environment();
+            if (! in_array($environment, ['local', 'testing', 'staging'], true)
+                || config('billing.paypal.enabled') !== true
+                || ($this->testingTransport !== null && $environment !== 'testing')
+                || ($this->testingTransport === null && $environment === 'testing')) {
+                throw new RuntimeException;
+            }
+            if ($environment === 'staging') {
+                if (config('h5.controlled_staging') !== true) {
+                    throw new RuntimeException;
+                }
+                app(RuntimeEnvironmentGuard::class)->controlledStagingOrigin();
+            }
+            $configuration = [];
+            foreach (['client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope', 'webhook_url'] as $key) {
+                $value = config('billing.paypal.'.$key);
+                if ($key !== 'webhook_url' && (! $credentialsOnly || in_array($key, ['client_id', 'client_secret'], true))
+                    && (! is_string($value) || preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $value) !== 1)) {
+                    throw new RuntimeException;
+                }
+                $configuration[$key] = $value;
+            }
+            $fingerprint = hash('sha256', json_encode($configuration, JSON_THROW_ON_ERROR));
+            if ($this->configurationFingerprint !== $fingerprint) {
+                $this->token = null;
+                $this->tokenUntil = 0;
+                $this->configurationFingerprint = $fingerprint;
+            }
+        } catch (Throwable) {
+            $this->token = null;
+            $this->tokenUntil = 0;
+            throw new DependencyNotReady('Billing / PayPal sandbox configuration');
+        }
+    }
+
+    private function identifier(string $value, string $prefix): string
+    {
+        if (preg_match('/\A'.preg_quote($prefix, '/').'[A-Z0-9]{1,126}\z/D', $value) !== 1) {
+            throw new InvalidArgumentException('PAYPAL_RESOURCE_ID_INVALID');
+        }
+
+        return $value;
+    }
+
+    public function __debugInfo(): array
+    {
+        return ['provider' => 'paypal', 'environment' => 'sandbox', 'official_verification' => 'not_performed'];
+    }
+}

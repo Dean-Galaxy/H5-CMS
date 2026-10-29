@@ -1,0 +1,30 @@
+{
+  "passed": [
+    "A01/A02 exactly four authorized top-level tabs",
+    "A01 list has no visible persistent editor",
+    "external sending explicitly disabled",
+    "desktop required drama and pixel messages are actionable Chinese",
+    "desktop failed save preserves open editor and entered name/platform",
+    "desktop continue editing retains unsaved input",
+    "desktop repeated cancel after validation still requires discard and restores focus",
+    "mobile required drama and pixel messages are actionable Chinese",
+    "mobile failed save preserves open editor and entered name/platform",
+    "mobile continue editing retains unsaved input",
+    "mobile repeated cancel after validation still requires discard and restores focus",
+    "desktop-dark required drama and pixel messages are actionable Chinese",
+    "desktop-dark failed save preserves open editor and entered name/platform",
+    "desktop-dark continue editing retains unsaved input",
+    "desktop-dark repeated cancel after validation still requires discard and restores focus",
+    "mobile-dark required drama and pixel messages are actionable Chinese",
+    "mobile-dark failed save preserves open editor and entered name/platform",
+    "mobile-dark continue editing retains unsaved input",
+    "mobile-dark repeated cancel after validation still requires discard and restores focus",
+    "no browser JavaScript errors"
+  ],
+  "browser": "155.0.8059.85",
+  "platform": "darwin",
+  "base": "http://127.0.0.1:8205",
+  "externalSending": "disabled",
+  "errorsOnly": true,
+  "screenshots": "docs/evidence/05/f09/errors-c97bb22"
+}

@@ -1,0 +1,19 @@
+{
+    "passed": true,
+    "environment": "local",
+    "contract": "1.0.5",
+    "imagick": false,
+    "customProviderRegistered": true,
+    "mfaRequired": true,
+    "recoveryEnabled": true,
+    "acquisitionReady": true,
+    "acquisitionTransport": "disabled",
+    "externalEnabled": false,
+    "billingDriver": "unconfigured",
+    "mailDriver": "preview",
+    "debug": false,
+    "region": {
+        "country_code": "ZZ",
+        "source": "unresolved"
+    }
+}

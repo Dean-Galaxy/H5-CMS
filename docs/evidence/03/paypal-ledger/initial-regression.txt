@@ -1,0 +1,58 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingSettlementTest[39m
+  [32;1m✓[39;22m[90m [39m[90mpaid invoice atomically creates fixed period payment entitlement an[39m[90m…[39m [90m0.24s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmismatched owner amount currency mode and unverified payment never[39m[90m… [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90munpaid and action required invoice do not consume discount or grant[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrenewal uses original price and its actual period after site price[39m[90m… [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfailed renewal keeps old paid period and successful retry adds only[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mdistinct invoice for same paid period is quarantined[39m[90m                [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90msuccess page and active subscription without paid invoice do not cr[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexpired checkout releases unpaid subscription and discount is still[39m[90m…[39m [90m0.01s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpending and failed refunds do not revoke paid entitlement[39m[90m           [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpartial refund keeps access and stops renewal without resetting dis[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfull refund revokes only related payment and stops renewal[39m[90m          [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mwebhook is durable deduplicated and uses current fact even for late[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90minvalid signature never reaches inbox and provider outage can be re[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90moutbox keeps missing or failing consumer pending without rolling ba[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcanceled subscription with unresolved initial invoice cannot releas[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpayment and entitlement rollback when outbox cannot be saved[39m[90m        [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfailed inbox item does not starve later items when batch is one[39m[90m     [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfailed outbox item does not starve later payments[39m[90m                   [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mfull refund cancel timeout is retryable and does not undo refund fa[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90minvoice sync does not replace version of pending cancel operation[39m[90m   [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmultiple partial refunds accumulate once and full refund correction[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mold refund replay cannot cancel explicit later resume but new succe[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefund correction after original expiry does not create current acc[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefund for ended old subscription does not cancel new subscription[39m[90m  [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrefund total above payment is quarantined without revoking verified[39m[90m…[39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\BillingEngineTest[39m
+  [32;1m✓[39;22m[90m [39m[90mverified account snapshot and idempotency control checkout[39m[90m          [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcheckout unknown is persisted and retry keeps same order[39m[90m            [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexpired offer and another accounts offer cannot create orders[39m[90m       [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcancel resume uses original price and old retry cannot undo later c[39m[90m…[39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90munexecuted resume expires at boundary and cancel timeout reconciles[39m[90m [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mpaid interval is half open and pending original blocks repurchase[39m[90m   [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhttp rejects client money and preserves order ownership[39m[90m             [39m [90m0.03s[39m  
+  [32;1m✓[39;22m[90m [39m[90mhttp enforces frozen idempotency key bounds before creating orders[39m[90m  [39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mguest offer requires new personal offer and changed eligibility req[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcheckout creation intent survives unknown result with fixed paramet[39m[90m…[39m [90m0.02s[39m  
+  [32;1m✓[39;22m[90m [39m[90mtesting gateway does not hide conflicting coupon parameters[39m[90m         [39m [90m0.02s[39m  
+
+  [30;42;1m PASS [39;49;22m[39m Tests\Feature\Billing\ProviderOperationStoreTest[39m
+  [32;1m✓[39;22m[90m [39m[90msame intent reuses payload key and deadline after unknown result[39m[90m    [39m [90m0.12s[39m  
+  [32;1m✓[39;22m[90m [39m[90mexpired provider idempotency window requires reconciliation not new[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mmutated payload cannot reuse the original idempotency intent[39m[90m        [39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mcross merchant cannot complete another scope intent[39m[90m                 [39m [90m0.13s[39m  
+  [32;1m✓[39;22m[90m [39m[90muncommitted intent cannot be dispatched[39m[90m                             [39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90msame external id is isolated by provider and merchant[39m[90m               [39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mone owner cannot acquire a second external subscription in the same[39m[90m…[39m [90m0.10s[39m  
+  [32;1m✓[39;22m[90m [39m[90mupgrade preserves legacy subscription and cross channel one open co[39m[90m…[39m [90m0.11s[39m  
+  [32;1m✓[39;22m[90m [39m[90mrollback refuses to drop new provider evidence[39m[90m                      [39m [90m0.10s[39m  
+
+  [90mTests:[39m    [32;1m45 passed[39;22m[90m (242 assertions)[39m
+  [90mDuration:[39m [39m2.12s[39m
+

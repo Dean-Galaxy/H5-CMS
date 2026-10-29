@@ -1,0 +1,15 @@
+{
+  "source_commit": "9d1518518300376e0a7ea4e69b9689432e0e1d59",
+  "sha256": {
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/PayPalAmount.php": "2ca537c89795bfaa60d36760d211a69c14df032cd839d712d25d219ef066d76c",
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxApi.php": "bcc5ac1c2bfd38ad0261b3d173f727a6ee287ffc835eccdca7ceca57e9562b02",
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxWebhookEnvelope.php": "5da5dcfbc0db87491707330cdf026ff13aa3e9384b687dc1b9ea3424165eb366",
+    "h5-platform/app/Modules/Billing/Gateway/PayPal/SandboxWeeklyPlan.php": "d03c1cbbbee1f1b4021306a649abc6a7f19e26469398d8e2941205f6a5d0e12c",
+    "h5-platform/app/Modules/Billing/Gateway/ProviderScope.php": "c4b85c3dc08aaf8f617515abeff278f9b76115c27e7b04ef8be1282aeec8722a",
+    "h5-platform/app/Modules/Billing/Services/ProviderOperationStore.php": "b48aedabe29d867181f8cd4e06317d26b7b6a80806c90b089b276c710f6e7a79",
+    "h5-platform/database/migrations/2026_10_26_200400_add_billing_provider_scopes.php": "8b429d3c48f1b548c08e9e50e938b35eb52528d426c664363f6db881b9cdeaba",
+    "h5-platform/tests/Feature/Billing/PayPalProtocolTest.php": "21e755c807b5a7bb1deff4150db7fb0600fd3e8c04d2ba56162bcb076f185374",
+    "h5-platform/tests/Feature/Billing/PayPalSandboxApiTest.php": "49e947dca800061b8bae99c3fa81de125d37e060d31c7a2ee1cc858aa3776dd2",
+    "h5-platform/tests/Feature/Billing/ProviderOperationStoreTest.php": "8acf6f95a27917e38188425fb1c485e92716e7686ff0fad329784d9da5732273"
+  }
+}

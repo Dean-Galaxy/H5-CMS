@@ -1,0 +1,1 @@
+[{"method": "GET", "path": "/", "status": 404, "passed": true}, {"method": "GET", "path": "/admin", "status": 404, "passed": true}, {"method": "GET", "path": "/.env", "status": 404, "passed": true}, {"method": "POST", "path": "/webhooks/paypal", "status": 400, "passed": true}]

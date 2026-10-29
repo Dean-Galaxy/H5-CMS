@@ -1,0 +1,22 @@
+{
+  "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+  "billing_source": "35bd488d8ae8abd7c5ec7d27aceeb724ad715280",
+  "audience_source": "936b32b5217fa3a4a3ee0b92c23f15c0e163bfbf",
+  "suites": [
+    "Billing",
+    "Audience",
+    "Contracts"
+  ],
+  "tests": 362,
+  "assertions": 4702,
+  "passed": true,
+  "official_provider_executed": false,
+  "stable_workspace_modified": false,
+  "tool_review": {
+    "credentials": 13,
+    "bridge_final": 17,
+    "apply_final": 18
+  },
+  "tool_tests": "temporary synthetic directories and loopback, no user credentials read",
+  "initial_attempt_note": "First Audience command used root-prefixed test path with app cwd and found no test file; corrected full combined invocation passed."
+}

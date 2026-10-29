@@ -60,8 +60,14 @@ try {
             'launch_now' => $s->launchNow($d['drama'], $d['launch_payload']),
             'manual' => $s->manual($d['drama'], ['version' => $d['version'], 'through' => 3, 'confirmation' => $d['confirmation']]),
             'withdraw' => $s->withdraw($d['drama'], $d['version']),
-            'edit' => $s->savePlan($d['drama'], ['version' => $d['plan_version'], 'mode' => 'updating', 'interval_days' => 2, 'batch_size' => 5,
-                'start_number' => $s->nextNumber(DramaRecord::findOrFail($d['drama'])), 'launch_at' => now()->addDay()->toIso8601String()]),
+            'edit' => (function () use ($s, $d) {
+                // The approved flow explicitly pauses before editing. A scheduler
+                // winning either lock forces the stale version to be reviewed.
+                $paused = $s->pause($d['drama'], $d['plan_version']);
+
+                return $s->savePlan($d['drama'], ['version' => $paused->version, 'mode' => 'updating', 'interval_days' => 2, 'batch_size' => 5,
+                    'start_number' => $s->nextNumber(DramaRecord::findOrFail($d['drama'])), 'launch_at' => now()->addDay()->toIso8601String()]);
+            })(),
         };
         $emit('result', ['result' => is_string($result) ? $result : 'ok']);
     } catch (ApiProblem $e) {

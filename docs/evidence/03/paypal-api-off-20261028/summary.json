@@ -1,0 +1,17 @@
+{
+  "source_commit": "46856fbdf7a1740fb650bdb1fa1da0c9fbc6fefb",
+  "baseline": "80240034fe67ec8bf92d5f8152a7046ea29700ad",
+  "contract": "1.0.5",
+  "local_only": true,
+  "tests": 493,
+  "assertions": 6753,
+  "contract_examples": 59,
+  "network_evidence": "Mock call list unchanged across disabled background, explicit API calls, callback, membership and anonymous checks",
+  "state_evidence": "full row hashes across 13 Billing tables including timestamps unchanged in disabled confirmed-cancellation case",
+  "mixed_provider_limit": 1,
+  "resume_evidence": "enabled=true with new_purchase_provider=unconfigured resumes original inbox/outbox and pending cancel, no duplicate paid facts",
+  "real_06_changed": false,
+  "new_migrations": 0,
+  "new_config": false,
+  "official_payment_test_performed": false
+}

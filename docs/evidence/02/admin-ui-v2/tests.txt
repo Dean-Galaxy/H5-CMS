@@ -1,463 +1,461 @@
-
-   INFO  Configuration cache cleared successfully.  
+INFO  Configuration cache cleared successfully.
 
 
    PASS  Tests\Feature\Acquisition\AssetTest
-  ✓ owner and assigned scope is enforced for reads writes probe summary… 0.27s  
-  ✓ mfa disabled staff and wrong roles cannot read assets                0.02s  
-  ✓ registration does not enable external delivery or accept script or…  0.02s  
-  ✓ pixel versions and link versions reject stale updates and unfrozen…  0.02s  
-  ✓ link requires accessible matching pixel and current content          0.02s  
-  ✓ unfrozen attribution is explicitly unavailable and does not trust m… 0.03s  
+  ✓ owner and assigned scope is enforced for reads writes probe summary… 0.27s
+  ✓ mfa disabled staff and wrong roles cannot read assets                0.02s
+  ✓ registration does not enable external delivery or accept script or…  0.02s
+  ✓ pixel versions and link versions reject stale updates and unfrozen…  0.02s
+  ✓ link requires accessible matching pixel and current content          0.02s
+  ✓ unfrozen attribution is explicitly unavailable and does not trust m… 0.03s
 
    PASS  Tests\Feature\Acquisition\AssignmentTest
-  ✓ owner shares multiple people and removal revokes access without cha… 0.04s  
-  ✓ selected person outside current page is repopulated and revalidated… 0.09s  
-  ✓ unavailable read ports are explicit and never replaced with public…  0.03s  
+  ✓ owner shares multiple people and removal revokes access without cha… 0.04s
+  ✓ selected person outside current page is repopulated and revalidated… 0.09s
+  ✓ unavailable read ports are explicit and never replaced with public…  0.03s
 
    PASS  Tests\Feature\Acquisition\BillingBridgeTest
-  ✓ consumer failure leaves verified payment and membership intact and…  0.06s  
-  ✓ real billing outbox reaches consumer once and unattributed does not… 0.04s  
+  ✓ consumer failure leaves verified payment and membership intact and…  0.06s
+  ✓ real billing outbox reaches consumer once and unattributed does not… 0.04s
 
    PASS  Tests\Feature\Acquisition\ConcurrencyTest
-  ✓ two postgresql connections contend and record one payment even with… 0.28s  
+  ✓ two postgresql connections contend and record one payment even with… 0.28s
 
    PASS  Tests\Feature\Acquisition\DeliveryBoundaryTest
-  ✓ lost or expired lease during preparation never sends or changes the… 0.11s  
-  ✓ sixth attempt is reserved with frozen payload and original first ti… 0.05s  
-  ✓ late response cannot overwrite expired or replaced lease             0.03s  
-  ✓ consent revoked during payload preparation blocks reservation and s… 0.02s  
+  ✓ lost or expired lease during preparation never sends or changes the… 0.11s
+  ✓ sixth attempt is reserved with frozen payload and original first ti… 0.05s
+  ✓ late response cannot overwrite expired or replaced lease             0.03s
+  ✓ consent revoked during payload preparation blocks reservation and s… 0.02s
 
    PASS  Tests\Feature\Acquisition\DeliveryProcessTest
-  ✓ real process takeover leaves resumed old preparer without transport… 0.69s  
-  ✓ six sigkills inside http do not lose reservations or allow a sevent… 2.03s  
+  ✓ real process takeover leaves resumed old preparer without transport… 0.69s
+  ✓ six sigkills inside http do not lose reservations or allow a sevent… 2.03s
 
    PASS  Tests\Feature\Acquisition\DeliveryTest
-  ✓ both platforms have explicit local sending and no external requests  0.09s  
-  ✓ disabled sender and unknown or revoked consent block real attempts   0.02s  
-  ✓ test payments can never be sent to production assets                 0.02s  
-  ✓ http adapters map integer usd stable ids and do not send contact or… 0.02s  
-  ✓ failed retry uses frozen payload and stable event id then stops aft… 0.03s  
-  ✓ http 200 errors and redirects are not marked accepted                0.03s  
-  ✓ external review match context and event age are checked before http  0.03s  
-  ✓ simulated context missing credentials and disabled pixel are blocke… 0.02s  
-  ✓ active lease prevents duplicate sending and expired lease can recov… 0.02s  
-  ✓ retry limit and production simulation boot guard                     0.02s  
-  ✓ unknown remote outcome is not resent after the retry window even if… 0.03s  
+  ✓ both platforms have explicit local sending and no external requests  0.09s
+  ✓ disabled sender and unknown or revoked consent block real attempts   0.02s
+  ✓ test payments can never be sent to production assets                 0.02s
+  ✓ http adapters map integer usd stable ids and do not send contact or… 0.02s
+  ✓ failed retry uses frozen payload and stable event id then stops aft… 0.03s
+  ✓ http 200 errors and redirects are not marked accepted                0.03s
+  ✓ external review match context and event age are checked before http  0.03s
+  ✓ simulated context missing credentials and disabled pixel are blocke… 0.02s
+  ✓ active lease prevents duplicate sending and expired lease can recov… 0.02s
+  ✓ retry limit and production simulation boot guard                     0.02s
+  ✓ unknown remote outcome is not resent after the retry window even if… 0.03s
 
    PASS  Tests\Feature\Acquisition\DeskTest
-  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.08s  
-  ✓ form save reopen local probe link edit disable and summary           0.08s  
-  ✓ hidden action calls cannot edit foreign pixel or self assign         0.04s  
-  ✓ page permissions do not bootstrap assets or bypass mfa               0.02s  
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.08s
+  ✓ form save reopen local probe link edit disable and summary           0.08s
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.04s
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.02s
 
    PASS  Tests\Feature\Acquisition\PaymentTest
-  ✓ event and payment deduplication preserve one receipt and one conver… 0.03s  
-  ✓ same payment with changed facts is rejected without overwriting his… 0.02s  
-  ✓ unknown source is not reinterpreted as current pixel and no source…  0.02s  
-  ✓ first resubscription renewal and test real are separate but same ki… 0.04s  
-  ✓ pixel and link edits do not rewrite already received attribution or… 0.03s  
+  ✓ event and payment deduplication preserve one receipt and one conver… 0.03s
+  ✓ same payment with changed facts is rejected without overwriting his… 0.02s
+  ✓ unknown source is not reinterpreted as current pixel and no source…  0.02s
+  ✓ first resubscription renewal and test real are separate but same ki… 0.04s
+  ✓ pixel and link edits do not rewrite already received attribution or… 0.03s
 
    PASS  Tests\Feature\Acquisition\ReadProvidersIntegrationTest
-  ✓ real directories support both platforms sharing revocation and publ… 0.10s  
-  ✓ workbench uses real cursor and repopulates saved choices before rev… 0.21s  
+  ✓ real directories support both platforms sharing revocation and publ… 0.10s
+  ✓ workbench uses real cursor and repopulates saved choices before rev… 0.21s
 
    PASS  Tests\Feature\Audience\BillingUiTest
-  ✓ guest uses real offer and empty price is not filled with sample dat… 0.02s  
-  ✓ email verification precedes checkout and keeps only current return…  0.03s  
-  ✓ unconfigured stripe is an explicit failure without order or members… 0.04s  
-  ✓ checkout uses its own fixed deadline and repeated click reuses the…  0.05s  
-  ✓ unknown checkout can recover only the confirmed original after quot… 0.05s  
-  ✓ missing or other account recovery credentials cannot guess or creat… 0.05s  
-  ✓ temporarily unavailable recheck keeps original recovery credentials  0.04s  
-  ✓ successful checkout remains reachable from membership                0.03s  
-  ✓ payment return login keeps only a controlled order path              0.01s  
-  ✓ browser success parameters cannot grant access and other orders are… 0.03s  
-  ✓ cancel and resume read original quote and require explicit confirma… 0.06s  
-  ✓ stale or tampered resume rereads but does not resume automatically   0.05s  
-  ✓ expired offer requires new price confirmation without creating orde… 0.02s  
-  ✓ partial refund shows original access and unresolved renewal separat… 0.04s  
-  ✓ language choice keeps usd and does not change offer terms            0.01s  
+  ✓ guest uses real offer and empty price is not filled with sample dat… 0.02s
+  ✓ email verification precedes checkout and keeps only current return…  0.03s
+  ✓ unconfigured stripe is an explicit failure without order or members… 0.04s
+  ✓ checkout uses its own fixed deadline and repeated click reuses the…  0.05s
+  ✓ unknown checkout can recover only the confirmed original after quot… 0.05s
+  ✓ missing or other account recovery credentials cannot guess or creat… 0.05s
+  ✓ temporarily unavailable recheck keeps original recovery credentials  0.04s
+  ✓ successful checkout remains reachable from membership                0.03s
+  ✓ payment return login keeps only a controlled order path              0.01s
+  ✓ browser success parameters cannot grant access and other orders are… 0.03s
+  ✓ cancel and resume read original quote and require explicit confirma… 0.06s
+  ✓ stale or tampered resume rereads but does not resume automatically   0.05s
+  ✓ expired offer requires new price confirmation without creating orde… 0.02s
+  ✓ partial refund shows original access and unresolved renewal separat… 0.04s
+  ✓ language choice keeps usd and does not change offer terms            0.01s
 
    PASS  Tests\Feature\Audience\CatalogPagesTest
-  ✓ home categories banner and episode pages use real content and keep…  0.06s  
-  ✓ language falls back to provided content and clears cursor on switch  0.04s  
-  ✓ empty down and unknown region are distinct without runtime samples   0.04s  
-  ✓ unknown region is not an empty catalog                               0.02s  
-  ✓ missing catalog is not replaced by runtime samples                   0.02s  
-  ✓ episode cannot be attached to another drama and public text is esca… 0.05s  
+  ✓ home categories banner and episode pages use real content and keep…  0.06s
+  ✓ language falls back to provided content and clears cursor on switch  0.04s
+  ✓ empty down and unknown region are distinct without runtime samples   0.04s
+  ✓ unknown region is not an empty catalog                               0.02s
+  ✓ missing catalog is not replaced by runtime samples                   0.02s
+  ✓ episode cannot be attached to another drama and public text is esca… 0.05s
 
    PASS  Tests\Feature\Audience\ProgressConcurrencyTest
-  ✓ concurrent first writes keep newest session and highest sequence wi… 0.53s  
+  ✓ concurrent first writes keep newest session and highest sequence wi… 0.53s
 
    PASS  Tests\Feature\Audience\ProgressContentTest
-  ✓ real content grant and catalogue feed progress without persisting m… 0.11s  
+  ✓ real content grant and catalogue feed progress without persisting m… 0.11s
 
    PASS  Tests\Feature\Audience\ProgressHttpTest
-  ✓ progress requires viewer authentication while free playback is avai… 0.04s  
-  ✓ http progress is null before viewing and returns the saved contract… 0.05s  
-  ✓ http rejects extra fields foreign sessions and unregistered content… 0.07s  
+  ✓ progress requires viewer authentication while free playback is avai… 0.04s
+  ✓ http progress is null before viewing and returns the saved contract… 0.05s
+  ✓ http rejects extra fields foreign sessions and unregistered content… 0.07s
 
    PASS  Tests\Feature\Audience\ProgressTest
-  ✓ permission and preload do not create a progress record and guests a… 0.02s  
-  ✓ same session sequence retries and delayed packets cannot overwrite…  0.02s  
-  ✓ a new session can rewatch an earlier episode and old session first…  0.02s  
-  ✓ authorization responses arriving out of order do not reverse sessio… 0.01s  
-  ✓ delayed renewal response cannot shorten a newer permission           0.01s  
-  ✓ unknown other account other episode and other drama sessions are re… 0.02s  
-  ✓ position uses server catalogue duration not a client duration        0.01s  
-  ✓ expired session cannot save but retained progress remains readable   0.02s  
-  ✓ unpublished content rejects new save without deleting previous prog… 0.02s  
-  ✓ denied playback and unrelated episode cannot register a saveable se… 0.01s  
+  ✓ permission and preload do not create a progress record and guests a… 0.02s
+  ✓ same session sequence retries and delayed packets cannot overwrite…  0.02s
+  ✓ a new session can rewatch an earlier episode and old session first…  0.02s
+  ✓ authorization responses arriving out of order do not reverse sessio… 0.01s
+  ✓ delayed renewal response cannot shorten a newer permission           0.01s
+  ✓ unknown other account other episode and other drama sessions are re… 0.02s
+  ✓ position uses server catalogue duration not a client duration        0.01s
+  ✓ expired session cannot save but retained progress remains readable   0.02s
+  ✓ unpublished content rejects new save without deleting previous prog… 0.02s
+  ✓ denied playback and unrelated episode cannot register a saveable se… 0.01s
 
    PASS  Tests\Feature\Billing\BillingAdministrationTest
-  ✓ prices append versions and never overwrite prior terms               0.02s  
-  ✓ invalid amounts and non test prices cannot be saved                  0.02s  
-  ✓ every administration action requires allowed staff and mfa           0.03s  
-  ✓ case scope is derived from order and cannot be replaced with anothe… 0.03s  
-  ✓ support view and notes use minimal scoped fields and safe audit      0.02s  
-  ✓ verified cancel dispatches only persisted identity and returns proc… 0.03s  
-  ✓ owner still needs verified request and malformed case link is rejec… 0.02s  
+  ✓ prices append versions and never overwrite prior terms               0.02s
+  ✓ invalid amounts and non test prices cannot be saved                  0.02s
+  ✓ every administration action requires allowed staff and mfa           0.03s
+  ✓ case scope is derived from order and cannot be replaced with anothe… 0.03s
+  ✓ support view and notes use minimal scoped fields and safe audit      0.02s
+  ✓ verified cancel dispatches only persisted identity and returns proc… 0.03s
+  ✓ owner still needs verified request and malformed case link is rejec… 0.02s
 
    PASS  Tests\Feature\Billing\BillingCheckoutCompatibilityTest
-  ✓ unknown legacy intent with no session keeps original snapshot and b… 0.07s  
-  ✓ later unique session recovers original legacy checkout without crea… 0.04s  
-  ✓ unattempted legacy coupon intent is read only even inside initial c… 0.03s  
+  ✓ unknown legacy intent with no session keeps original snapshot and b… 0.07s
+  ✓ later unique session recovers original legacy checkout without crea… 0.04s
+  ✓ unattempted legacy coupon intent is read only even inside initial c… 0.03s
 
    PASS  Tests\Feature\Billing\BillingCheckoutSafetyTest
-  ✓ existing safe checkout returns official fragment without creating a… 0.03s  
-  ✓ existing checkout hides unsafe saved request without rewriting or r… 0.05s  
-  ✓ existing checkout hides unsafe provider urls without changing payme… 0.03s  
-  ✓ changed origin hides existing checkout and restoring configuration…  0.02s  
-  ✓ untrusted or non us region is rejected before gateway or order rese… 0.01s  
-  ✓ missing stripe credentials never create orders placeholders or webh… 0.02s  
+  ✓ existing safe checkout returns official fragment without creating a… 0.03s
+  ✓ existing checkout hides unsafe saved request without rewriting or r… 0.05s
+  ✓ existing checkout hides unsafe provider urls without changing payme… 0.03s
+  ✓ changed origin hides existing checkout and restoring configuration…  0.02s
+  ✓ untrusted or non us region is rejected before gateway or order rese… 0.01s
+  ✓ missing stripe credentials never create orders placeholders or webh… 0.02s
 
    PASS  Tests\Feature\Billing\BillingConcurrencyTest
-  ✓ two real checkout processes create only one open subscription and o… 0.30s  
-  ✓ two real settlement processes commit one payment interval and outbo… 0.28s  
-  ✓ two real resume processes cannot duplicate operation or replay over… 0.29s  
+  ✓ two real checkout processes create only one open subscription and o… 0.30s
+  ✓ two real settlement processes commit one payment interval and outbo… 0.28s
+  ✓ two real resume processes cannot duplicate operation or replay over… 0.29s
 
    PASS  Tests\Feature\Billing\BillingDeskTest
-  ✓ owner renders explicit sample prices and saved version survives ref… 0.07s  
-  ✓ support can open exact order without price controls or payment cred… 0.03s  
-  ✓ unauthed page does not bootstrap owner or prices                     0.01s  
-  ✓ staff without mfa proof cannot render billing data                   0.01s  
-  ✓ other roles cannot render the billing page                           0.02s  
+  ✓ owner renders explicit sample prices and saved version survives ref… 0.07s
+  ✓ support can open exact order without price controls or payment cred… 0.03s
+  ✓ unauthed page does not bootstrap owner or prices                     0.01s
+  ✓ staff without mfa proof cannot render billing data                   0.01s
+  ✓ other roles cannot render the billing page                           0.02s
 
    PASS  Tests\Feature\Billing\BillingEngineTest
-  ✓ verified account snapshot and idempotency control checkout           0.03s  
-  ✓ checkout unknown is persisted and retry keeps same order             0.02s  
-  ✓ expired offer and another accounts offer cannot create orders        0.02s  
-  ✓ cancel resume uses original price and old retry cannot undo later c… 0.04s  
-  ✓ unexecuted resume expires at boundary and cancel timeout reconciles  0.03s  
-  ✓ paid interval is half open and pending original blocks repurchase    0.02s  
-  ✓ http rejects client money and preserves order ownership              0.02s  
-  ✓ http enforces frozen idempotency key bounds before creating orders   0.02s  
-  ✓ guest offer requires new personal offer and changed eligibility req… 0.02s  
-  ✓ checkout creation intent survives unknown result with fixed paramet… 0.02s  
-  ✓ testing gateway does not hide conflicting coupon parameters          0.02s  
+  ✓ verified account snapshot and idempotency control checkout           0.03s
+  ✓ checkout unknown is persisted and retry keeps same order             0.02s
+  ✓ expired offer and another accounts offer cannot create orders        0.02s
+  ✓ cancel resume uses original price and old retry cannot undo later c… 0.04s
+  ✓ unexecuted resume expires at boundary and cancel timeout reconciles  0.03s
+  ✓ paid interval is half open and pending original blocks repurchase    0.02s
+  ✓ http rejects client money and preserves order ownership              0.02s
+  ✓ http enforces frozen idempotency key bounds before creating orders   0.02s
+  ✓ guest offer requires new personal offer and changed eligibility req… 0.02s
+  ✓ checkout creation intent survives unknown result with fixed paramet… 0.02s
+  ✓ testing gateway does not hide conflicting coupon parameters          0.02s
 
    PASS  Tests\Feature\Billing\BillingReviewRegressionTest
-  ✓ expired ambiguous resume becomes terminal and does not lock account… 0.03s  
-  ✓ owner direct support cancel cannot bypass verified request business… 0.02s  
-  ✓ case verification is rechecked after account lock before cancel res… 0.02s  
-  ✓ unresolved ended subscription blocks checkout and membership does n… 0.02s  
-  ✓ consumed support case cannot cancel viewer later explicit resume     0.03s  
-  ✓ verified old case cannot cancel a later subscription for same viewe… 0.03s  
-  ✓ pending resume keeps original quote boundary when invoice sync adva… 0.03s  
-  ✓ provider terminated subscription keeps paid access but cannot issue… 0.02s  
-  ✓ confirmed cancel does not clear independent refund review or allow…  0.03s  
+  ✓ expired ambiguous resume becomes terminal and does not lock account… 0.03s
+  ✓ owner direct support cancel cannot bypass verified request business… 0.02s
+  ✓ case verification is rechecked after account lock before cancel res… 0.02s
+  ✓ unresolved ended subscription blocks checkout and membership does n… 0.02s
+  ✓ consumed support case cannot cancel viewer later explicit resume     0.03s
+  ✓ verified old case cannot cancel a later subscription for same viewe… 0.03s
+  ✓ pending resume keeps original quote boundary when invoice sync adva… 0.03s
+  ✓ provider terminated subscription keeps paid access but cannot issue… 0.02s
+  ✓ confirmed cancel does not clear independent refund review or allow…  0.03s
 
    PASS  Tests\Feature\Billing\BillingSettlementTest
-  ✓ paid invoice atomically creates fixed period payment entitlement an… 0.02s  
-  ✓ mismatched owner amount currency mode and unverified payment never…  0.02s  
-  ✓ unpaid and action required invoice do not consume discount or grant… 0.01s  
-  ✓ renewal uses original price and its actual period after site price…  0.02s  
-  ✓ failed renewal keeps old paid period and successful retry adds only… 0.02s  
-  ✓ distinct invoice for same paid period is quarantined                 0.01s  
-  ✓ success page and active subscription without paid invoice do not cr… 0.01s  
-  ✓ expired checkout releases unpaid subscription and discount is still… 0.01s  
-  ✓ pending and failed refunds do not revoke paid entitlement            0.02s  
-  ✓ partial refund keeps access and stops renewal without resetting dis… 0.02s  
-  ✓ full refund revokes only related payment and stops renewal           0.02s  
-  ✓ webhook is durable deduplicated and uses current fact even for late… 0.01s  
-  ✓ invalid signature never reaches inbox and provider outage can be re… 0.02s  
-  ✓ outbox keeps missing or failing consumer pending without rolling ba… 0.02s  
-  ✓ canceled subscription with unresolved initial invoice cannot releas… 0.01s  
-  ✓ payment and entitlement rollback when outbox cannot be saved         0.01s  
-  ✓ failed inbox item does not starve later items when batch is one      0.01s  
-  ✓ failed outbox item does not starve later payments                    0.02s  
-  ✓ full refund cancel timeout is retryable and does not undo refund fa… 0.02s  
-  ✓ invoice sync does not replace version of pending cancel operation    0.01s  
-  ✓ multiple partial refunds accumulate once and full refund correction… 0.02s  
-  ✓ old refund replay cannot cancel explicit later resume but new succe… 0.02s  
-  ✓ refund correction after original expiry does not create current acc… 0.02s  
-  ✓ refund for ended old subscription does not cancel new subscription   0.01s  
-  ✓ refund total above payment is quarantined without revoking verified… 0.01s  
+  ✓ paid invoice atomically creates fixed period payment entitlement an… 0.02s
+  ✓ mismatched owner amount currency mode and unverified payment never…  0.02s
+  ✓ unpaid and action required invoice do not consume discount or grant… 0.01s
+  ✓ renewal uses original price and its actual period after site price…  0.02s
+  ✓ failed renewal keeps old paid period and successful retry adds only… 0.02s
+  ✓ distinct invoice for same paid period is quarantined                 0.01s
+  ✓ success page and active subscription without paid invoice do not cr… 0.01s
+  ✓ expired checkout releases unpaid subscription and discount is still… 0.01s
+  ✓ pending and failed refunds do not revoke paid entitlement            0.02s
+  ✓ partial refund keeps access and stops renewal without resetting dis… 0.02s
+  ✓ full refund revokes only related payment and stops renewal           0.02s
+  ✓ webhook is durable deduplicated and uses current fact even for late… 0.01s
+  ✓ invalid signature never reaches inbox and provider outage can be re… 0.02s
+  ✓ outbox keeps missing or failing consumer pending without rolling ba… 0.02s
+  ✓ canceled subscription with unresolved initial invoice cannot releas… 0.01s
+  ✓ payment and entitlement rollback when outbox cannot be saved         0.01s
+  ✓ failed inbox item does not starve later items when batch is one      0.01s
+  ✓ failed outbox item does not starve later payments                    0.02s
+  ✓ full refund cancel timeout is retryable and does not undo refund fa… 0.02s
+  ✓ invoice sync does not replace version of pending cancel operation    0.01s
+  ✓ multiple partial refunds accumulate once and full refund correction… 0.02s
+  ✓ old refund replay cannot cancel explicit later resume but new succe… 0.02s
+  ✓ refund correction after original expiry does not create current acc… 0.02s
+  ✓ refund for ended old subscription does not cancel new subscription   0.01s
+  ✓ refund total above payment is quarantined without revoking verified… 0.01s
 
    PASS  Tests\Feature\Billing\BillingStagingPolicyTest
-  ✓ safe staging boots with official transport but never makes a paymen… 0.12s  
-  ✓ cached missing credentials and unconfigured driver allow boot but b… 0.53s  
-  ✓ cached provider rejects disallowed payment modes credentials and ve… 1.67s  
-  ✓ same gateway and provider recheck loaded configuration after succes… 2.14s  
-  ✓ missing credentials after boot disable existing gateway without fai… 0.22s  
-  ✓ staging rejects replaced sdk at boot and on an existing gateway      0.42s  
-  ✓ staging rejects fake gateway bindings and cannot retrieve a rejecte… 0.63s  
-  ✓ offline diagnostic reports configuration readiness without claiming… 0.62s  
-  ✓ uncached real environment loading respects opt in and credential bo… 1.39s  
+  ✓ safe staging boots with official transport but never makes a paymen… 0.12s
+  ✓ cached missing credentials and unconfigured driver allow boot but b… 0.53s
+  ✓ cached provider rejects disallowed payment modes credentials and ve… 1.67s
+  ✓ same gateway and provider recheck loaded configuration after succes… 2.14s
+  ✓ missing credentials after boot disable existing gateway without fai… 0.22s
+  ✓ staging rejects replaced sdk at boot and on an existing gateway      0.42s
+  ✓ staging rejects fake gateway bindings and cannot retrieve a rejecte… 0.63s
+  ✓ offline diagnostic reports configuration readiness without claiming… 0.62s
+  ✓ uncached real environment loading respects opt in and credential bo… 1.39s
 
    PASS  Tests\Feature\Billing\StripeGatewayTest
-  ✓ configuration and live credentials fail closed without http          0.01s  
-  ✓ actual client options and global tls are checked before http         0.01s  
-  ✓ each network step rechecks mutated configuration                     0.01s  
-  ✓ unconfigured gateway never fabricates checkout success               0.01s  
-  ✓ checkout persists new preparation deadline weekly snapshot and cont… 0.01s  
-  ✓ old return origins and order ids are read only and never exposed     0.01s  
-  ✓ untrusted checkout urls and remote return mismatch are not returned  0.01s  
-  ✓ regular price checkout omits discounts and promotion code input      0.01s  
-  ✓ http fixture rejects coupon and serialized false promotion flag      0.01s  
-  ✓ legacy conflict reconciles all statuses without post or mutating in… 0.01s  
-  ✓ legacy conflict with zero or multiple sessions stays pending and un… 0.01s  
-  ✓ persisted promotion flag rejects values other than strict false bef… 0.01s  
-  ✓ persisted coupon shape must match discounted order before http       0.01s  
-  ✓ preparation attaches controlled test clock and accepts same clock c… 0.01s  
-  ✓ preparation refuses existing customer on another clock without rebi… 0.01s  
-  ✓ preparation refuses customer response omitting requested clock       0.01s  
-  ✓ unknown create finds original session without recreating customer c… 0.01s  
-  ✓ unknown or too late create with no match remains pending without ne… 0.01s  
-  ✓ reconciliation paginates and refuses multiple matching sessions      0.01s  
-  ✓ provider deadline must exactly match the persisted request           0.01s  
-  ✓ paid invoice requires actual payment and uses line service interval  0.01s  
-  ✓ unpaid invoice reads current required action without granting payme… 0.01s  
-  ✓ manually marked paid invoice is not verified payment                 0.01s  
-  ✓ payment for another customer is not verified                         0.01s  
-  ✓ restore updates only cancellation flag and rechecks same period      0.01s  
-  ✓ refunds include all pages and preserve partial pending and failed f… 0.01s  
-  ✓ signed webhook retains only minimum reconciliation identity          0.01s  
-  ✓ refund event exposes charge id only as reconciliation hint           0.01s  
-  ✓ tampered signature is rejected                                       0.01s  
-  ✓ live webhook and version mismatch fail closed                        0.01s  
-  ✓ platform timeout has safe fixed error and no false success           0.01s  
+  ✓ configuration and live credentials fail closed without http          0.01s
+  ✓ actual client options and global tls are checked before http         0.01s
+  ✓ each network step rechecks mutated configuration                     0.01s
+  ✓ unconfigured gateway never fabricates checkout success               0.01s
+  ✓ checkout persists new preparation deadline weekly snapshot and cont… 0.01s
+  ✓ old return origins and order ids are read only and never exposed     0.01s
+  ✓ untrusted checkout urls and remote return mismatch are not returned  0.01s
+  ✓ regular price checkout omits discounts and promotion code input      0.01s
+  ✓ http fixture rejects coupon and serialized false promotion flag      0.01s
+  ✓ legacy conflict reconciles all statuses without post or mutating in… 0.01s
+  ✓ legacy conflict with zero or multiple sessions stays pending and un… 0.01s
+  ✓ persisted promotion flag rejects values other than strict false bef… 0.01s
+  ✓ persisted coupon shape must match discounted order before http       0.01s
+  ✓ preparation attaches controlled test clock and accepts same clock c… 0.01s
+  ✓ preparation refuses existing customer on another clock without rebi… 0.01s
+  ✓ preparation refuses customer response omitting requested clock       0.01s
+  ✓ unknown create finds original session without recreating customer c… 0.01s
+  ✓ unknown or too late create with no match remains pending without ne… 0.01s
+  ✓ reconciliation paginates and refuses multiple matching sessions      0.01s
+  ✓ provider deadline must exactly match the persisted request           0.01s
+  ✓ paid invoice requires actual payment and uses line service interval  0.01s
+  ✓ unpaid invoice reads current required action without granting payme… 0.01s
+  ✓ manually marked paid invoice is not verified payment                 0.01s
+  ✓ payment for another customer is not verified                         0.01s
+  ✓ restore updates only cancellation flag and rechecks same period      0.01s
+  ✓ refunds include all pages and preserve partial pending and failed f… 0.01s
+  ✓ signed webhook retains only minimum reconciliation identity          0.01s
+  ✓ refund event exposes charge id only as reconciliation hint           0.01s
+  ✓ tampered signature is rejected                                       0.01s
+  ✓ live webhook and version mismatch fail closed                        0.01s
+  ✓ platform timeout has safe fixed error and no false success           0.01s
 
    PASS  Tests\Feature\Content\CatalogTest
-  ✓ real home category banner language and actual published counts       0.10s  
-  ✓ visibility expiry drafts unknown region and empty category           0.07s  
-  ✓ cursor is stable signed and bound to filter locale region sort vers… 0.09s  
+  ✓ real home category banner language and actual published counts       0.10s
+  ✓ visibility expiry drafts unknown region and empty category           0.07s
+  ✓ cursor is stable signed and bound to filter locale region sort vers… 0.09s
 
    PASS  Tests\Feature\Content\ConcurrencyTest
-  ✓ separate processes cannot publish an occurrence twice                0.33s  
-  ✓ manual publish edit and withdraw serialize with scheduler            0.70s  
-  ✓ slow startup has its own budget and still contends on real locks    12.30s  
-  ✓ failed startup reports the phase and cleans children before unlocki… 0.69s  
-  ✓ launch now competes with scheduler and duplicate confirmation only…  0.50s  
+  ✓ separate processes cannot publish an occurrence twice                0.33s
+  ✓ manual publish edit and withdraw serialize with scheduler            0.70s
+  ✓ slow startup has its own budget and still contends on real locks    12.30s
+  ✓ failed startup reports the phase and cleans children before unlocki… 0.69s
+  ✓ launch now competes with scheduler and duplicate confirmation only…  0.50s
 
    PASS  Tests\Feature\Content\ManagementTest
-  ✓ new drama snapshots defaults and fixed beijing tomorrow              0.13s  
-  ✓ license offsets round trip without beijing drift                     0.03s  
-  ✓ manual same value is override and sync requires current impact       0.06s  
-  ✓ content permissions mfa and viewer staff separation                  0.05s  
-  ✓ older bound assets remain editable after more than 200 uploads       0.09s  
-  ✓ edit keeps original identity and rejects conflict without changing…  0.04s  
-  ✓ versions and episode object scope prevent overwrite                  0.04s  
-  ✓ content workspace renders module owned navigation and release contr… 0.05s  
-  ✓ published episode media replacement requires ready contextual candi… 0.05s  
-  ✓ subtitle candidate upload preserves context and cancel cannot chang… 0.06s  
-  ✓ replacement rejects wrong context timing and missing files without…  0.05s  
-  ✓ draft media binding cannot be replaced by generic edit before candi… 0.04s  
+  ✓ new drama snapshots defaults and fixed beijing tomorrow              0.13s
+  ✓ license offsets round trip without beijing drift                     0.03s
+  ✓ manual same value is override and sync requires current impact       0.06s
+  ✓ content permissions mfa and viewer staff separation                  0.05s
+  ✓ older bound assets remain editable after more than 200 uploads       0.09s
+  ✓ edit keeps original identity and rejects conflict without changing…  0.04s
+  ✓ versions and episode object scope prevent overwrite                  0.04s
+  ✓ content workspace renders module owned navigation and release contr… 0.05s
+  ✓ published episode media replacement requires ready contextual candi… 0.05s
+  ✓ subtitle candidate upload preserves context and cancel cannot chang… 0.06s
+  ✓ replacement rejects wrong context timing and missing files without…  0.05s
+  ✓ draft media binding cannot be replaced by generic edit before candi… 0.04s
 
    PASS  Tests\Feature\Content\MediaTest
-  ✓ upload is private sequential owned and rejects traversal type size   0.15s  
-  ✓ cancel is owned and a canceled partial upload cannot finish          0.05s  
-  ✓ subtitles reorder without retiming and reject markup bad utf8 or ti… 0.05s  
-  ✓ actual small h264 aac is decoded and packaged privately              0.32s  
-  ✓ real image is reencoded and subtitle out of duration blocks publish  0.07s  
-  ✓ draft preview and private range require mfa and content permission   0.05s  
+  ✓ upload is private sequential owned and rejects traversal type size   0.15s
+  ✓ cancel is owned and a canceled partial upload cannot finish          0.05s
+  ✓ subtitles reorder without retiming and reject markup bad utf8 or ti… 0.05s
+  ✓ actual small h264 aac is decoded and packaged privately              0.32s
+  ✓ real image is reencoded and subtitle out of duration blocks publish  0.07s
+  ✓ draft preview and private range require mfa and content permission   0.05s
 
    PASS  Tests\Feature\Content\PlaybackTest
-  ✓ free fifth paid sixth and no raw media or forged grant access        0.09s  
-  ✓ hls subtitle map and every caption request are protected             0.08s  
-  ✓ head and invalid range do not start a session and missing hls block… 0.08s  
-  ✓ n change only protects started same episode with finite window       0.09s  
-  ✓ refund membership loss is checked on every manifest segment range a… 0.09s  
-  ✓ expiry region withdrawal and other identity cannot reuse grants      0.09s  
-  ✓ video replacement retains files but old manifest segment and range…  0.09s  
+  ✓ free fifth paid sixth and no raw media or forged grant access        0.09s
+  ✓ hls subtitle map and every caption request are protected             0.08s
+  ✓ head and invalid range do not start a session and missing hls block… 0.08s
+  ✓ n change only protects started same episode with finite window       0.09s
+  ✓ refund membership loss is checked on every manifest segment range a… 0.09s
+  ✓ expiry region withdrawal and other identity cannot reuse grants      0.09s
+  ✓ video replacement retains files but old manifest segment and range…  0.09s
 
    PASS  Tests\Feature\Content\PromotableCatalogTest
-  ✓ provider returns minimal dtos from real publication facts and exist… 0.07s  
-  ✓ both methods require current staff mfa and published catalog permis… 0.08s  
-  ✓ inventory is us scoped without reading or changing viewer region or… 0.04s  
-  ✓ us licence uses current half open interval and each read revalidate… 0.06s  
-  ✓ only currently published episodes with usable media qualify          0.07s  
-  ✓ missing or unsafe media and subtitle files are rechecked on every c… 0.09s  
-  ✓ keyset pagination skips unusable batches and single lookup fills an… 0.11s  
-  ✓ cursor integrity purpose country locale order and version are bound  0.06s  
-  ✓ empty inventory and invalid inputs do not fabricate candidates       0.02s  
+  ✓ provider returns minimal dtos from real publication facts and exist… 0.07s
+  ✓ both methods require current staff mfa and published catalog permis… 0.08s
+  ✓ inventory is us scoped without reading or changing viewer region or… 0.04s
+  ✓ us licence uses current half open interval and each read revalidate… 0.06s
+  ✓ only currently published episodes with usable media qualify          0.07s
+  ✓ missing or unsafe media and subtitle files are rechecked on every c… 0.09s
+  ✓ keyset pagination skips unusable batches and single lookup fills an… 0.11s
+  ✓ cursor integrity purpose country locale order and version are bound  0.06s
+  ✓ empty inventory and invalid inputs do not fabricate candidates       0.02s
 
    PASS  Tests\Feature\Content\PublicationTest
-  ✓ 35 episodes publish 10 10 10 5 and each occurrence is idempotent     0.07s  
-  ✓ completed requires all and missing or processing blocks whole batch  0.08s  
-  ✓ missing packaged segment blocks the entire scheduled batch           0.04s  
-  ✓ manual pause resume edit and withdraw make old executions obsolete   0.08s  
-  ✓ saving plan invalidates old job and activation requires preview and… 0.06s  
-  ✓ unapproved missed schedule is held and not silently caught up        0.05s  
-  ✓ immediate updating launch and early next batch preserve cursor and…  0.09s  
-  ✓ immediate completed launch blocks incomplete total without partial…  0.05s  
+  ✓ 35 episodes publish 10 10 10 5 and each occurrence is idempotent     0.07s
+  ✓ completed requires all and missing or processing blocks whole batch  0.08s
+  ✓ missing packaged segment blocks the entire scheduled batch           0.04s
+  ✓ manual pause resume edit and withdraw make old executions obsolete   0.08s
+  ✓ saving plan invalidates old job and activation requires preview and… 0.06s
+  ✓ unapproved missed schedule is held and not silently caught up        0.05s
+  ✓ immediate updating launch and early next batch preserve cursor and…  0.09s
+  ✓ immediate completed launch blocks incomplete total without partial…  0.05s
 
    PASS  Tests\Feature\Contracts\AcceptedAudienceTest
-  ✓ default website and progress use the accepted provider without loca… 0.02s  
-  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.02s  
-  ✓ fresh progress is empty and a guest cannot write account progress    0.02s  
+  ✓ default website and progress use the accepted provider without loca… 0.02s
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.02s
+  ✓ fresh progress is empty and a guest cannot write account progress    0.02s
 
    PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
-  ✓ real billing controls content after cancel partial and full refund   0.12s  
+  ✓ real billing controls content after cancel partial and full refund   0.12s
 
    PASS  Tests\Feature\Contracts\AcceptedBillingTest
-  ✓ real billing loads without opt in and does not enable external paym… 0.02s  
-  ✓ real nonmember and configured price remain truthful when stripe is…  0.03s  
+  ✓ real billing loads without opt in and does not enable external paym… 0.02s
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.03s
 
    PASS  Tests\Feature\Contracts\AcceptedContentTest
-  ✓ content loads without local opt in and registers each job once       0.01s  
-  ✓ public content still requires a trusted region then reads its own d… 0.02s  
+  ✓ content loads without local opt in and registers each job once       0.01s
+  ✓ public content still requires a trusted region then reads its own d… 0.02s
 
    PASS  Tests\Feature\Contracts\AcquisitionReadPortsTest
-  ✓ consumers read typed minimal pages without private staff or media f… 0.01s  
-  ✓ absent read providers do not turn into successful empty lists or sa… 0.01s  
+  ✓ consumers read typed minimal pages without private staff or media f… 0.01s
+  ✓ absent read providers do not turn into successful empty lists or sa… 0.01s
 
    PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
-  ✓ actual staff profile route uses staff policy and same origin avatar  0.09s  
-  ✓ guest cannot open staff profile and fixture is not a production rou… 0.02s  
-  ✓ staff contract is relaxed without changing viewer passwords          0.01s  
+  ✓ actual staff profile route uses staff policy and same origin avatar  0.09s
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.02s
+  ✓ staff contract is relaxed without changing viewer passwords          0.01s
 
    PASS  Tests\Feature\Contracts\AdminUiTest
-  ✓ usd round trips without float or a hundredfold change                0.01s  
-  ✓ usd rejects wrong types precision notation and overflow              0.01s  
-  ✓ tabs render one selected panel and escape labels                     0.01s  
-  ✓ livewire tabs call the module method without using inline user code  0.01s  
-  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.01s  
-  ✓ dialog has accessible title and real submit button can target its f… 0.01s  
+  ✓ usd round trips without float or a hundredfold change                0.01s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.01s
+  ✓ livewire tabs call the module method without using inline user code  0.01s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.01s
+  ✓ dialog has accessible title and real submit button can target its f… 0.01s
 
    PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
-  ✓ billing allowlist does not enable an unaccepted module               0.02s  
-  ✓ explicit local loading only changes billing and never grants fixtur… 0.01s  
-  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.01s  
+  ✓ billing allowlist does not enable an unaccepted module               0.02s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.01s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.01s
 
    PASS  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
-  ✓ default off does not release an origin and every call rechecks       0.01s  
-  ✓ boolean environment and nonlocal overrides fail closed               0.01s  
-  ✓ opt in never enables production or local and local mail remains ava… 0.01s  
-  ✓ origin cannot contain unsafe components or non domain hosts          0.01s  
-  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.01s  
-  ✓ approved smtp configuration builds real tls transport without conne… 0.01s  
-  ✓ direct connection discards previous proxy trust and hosting auto de… 0.01s  
-  ✓ nonlocal http requires direct tls canonical host and default port    0.01s  
-  ✓ real staging boot and cached configuration are checked without netw… 0.79s  
-  ✓ real uncached environment loading preserves invalid booleans         1.13s  
+  ✓ default off does not release an origin and every call rechecks       0.01s
+  ✓ boolean environment and nonlocal overrides fail closed               0.01s
+  ✓ opt in never enables production or local and local mail remains ava… 0.01s
+  ✓ origin cannot contain unsafe components or non domain hosts          0.01s
+  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.01s
+  ✓ approved smtp configuration builds real tls transport without conne… 0.01s
+  ✓ direct connection discards previous proxy trust and hosting auto de… 0.01s
+  ✓ nonlocal http requires direct tls canonical host and default port    0.01s
+  ✓ real staging boot and cached configuration are checked without netw… 0.79s
+  ✓ real uncached environment loading preserves invalid booleans         1.13s
 
    PASS  Tests\Feature\Contracts\SharedContractsTest
-  ✓ consumer can confirm original terms after the public price changes   0.02s  
-  ✓ home consumer can follow a category and banner without media or ext… 0.02s  
-  ✓ new ports require the real provider even when empty examples exist   0.01s  
-  ✓ public home and categories remain accessible to guests but unavaila… 0.02s  
-  ✓ resume quote and submission require an audience session              0.02s  
+  ✓ consumer can confirm original terms after the public price changes   0.02s
+  ✓ home consumer can follow a category and banner without media or ext… 0.02s
+  ✓ new ports require the real provider even when empty examples exist   0.01s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.02s
+  ✓ resume quote and submission require an audience session              0.02s
 
    PASS  Tests\Feature\Contracts\SharedInfrastructureTest
-  ✓ runtime contract version matches the published openapi               0.01s  
-  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s  
-  ✓ allowlisted local provider can load without a root config edit       0.01s  
-  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s  
-  ✓ audience and acquisition can opt in without replacing other modules  0.01s  
-  ✓ explicit us fixture is limited to direct loopback http               0.01s  
-  ✓ production never accepts forged country headers or local region ove… 0.01s  
+  ✓ runtime contract version matches the published openapi               0.01s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
 
    PASS  Tests\Feature\Identity\AuthorizationTest
-  ✓ fixed roles and resource scopes match business rules                 0.01s  
-  ✓ staff api rejects non owner direct requests and audits denial        0.03s  
-  ✓ owner can create change and disable staff with version control       0.04s  
-  ✓ missing mfa proof does not unlock staff api                          0.02s  
-  ✓ disabled account and old version session are revoked                 0.02s  
-  ✓ audit uses allowlisted changes and request ids                       0.02s  
+  ✓ fixed roles and resource scopes match business rules                 0.01s
+  ✓ staff api rejects non owner direct requests and audits denial        0.03s
+  ✓ owner can create change and disable staff with version control       0.04s
+  ✓ missing mfa proof does not unlock staff api                          0.02s
+  ✓ disabled account and old version session are revoked                 0.02s
+  ✓ audit uses allowlisted changes and request ids                       0.02s
 
    PASS  Tests\Feature\Identity\ContractsTest
-  ✓ business samples roundtrip through typed php consumers               0.02s  
-  ✓ missing provider never fabricates business success                   0.02s  
-  ✓ controlled return rejects open redirect encodings                    0.01s  
-  ✓ openapi routes and enums match runtime                               0.01s  
+  ✓ business samples roundtrip through typed php consumers               0.02s
+  ✓ missing provider never fabricates business success                   0.02s
+  ✓ controlled return rejects open redirect encodings                    0.01s
+  ✓ openapi routes and enums match runtime                               0.01s
 
    PASS  Tests\Feature\Identity\MfaTest
-  ✓ password alone and empty recovery code cannot bypass mfa             0.46s  
-  ✓ real totp challenge authenticates and sets session proof             0.45s  
-  ✓ totp and recovery codes cannot be replayed                           0.03s  
-  ✓ mfa secrets are encrypted and hidden                                 0.02s  
-  ✓ disabled employee cannot reach challenge or login                    0.23s  
-  ✓ first staff login requires enrollment before dashboard               0.02s  
-  ✓ configured staff without challenge proof cannot open any panel page  0.02s  
-  ✓ generic staff login event does not grant mfa proof                   0.02s  
-  ✓ staff password change invalidates old session version                0.02s  
+  ✓ password alone and empty recovery code cannot bypass mfa             0.46s
+  ✓ real totp challenge authenticates and sets session proof             0.45s
+  ✓ totp and recovery codes cannot be replayed                           0.03s
+  ✓ mfa secrets are encrypted and hidden                                 0.02s
+  ✓ disabled employee cannot reach challenge or login                    0.23s
+  ✓ first staff login requires enrollment before dashboard               0.02s
+  ✓ configured staff without challenge proof cannot open any panel page  0.02s
+  ✓ generic staff login event does not grant mfa proof                   0.02s
+  ✓ staff password change invalidates old session version                0.02s
 
    PASS  Tests\Feature\Identity\StaffAccountsTest
-  ✓ tabs restore from url and only render selected business table        0.03s  
-  ✓ create dialog keeps invalid input and clears secrets only after sav… 0.04s  
-  ✓ edit dialog revokes target sessions and detects concurrent updates   0.05s  
-  ✓ non owner direct page access is denied for each other role           0.03s  
-  ✓ missing mfa cannot load staff page                                   0.02s  
-  ✓ each public mutation rechecks owner permission                       0.02s  
-  ✓ editor target cannot be changed by a forged property update          0.03s  
-  ✓ current owner cannot disable or demote self through editor           0.03s  
+  ✓ tabs restore from url and only render selected business table        0.03s
+  ✓ create dialog keeps invalid input and clears secrets only after sav… 0.04s
+  ✓ edit dialog revokes target sessions and detects concurrent updates   0.05s
+  ✓ non owner direct page access is denied for each other role           0.03s
+  ✓ missing mfa cannot load staff page                                   0.02s
+  ✓ each public mutation rechecks owner permission                       0.02s
+  ✓ editor target cannot be changed by a forged property update          0.03s
+  ✓ current owner cannot disable or demote self through editor           0.03s
 
    PASS  Tests\Feature\Identity\StaffDirectoryTest
-  ✓ real provider returns only active acquisition staff and minimal fie… 0.03s  
-  ✓ real empty directory does not offer the owner as an assignment       0.02s  
-  ✓ guest and viewer are denied before input or candidate information    0.02s  
-  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s  
-  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s  
-  ✓ other roles with mfa cannot read or probe the directory with data s… 0.03s  
-  ✓ owner needs configured mfa and the current staff proof on both meth… 0.03s  
-  ✓ disabled revoked and demoted actors lose read access                 0.04s  
-  ✓ saved cursor does not replace permission or mfa checks               0.03s  
-  ✓ unknown inactive and wrong role candidates share the same not found… 0.03s  
-  ✓ selected staff outside the current page can be read and is rechecke… 0.03s  
-  ✓ default limit and keyset pagination are stable for duplicate names   0.10s  
-  ✓ renames and ineligible boundary rows do not break cursor continuati… 0.03s  
-  ✓ invalid limits and staff id formats are validation errors for an au… 0.02s  
-  ✓ tampered malformed and cross purpose cursors are rejected            0.03s  
-  ✓ internal empty cursor is not silently treated as the first page      0.02s  
+  ✓ real provider returns only active acquisition staff and minimal fie… 0.03s
+  ✓ real empty directory does not offer the owner as an assignment       0.02s
+  ✓ guest and viewer are denied before input or candidate information    0.02s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.03s
+  ✓ owner needs configured mfa and the current staff proof on both meth… 0.03s
+  ✓ disabled revoked and demoted actors lose read access                 0.04s
+  ✓ saved cursor does not replace permission or mfa checks               0.03s
+  ✓ unknown inactive and wrong role candidates share the same not found… 0.03s
+  ✓ selected staff outside the current page can be read and is rechecke… 0.03s
+  ✓ default limit and keyset pagination are stable for duplicate names   0.10s
+  ✓ renames and ineligible boundary rows do not break cursor continuati… 0.03s
+  ✓ invalid limits and staff id formats are validation errors for an au… 0.02s
+  ✓ tampered malformed and cross purpose cursors are rejected            0.03s
+  ✓ internal empty cursor is not silently treated as the first page      0.02s
 
    PASS  Tests\Feature\Identity\StaffPasswordTest
-  ✓ staff creation api enforces staff password policy with data set "ei… 0.02s  
-  ✓ staff creation api enforces staff password policy with data set "se… 0.02s  
-  ✓ staff creation api enforces staff password policy with data set "le… 0.02s  
-  ✓ staff creation api enforces staff password policy with data set "nu… 0.02s  
-  ✓ staff creation api enforces staff password policy with data set "ma… 0.02s  
-  ✓ staff creation api enforces staff password policy with data set "to… 0.02s  
-  ✓ first owner command enforces the same policy with data set "eight"   0.02s  
-  ✓ first owner command enforces the same policy with data set "seven"   0.02s  
-  ✓ first owner command enforces the same policy with data set "letters… 0.02s  
-  ✓ first owner command enforces the same policy with data set "numbers… 0.02s  
-  ✓ first owner command enforces the same policy with data set "maximum… 0.02s  
-  ✓ first owner command enforces the same policy with data set "too lon… 0.02s  
-  ✓ staff self password change enforces same policy with data set "eigh… 0.05s  
-  ✓ staff self password change enforces same policy with data set "seve… 0.04s  
-  ✓ staff self password change enforces same policy with data set "lett… 0.05s  
-  ✓ staff self password change enforces same policy with data set "numb… 0.04s  
-  ✓ staff self password change enforces same policy with data set "maxi… 0.05s  
-  ✓ staff self password change enforces same policy with data set "too…  0.04s  
-  ✓ staff password change still requires current password and confirmat… 0.06s  
-  ✓ viewer registration and reset keep twelve character minimum          0.03s  
+  ✓ staff creation api enforces staff password policy with data set "ei… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "se… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "le… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "nu… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "ma… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "to… 0.02s
+  ✓ first owner command enforces the same policy with data set "eight"   0.02s
+  ✓ first owner command enforces the same policy with data set "seven"   0.02s
+  ✓ first owner command enforces the same policy with data set "letters… 0.02s
+  ✓ first owner command enforces the same policy with data set "numbers… 0.02s
+  ✓ first owner command enforces the same policy with data set "maximum… 0.02s
+  ✓ first owner command enforces the same policy with data set "too lon… 0.02s
+  ✓ staff self password change enforces same policy with data set "eigh… 0.05s
+  ✓ staff self password change enforces same policy with data set "seve… 0.04s
+  ✓ staff self password change enforces same policy with data set "lett… 0.05s
+  ✓ staff self password change enforces same policy with data set "numb… 0.04s
+  ✓ staff self password change enforces same policy with data set "maxi… 0.05s
+  ✓ staff self password change enforces same policy with data set "too…  0.04s
+  ✓ staff password change still requires current password and confirmat… 0.06s
+  ✓ viewer registration and reset keep twelve character minimum          0.03s
 
    PASS  Tests\Feature\Identity\ViewerTest
-  ✓ password reset email origin does not trust request host              0.23s  
-  ✓ guest identity entry is public and business boundaries are enforced  0.03s  
-  ✓ registration uses fortify and cannot create staff                    0.03s  
-  ✓ verification checkout gate and link replay                           0.04s  
-  ✓ expired and tampered verification are rejected                       0.04s  
-  ✓ correct email invalidates old link and cannot alter verified accoun… 0.07s  
-  ✓ email resend is limited with retry after                             0.03s  
-  ✓ reset link is single use and revokes old session                     0.04s  
-  ✓ expired reset does not change password                               0.24s  
-  ✓ password recovery does not enumerate accounts                        0.44s  
-  ✓ login rate limit and controlled return                               0.87s  
-  ✓ guest verification continues after login                             0.04s  
+  ✓ password reset email origin does not trust request host              0.23s
+  ✓ guest identity entry is public and business boundaries are enforced  0.03s
+  ✓ registration uses fortify and cannot create staff                    0.03s
+  ✓ verification checkout gate and link replay                           0.04s
+  ✓ expired and tampered verification are rejected                       0.04s
+  ✓ correct email invalidates old link and cannot alter verified accoun… 0.07s
+  ✓ email resend is limited with retry after                             0.03s
+  ✓ reset link is single use and revokes old session                     0.04s
+  ✓ expired reset does not change password                               0.24s
+  ✓ password recovery does not enumerate accounts                        0.44s
+  ✓ login rate limit and controlled return                               0.87s
+  ✓ guest verification continues after login                             0.04s
 
   Tests:    354 passed (5245 assertions)
   Duration: 42.51s
-

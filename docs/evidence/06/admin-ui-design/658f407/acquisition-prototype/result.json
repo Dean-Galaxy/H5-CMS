@@ -1,0 +1,120 @@
+{
+  "prototypeCommit": "bc5a24d63b7e23126bad9bb5519ea0e9fa8825cf",
+  "sourceSha256": "5dd3d41fd6e8e1f141c1da3e02762944e10141e02e73074f5aae85d9432c6b05",
+  "srcdocSha256": "a0673c0cb5957b15329ae9d3bb5e4b5aa05e52023d9cbad17b4ab71e83d616c3",
+  "browser": "155.0.8059.85",
+  "captures": [
+    {
+      "name": "658f407-desktop-links-prototype.png",
+      "width": 1280,
+      "height": 900,
+      "theme": "light",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-desktop-pixels-prototype.png",
+      "width": 1280,
+      "height": 900,
+      "theme": "light",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-desktop-payments-prototype.png",
+      "width": 1280,
+      "height": 900,
+      "theme": "light",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-desktop-deliveries-prototype.png",
+      "width": 1280,
+      "height": 900,
+      "theme": "light",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-mobile-links-prototype.png",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-mobile-pixels-prototype.png",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-mobile-payments-prototype.png",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-mobile-deliveries-prototype.png",
+      "width": 375,
+      "height": 812,
+      "theme": "light",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-desktop-dark-links-prototype.png",
+      "width": 1280,
+      "height": 900,
+      "theme": "dark",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-desktop-dark-pixels-prototype.png",
+      "width": 1280,
+      "height": 900,
+      "theme": "dark",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-desktop-dark-payments-prototype.png",
+      "width": 1280,
+      "height": 900,
+      "theme": "dark",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-desktop-dark-deliveries-prototype.png",
+      "width": 1280,
+      "height": 900,
+      "theme": "dark",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-mobile-dark-links-prototype.png",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-mobile-dark-pixels-prototype.png",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-mobile-dark-payments-prototype.png",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    },
+    {
+      "name": "658f407-mobile-dark-deliveries-prototype.png",
+      "width": 375,
+      "height": 812,
+      "theme": "dark",
+      "boundary": "Original synthetic prototype rows versus actual isolated fixtures; structural comparison only where data differs."
+    }
+  ]
+}

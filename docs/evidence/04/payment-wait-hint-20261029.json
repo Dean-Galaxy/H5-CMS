@@ -1,0 +1,41 @@
+{
+  "base_commit": "c6831c3d7ca93c568194f5379249fd1021fed9ec",
+  "contract_version": "1.0.5",
+  "change": "Add a bilingual approximate confirmation-time hint to the pending payment return area.",
+  "copy": {
+    "zh_CN": "付款确认约需1分钟，请稍后刷新查看会员状态。",
+    "en": "Payment confirmation may take about a minute. Refresh shortly to check your membership."
+  },
+  "display_condition": {
+    "order_state": ["pending", "processing", "review_required"],
+    "payment_state": "pending"
+  },
+  "refresh_behavior": {
+    "automatic_payment_refresh": false,
+    "reviewed_loaded_scripts": ["public/identity.js", "public/audience/site.js", "public/audience/billing.js"],
+    "details": "Billing JavaScript only updates absolute deadline text and prevents duplicate form submission. Global scripts handle identity forms and playback progress. Player-specific refresh behavior is loaded only on the watch page. Payment status changes appear after a manual refresh or explicit original-payment recheck."
+  },
+  "regression": {
+    "command": "python3 scripts/ops/run_acceptance.py tests/Feature/Audience/BillingUiTest.php tests/Feature/Audience/PayPalBillingReturnUiTest.php",
+    "passed_tests": 22,
+    "assertions": 273,
+    "coverage": "Bilingual pending text; absence on paid, failed, full/partial refund, expired, quote and error views; existing PayPal original-order recheck behavior.",
+    "php_syntax_and_diff_check": "passed"
+  },
+  "render_check": {
+    "method": "Actual return-route HTML exported from an isolated synthetic test, rendered with existing local assets in headless Chrome; all browser requests fulfilled in-process.",
+    "locales": ["en", "zh_CN"],
+    "widths_px": [320, 390, 1440],
+    "hint_font_px": 16,
+    "all_visible_and_within_viewport": true,
+    "horizontal_overflow": false,
+    "script_errors": 0,
+    "screenshots": "Local .runtime/audience/wait-hint-*.png; not committed"
+  },
+  "boundaries": {
+    "new_official_payment": false,
+    "deployed": false,
+    "actual_06_or_callback_accessed": false,
+    "github_retention": "00 acceptance and upload pending"
+  }
+}

@@ -6,8 +6,11 @@ use App\Data\ResolvedRegion;
 use App\Data\ResumeInput;
 use App\Data\ViewerIdentity;
 use App\Modules\Billing\BillingServiceProvider;
+use App\Modules\Billing\Data\ExternalPayment;
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Services\BillingEngine;
+use App\Modules\Billing\Services\PaymentLedger;
 use App\Modules\Billing\Services\SettlementService;
 use App\Modules\Identity\Models\Viewer;
 use App\Support\ApiProblem;
@@ -44,6 +47,7 @@ try {
     $fixture = json_decode(file_get_contents($fixturePath), true, flags: JSON_THROW_ON_ERROR);
     $app->register(BillingServiceProvider::class);
     config(['billing.quote_policy_approved' => true, 'session.driver' => 'array', 'billing.driver' => 'unconfigured']);
+    config(['billing.new_purchase_provider' => 'stripe']);
     $gateway = new FakeGateway;
     foreach (['subscriptions', 'invoices', 'checkouts', 'refunds'] as $field) {
         $gateway->{$field} = $fixture[$field] ?? [];
@@ -78,6 +82,14 @@ try {
                 break;
             case 'settle':
                 app(SettlementService::class)->settleInvoice($data['invoice_id']);
+                break;
+            case 'provider_settle':
+                $f = $fixture['provider_payment'];
+                $scope = new ProviderScope($f['provider'], $f['environment'], $f['merchant_scope']);
+                $fact = new ExternalPayment($scope, $f['reference'], $f['charge_id'],
+                    $f['subscription_id'], $f['customer_id'], $f['first_order_id'], true, 300, 1200, 'USD',
+                    new DateTimeImmutable($f['period_start']), new DateTimeImmutable($f['period_end']), new DateTimeImmutable($f['paid_at']));
+                $result['payment_id'] = app(PaymentLedger::class)->record($data['local_subscription_id'], $fact);
                 break;
             case 'resume':
                 $input = $data['confirmation'];

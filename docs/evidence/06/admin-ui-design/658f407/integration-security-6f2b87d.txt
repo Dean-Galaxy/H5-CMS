@@ -1,0 +1,83 @@
+PASS  Tests\Feature\Contracts\AcceptedAudienceTest
+  ✓ default website and progress use the accepted provider without loca… 0.28s
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.02s
+  ✓ fresh progress is empty and a guest cannot write account progress    0.03s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund   0.13s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 0.02s
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.02s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.02s
+  ✓ public content still requires a trusted region then reads its own d… 0.02s
+
+   PASS  Tests\Feature\Contracts\AcquisitionReadPortsTest
+  ✓ consumers read typed minimal pages without private staff or media f… 0.01s
+  ✓ absent read providers do not turn into successful empty lists or sa… 0.01s
+
+   PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
+  ✓ actual staff profile route uses staff policy and same origin avatar  0.13s
+  ✓ design navigation keeps role permissions and optional module gate    0.02s
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.01s
+  ✓ staff contract is relaxed without changing viewer passwords          0.01s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.01s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.01s
+  ✓ livewire tabs call the module method without using inline user code  0.01s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.01s
+  ✓ dialog has accessible title and real submit button can target its f… 0.01s
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.01s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.01s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.01s
+
+   PASS  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
+  ✓ default off does not release an origin and every call rechecks       0.01s
+  ✓ boolean environment and nonlocal overrides fail closed               0.01s
+  ✓ opt in never enables production or local and local mail remains ava… 0.01s
+  ✓ origin cannot contain unsafe components or non domain hosts          0.01s
+  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.01s
+  ✓ approved smtp configuration builds real tls transport without conne… 0.02s
+  ✓ direct connection discards previous proxy trust and hosting auto de… 0.01s
+  ✓ nonlocal http requires direct tls canonical host and default port    0.01s
+  ✓ real staging boot and cached configuration are checked without netw… 0.85s
+  ✓ real uncached environment loading preserves invalid booleans         1.19s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.02s
+  ✓ home consumer can follow a category and banner without media or ext… 0.02s
+  ✓ new ports require the real provider even when empty examples exist   0.01s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.02s
+  ✓ resume quote and submission require an audience session              0.02s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.01s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+   PASS  Tests\Integration\EntitlementPlaybackTest
+  ✓ audience progress survives refund but media and renewal are revoked  0.10s
+  ✓ original price resume and unpaid expiry reach audience authorizatio… 0.06s
+
+   PASS  Tests\Integration\RecoveryScenarioTest
+  ✓ preexisting unpaid accounts do not select the recovery subject       0.06s
+  ✓ manifest cannot switch to an existing unpaid viewer                  0.04s
+  ✓ a payment for another viewer is rejected even when that payment exi… 0.04s
+  ✓ changes to preexisting unpaid accounts fail verification             0.04s
+
+   PASS  Tests\Security\CrossModuleBoundaryTest
+  ✓ viewer cannot use another order or bypass media after signout        0.12s
+  ✓ content staff has no billing authority even with mfa                 0.02s
+
+  Tests:    53 passed (789 assertions)
+  Duration: 3.73s

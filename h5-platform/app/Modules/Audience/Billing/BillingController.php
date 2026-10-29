@@ -12,6 +12,7 @@ use App\Data\ResumeInput;
 use App\Enums\SubscriptionAction;
 use App\Modules\Identity\Services\SafeReturn;
 use App\Support\ApiProblem;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -108,8 +109,19 @@ final class BillingController
                 $attempt['key'], $attempt['source'] ? AttributionSnapshot::fromArray($attempt['source']) : null);
             $attempt['state'] = 'completed';
             $request->session()->put($attemptKey, $attempt);
+            $checkoutData = $checkout->toArray();
+            $paypalApprovalUrl = $this->isPaypalSandboxUrl($checkoutData['checkout_url'] ?? null) ? $checkoutData['checkout_url'] : null;
+            if ($paypalApprovalUrl !== null) {
+                // PayPal approval URLs are one-time navigation data. Never cache them in the browser session.
+                $checkoutData['checkout_url'] = null;
+            }
             $request->session()->put('audience.billing.checkouts.'.$checkout->order_id, ['viewer_id' => $viewer->id,
-                'checkout' => $checkout->toArray(), 'return_to' => $attempt['return_to']]);
+                'checkout' => $checkoutData, 'return_to' => $attempt['return_to'], 'offer_id' => $attempt['offer_id'],
+                'price_version' => $attempt['price_version']]);
+
+            if ($paypalApprovalUrl !== null && $checkout->state->value === 'pending') {
+                return redirect()->away($paypalApprovalUrl)->header('Cache-Control', 'private, no-store');
+            }
 
             return redirect('/billing/return?order_id='.rawurlencode($checkout->order_id))->header('Cache-Control', 'private, no-store');
         } catch (ApiProblem $e) {
@@ -143,11 +155,67 @@ final class BillingController
             $saved = $request->session()->get('audience.billing.checkouts.'.$orderId);
             $checkout = $saved && $saved['viewer_id'] === $viewer->id ? $saved['checkout'] : null;
             $returnTo = $saved && $saved['viewer_id'] === $viewer->id ? $saved['return_to'] : $this->playback($request);
+            $checkoutLinkSafe = $checkout && $this->checkoutUrlIsSafe($checkout['checkout_url'] ?? null);
+            $checkoutDeadline = is_string($checkout['expires_at'] ?? null) ? $checkout['expires_at'] : null;
+            $checkoutDeadlineKnown = $checkoutDeadline !== null;
+            $checkoutCanPay = false;
+            if ($checkoutLinkSafe && $order->state->value === 'pending') {
+                try {
+                    if ($checkoutDeadlineKnown) {
+                        $checkoutCanPay = CarbonImmutable::parse($checkoutDeadline)->isFuture();
+                    }
+                } catch (\Throwable) {
+                    $checkoutCanPay = false;
+                }
+            }
+            $canRecheckCheckout = $saved && $saved['viewer_id'] === $viewer->id
+                && $this->hasConfirmedCheckoutAttempt($request, $viewer->id, $saved);
 
-            return $this->page('return', compact('order', 'membership', 'checkout', 'returnTo'));
+            return $this->page('return', compact('order', 'membership', 'checkout', 'returnTo', 'checkoutCanPay',
+                'checkoutLinkSafe', 'checkoutDeadline', 'checkoutDeadlineKnown', 'canRecheckCheckout'));
         } catch (ApiProblem $e) {
             return $this->page('error', ['problem' => $this->problemKey($e)], $e->status);
         }
+    }
+
+    public function recheckPaymentReturn(Request $request)
+    {
+        $viewer = $this->identity->requireViewer();
+        $input = $request->validate(['order_id' => 'required|uuid']);
+        $orderId = $input['order_id'];
+        $returnPath = '/billing/return?order_id='.rawurlencode($orderId);
+        $savedKey = 'audience.billing.checkouts.'.$orderId;
+        $saved = $request->session()->get($savedKey);
+
+        // A fresh browser can query the order with GET, but cannot reconstruct or retry a purchase.
+        if (! is_array($saved) || ($saved['viewer_id'] ?? null) !== $viewer->id
+            || ! $this->hasConfirmedCheckoutAttempt($request, $viewer->id, $saved)) {
+            return redirect($returnPath)->with('audience.billing.notice', 'recovery_missing')->header('Cache-Control', 'private, no-store');
+        }
+
+        $attempt = $request->session()->get('audience.billing.attempts.'.$saved['offer_id']);
+        try {
+            $checkout = $this->billing->checkout($viewer,
+                new CheckoutInput($saved['offer_id'], (int) $saved['price_version'], '/billing/return'),
+                $attempt['key'], $attempt['source'] ? AttributionSnapshot::fromArray($attempt['source']) : null);
+            if ($checkout->order_id !== $orderId) {
+                return redirect($returnPath)->with('audience.billing.notice', 'pending')->header('Cache-Control', 'private, no-store');
+            }
+            $paypalApprovalUrl = $this->isPaypalSandboxUrl($checkout->checkout_url) ? $checkout->checkout_url : null;
+            // Keep the original session identity; only Billing can refresh the Checkout facts.
+            $saved['checkout'] = $checkout->toArray();
+            if ($paypalApprovalUrl !== null) {
+                $saved['checkout']['checkout_url'] = null;
+            }
+            $request->session()->put($savedKey, $saved);
+            if ($paypalApprovalUrl !== null && $checkout->state->value === 'pending') {
+                return redirect()->away($paypalApprovalUrl)->header('Cache-Control', 'private, no-store');
+            }
+        } catch (ApiProblem $e) {
+            return redirect($returnPath)->with('audience.billing.notice', $this->problemKey($e))->header('Cache-Control', 'private, no-store');
+        }
+
+        return redirect($returnPath)->header('Cache-Control', 'private, no-store');
     }
 
     public function cancel(Request $request)
@@ -194,6 +262,52 @@ final class BillingController
         $path = $request->session()->get('audience.billing.return_to');
 
         return is_string($path) && app(SafeReturn::class)->path($path) === $path ? $path : null;
+    }
+
+    private function hasConfirmedCheckoutAttempt(Request $request, string $viewerId, array $saved): bool
+    {
+        $offerId = $saved['offer_id'] ?? null;
+        $attempt = is_string($offerId) ? $request->session()->get('audience.billing.attempts.'.$offerId) : null;
+
+        return is_array($attempt)
+            && ($attempt['viewer_id'] ?? null) === $viewerId
+            && ($attempt['offer_id'] ?? null) === $offerId
+            && (int) ($attempt['price_version'] ?? 0) === (int) ($saved['price_version'] ?? 0)
+            && in_array($attempt['state'] ?? null, ['completed', 'pending'], true)
+            && is_string($attempt['key'] ?? null) && $attempt['key'] !== ''
+            && ($attempt['checkout_return_to'] ?? null) === '/billing/return';
+    }
+
+    private function isPaypalSandboxUrl(mixed $url): bool
+    {
+        return is_string($url) && parse_url($url, PHP_URL_SCHEME) === 'https'
+            && strtolower((string) parse_url($url, PHP_URL_HOST)) === 'www.sandbox.paypal.com'
+            && $this->checkoutUrlIsSafe($url);
+    }
+
+    private function checkoutUrlIsSafe(mixed $url): bool
+    {
+        if (! is_string($url) || $url === '') {
+            return false;
+        }
+        $decoded = $url;
+        for ($i = 0; $i < 4; $i++) {
+            if (preg_match('/[\x00-\x20\x7f\\\\]/', $decoded)) {
+                return false;
+            }
+            $decoded = rawurldecode($decoded);
+        }
+        if (preg_match('/[\x00-\x20\x7f\\\\]/', $decoded)) {
+            return false;
+        }
+        $parts = parse_url($url);
+        if (! is_array($parts) || strtolower($parts['scheme'] ?? '') !== 'https'
+            || ! in_array(strtolower($parts['host'] ?? ''), ['checkout.stripe.com', 'www.sandbox.paypal.com'], true)
+            || isset($parts['user']) || isset($parts['pass']) || (isset($parts['port']) && $parts['port'] !== 443)) {
+            return false;
+        }
+
+        return true;
     }
 
     private function problemKey(ApiProblem $problem): string

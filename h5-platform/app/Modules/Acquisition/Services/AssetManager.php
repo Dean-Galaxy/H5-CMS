@@ -41,6 +41,15 @@ final class AssetManager
             'external_id' => ['required', 'string', 'max:64', ($input['platform'] ?? '') === 'meta' ? 'regex:/^[0-9]{5,30}$/' : 'regex:/^[A-Za-z0-9_-]{5,64}$/'],
             'environment' => ['required', Rule::in(['test', 'production'])], 'active' => ['required', 'boolean'],
             'version' => ['required', 'integer', 'min:0'],
+        ], [
+            'name.required' => '请填写像素名称', 'name.string' => '像素名称必须是文字', 'name.max' => '像素名称不能超过100个字符',
+            'platform.required' => '请选择投放平台', 'platform.in' => '请选择Meta或TikTok平台',
+            'external_id.required' => '请填写平台像素编号', 'external_id.string' => '请以文字填写平台像素编号',
+            'external_id.max' => '平台像素编号不能超过64个字符', 'external_id.regex' => '像素编号格式无效，请核对所选平台的编号',
+            'environment.required' => '请选择资产用途', 'environment.in' => '请选择专用测试资产或正式资产',
+            'active.required' => '请选择启用状态', 'active.boolean' => '启用状态无效，请重新选择',
+            'version.required' => '缺少像素版本，请重新打开像素编辑', 'version.integer' => '像素版本无效，请重新打开像素编辑',
+            'version.min' => '像素版本无效，请重新打开像素编辑',
         ])->validate();
 
         return DB::transaction(function () use ($id, $data, $actor) {
@@ -112,6 +121,14 @@ final class AssetManager
             'name' => ['required', 'string', 'max:100'], 'platform' => ['required', Rule::in(['meta', 'tiktok'])],
             'drama_id' => ['required', 'uuid'], 'pixel_id' => ['required', 'uuid'], 'active' => ['required', 'boolean'],
             'version' => ['required', 'integer', 'min:0'],
+        ], [
+            'name.required' => '请填写推广名称', 'name.string' => '推广名称必须是文字', 'name.max' => '推广名称不能超过100个字符',
+            'platform.required' => '请选择投放平台', 'platform.in' => '请选择Meta或TikTok平台',
+            'drama_id.required' => '请选择已发布剧目', 'drama_id.uuid' => '剧目选择无效，请重新读取并选择已发布剧目',
+            'pixel_id.required' => '请选择授权像素', 'pixel_id.uuid' => '像素选择无效，请重新选择授权像素',
+            'active.required' => '请选择启用状态', 'active.boolean' => '启用状态无效，请重新选择',
+            'version.required' => '缺少链接版本，请重新打开链接编辑', 'version.integer' => '链接版本无效，请重新打开链接编辑',
+            'version.min' => '链接版本无效，请重新打开链接编辑',
         ])->validate();
 
         return DB::transaction(function () use ($id, $data, $actor) {
@@ -154,7 +171,11 @@ final class AssetManager
     {
         app(IdentityContext::class)->requireStaff(Permission::StaffManage);
         Validator::make(['staff_ids' => $staffIds], ['staff_ids' => ['present', 'array', 'max:200'],
-            'staff_ids.*' => ['required', 'uuid', 'distinct']])->validate();
+            'staff_ids.*' => ['required', 'uuid', 'distinct']], [
+                'staff_ids.present' => '请重新读取可分配人员后保存', 'staff_ids.array' => '人员选择无效，请重新读取可分配人员',
+                'staff_ids.max' => '一次最多分配200位员工', 'staff_ids.*.required' => '人员选择无效，请重新选择员工',
+                'staff_ids.*.uuid' => '人员选择无效，请重新读取可分配人员', 'staff_ids.*.distinct' => '员工不能重复选择，请重新读取名单后选择',
+            ])->validate();
         DB::transaction(function () use ($type, $id, $version, $staffIds) {
             $row = $this->access->get($type, $id, true);
             $this->version($row, $version);

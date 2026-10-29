@@ -1,0 +1,32 @@
+{
+  "dramaId": "01a16189-07ee-7241-864c-6f413f0d23a3",
+  "title": "逆光之约",
+  "titleEn": "Into the Light",
+  "episodes": 35,
+  "initialReady": 33,
+  "initialPublished": 0,
+  "issues": {
+    "8": "real decode failure",
+    "12": "video absent"
+  },
+  "source": "generated two-second video and SRT, no source media modified",
+  "viewport": {
+    "desktop": [
+      1100,
+      1000
+    ],
+    "mobile": [
+      375,
+      812
+    ]
+  },
+  "dpr": 1,
+  "publicationDate": "2026-10-24T00:00+08:00",
+  "additionalChecks": [
+    "cover candidate explicitly saved and re-read",
+    "Banner candidate explicitly saved and inactive config retained",
+    "owner impact preview canceled without saving"
+  ],
+  "browser": "155.0.8059.85",
+  "errors": []
+}

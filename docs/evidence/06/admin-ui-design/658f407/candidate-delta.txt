@@ -1,0 +1,3 @@
+ h5-platform/public/content/admin.js                | 13 ++++++-
+ .../Content/Support/release-list.browser.cjs       | 44 ++++++++++++++++++++++
+ 2 files changed, 56 insertions(+), 1 deletion(-)

@@ -1,0 +1,362 @@
+INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Billing\BillingAdministrationTest
+  ✓ prices append versions and never overwrite prior terms               0.23s
+  ✓ invalid amounts and non test prices cannot be saved                  0.02s
+  ✓ every administration action requires allowed staff and mfa           0.02s
+  ✓ case scope is derived from order and cannot be replaced with anothe… 0.02s
+  ✓ support view and notes use minimal scoped fields and safe audit      0.02s
+  ✓ verified cancel dispatches only persisted identity and returns proc… 0.02s
+  ✓ owner still needs verified request and malformed case link is rejec… 0.01s
+
+   PASS  Tests\Feature\Billing\BillingCheckoutCompatibilityTest
+  ✓ unknown legacy intent with no session keeps original snapshot and b… 0.05s
+  ✓ later unique session recovers original legacy checkout without crea… 0.02s
+  ✓ unattempted legacy coupon intent is read only even inside initial c… 0.02s
+
+   PASS  Tests\Feature\Billing\BillingCheckoutSafetyTest
+  ✓ existing safe checkout returns official fragment without creating a… 0.02s
+  ✓ existing checkout hides unsafe saved request without rewriting or r… 0.03s
+  ✓ existing checkout hides unsafe provider urls without changing payme… 0.03s
+  ✓ changed origin hides existing checkout and restoring configuration…  0.02s
+  ✓ untrusted or non us region is rejected before gateway or order rese… 0.01s
+  ✓ missing stripe credentials never create orders placeholders or webh… 0.01s
+
+   PASS  Tests\Feature\Billing\BillingConcurrencyTest
+  ✓ two processes settling one paypal fact share one payment entitlemen… 0.29s
+  ✓ two real checkout processes create only one open subscription and o… 0.51s
+  ✓ two real settlement processes commit one payment interval and outbo… 0.24s
+  ✓ two real resume processes cannot duplicate operation or replay over… 0.27s
+
+   PASS  Tests\Feature\Billing\BillingDeskTest
+  ✓ owner uses dollar inputs and exact saved price survives refresh      0.12s
+  ✓ support can open exact order without price controls or payment cred… 0.05s
+  ✓ invalid dollars keep the form and save pending refuses navigation    0.03s
+  ✓ stale price editor keeps entered dollars until explicit discard      0.05s
+  ✓ refresh context and forged tabs or cases do not bypass scope         0.04s
+  ✓ unsaved support note requires real validation and discard does not…  0.07s
+  ✓ payment refund and next renewal amounts render as precise dollars    0.03s
+  ✓ unauthed page does not bootstrap owner or prices                     0.02s
+  ✓ staff without mfa proof cannot render billing data                   0.02s
+  ✓ other roles cannot render the billing page                           0.02s
+  ✓ unknown support cancellation clears consumed verification but keeps… 0.06s
+
+   PASS  Tests\Feature\Billing\BillingEngineTest
+  ✓ verified account snapshot and idempotency control checkout           0.03s
+  ✓ checkout unknown is persisted and retry keeps same order             0.02s
+  ✓ expired offer and another accounts offer cannot create orders        0.02s
+  ✓ cancel resume uses original price and old retry cannot undo later c… 0.05s
+  ✓ unexecuted resume expires at boundary and cancel timeout reconciles  0.03s
+  ✓ paid interval is half open and pending original blocks repurchase    0.02s
+  ✓ http rejects client money and preserves order ownership              0.02s
+  ✓ http enforces frozen idempotency key bounds before creating orders   0.02s
+  ✓ guest offer requires new personal offer and changed eligibility req… 0.02s
+  ✓ checkout creation intent survives unknown result with fixed paramet… 0.02s
+  ✓ testing gateway does not hide conflicting coupon parameters          0.02s
+
+   PASS  Tests\Feature\Billing\BillingReviewRegressionTest
+  ✓ expired ambiguous resume becomes terminal and does not lock account… 0.03s
+  ✓ owner direct support cancel cannot bypass verified request business… 0.02s
+  ✓ case verification is rechecked after account lock before cancel res… 0.03s
+  ✓ unresolved ended subscription blocks checkout and membership does n… 0.02s
+  ✓ consumed support case cannot cancel viewer later explicit resume     0.03s
+  ✓ verified old case cannot cancel a later subscription for same viewe… 0.03s
+  ✓ pending resume keeps original quote boundary when invoice sync adva… 0.03s
+  ✓ provider terminated subscription keeps paid access but cannot issue… 0.02s
+  ✓ confirmed cancel does not clear independent refund review or allow…  0.03s
+
+   PASS  Tests\Feature\Billing\BillingSettlementTest
+  ✓ paid invoice atomically creates fixed period payment entitlement an… 0.02s
+  ✓ mismatched owner amount currency mode and unverified payment never…  0.02s
+  ✓ unpaid and action required invoice do not consume discount or grant… 0.01s
+  ✓ renewal uses original price and its actual period after site price…  0.02s
+  ✓ failed renewal keeps old paid period and successful retry adds only… 0.02s
+  ✓ distinct invoice for same paid period is quarantined                 0.02s
+  ✓ success page and active subscription without paid invoice do not cr… 0.01s
+  ✓ expired checkout releases unpaid subscription and discount is still… 0.01s
+  ✓ pending and failed refunds do not revoke paid entitlement            0.02s
+  ✓ partial refund keeps access and stops renewal without resetting dis… 0.02s
+  ✓ full refund revokes only related payment and stops renewal           0.02s
+  ✓ webhook is durable deduplicated and uses current fact even for late… 0.02s
+  ✓ invalid signature never reaches inbox and provider outage can be re… 0.01s
+  ✓ outbox keeps missing or failing consumer pending without rolling ba… 0.02s
+  ✓ canceled subscription with unresolved initial invoice cannot releas… 0.02s
+  ✓ payment and entitlement rollback when outbox cannot be saved         0.02s
+  ✓ failed inbox item does not starve later items when batch is one      0.01s
+  ✓ failed outbox item does not starve later payments                    0.02s
+  ✓ full refund cancel timeout is retryable and does not undo refund fa… 0.02s
+  ✓ invoice sync does not replace version of pending cancel operation    0.02s
+  ✓ multiple partial refunds accumulate once and full refund correction… 0.03s
+  ✓ old refund replay cannot cancel explicit later resume but new succe… 0.03s
+  ✓ refund correction after original expiry does not create current acc… 0.02s
+  ✓ refund for ended old subscription does not cancel new subscription   0.02s
+  ✓ refund total above payment is quarantined without revoking verified… 0.02s
+
+   PASS  Tests\Feature\Billing\BillingStagingPolicyTest
+  ✓ safe staging boots with official transport but never makes a paymen… 0.12s
+  ✓ cached missing credentials and unconfigured driver allow boot but b… 0.53s
+  ✓ cached provider rejects disallowed payment modes credentials and ve… 1.68s
+  ✓ same gateway and provider recheck loaded configuration after succes… 1.91s
+  ✓ missing credentials after boot disable existing gateway without fai… 0.22s
+  ✓ staging rejects replaced sdk at boot and on an existing gateway      0.42s
+  ✓ staging rejects fake gateway bindings and cannot retrieve a rejecte… 0.63s
+  ✓ offline diagnostic reports configuration readiness without claiming… 0.61s
+  ✓ uncached real environment loading respects opt in and credential bo… 1.38s
+
+   PASS  Tests\Feature\Billing\BillingUsdPriceTest
+  ✓ decimal strings and business boundaries save exact minor units and…  0.02s
+  ✓ malformed usd and non string types map errors to the input field wi… 0.02s
+  ✓ positive price range and test acknowledgement remain module rules    0.02s
+  ✓ legacy minor fields cannot override or replace usd input             0.01s
+  ✓ stale usd submission cannot overwrite a newer price version          0.02s
+  ✓ staff permissions and mfa are checked before parsing usd             0.02s
+  ✓ usd price change preserves existing offer checkout intent and subsc… 0.03s
+  ✓ usd price change preserves paid facts and original resume quote      0.04s
+
+   PASS  Tests\Feature\Billing\PayPalCheckoutTest
+  ✓ server order preparation and remote reread never grant membership    0.14s
+  ✓ timeout retries original request and key without new intent          0.11s
+  ✓ returned identity survives followup failure and reentry only reads…  0.11s
+  ✓ unknown creation after local deadline keeps occupancy and never pos… 0.10s
+  ✓ old approval link is removed after local deadline without claiming…  0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ changed plan is rejected before creating subscription with data set… 0.11s
+  ✓ changed plan is rejected before creating subscription with data set… 0.11s
+  ✓ changed plan is rejected before creating subscription with data set… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.11s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.11s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.12s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ mismatched server subscription has no link but preserves identity w… 0.10s
+  ✓ cancel between preparation and dispatch blocks post                  0.10s
+  ✓ plan provisioning preserves id on read failure and never updates ol… 0.09s
+  ✓ configuration switch after create preserves identity but blocks fol… 0.10s
+  ✓ unknown or other merchant plan cannot be prepared                    0.10s
+  ✓ only single exact sandbox approval relation is accepted              0.09s
+  ✓ prepared request tampering is rejected before http                   0.10s
+  ✓ repreparing the same order does not extend approval window           0.10s
+
+   PASS  Tests\Feature\Billing\PayPalProtocolTest
+  ✓ usd conversion never uses floating point or rounds an invalid amount
+  ✓ invalid money is rejected without coercion with data set #0
+  ✓ invalid money is rejected without coercion with data set #1
+  ✓ invalid money is rejected without coercion with data set #2
+  ✓ invalid money is rejected without coercion with data set #3
+  ✓ invalid money is rejected without coercion with data set #4
+  ✓ invalid money is rejected without coercion with data set #5
+  ✓ invalid money is rejected without coercion with data set #6
+  ✓ invalid money is rejected without coercion with data set #7
+  ✓ invalid money is rejected without coercion with data set #8
+  ✓ invalid money is rejected without coercion with data set #9
+  ✓ invalid money is rejected without coercion with data set #10
+  ✓ invalid money is rejected without coercion with data set #11
+  ✓ invalid money is rejected without coercion with data set #12
+  ✓ invalid money is rejected without coercion with data set #13
+  ✓ invalid money is rejected without coercion with data set #14
+  ✓ invalid money is rejected without coercion with data set #15
+  ✓ invalid money is rejected without coercion with data set #16
+  ✓ invalid money is rejected without coercion with data set #17
+  ✓ invalid money is rejected without coercion with data set #18
+  ✓ invalid money is rejected without coercion with data set #19
+  ✓ invalid money is rejected without coercion with data set #20
+  ✓ first week is one paid week followed by original regular weekly price
+  ✓ returning customer has no trial and changed prices have new fingerprints
+  ✓ invalid plan never becomes a free or overpriced trial with data set #0
+  ✓ invalid plan never becomes a free or overpriced trial with data set #1
+  ✓ invalid plan never becomes a free or overpriced trial with data set #2
+  ✓ invalid plan never becomes a free or overpriced trial with data set #3
+  ✓ invalid plan never becomes a free or overpriced trial with data set #4
+  ✓ invalid plan never becomes a free or overpriced trial with data set #5
+  ✓ verification embeds original json bytes and does not claim verified or paid
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #0
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #1
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #2
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #3
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #4
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #5
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #6
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #7
+  ✓ notifications only schedule rechecks and orders capture does not fulfil subscriptions with data set #8
+  ✓ malformed or unsafe headers fail before verification with data set #0
+  ✓ malformed or unsafe headers fail before verification with data set #1
+  ✓ malformed or unsafe headers fail before verification with data set #2
+  ✓ malformed or unsafe headers fail before verification with data set #3
+  ✓ malformed or unsafe headers fail before verification with data set #4
+  ✓ malformed or unsafe headers fail before verification with data set #5
+  ✓ malformed or unsafe headers fail before verification with data set #6
+  ✓ malformed or unsafe headers fail before verification with data set #7
+  ✓ malformed or unsafe headers fail before verification with data set #8
+  ✓ malformed or unsafe headers fail before verification with data set #9
+  ✓ malformed or unsafe headers fail before verification with data set #10
+  ✓ malformed or unsafe headers fail before verification with data set #11
+  ✓ malformed or unsafe headers fail before verification with data set #12
+  ✓ malformed or unsafe headers fail before verification with data set #13
+  ✓ malformed or unsafe headers fail before verification with data set #14
+  ✓ malformed or unsafe headers fail before verification with data set #15
+  ✓ malformed or unsafe headers fail before verification with data set #16
+  ✓ duplicate case variant headers are rejected
+  ✓ missing header is rejected
+  ✓ invalid json or event shape is rejected with data set #0
+  ✓ invalid json or event shape is rejected with data set #1
+  ✓ invalid json or event shape is rejected with data set #2
+  ✓ invalid json or event shape is rejected with data set #3
+  ✓ invalid json or event shape is rejected with data set #4
+  ✓ invalid json or event shape is rejected with data set #5
+  ✓ old delivery and fractional seconds are retained for fact reconciliation
+
+   PASS  Tests\Feature\Billing\PayPalSandboxApiTest
+  ✓ calls fixed sandbox with tls no redirects and server generated week… 0.01s
+  ✓ suspend is only an operation response and does not claim membership… 0.01s
+  ✓ verification failure is false and success still requires fact looku… 0.01s
+  ✓ other webhook scope is rejected before network                       0.01s
+  ✓ unknown verification status never becomes success                    0.01s
+  ✓ redirect is not followed or retried                                  0.01s
+  ✓ unknown mutation response is not automatically retried or logged     0.01s
+  ✓ missing configuration blocks even a cached token without http        0.01s
+  ✓ configuration change discards old merchant token                     0.01s
+  ✓ live environment and fake transport outside testing are rejected     0.01s
+  ✓ path injection is rejected before oauth                              0.01s
+  ✓ missing enablement is not inferred from credentials                  0.01s
+
+   PASS  Tests\Feature\Billing\ProviderInboxTest
+  ✓ verified sandbox event is durable deduplicated and does not grant m… 0.09s
+  ✓ failed or unknown verification never acknowledges inbox              0.01s
+  ✓ header injection fails before any verification request               0.01s
+  ✓ identical event id in another merchant or provider does not collide  0.01s
+  ✓ verified event id with conflicting resource is rejected without ove… 0.01s
+  ✓ paypal inbox stays pending until its fact processor is ready instea… 0.01s
+  ✓ orders capture event is ignored without using subscription payment…  0.01s
+  ✓ gateway routing uses persisted scope and never new purchase configu… 0.01s
+  ✓ other stripe merchant cannot use the legacy stripe account           0.01s
+
+   PASS  Tests\Feature\Billing\ProviderOperationStoreTest
+  ✓ same intent reuses payload key and deadline after unknown result     0.12s
+  ✓ expired provider idempotency window requires reconciliation not new… 0.10s
+  ✓ mutated payload cannot reuse the original idempotency intent         0.10s
+  ✓ cross merchant cannot complete another scope intent                  0.10s
+  ✓ uncommitted intent cannot be dispatched                              0.09s
+  ✓ same external id is isolated by provider and merchant                0.10s
+  ✓ one owner cannot acquire a second external subscription in the same… 0.10s
+  ✓ upgrade preserves legacy subscription and cross channel one open co… 0.12s
+  ✓ rollback refuses to drop new provider evidence                       0.09s
+
+   PASS  Tests\Feature\Billing\ProviderPaymentLedgerTest
+  ✓ both providers use one paid ledger entitlement and event without co… 0.08s
+  ✓ late payment uses its original period and replay does not restore r… 0.02s
+  ✓ renewal has original price and does not turn unpaid gap into access  0.02s
+  ✓ mismatched scope amount customer or first order cannot write any pa… 0.02s
+  ✓ second transaction cannot overlap an already paid cycle              0.02s
+  ✓ successful first offer is not available again after switching provi… 0.02s
+  ✓ stripe refund with colliding ids cannot revoke paypal payment        0.02s
+  ✓ outbox insert failure rolls back payment access order and discount…  0.02s
+
+   PASS  Tests\Feature\Billing\StripeGatewayTest
+  ✓ configuration and live credentials fail closed without http          0.01s
+  ✓ actual client options and global tls are checked before http         0.01s
+  ✓ each network step rechecks mutated configuration                     0.01s
+  ✓ unconfigured gateway never fabricates checkout success               0.01s
+  ✓ checkout persists new preparation deadline weekly snapshot and cont… 0.01s
+  ✓ old return origins and order ids are read only and never exposed     0.01s
+  ✓ untrusted checkout urls and remote return mismatch are not returned  0.01s
+  ✓ regular price checkout omits discounts and promotion code input      0.01s
+  ✓ http fixture rejects coupon and serialized false promotion flag      0.01s
+  ✓ legacy conflict reconciles all statuses without post or mutating in… 0.01s
+  ✓ legacy conflict with zero or multiple sessions stays pending and un… 0.01s
+  ✓ persisted promotion flag rejects values other than strict false bef… 0.01s
+  ✓ persisted coupon shape must match discounted order before http       0.01s
+  ✓ preparation attaches controlled test clock and accepts same clock c… 0.01s
+  ✓ preparation refuses existing customer on another clock without rebi… 0.01s
+  ✓ preparation refuses customer response omitting requested clock       0.01s
+  ✓ unknown create finds original session without recreating customer c… 0.01s
+  ✓ unknown or too late create with no match remains pending without ne… 0.01s
+  ✓ reconciliation paginates and refuses multiple matching sessions      0.01s
+  ✓ provider deadline must exactly match the persisted request           0.01s
+  ✓ paid invoice requires actual payment and uses line service interval  0.01s
+  ✓ unpaid invoice reads current required action without granting payme… 0.01s
+  ✓ manually marked paid invoice is not verified payment                 0.01s
+  ✓ payment for another customer is not verified                         0.01s
+  ✓ restore updates only cancellation flag and rechecks same period      0.01s
+  ✓ refunds include all pages and preserve partial pending and failed f… 0.01s
+  ✓ signed webhook retains only minimum reconciliation identity          0.01s
+  ✓ refund event exposes charge id only as reconciliation hint           0.01s
+  ✓ tampered signature is rejected                                       0.01s
+  ✓ live webhook and version mismatch fail closed                        0.01s
+  ✓ platform timeout has safe fixed error and no false success           0.01s
+
+   PASS  Tests\Feature\Contracts\AcceptedAudienceTest
+  ✓ default website and progress use the accepted provider without loca… 0.02s
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.02s
+  ✓ fresh progress is empty and a guest cannot write account progress    0.02s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund   0.10s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 0.02s
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.02s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.01s
+  ✓ public content still requires a trusted region then reads its own d… 0.02s
+
+   PASS  Tests\Feature\Contracts\AcquisitionReadPortsTest
+  ✓ consumers read typed minimal pages without private staff or media f… 0.01s
+  ✓ absent read providers do not turn into successful empty lists or sa… 0.01s
+
+   PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
+  ✓ registered staff mfa provider generates one decodable qr data uri    0.04s
+  ✓ actual staff profile route uses staff policy and same origin avatar  0.10s
+  ✓ design navigation keeps role permissions and optional module gate    0.02s
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.02s
+  ✓ staff contract is relaxed without changing viewer passwords          0.01s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.01s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.01s
+  ✓ livewire tabs call the module method without using inline user code  0.01s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.01s
+  ✓ dialog has accessible title and real submit button can target its f… 0.01s
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.01s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.01s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.01s
+
+   PASS  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
+  ✓ default off does not release an origin and every call rechecks       0.01s
+  ✓ boolean environment and nonlocal overrides fail closed               0.01s
+  ✓ opt in never enables production or local and local mail remains ava… 0.01s
+  ✓ origin cannot contain unsafe components or non domain hosts          0.01s
+  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.01s
+  ✓ approved smtp configuration builds real tls transport without conne… 0.01s
+  ✓ direct connection discards previous proxy trust and hosting auto de… 0.01s
+  ✓ nonlocal http requires direct tls canonical host and default port    0.01s
+  ✓ real staging boot and cached configuration are checked without netw… 0.83s
+  ✓ real uncached environment loading preserves invalid booleans         1.15s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.02s
+  ✓ home consumer can follow a category and banner without media or ext… 0.01s
+  ✓ new ports require the real provider even when empty examples exist   0.01s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.01s
+  ✓ resume quote and submission require an audience session              0.02s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.01s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+  Tests:    301 passed (3816 assertions)
+  Duration: 18.30s

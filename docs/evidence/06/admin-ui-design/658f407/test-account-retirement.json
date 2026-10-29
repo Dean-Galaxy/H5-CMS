@@ -1,0 +1,17 @@
+{
+  "candidate": "658f4078e3a2e943b617aeda6bb7c7e265dee1ac",
+  "retired": [
+    {
+      "fixtureFile": "acquisition-operator-preview-account.json",
+      "active": false,
+      "method": "real Owner management UI; re-opened to verify"
+    },
+    {
+      "fixtureFile": "acquisition-preview-account.json",
+      "active": false,
+      "method": "real Owner management UI; re-opened to verify"
+    }
+  ],
+  "ownerPreserved": true,
+  "boundary": "Do not reuse these fixture accounts for 07. Create new personal staff and enroll MFA via supported UI."
+}

@@ -1,281 +1,239 @@
 (() => {
-  const root = document.getElementById('content-app');
-  if (!root || root.dataset.initialized) return;
-  root.dataset.initialized = '1';
-  const $ = id => document.getElementById(id);
-  const state = {data:null, drama:null, episodeEdit:null, selection:0, selectionLoading:false, uploading:false, category:null, banner:null, planPreview:null, manualPreview:null, launchPreview:null, nextBatchPreview:null, defaultPreview:null, csrf:null, view:'dramas', detail:'basics', savedForms:{}};
-  const allowedViews=['dramas','releases','categories','banners'],allowedDetails=['basics','episodes','rights','release','history'];
-  const initialUrl=new URL(location.href);state.view=allowedViews.includes(initialUrl.searchParams.get('content_view'))?initialUrl.searchParams.get('content_view'):'dramas';state.detail=allowedDetails.includes(initialUrl.searchParams.get('content_detail'))?initialUrl.searchParams.get('content_detail'):'basics';
-  const base = '/api/v1/admin/content';
-  const statuses = {draft:'草稿', published:'已公开', withdrawn:'已下架', uploading:'上传中', pending:'待处理', processing:'处理中', ready:'就绪', failed:'失败', canceled:'已取消', active:'执行中', paused:'已暂停', disabled:'已停用', finished:'计划结束', missed_pending_policy:'漏排期，待处理'};
-  function message(text, error=false) { $('content-message').textContent=text; $('content-message').style.background=error?'#fee2e2':'#f0fdf4'; $('content-message').style.color=error?'#991b1b':'#166534'; }
-  async function api(path, method='GET', body=null, extra={}) {
-    if (!state.csrf) {
-      const r=await fetch('/api/v1/admin/csrf',{credentials:'same-origin',headers:{Accept:'application/json'}});
-      if (!r.ok) throw new Error('后台会话不可用，请重新登录。');
-      state.csrf=(await r.json()).csrf_token;
+  'use strict';
+  const root=document.getElementById('content-app');if(!root||root.dataset.initialized)return;root.dataset.initialized='1';
+  const $=id=>document.getElementById(id),base='/api/v1/admin/content',esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const S={data:null,drama:null,result:null,assets:new Map(),view:'dramas',tab:'episodes',filter:'all',page:0,search:'',status:'all',dialog:null,editor:null,batch:null,busy:false,transfer:false,csrf:null,mainSnapshot:null,dialogSnapshot:null,releaseEditing:false};
+  const states={draft:'草稿',published:'已上架',withdrawn:'已下架',uploading:'上传中',pending:'待处理',processing:'处理中',ready:'已就绪',failed:'处理失败',canceled:'已取消',active:'计划生效中',paused:'已暂停',disabled:'已停用',finished:'已完成',missed_pending_policy:'漏排期，待处理'};
+  const icon=name=>`<svg class="ct-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${({upload:'<path d="M12 16V3m-5 5 5-5 5 5M3 16v5h18v-5"/>',eye:'<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 3v.1"/>'})[name]}</svg>`;
+  const names={video:'视频',subtitle:'字幕',cover:'封面',banner:'横图'},langs={en:'英文',zh_CN:'简体中文'};
+  const busyAttrs=(action,attrs='')=>S.busy&&!['cancel-batch','cancel-candidate'].includes(action)&&!attrs.includes('disabled')?'disabled data-content-busy':'';
+  const btn=(label,action,cls='',attrs='')=>`<button type="button" class="h5-button ${cls}" data-action="${action}" ${attrs} ${busyAttrs(action,attrs)}>${label}</button>`;
+  const link=(label,action,attrs='')=>`<button type="button" class="h5-link" data-action="${action}" ${attrs} ${busyAttrs(action,attrs)}>${label}</button>`;
+  const pill=(text,kind='')=>`<span class="h5-badge ${kind}">${esc(text)}</span>`;
+  const field=(label,name,value='',attrs='',wide=false)=>`<label class="h5-field ${wide?'h5-span':''}">${label}<input class="h5-input" name="${name}" value="${esc(value)}" ${attrs}></label>`;
+  const textarea=(label,name,value='')=>`<label class="h5-field h5-span">${label}<textarea class="h5-input" name="${name}" rows="3">${esc(value)}</textarea></label>`;
+  const table=(heads,rows)=>`<div class="h5-table-wrap"><table class="h5-table"><thead><tr>${heads.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows||`<tr><td colspan="${heads.length}" class="ct-empty">暂无记录</td></tr>`}</tbody></table></div>`;
+  const select=(name,items,value,attrs='')=>`<select class="h5-input" name="${name}" ${attrs}>${items.map(([v,t])=>`<option value="${esc(v)}" ${String(v)===String(value)?'selected':''}>${esc(t)}</option>`).join('')}</select>`;
+  const title=d=>d.title_zh||d.title_en||'未命名草稿',asset=id=>S.assets.get(id),fileName=id=>asset(id)?.metadata?.original_filename|| (id?id.slice(-8):'未上传');
+  const local=v=>v?new Date(new Date(v).getTime()+8*3600000).toISOString().slice(0,16):'',utc=v=>v?v+':00+08:00':null,date=v=>v?local(v).replace('T',' ')+' 北京时间':'待设置';
+  const count=d=>d.episodes.filter(e=>e.published_at).length;
+  const next=d=>{const used=new Set(d.episodes.filter(e=>e.published_at).map(e=>e.number));let n=1;while(used.has(n))n++;return n;};
+  const ready=e=>asset(e.video_asset_id)?.state==='ready'&&(!e.subtitle_asset_id||asset(e.subtitle_asset_id)?.state==='ready')&&(!e.subtitle_asset_id||(asset(e.subtitle_asset_id)?.metadata.last_end??Infinity)<=(asset(e.video_asset_id)?.metadata.duration??0)+.5);
+  function episodes(){const d=S.drama,map=new Map(d.episodes.map(e=>[e.number,e]));return d.total_episodes?Array.from({length:d.total_episodes},(_,i)=>map.get(i+1)||{number:i+1,id:null}):[...d.episodes].sort((a,b)=>a.number-b.number);}
+  function message(text,error=false){const el=S.dialog?$('content-dialog-error'):$('content-message');el.textContent=text;el.hidden=!text;el.className=error?'h5-error':'ct-note';}
+  async function api(path,method='GET',body=null,headers={}){
+    if(!S.csrf)S.csrf=(await H5ContentErrors.request('/api/v1/admin/csrf',{headers:{Accept:'application/json'}})).csrf_token;
+    return H5ContentErrors.request(base+path,{method,credentials:'same-origin',headers:{Accept:'application/json','X-CSRF-TOKEN':S.csrf,...(body!==null&&!(body instanceof Blob)?{'Content-Type':'application/json'}:{}),...headers},body:body===null?null:body instanceof Blob?body:JSON.stringify(body)});
+  }
+  const formValues=f=>f?Object.fromEntries([...new FormData(f)].map(([k,v])=>[k,v])):{};
+  const activeForm=()=>S.drama?$('content-detail-'+S.tab)?.querySelector('form[data-editor]'):null;
+  const modalForm=()=>$('content-dialog-content').querySelector('form');
+  const snapshot=f=>JSON.stringify(f?[...new FormData(f)].filter(([,v])=>typeof v==='string'):[]);
+  function mainDirty(){return S.mainSnapshot!==null&&snapshot(activeForm())!==S.mainSnapshot;}
+  function dialogDirty(){return S.dialogSnapshot!==null&&snapshot(modalForm())!==S.dialogSnapshot||Boolean(S.editor?.candidates&&Object.values(S.editor.candidates).some(Boolean))||Boolean(S.batch?.rows.length&&S.batch.stage!=='done')||Boolean(S.image?.asset);}
+  const dirty=()=>S.transfer||mainDirty()||dialogDirty();
+  async function guard(){return !dirty()||H5Admin.confirmUnsaved({save:saveForLeave,discard:discardForLeave});}
+  async function saveForLeave(){if(S.transfer||S.batch||S.dialog==='release-confirm')return false;try{if(S.dialog&&dialogDirty()){if(!await saveDialog())return false;}if(mainDirty())return await saveMain();return !dirty();}catch(e){message(e.message,true);return false;}}
+  async function discardForLeave(){if(S.transfer)return false;if(S.dialog&&!await discardDialog())return false;if(S.dialog)closeDialog();if(mainDirty())renderDetailBody();return true;}
+  let syncing=false;
+  function activate(group,id){const b=$(`${group}-tab-${id}`);if(b&&b.getAttribute('aria-selected')!=='true')H5Admin.activateTab(b);}
+  function writeUrl(replace=false){if(syncing)return;const u=new URL(location.href);u.searchParams.set('content_view',S.view);u.searchParams.set('content_detail',S.tab);if(S.drama)u.searchParams.set('content_drama',S.drama.id);else u.searchParams.delete('content_drama');if(u.href!==location.href)history[replace?'replaceState':'pushState']({},'',u);}
+  async function loadIndex(){S.data=await api('');for(const a of S.data.assets)S.assets.set(a.id,a);}
+  async function fetchDrama(id){const r=await api('/dramas/'+id);for(const a of r.assets)S.assets.set(a.id,a);return r;}
+  async function refreshDrama(){const r=await fetchDrama(S.drama.id);S.drama=r.drama;S.result=r;return r;}
+  async function openDrama(id,tab='episodes'){if(!await guard())return;S.result=await fetchDrama(id);S.drama=S.result.drama;S.tab=tab;S.releaseEditing=false;S.filter='all';S.page=0;S.mainSnapshot=null;render();writeUrl();}
+  function render(){
+    $('content-crumb').hidden=!S.drama;$('content-drama-title').textContent=S.drama?title(S.drama):'内容管理';$('content-drama-summary').textContent='剧目内管理视频、字幕与封面；首页横图在 Banner 中管理。';
+    $('content-list-screen').hidden=Boolean(S.drama);$('content-detail-screen').hidden=!S.drama;
+    syncing=true;
+    if(S.drama){$('content-crumb-title').textContent=title(S.drama);$('content-drama-title').textContent=title(S.drama);$('content-drama-summary').textContent=`共 ${S.drama.total_episodes??'未确认'} 集 · ${S.drama.episodes.filter(ready).length} 集媒体就绪 · ${count(S.drama)} 集已公开`;$('content-list-actions').innerHTML=pill(S.drama.state==='withdrawn'?'已下架':count(S.drama)?`已公开 ${count(S.drama)} 集`:'草稿',count(S.drama)?'h5-ok':'')+btn(icon('eye')+'预览','preview');activate('content-detail-tabs',S.tab);renderDetailBody();}
+    else{activate('content-tabs',S.view);$('content-list-actions').innerHTML=(S.view==='dramas'?btn('＋ 新建剧目','new-drama','h5-primary'):'');renderList();S.mainSnapshot=null;}
+    syncing=false;
+  }
+  function nextBatchLabel(d){
+    const p=d.plan,total=d.total_episodes,published=d.published_count;
+    const stopped=p.state==='disabled'||d.state==='withdrawn';
+    if(Number.isInteger(total)&&total>0&&published>=total)return '无后续分集'+(stopped?' · 已停用':'');
+    if(stopped)return '已停用'+(total===null?' · 总集数未确认':'');
+    if(!Number.isInteger(total)||total<1)return '总集数未确认';
+    if(p.state==='finished')return '计划已结束，请核对未公开分集';
+    const from=Math.max(p.start_number,published+1),through=p.mode==='completed'?total:Math.min(total,from+p.batch_size-1);
+    if(!Number.isInteger(from)||!Number.isInteger(through)||from<1||from>through)return '后续范围待核对';
+    return `第 ${from}–${through} 集`;
+  }
+  function renderList(){
+    const d=S.data;if(!d)return;
+    if(S.view==='dramas'){
+      const list=d.dramas.filter(x=>(S.status==='all'||dramaState(x)===S.status)&&`${title(x)} ${x.title_en}`.toLowerCase().includes(S.search.toLowerCase()));
+      $('content-view-dramas').innerHTML=`<div class="ct-tools"><input class="h5-input ct-search" id="content-search" placeholder="搜索剧名" aria-label="搜索剧目" value="${esc(S.search)}">${select('list_status',[['all','全部状态'],['草稿','草稿'],['待上线','待上线'],['已上架','已上架'],['已下架','已下架']],S.status,'aria-label="剧目状态"')}</div>`+table(['剧目','状态','媒体就绪','已公开','操作'],list.map(x=>`<tr><td><div class="ct-film">${imagePreview(x.cover_asset_id,'ct-poster')}<div><div class="ct-name">${esc(title(x))}</div><small class="h5-muted">${esc(x.title_en)}</small></div></div></td><td>${pill(dramaState(x),x.state==='published'?'h5-ok':'')}</td><td>${x.ready_count??0} / ${x.total_episodes??'未确认'}${x.total_episodes&&x.ready_count<x.total_episodes?'<br>'+link((x.total_episodes-x.ready_count)+' 集待处理','open-issues',`data-id="${x.id}"`):''}</td><td>${x.published_count} / ${x.total_episodes??'未确认'}</td><td>${link('管理剧目','open',`data-id="${x.id}"`)}</td></tr>`).join(''))+`<div class="ct-footer"><span>共 ${list.length} 部</span><span>新建和上传均保存为草稿</span></div>`;
+    }else if(S.view==='releases')$('content-view-releases').innerHTML=table(['剧目','下一次发布（北京时间）','下一批','状态',''],d.dramas.map(x=>`<tr><td>${esc(title(x))}</td><td>${x.plan.next_at?date(x.plan.next_at):'尚未安排'}</td><td>${esc(nextBatchLabel(x))}</td><td>${pill(states[x.plan.state])}</td><td>${link('查看设置','open-release',`data-id="${x.id}"`)}</td></tr>`).join(''))+'<div class="h5-card ct-gap"><h3>异常处理</h3><p class="ct-note">服务器故障错过发布时间的规则待确认，当前不提供自动补发承诺。</p></div>';
+    else if(S.view==='categories')$('content-view-categories').innerHTML=`<div class="ct-tools"><span class="h5-muted">管理网站分类及展示顺序</span>${btn('新增分类','category','h5-primary')}</div>`+table(['中文名称','英文名称','排序','状态',''],d.categories.map(c=>`<tr><td>${esc(c.name_zh)}</td><td>${esc(c.name_en)}</td><td>${c.sort_order}</td><td>${pill(c.active?'启用':'停用',c.active?'h5-ok':'')}</td><td>${link('编辑','category',`data-id="${c.id}"`)}</td></tr>`).join(''));
+    else $('content-view-banners').innerHTML=`<div class="ct-tools"><span class="h5-muted">在此管理横图、文案与关联剧目</span>${btn('新增 Banner','banner','h5-primary')}</div>`+d.banners.map(b=>`<div class="h5-card ct-gap"><div class="ct-media-head"><div class="h5-toolbar">${imagePreview(b.image_asset_id,'ct-banner-image')}<div><h3>${esc(b.title_zh||b.title_en||'未命名 Banner')}</h3><small class="h5-muted">目标：${esc(title(d.dramas.find(x=>x.id===b.drama_id)||{}))}<br>横图：${esc(fileName(b.image_asset_id))}</small></div></div>${link('编辑','banner',`data-id="${b.id}"`)}</div><div class="ct-formactions">${pill(b.active?'配置已启用':'已停用',b.active?'h5-ok':'')}<span class="ct-small h5-muted">${esc(bannerVisibility(b))}</span></div></div>`).join('');
+  }
+  function bannerVisibility(b){const d=S.data.dramas.find(d=>d.id===b.drama_id);if(!b.active)return '未启用，不在首页展示';if(!d||d.state!=='published')return '目标未公开或已下架，首页隐藏';if(!d.license_until||new Date(d.license_until)<=new Date())return '授权未登记或已到期，首页隐藏';return '仍需通过访客地区、授权起止及媒体可用性检查';}
+  function dramaState(d){return d.state==='withdrawn'?'已下架':d.state==='published'?'已上架':d.plan?.state==='active'?'待上线':'草稿';}
+  function imagePreview(id,cls){return id&&asset(id)?.state==='ready'?`<img class="${cls}" src="${base}/assets/${id}/preview" alt="已绑定图片">`:`<div class="${cls}">暂无图片</div>`;}
+  function renderDetailBody(){
+    if(!S.drama)return;const out=$('content-detail-'+S.tab);out.innerHTML=({basics:basicView,episodes:episodeView,rights:rightsView,release:releaseView,history:historyView}[S.tab])();S.mainSnapshot=snapshot(activeForm());
+    if(S.tab==='release'&&$('release-plan'))updateSchedule();
+    if(S.tab==='release'&&S.drama.state!=='withdrawn'&&(!S.drama.total_episodes||count(S.drama)<S.drama.total_episodes))out.insertAdjacentHTML('beforeend',`<p class="ct-note">${link('手动发布连续分集','manual')} · 扩展操作，先预览范围再确认</p>`);
+  }
+  function basicFields(d){return field('中文剧名','title_zh',d.title_zh,'maxlength="200"')+field('英文剧名','title_en',d.title_en,'maxlength="200"')+textarea('中文简介','synopsis_zh',d.synopsis_zh)+textarea('英文简介','synopsis_en',d.synopsis_en)+`<label class="h5-field">分类<select class="h5-input" name="category_ids" multiple>${S.data.categories.map(c=>`<option value="${c.id}" ${(d.categories||[]).some(x=>x.id===c.id)?'selected':''}>${esc(c.name_zh||c.name_en)}</option>`).join('')}</select></label>`+field('已确认总集数','total_episodes',d.total_episodes,'type="number" min="1" max="10000" placeholder="尚未确认可留空"')+`<div class="h5-field"><span>竖版封面</span><div class="h5-toolbar"><span id="current-cover">${imagePreview(d.cover_asset_id,'ct-poster')}</span><span class="ct-small"><span id="cover-name">${esc(fileName(d.cover_asset_id))}</span><br>${link('更换封面','cover')}</span></div><input type="hidden" name="cover_asset_id" value="${d.cover_asset_id||''}"></div><label class="h5-field">首页展示<span><input type="checkbox" name="recommended" ${d.recommended?'checked':''}> 加入首页推荐</span><small>发布后生效</small></label>`+field('目录排序','sort_order',d.sort_order||0,'type="number" min="0"');}
+  function basicView(){return `<form id="drama-form" data-editor class="h5-card"><div class="h5-form-grid">${basicFields(S.drama)}</div><div class="ct-formactions"><span class="ct-small h5-muted">资料修改只在保存后生效</span><button type="submit" class="h5-button h5-primary">保存资料</button></div></form>`;}
+  function rightsView(){const d=S.drama;return `<form id="rights-form" data-editor class="h5-card"><div class="h5-form-grid">${field('授权地区（两位代码，逗号分隔）','regions',d.regions.join(','))}<div class="h5-field"><span>素材语言</span><span>${[...new Set(d.episodes.filter(e=>e.subtitle_language).map(e=>langs[e.subtitle_language]))].join('、')||'尚未登记字幕语言'}</span><small>由分集字幕登记汇总，实际语言仍需人工核对</small></div>${field('授权开始（北京时间）','license_from',local(d.license_from),'type="datetime-local"')}${field('授权结束（北京时间，不含该时刻）','license_until',local(d.license_until),'type="datetime-local"')}${textarea('授权登记说明','rights_note',d.rights_note)}${field('前多少集免费','free_count',d.free_count,'type="number" min="0" max="10000" required')}<div><span class="ct-small h5-muted">当前来源</span><p class="ct-note">${d.free_overridden?'单剧设置；全局同步保留本剧设置':'沿用创建时默认值'}</p></div></div><div class="ct-formactions"><span class="ct-small h5-muted">保存此页会将免费集数记为单剧设置</span><button class="h5-button h5-primary" type="submit">保存授权与试看</button></div></form>`;}
+  function episodeView(){const all=episodes(),issues=all.filter(e=>!ready(e)),published=all.filter(e=>e.published_at);let list=S.filter==='issues'?issues:S.filter==='published'?published:all;const total=list.length;S.page=Math.max(0,Math.min(S.page,Math.ceil(total/5)-1));list=list.slice(S.page*5,S.page*5+5);
+    return `<div class="${issues.length?'h5-alert':'h5-success'} ct-tools"><span>${issues.length?`${icon('alert')}${issues.length} 集需要处理，全集暂不可发布`:`${all.length} 集媒体已就绪；上传完成不会自动公开。`}</span>${link(issues.length?'只看待处理':'前往发布设置',issues.length?'issues':'release')}</div><div class="ct-tools"><div class="h5-toolbar">${[['all',`全部 ${all.length}`],['issues',`待处理 ${issues.length}`],['published',`已公开 ${published.length}`]].map(([v,t])=>`<button type="button" class="ct-chip" data-action="filter" data-filter="${v}" aria-pressed="${S.filter===v}">${t}</button>`).join('')}</div>${btn(icon('upload')+'批量上传','upload','h5-primary')}</div>`+table(['分集','视频','字幕','公开状态','操作'],list.map(e=>`<tr><td><div class="ct-name">第 ${e.number} 集</div><small class="h5-muted">${esc(e.title_zh||e.title_en||'')}</small></td><td>${pill(states[asset(e.video_asset_id)?.state]||'缺少视频',asset(e.video_asset_id)?.state==='ready'?'h5-ok':'h5-bad')}<div class="ct-note">${esc(fileName(e.video_asset_id))}</div></td><td><span class="ct-small">${langs[e.subtitle_language]||'未登记'} · ${states[asset(e.subtitle_asset_id)?.state]||'未上传'}</span><div class="ct-note">${esc(fileName(e.subtitle_asset_id))}</div></td><td>${e.published_at?'已公开':'草稿'}</td><td><div class="h5-toolbar">${ready(e)?link('预览','preview',`data-number="${e.number}"`):link('处理问题','episode',`data-number="${e.number}"`)}${link('编辑','episode',`data-number="${e.number}"`)}</div></td></tr>`).join(''))+`<div class="ct-footer"><span>${total?`${S.page*5+1}–${Math.min(S.page*5+5,total)} / ${total} 集`:'0 集'} · 按集数排序</span><div class="h5-toolbar">${btn('上一页','previous','',S.page===0?'disabled':'')}${btn('下一页','next','',(S.page+1)*5>=total?'disabled':'')}</div></div>`;
+  }
+  function releaseSettings(){const p=S.drama.plan;return {mode:p.mode,timing:p.state==='draft'?(p.draft_timing||'scheduled'):'scheduled',interval_days:p.interval_days,batch_size:p.batch_size,date:local(p.next_at||p.launch_at)};}
+  function releaseView(){const d=S.drama,p=d.plan,done=d.total_episodes&&count(d)===d.total_episodes;
+    if(d.state==='withdrawn')return `<div class="h5-card ct-gap"><h2>本剧已下架</h2><p class="ct-note">已公开 ${count(d)} 集与素材保留，旧发布计划已停用。</p><div class="ct-gap">${btn('重新上架','relist','h5-primary')}</div></div>`;
+    if(!S.releaseEditing&&(['active','paused','missed_pending_policy'].includes(p.state)||done)){
+      const from=next(d),through=p.mode==='completed'?d.total_episodes:Math.min(d.total_episodes||Infinity,from+p.batch_size-1);
+      return `<div class="h5-card ct-gap"><div class="ct-media-head"><h2>${done?'全集已公开':p.state==='active'?'后续更新已安排':p.state==='paused'?'后续更新已暂停':'排期待处理'}</h2>${pill(done?'已完结':states[p.state],done||p.state==='active'?'h5-ok':'h5-warn')}</div><dl class="ct-dl"><dt>已公开</dt><dd class="ct-name">${count(d)} / ${d.total_episodes??'总数未确认'} 集</dd><dt>下一批</dt><dd>${done?'无，已全部上线':`第 ${from}–${through} 集`}</dd><dt>下次时间</dt><dd>${done?'无需再设置':p.state==='active'?date(p.next_at):'恢复更新时确认'}</dd><dt>更新方式</dt><dd>${p.mode==='completed'?'全集一次上线':`每 ${p.interval_days} 天更新 ${p.batch_size} 集`}</dd></dl>${!done?'<h3>后续排期（北京时间）</h3>'+scheduleHtml({mode:p.mode,timing:'scheduled',interval_days:p.interval_days,batch_size:p.batch_size,date:local(p.next_at)},true):''}<div class="ct-formactions"><div class="h5-toolbar">${!done?btn(p.state==='active'?'暂停后续更新':'恢复更新',p.state==='active'?'pause':'resume','h5-primary')+btn('修改计划','revise'):''}</div>${!done&&p.state==='active'&&p.mode==='updating'?link('提前发布下一批','early'):''}</div><p class="ct-note">${done?'可回到分集与字幕更换素材，公开集数不变。':'每批检查素材和授权；缺集不跳过。补齐不会立即补发，正常计划等待下一正常时刻；已暂停/漏排期需确认处理。'}</p><div class="ct-formactions">${link('管理分集与字幕','episodes')}${count(d)?btn('整剧下架','withdraw','h5-danger'):''}</div></div>`;
     }
-    const headers={Accept:'application/json','X-CSRF-TOKEN':state.csrf,...extra};
-    if (body!==null && !(body instanceof Blob)) headers['Content-Type']='application/json';
-    const r=await fetch(base+path,{method,headers,body:body===null?null:body instanceof Blob?body:JSON.stringify(body),credentials:'same-origin'});
-    const json=await r.json().catch(()=>({}));
-    if (!r.ok) throw new Error((json.error?.message||'操作失败')+(json.error?.fields?'：'+JSON.stringify(json.error.fields):'')+' ['+(json.error?.code||r.status)+']');
-    return json;
+    const v=releaseSettings();return `<div class="ct-split"><form id="release-plan" data-editor class="h5-card"><h3>上线方式</h3>${[['completed','全集一次上线','已完结 · 剩余全部分集一次公开'],['updating','分批更新','按集数顺序更新，最后一批发布剩余集数']].map(([id,label,note])=>`<label class="h5-choice"><input type="radio" name="mode" value="${id}" ${v.mode===id?'checked':''}><span>${label}<small class="h5-muted ct-choice-note">${note}</small></span></label>`).join('')}<div id="release-batch-fields" class="h5-form-grid ct-gap"><label class="h5-field">更新频率${select('interval_days',[[1,'每天'],[2,'每两天'],[7,'每周']],v.interval_days)}</label><label class="h5-field">每批集数${select('batch_size',[1,2,5,10,20].map(n=>[n,n+' 集']),v.batch_size)}</label></div><h3 class="ct-gap">${count(d)?'下一批上线时间':'首批上线时间'}</h3><div class="ct-timing">${[['scheduled','指定时间'],['now','现在']].map(([id,label])=>`<label><input type="radio" name="timing" value="${id}" ${v.timing===id?'checked':''}>${label}</label>`).join('')}</div><label id="release-date-field" class="h5-field"><span id="release-date-label">上线日期与时间（北京时间）</span><input class="h5-input" name="date" type="datetime-local" value="${v.date}"><small id="release-date-note" class="h5-muted"></small></label><div class="ct-formactions">${btn('保存草稿','save-plan')}<span class="ct-small h5-muted">不会启用发布</span></div></form><div class="h5-card"><h3>完整上线安排</h3><p class="ct-note">北京时间 · 共 ${d.total_episodes??'未确认'} 集</p><div id="release-schedule"></div><div id="release-checks"></div><p class="ct-note">缺集阻断当前批、不跳集；上传补齐不立即补发。版权仍需运营核实。</p><div class="ct-formactions">${btn('确认上线安排','release-confirm','h5-primary')}</div><p class="ct-note">下一步核对首批与后续安排，再确认启用。</p></div></div>`;
   }
-  function run(fn) {
-    return async e => {
-      const target=e?.currentTarget;e?.preventDefault();
-      const otherDrafts=target instanceof HTMLFormElement?dirtyForms().filter(f=>f!==target).map(f=>[f.id,formValues(f)]):[];
-      try {
-        if(target instanceof HTMLButtonElement&&dirty()&&!target.dataset.confirmFor&&!await guardUnsaved())return;
-        if(target?.dataset.confirmFor&&dirtyForms().some(f=>f.id!==target.dataset.confirmFor))throw new Error('请先保存其他表单，再确认此操作。');
-        message('正在处理，请稍候…');await fn(e);
-        if(target instanceof HTMLFormElement&&target.dataset.previewOnly!=='true')rememberForm(target);
-        for(const [id,data] of otherDrafts)fill(id,data);
-        if($('content-message').textContent==='正在处理，请稍候…')message('操作完成。');
-        root.dispatchEvent(new CustomEvent('content:action-result',{detail:{form:target instanceof HTMLFormElement?target:null,ok:true}}));
-      }catch(err){
-        for(const [id,data] of otherDrafts)fill(id,data);
-        message(err.message,true);root.dispatchEvent(new CustomEvent('content:action-result',{detail:{form:target instanceof HTMLFormElement?target:null,ok:false}}));
-      }
-    };
+  function settings(){const f=$('release-plan');return f?formValues(f):releaseSettings();}
+  function scheduleHtml(v,active=false){const d=S.drama,total=d.total_episodes;if(!total)return '<p class="ct-note">先确认总集数，才能列出完整上线安排。</p>';let n=next(d),i=0,html='';if(n>total)return '<p class="ct-note">全集已公开，无后续更新。</p>';while(n<=total){const end=v.mode==='completed'?total:Math.min(total,n+Number(v.batch_size)-1),isNow=!active&&v.timing==='now'&&i===0;const at=isNow?'现在 · 首批':v.date?date(new Date(new Date(utc(v.date)).getTime()+(i-(v.timing==='now'&&!active?1:0))*Number(v.interval_days)*86400000)):'待确认时间';const issues=episodes().filter(e=>e.number>=n&&e.number<=end&&!ready(e));html+=`<div class="ct-schedule-row"><span>${esc(at)}</span><span>第 ${n}–${end} 集${issues.length?'<br><small class="ct-red">有素材待处理</small>':''}</span></div>`;n=end+1;i++;}return html;}
+  function updateSchedule(){const v=settings(),from=next(S.drama),end=v.mode==='completed'?S.drama.total_episodes:Math.min(S.drama.total_episodes||Infinity,from+Number(v.batch_size)-1);$('release-batch-fields').hidden=v.mode!=='updating';$('release-date-field').hidden=v.timing==='now'&&end===S.drama.total_episodes;$('release-date-label').textContent=(v.timing==='now'?'后续首次更新':'上线日期与时间')+'（北京时间）';$('release-date-note').textContent=v.timing==='now'&&end<S.drama.total_episodes?`首批第 ${from}–${end} 集现在公开；第 ${end+1} 集起按这个时间继续。`:'';$('release-schedule').innerHTML=scheduleHtml(v);const bad=episodes().filter(e=>e.number>=from&&e.number<=end&&!ready(e));$('release-checks').innerHTML=`<div class="ct-checkline"><span class="${bad.length?'ct-red':'ct-green'}">${bad.length?'!':'✓'}</span><span>${bad.length?`本批第 ${bad.map(e=>e.number).join('、')} 集尚未就绪`:`首批第 ${from}–${end} 集媒体已就绪`}</span></div><p class="ct-note">服务器确认时再次核对资料、授权期限、地区和媒体。</p>`;}
+  function historyView(){const labels={'drama.saved':'保存资料/授权','episode.saved':'保存分集','episode.media_replaced':'确认替换媒体','free.saved':'保存免费集数','plan.saved':'保存计划','plan.activated':'启用计划','plan.launched_now':'首批上线并安排后续','plan.batch_published_early':'提前发布下一批','published':'公开分集','plan.paused':'暂停计划','plan.resumed':'恢复计划','drama.withdrawn':'整剧下架','drama.relisted':'重新上架','upload.canceled':'取消上传'};return table(['时间（北京时间）','操作','结果','操作人'],(S.result.operations||[]).map(o=>`<tr><td>${date(o.occurred_at)}</td><td>${esc(labels[o.action]||o.action)}</td><td>已记录 · 版本 ${o.version}</td><td>${esc(o.actor_kind==='system'?'系统':o.actor_name||'未记录（历史）')}</td></tr>`).join(''))+'<p class="ct-note">显示 Content 操作记录；升级前未记录的操作者不回填。完整员工审计在员工与权限查看。</p><h3 class="ct-gap">发布执行记录</h3>'+table(['时间','来源','分集','结果'],S.result.publications.map(p=>`<tr><td>${date(p.executed_at)}</td><td>${esc(p.source)}</td><td>${p.episode_numbers.join('、')||'—'}</td><td>${esc(p.error_code||p.result)}</td></tr>`).join(''));}
+
+  function dialog(kind,titleText,html,actions=btn('取消','close')+btn('保存','dialog-save','h5-primary')){
+    S.dialog=kind;$('content-dialog-title').textContent=titleText;$('content-dialog-content').innerHTML=html;$('content-dialog-actions').innerHTML=actions;message('');$('content-dialog').style.setProperty('--h5-dialog-content-start-gap',({category:20,banner:20,cover:20,'new-drama':12,episode:9,batch:5}[kind]||9)+'px');$('content-dialog-content').dataset.kind=kind;S.dialogSnapshot=snapshot(modalForm());H5Admin.openDialog('content-dialog');
   }
-  function form(id) { return $(id); }
-  const trackedFormIds=['drama-form','episode-form','rights-form','free-form','plan-form','resume-form','manual-form','relist-form','category-form','banner-form','default-form'];
-  function formValues(f){const out={};for(const el of f.elements){if(!el.name||el.type==='file')continue;out[el.name]=el.type==='checkbox'?el.checked:el.multiple?[...el.selectedOptions].map(o=>o.value):el.value;}return out;}
-  function rememberForm(f){if(f?.id&&trackedFormIds.includes(f.id))state.savedForms[f.id]=formValues(f);}
-  function dirtyForms(){return trackedFormIds.map(id=>$(id)).filter(f=>f&&JSON.stringify(formValues(f))!==JSON.stringify(state.savedForms[f.id]??{}));}
-  function restoreDirtyForms(){for(const f of dirtyForms())fill(f.id,state.savedForms[f.id]??{});syncPlanFields();state.planPreview=state.manualPreview=state.launchPreview=state.nextBatchPreview=state.defaultPreview=null;for(const id of ['confirm-publication','manual-confirm','next-batch-confirm','default-confirm'])if($(id))$(id).disabled=true;return !dirtyForms().length;}
-  async function saveDirtyForm(){
-    if(state.uploading||dirtyForms().some(f=>f.dataset.previewOnly==='true'))return false;
-    for(const f of [...dirtyForms()]){
-      if(!f.reportValidity())return false;
-      const saved=await new Promise(resolve=>{
-        let done=false;const finish=value=>{if(done)return;done=true;clearTimeout(timer);root.removeEventListener('content:action-result',listener);resolve(value);};
-        const listener=e=>{if(e.detail.form===f)finish(e.detail.ok===true);};
-        const timer=setTimeout(()=>finish(false),30000);root.addEventListener('content:action-result',listener);f.requestSubmit();
-      });
-      if(!saved)return false;
+  function closeDialog(){S.dialog=null;S.dialogSnapshot=null;S.editor=null;S.batch=null;S.image=null;S.confirm=null;H5Admin.closeDialog('content-dialog');}
+  async function requestClose(){if(S.transfer){message('上传仍在进行，请先取消上传。',true);return;}if(dialogDirty()&&!await H5Admin.confirmUnsaved({save:saveDialog,discard:discardDialog}))return;closeDialog();}
+  async function discardDialog(){if(S.transfer)return false;if(S.editor)for(const a of Object.values(S.editor.candidates).filter(Boolean)){if(!a.applied)await api('/uploads/'+a.id+'/cancel','POST',{});}if(S.batch)await cancelBatch();S.editor=null;S.batch=null;S.image=null;S.dialogSnapshot=null;return true;}
+  async function finish(text){closeDialog();await loadIndex();if(S.drama)await refreshDrama();S.releaseEditing=false;render();message(text);}
+  function dramaPayload(f,d=S.drama){const v=formValues(f),baseData=d||{};return {title_en:baseData.title_en||'',title_zh:baseData.title_zh||'',synopsis_en:baseData.synopsis_en||'',synopsis_zh:baseData.synopsis_zh||'',total_episodes:baseData.total_episodes??null,cover_asset_id:baseData.cover_asset_id||null,regions:baseData.regions||[],rights_note:baseData.rights_note||'',license_from:baseData.license_from?utc(local(baseData.license_from)):null,license_until:baseData.license_until?utc(local(baseData.license_until)):null,recommended:Boolean(baseData.recommended),sort_order:baseData.sort_order||0,category_ids:(baseData.categories||[]).map(c=>c.id),...(d?{version:d.version}:{}),...('title_en'in v?{title_en:v.title_en,title_zh:v.title_zh,synopsis_en:v.synopsis_en,synopsis_zh:v.synopsis_zh,total_episodes:v.total_episodes?Number(v.total_episodes):null,cover_asset_id:v.cover_asset_id||null,recommended:f.elements.recommended.checked,sort_order:Number(v.sort_order),category_ids:[...f.elements.category_ids.selectedOptions].map(o=>o.value)}:{}),...('regions'in v?{regions:v.regions.split(',').map(x=>x.trim().toUpperCase()).filter(Boolean),license_from:utc(v.license_from),license_until:utc(v.license_until),rights_note:v.rights_note}:{})};}
+  async function saveMain(){const f=activeForm();if(!f)return true;if(!f.reportValidity())return false;if(f.id==='release-plan')return savePlan();
+    const v=formValues(f),saved=await api('/dramas/'+S.drama.id,'PATCH',dramaPayload(f));S.drama.version=saved.version;
+    if(f.id==='rights-form'){try{await api('/dramas/'+S.drama.id+'/free','PATCH',{version:saved.version,free_count:Number(v.free_count)});}catch(e){message('授权资料已保存；免费集数尚未确认成功。输入已保留，请重试：'+e.message,true);return false;}}
+    await refreshDrama();render();message(f.id==='rights-form'?'授权登记和单剧试看已保存；版权仍需人工核实。':'资料已保存。');return true;
+  }
+  function planInput(v=settings()){return {version:S.drama.plan.version,mode:v.mode,interval_days:Number(v.interval_days),batch_size:Number(v.batch_size),launch_at:utc(v.date)};}
+  async function savePlan(){const v=settings();await api('/dramas/'+S.drama.id+'/plan','PUT',{...planInput(v),start_number:next(S.drama),draft_timing:v.timing});await refreshDrama();renderDetailBody();message('发布草稿已保存，尚未启用。');return true;}
+  function openEpisode(number){const ep=episodes().find(e=>e.number===number);S.editor={ep:{...ep},dramaVersion:S.drama.version,language:ep.subtitle_language||'en',candidates:{}};
+    for(const role of ['video','subtitle']){const candidates=S.result.assets.filter(a=>a.metadata?.context_episode_id===ep.id&&a.metadata.context_role==='episode_replacement_'+role&&a.id!==ep[role+'_asset_id']&&a.state!=='canceled');if(candidates.length)S.editor.candidates[role]=candidates.sort((a,b)=>b.id.localeCompare(a.id))[0];}
+    dialog('episode','编辑第 '+number+' 集',`<p class="ct-note">${esc(title(S.drama))} · ${ep.published_at?'已公开；确认替换后更新当前绑定':'草稿，保存后仍不对外公开'}</p><form id="episode-form"><div class="h5-form-grid">${field('集数','number',number,'readonly')}${field('中文标题','title_zh',ep.title_zh)}${field('英文标题','title_en',ep.title_en)}</div></form><div id="episode-media"></div>`,btn('取消','close')+btn('保存并确认素材','dialog-save','h5-primary'));renderEpisodeMedia();pollAssets();
+  }
+  function renderEpisodeMedia(){if(S.dialog!=='episode')return;const ed=S.editor,focus=document.activeElement,focusId=focus?.id;
+    $('episode-media').innerHTML=['video','subtitle'].map(role=>{const id=ed.ep[role+'_asset_id'],a=asset(id),candidate=ed.candidates[role];return `<section class="ct-media-row"><div class="ct-media-head"><h3>${names[role]}</h3>${btn('更换'+names[role],'replace','',`data-role="${role}" ${S.transfer||candidate?'disabled':''}`)}</div><div class="ct-current-file"><span>当前文件：${esc(fileName(id))}</span>${pill(states[a?.state]||'未上传',a?.state==='ready'?'h5-ok':'h5-warn')}${a?.state==='ready'?link('预览当前','asset-preview',`data-id="${id}"`):''}</div>${role==='subtitle'?`<label class="ct-language">字幕语言${select('subtitle_language',Object.entries(langs),candidate?.metadata.context_language||ed.language,'id="episode-language" '+(candidate?'disabled':''))}</label>`:''}${candidate?candidateHtml(candidate,role):''}</section>`;}).join('');const save=$('content-dialog-actions').querySelector('[data-action=dialog-save]'),candidates=Object.values(ed.candidates),waiting=S.transfer||candidates.some(a=>a.state!=='ready');save.textContent=candidates.length?'保存并确认替换':'保存分集';save.disabled=waiting||S.busy;if(S.busy&&!waiting)save.setAttribute('data-content-busy','');else save.removeAttribute('data-content-busy');if(focusId&&focus?.closest('#episode-media'))$(focusId)?.focus();
+  }
+  function candidateHtml(a,role){return `<div class="ct-candidate"><div class="ct-media-head"><strong>候选${names[role]}：${esc(fileName(a.id))}</strong>${pill(a.state==='ready'?'已就绪，待确认':states[a.state],a.state==='ready'?'h5-ok':'h5-warn')}</div>${a.state==='uploading'?`<progress class="ct-progress" max="${a.expected_bytes||1}" value="${a.received_bytes||0}"></progress><small>${a.received_bytes||0} / ${a.expected_bytes||0} 字节</small>`:''}${a.error_code?'<p class="ct-red">'+esc(H5ContentErrors.describe(a.error_code))+'</p>':''}<div class="h5-toolbar ct-gap">${a.state==='ready'?link('预览候选','asset-preview',`data-id="${a.id}"`):''}${a.state==='failed'?link('重试处理','retry',`data-id="${a.id}"`):''}${link('取消候选','cancel-candidate',`data-role="${role}"`)}</div><p class="ct-note">当前绑定保持不变。处理就绪并确认保存后才切换。</p></div>`;}
+  function choose(accept,multiple,callback){const input=document.createElement('input');input.type='file';input.accept=accept;input.multiple=multiple;input.addEventListener('change',()=>run(()=>callback([...input.files])));input.click();}
+  function validateFile(file,kind){const ext=file.name.split('.').pop().toLowerCase(),allowed=kind==='video'?['mp4']:kind==='subtitle'?['srt']:['png','jpg','jpeg'],max=kind==='video'?2147483648:kind==='subtitle'?2097152:20971520;if(!allowed.includes(ext)||!file.size||file.size>max)throw Error(file.name+'：类型或大小不符合要求');}
+  async function ensureEpisode(ep){if(ep.id)return ep;const saved=await api('/dramas/'+S.drama.id+'/episodes','POST',{number:ep.number,title_en:ep.title_en||'',title_zh:ep.title_zh||'',video_asset_id:null,subtitle_asset_id:null,subtitle_language:null});await refreshDrama();return saved;}
+  async function upload(file,kind,context,onUpdate,canceled){validateFile(file,kind);let a=await api('/uploads','POST',{kind,filename:file.name,bytes:file.size,...context});S.assets.set(a.id,a);onUpdate(a);
+    for(let pos=0;pos<file.size;pos+=1048576){if(canceled())return a;const result=await api('/uploads/'+a.id+'/chunks','POST',file.slice(pos,pos+1048576),{'Content-Type':'application/octet-stream','Upload-Offset':String(pos)});a={...a,received_bytes:result.received_bytes??Math.min(pos+1048576,file.size)};S.assets.set(a.id,a);onUpdate(a);}
+    if(canceled())return a;a=await api('/uploads/'+a.id+'/finish','POST',{});S.assets.set(a.id,a);onUpdate(a);return a;
+  }
+  async function replacement(role,files){const file=files[0];if(!file)return;if(S.editor.candidates[role])throw Error('请先确认或取消已有候选');validateFile(file,role);const ed=S.editor;ed.ep=await ensureEpisode(ed.ep);ed.dramaVersion=S.drama.version;const language=$('episode-language')?.value||'en';S.transfer=true;ed.cancel=false;
+    try{await upload(file,role,{context_drama_id:S.drama.id,context_episode_id:ed.ep.id,context_role:'episode_replacement_'+role,...(role==='subtitle'?{context_language:language}:{})},a=>{ed.candidates[role]=a;renderEpisodeMedia();},()=>ed.cancel);}finally{S.transfer=false;renderEpisodeMedia();pollAssets();}
+  }
+  async function saveEpisode(){const ed=S.editor,f=modalForm();if(S.transfer)throw Error('请等待上传完成');for(const a of Object.values(ed.candidates))if(a.state!=='ready')throw Error('候选尚未就绪，请处理或取消候选后保存');
+    if(!f.reportValidity())return false;const v=formValues(f),ep=ed.ep;
+    if(!ep.id||v.title_en!==(ep.title_en||'')||v.title_zh!==(ep.title_zh||'')){
+      const saved=await api('/dramas/'+S.drama.id+'/episodes'+(ep.id?'/'+ep.id:''),ep.id?'PATCH':'POST',{number:ep.number,title_en:v.title_en,title_zh:v.title_zh,video_asset_id:ep.video_asset_id||null,subtitle_asset_id:ep.subtitle_asset_id||null,subtitle_language:ep.subtitle_language||null,...(ep.id?{version:ep.version}:{})});ed.ep=saved;await refreshDrama();ed.dramaVersion=S.drama.version;S.dialogSnapshot=snapshot(f);
     }
-    return !dirtyForms().length;
+    for(const role of ['video','subtitle']){const a=ed.candidates[role];if(!a)continue;try{ed.ep=await api(`/dramas/${S.drama.id}/episodes/${ed.ep.id}/media-replacement`,'POST',{drama_version:ed.dramaVersion,episode_version:ed.ep.version,role,asset_id:a.id,subtitle_language:role==='subtitle'?a.metadata.context_language:null,confirmation:true});delete ed.candidates[role];await refreshDrama();ed.dramaVersion=S.drama.version;renderEpisodeMedia();}catch(e){message('未完成的候选已保留；已成功保存的标题或素材不回滚。'+e.message,true);return false;}}
+    await finish('分集修改已保存；公开状态与发布计划保持原规则。');return true;
   }
-  const dirty=()=>state.uploading||dirtyForms().length>0;
-  async function guardUnsaved(){if(!dirty())return true;return window.H5Admin?window.H5Admin.confirmUnsaved({save:saveDirtyForm,discard:async()=>!state.uploading&&restoreDirtyForms()}):false;}
-  function values(id) { const f=form(id), obj=Object.fromEntries(new FormData(f)); for(const el of f.elements) if(el.name && el.type==='checkbox') obj[el.name]=el.checked; return obj; }
-  function fill(id, data) { const f=form(id); f.reset(); for(const el of f.elements) { if(!el.name || !(el.name in data)) continue; if(el.type==='checkbox') el.checked=Boolean(data[el.name]); else if(el.multiple) for(const o of el.options) o.selected=data[el.name].includes(o.value); else el.value=data[el.name]??''; } }
-  const integer=v=>v===''||v===null?null:Number(v);
-  const utc=value=>value?value+':00+08:00':null;
-  const local=value=>value?new Date(new Date(value).getTime()+8*3600000).toISOString().slice(0,16):'';
-  const beijing=value=>new Date(new Date(value).getTime()+8*3600000).toISOString().slice(0,19).replace('T',' ')+' 北京时间';
-  const title=d=>d.title_zh||d.title_en||'未命名草稿';
-  const nextRange=(out,batch,total)=>out.plan_state==='finished'||!total||out.next_number>total?'无':`第 ${out.next_number}—${Math.min(total,out.next_number+batch-1)} 集`;
-  function optionList(id, items, label, allowBlank=true) { const s=$(id),old=s.value; s.replaceChildren(); if(allowBlank)s.add(new Option('未选择','')); for(const item of items)s.add(new Option(label(item),item.id)); if([...s.options].some(o=>o.value===old))s.value=old; }
-  function row(container,text,actions=[]) { const div=document.createElement('div'); div.className='row'; const label=document.createElement('span');label.textContent=text;div.append(label); const controls=document.createElement('div');controls.className='toolbar';for(const [caption,fn] of actions){const b=document.createElement('button');b.type='button';b.textContent=caption;b.addEventListener('click',run(fn));controls.append(b);}div.append(controls);container.append(div); }
-  function activateSharedTab(groupId,id) {const button=document.querySelector(`#${groupId} [data-admin-tab="${id}"]`);if(button&&button.getAttribute('aria-selected')!=='true')window.H5Admin?.activateTab(button);}
-  let restoringUrl=false;
-  function writeTabUrl(replace=false){const url=new URL(location.href);url.searchParams.set('content_view',state.view);url.searchParams.set('content_detail',state.detail);if(state.drama)url.searchParams.set('content_drama',state.drama.id);else url.searchParams.delete('content_drama');if(url.href!==location.href)history[replace?'replaceState':'pushState']({content:true},'',url);}
-  function setView(view) {state.view=view;activateSharedTab('content-tabs',view);}
-  function setDetail(detail) {state.detail=detail;activateSharedTab('content-detail-tabs',detail);if(detail==='history')$('publication-history').closest('details').open=true;}
-  function resetEpisodeForm() {
-    state.episodeEdit=null;
-    const used=new Set(state.drama?.episodes.map(ep=>ep.number)||[]);
-    let number=1;while(used.has(number))number++;
-    fill('episode-form',{number,title_en:'',title_zh:'',video_asset_id:'',subtitle_asset_id:'',subtitle_language:'en'});
-    form('episode-form').elements.number.readOnly=false;form('episode-form').elements.video_asset_id.disabled=false;form('episode-form').elements.subtitle_asset_id.disabled=false;
-    $('episode-mode').textContent='新增草稿分集';$('save-episode').textContent='新增分集';
-    rememberForm(form('episode-form'));
+  let pollTimer=null;
+  function pollAssets(){clearTimeout(pollTimer);if(!S.dialog)return;pollTimer=setTimeout(async()=>{try{const candidates=[...(S.editor?Object.values(S.editor.candidates):[]),...(S.batch?S.batch.rows.map(r=>r.asset).filter(Boolean):[]),...(S.image?.asset?[S.image.asset]:[])];if(!candidates.some(a=>['pending','processing','uploading'].includes(a.state)))return;
+      const page=await api('/assets');const fresh=new Map(page.assets.map(a=>[a.id,a]));for(const a of page.assets)S.assets.set(a.id,a);
+      // Context candidates can outlive the global 200 asset page.
+      if(S.drama){const result=await fetchDrama(S.drama.id);for(const a of result.assets)fresh.set(a.id,a);}
+      if(S.editor){for(const [role,a] of Object.entries(S.editor.candidates))if(fresh.has(a.id))S.editor.candidates[role]=fresh.get(a.id);renderEpisodeMedia();}
+      if(S.batch){for(const row of S.batch.rows)if(row.asset&&fresh.has(row.asset.id))row.asset=fresh.get(row.asset.id);renderBatch();}
+      if(S.image?.asset&&fresh.has(S.image.asset.id)){S.image.asset=fresh.get(S.image.asset.id);renderImageStatus();}
+    }catch(e){message('状态读取失败，未判定处理成功：'+e.message,true);}finally{if(S.dialog)pollAssets();}},1500);}
+  function batchOpen(){S.batch={stage:'choose',kind:'video',language:'en',rows:[],cancel:false};dialog('batch','批量上传分集','');renderBatch();}
+  function renderBatch(){if(S.dialog!=='batch')return;const b=S.batch,review=b.stage==='review',running=['upload','done'].includes(b.stage);
+    $('content-dialog-content').innerHTML=`<p class="ct-note">当前剧目：${esc(title(S.drama))} · 上传与处理不会自动公开</p><div class="ct-flow">${[['choose','选择文件'],['review','核对集数'],['upload','上传与处理']].map(([s,t])=>`<span ${b.stage===s?'class="ct-name"':''}>${t}</span>`).join('<span>→</span>')}</div>${!running?`<div class="h5-form-grid"><label class="h5-field">文件类型${select('batch_kind',[['video','视频 MP4'],['subtitle','字幕 SRT']],b.kind,b.rows.length?'disabled':'')}</label>${b.kind==='subtitle'?`<label class="h5-field">实际字幕语言${select('batch_language',Object.entries(langs),b.language)}</label>`:''}</div>`:''}${!running?`<div class="ct-drop"><p>选择${names[b.kind]}文件，下一步核对每个文件对应的集数</p>${btn('选择文件','choose-batch','h5-primary')}<p class="ct-note">视频最多 2 GiB / 个；SRT 最多 2 MiB / 个</p></div>`:''}${b.stage==='choose'?'':table(['文件名','对应集数','操作 / 状态'],b.rows.map((r,i)=>`<tr><td>${esc(r.file.name)}<small class="h5-muted"> · ${r.file.size} 字节</small></td><td>${review?`<input class="h5-input ct-mapping-number" aria-label="${esc(r.file.name)} 对应集数" type="number" min="1" max="${S.drama.total_episodes||10000}" data-mapping="${i}" value="${r.number||''}">`:`第 ${r.number} 集`}</td><td>${review?esc(mappingOperation(r)):r.error?`<span class="ct-red">${esc(r.error)}</span>`:r.applied?'已确认绑定':r.asset?pill(states[r.asset.state],r.asset.state==='ready'?'h5-ok':'h5-warn')+(r.asset.error_code?`<p class="ct-red">${esc(H5ContentErrors.describe(r.asset.error_code))}</p>`:''):'等待上传'}${running&&r.asset?`<progress class="ct-progress" max="${r.asset.expected_bytes}" value="${r.asset.received_bytes}"></progress>${r.asset.state==='failed'?link('重试处理','retry',`data-id="${r.asset.id}"`):''}`:''}</td></tr>`).join(''))}${running?'<p class="ct-note">处理就绪后确认绑定；已有素材在确认前保持不变。失败文件可重试或取消，成功绑定不会因取消回滚。</p>':''}`;
+    $('content-dialog-actions').innerHTML=b.stage==='choose'?btn('取消','close'):review?btn('取消','close')+link('重新选择','reset-batch')+btn('确认映射并开始上传','start-batch','h5-primary'):btn(S.transfer?'取消上传':'取消未绑定候选','cancel-batch')+btn('确认已就绪素材','apply-batch','h5-primary',S.transfer||!b.rows.some(r=>r.asset?.state==='ready'&&!r.applied)?'disabled':'')+(b.stage==='done'?btn('完成','batch-done'):'');
+    S.dialogSnapshot=null;
   }
-  function beginSelection() {
-    state.selectionLoading=true;state.drama=null;
-    resetEpisodeForm();
-    return ++state.selection;
+  function mappingOperation(r){const ep=S.drama.episodes.find(e=>e.number===r.number);return !ep?'新增分集候选':!ep[S.batch.kind+'_asset_id']?'补充缺失素材':asset(ep[S.batch.kind+'_asset_id'])?.state==='ready'?'已有有效素材，请在该集编辑中替换':'替换异常素材（就绪后确认）';}
+  function validateMappings(){const seen=new Set();for(const r of S.batch.rows){validateFile(r.file,S.batch.kind);if(!Number.isInteger(r.number)||r.number<1||r.number>(S.drama.total_episodes||10000)||seen.has(r.number))throw Error('集数必须在总数范围内且不能重复，请检查映射');seen.add(r.number);const ep=S.drama.episodes.find(e=>e.number===r.number);if(ep&&(ep.published_at||asset(ep[S.batch.kind+'_asset_id'])?.state==='ready'))throw Error(`第 ${r.number} 集已有有效素材或已公开，请使用该集编辑中的候选替换。上传尚未开始。`);}}
+  async function startBatch(){const b=S.batch;await refreshDrama();validateMappings();b.stage='upload';b.cancel=false;S.transfer=true;renderBatch();try{for(const r of b.rows){if(b.cancel)break;try{r.ep=await ensureEpisode(S.drama.episodes.find(e=>e.number===r.number)||{number:r.number});r.version=r.ep.version;
+        await upload(r.file,b.kind,{context_drama_id:S.drama.id,context_episode_id:r.ep.id,context_role:'episode_replacement_'+b.kind,...(b.kind==='subtitle'?{context_language:b.language}:{})},a=>{r.asset=a;renderBatch();},()=>b.cancel);
+      }catch(e){r.error=e.message;renderBatch();}}
+    }finally{S.transfer=false;renderBatch();pollAssets();}}
+  async function cancelBatch(){const b=S.batch;if(!b)return;b.cancel=true;for(const r of b.rows)if(r.asset&&!r.applied&&r.asset.state!=='canceled'){r.asset=await api('/uploads/'+r.asset.id+'/cancel','POST',{});S.assets.set(r.asset.id,r.asset);}b.stage='done';renderBatch();}
+  async function applyBatch(){const b=S.batch;for(const r of b.rows){if(r.applied||r.asset?.state!=='ready')continue;await refreshDrama();const ep=S.drama.episodes.find(e=>e.id===r.ep.id);if(ep.version!==r.version){r.error='分集已被修改，请保留候选并重新核对';continue;}try{await api(`/dramas/${S.drama.id}/episodes/${ep.id}/media-replacement`,'POST',{drama_version:S.drama.version,episode_version:r.version,role:b.kind,asset_id:r.asset.id,subtitle_language:b.kind==='subtitle'?b.language:null,confirmation:true});r.applied=true;r.error=null;}catch(e){r.error=e.message;}}
+    if(b.rows.every(r=>r.applied||r.asset?.state==='canceled'))b.stage='done';renderBatch();await refreshDrama();message('已成功绑定 '+b.rows.filter(r=>r.applied).length+' 个文件；其余状态见表格，尚未公开。');}
+  function imageEditor(kind,current){S.image={kind,asset:null,current};if(kind==='cover')return `<section class="ct-cover-editor"><div class="ct-media-head"><span>本剧竖版封面</span>${btn('上传替换图片','choose-image')}</div><div class="ct-cover-file">当前图片：${esc(fileName(current))}</div><div class="ct-cover-current">${imagePreview(current,'ct-image-preview ct-image-preview-cover')}</div><div id="image-status" aria-live="polite"></div><p class="ct-note">使用候选后还需保存基本资料才生效；不会同时保存其他未保存字段。</p></section>`;return `<section class="ct-media-row"><h3>${kind==='cover'?'竖版封面':'Banner 横图'}</h3><div class="ct-image-current ct-image-current-${kind}">${imagePreview(current,'ct-image-preview ct-image-preview-'+kind)}<span>当前：${esc(fileName(current))}</span></div><div class="ct-gap">${btn('选择图片','choose-image')}</div><div id="image-status"></div></section>`;}
+  function renderImageStatus(){const a=S.image?.asset;if(!$('image-status'))return;$('image-status').innerHTML=a?`<div class="ct-candidate"><strong>候选：${esc(fileName(a.id))}</strong> ${pill(states[a.state],a.state==='ready'?'h5-ok':'h5-warn')}<progress class="ct-progress" max="${a.expected_bytes}" value="${a.received_bytes}"></progress>${a.state==='ready'?imagePreview(a.id,'ct-image-preview ct-image-preview-'+S.image.kind):''}${a.error_code?'<p class="ct-red">'+esc(H5ContentErrors.describe(a.error_code))+'</p>':''}${a.state==='failed'?btn('重试处理','retry','',`data-id="${a.id}"`):''}</div>`:'';}
+  async function imageUpload(files){if(!files[0])return;S.transfer=true;try{await upload(files[0],S.image.kind,{},a=>{S.image.asset=a;renderImageStatus();},()=>false);}finally{S.transfer=false;pollAssets();}}
+  function openCategory(id){const c=S.data.categories.find(x=>x.id===id)||{};S.record=c;dialog('category',id?'编辑分类':'新增分类',`<form><div class="h5-form-grid">${field('中文名称','name_zh',c.name_zh)}${field('英文名称','name_en',c.name_en)}${field('排序','sort_order',c.sort_order||0,'type="number" min="0"')}<label class="h5-field">状态<span><input name="active" type="checkbox" ${c.active!==false?'checked':''}> 启用</span></label></div></form>`);}
+  function openBanner(id){const b=S.data.banners.find(x=>x.id===id)||{};S.record=b;dialog('banner',id?'编辑 Banner':'新增 Banner',`<form><div class="h5-form-grid">${field('中文标题','title_zh',b.title_zh)}${field('英文标题','title_en',b.title_en)}<label class="h5-field h5-span">关联剧目${select('drama_id',S.data.dramas.map(d=>[d.id,title(d)]),b.drama_id)}</label>${field('排序','sort_order',b.sort_order||0,'type="number" min="0"')}<label class="h5-field">展示状态<span><input type="checkbox" name="active" ${b.active?'checked':''}> 启用</span></label></div></form>${imageEditor('banner',b.image_asset_id)}`);}
+  async function saveDialog(){if(S.transfer)return false;if(S.dialog==='episode')return saveEpisode();const f=modalForm();if(f&&!f.reportValidity())return false;const v=formValues(f);
+    if(S.dialog==='new-drama'){const name=v.name.trim();if(!name)throw Error('请填写剧目名称');const d=await api('/dramas','POST',{...dramaPayload(null,null),title_zh:/[\u3400-\u9fff]/.test(name)?name:'',title_en:/[\u3400-\u9fff]/.test(name)?'':name});closeDialog();await loadIndex();S.result=await fetchDrama(d.id);S.drama=S.result.drama;S.tab='basics';render();writeUrl();message('新剧已保存为草稿，采用保存当时的默认免费集数。');return true;}
+    if(['banner','category'].includes(S.dialog)){const kind=S.dialog,c=S.record;v.active=f.elements.active.checked;v.sort_order=Number(v.sort_order);if(c.id)v.version=c.version;if(kind==='banner'){if(S.image.asset&&S.image.asset.state!=='ready')throw Error('候选图片尚未就绪');v.image_asset_id=S.image.asset?.id||c.image_asset_id;if(!v.image_asset_id)throw Error('请上传并处理 Banner 图片');}await api('/'+(kind==='banner'?'banners':'categories')+(c.id?'/'+c.id:''),c.id?'PATCH':'POST',v);await finish('已保存。公开网站按发布、地区与期限规则过滤。');return true;}
+    if(S.dialog==='cover'){const a=S.image.asset;if(!a||a.state!=='ready')throw Error('请先选择并处理就绪的封面');const f=activeForm();f.elements.cover_asset_id.value=a.id;$('current-cover').innerHTML=imagePreview(a.id,'ct-poster');$('cover-name').textContent=fileName(a.id);closeDialog();message('已选择封面，请保存基本资料以确认绑定。');return true;}
+    return false;
   }
-  function editEpisode(dramaId, ep) {
-    if(state.selectionLoading||state.drama?.id!==dramaId)return;
-    state.episodeEdit={id:ep.id,version:ep.version,dramaId,video_asset_id:ep.video_asset_id,subtitle_asset_id:ep.subtitle_asset_id};
-    fill('episode-form',ep);form('episode-form').elements.number.readOnly=Boolean(ep.published_at);form('episode-form').elements.video_asset_id.disabled=Boolean(ep.video_asset_id||ep.published_at);form('episode-form').elements.subtitle_asset_id.disabled=Boolean(ep.subtitle_asset_id||ep.published_at);
-    $('episode-mode').textContent=`正在编辑第 ${ep.number} 集${ep.published_at?'（已公开，序号不可修改）':'；修改序号仍保存这条原分集'}`;
-    $('save-episode').textContent='保存分集修改';$('episode-editor').open=true;
-    rememberForm(form('episode-form'));
+  function iso(v){return v?new Date(v).toISOString().replace('.000Z','+00:00'):null;}
+  async function releaseConfirm(){const v=settings(),input=v.timing==='now'?{mode:v.mode,interval_days:Number(v.interval_days),batch_size:Number(v.batch_size),next_at:utc(v.date)}:planInput(v),p=await api('/dramas/'+S.drama.id+(v.timing==='now'?'/launch-preview':'/schedule-preview'),'POST',input);
+    S.confirm={action:v.timing==='now'?'launch-now':'schedule',input:v.timing==='now'?{...input,plan_version:p.plan_version,confirmation:p.confirmation}:{...input,confirmation:p.confirmation}};
+    dialog('release-confirm','确认上线安排',`<p class="ct-note">${esc(title(S.drama))} · ${v.mode==='completed'?'全集一次上线':'分批更新'}</p><dl class="ct-dl"><dt>${v.timing==='now'?'现在上线':'首批上线'}</dt><dd>第 ${p.from}–${p.through} 集${v.timing==='scheduled'?'<br>'+date(utc(v.date)):''}</dd><dt>剩余集数</dt><dd>${p.through<S.drama.total_episodes?`第 ${p.through+1}–${S.drama.total_episodes} 集`:'无，全集完成上线'}</dd><dt>更新规则</dt><dd>${v.mode==='completed'?'全集一次上线':`每 ${v.interval_days} 天 ${v.batch_size} 集，最后一批发布剩余集数`}</dd><dt>免费范围</dt><dd>前 ${S.drama.free_count} 集；其余需要有效会员</dd></dl><h3>上线与更新排期（北京时间）</h3>${scheduleHtml(v)}<p class="${p.blocked_reason?'h5-alert':'h5-success'}">${p.blocked_reason?'当前阻断：'+esc(p.blocked_reason)+'。定时安排执行时仍须全部就绪。':'当前检查通过；执行时再次核对素材与授权。'}</p><p class="ct-note">${v.timing==='now'?'确认后立即公开本批并保存后续排期。':'确认后保存并启用；到指定时刻才公开。'}返回修改不会修改计划。</p>`,btn('返回修改','close')+btn(v.timing==='now'?(p.through<S.drama.total_episodes?'确认上线并启用后续更新':'确认全集上线'):'确认启用计划','confirm-action','h5-primary',p.blocked_reason&&v.timing==='now'?'disabled':''));
   }
-  async function reload(selected=state.drama?.id) {
-    const previousView=state.view,selection=beginSelection(),d=await api('');
-    if(selection!==state.selection)return;
-    state.data=d;
-    $('drama-list').replaceChildren();
-    d.dramas.forEach(x=>row($('drama-list'),`${title(x)} · ${statuses[x.state]} · 已公开 ${x.published_count}/${x.total_episodes??'总数未定'} · N=${x.free_count}`,[['管理剧目',()=>selectDrama(x.id,'basics')]]));
-    $('release-drama-list').replaceChildren();d.dramas.forEach(x=>row($('release-drama-list'),`${title(x)} · ${statuses[x.state]} · 已公开 ${x.published_count}/${x.total_episodes??'总数未定'} · N=${x.free_count} · ${statuses[x.plan.state]} · 下次 ${x.plan.next_at?beijing(x.plan.next_at):'未安排'}`,[['修改发布安排',()=>selectDrama(x.id,'release')]]));
-    if(!d.dramas.length)row($('drama-list'),'还没有剧目，先保存一部草稿。');
-    renderAssetOptions(d);
-    optionList('drama-categories',d.categories,x=>x.name_zh||x.name_en,false);
-    optionList('banner-dramas',d.dramas,title);
-    renderAssets(d);
-    $('category-list').replaceChildren();d.categories.forEach(c=>row($('category-list'),`${c.name_zh||c.name_en} · 排序 ${c.sort_order} · ${c.active?'启用':'停用'}`,[['编辑',()=>{state.category=c;fill('category-form',c);rememberForm(form('category-form'));}]]));
-    $('banner-list').replaceChildren();d.banners.forEach(b=>row($('banner-list'),`${b.title_zh||b.title_en} · 排序 ${b.sort_order} · ${b.active?'启用':'停用'}`,[['编辑',()=>{state.banner=b;fill('banner-form',b);rememberForm(form('banner-form'));}]]));
-    if($('default-form')&&!state.defaultPreview)form('default-form').elements.free_count.value=d.default_free_count;
-    if($('default-form'))rememberForm(form('default-form'));
-    if(selected)await selectDrama(selected,state.detail,false); else newDrama(false);setView(previousView);
+  function confirmation(action,titleText,text,form='',label='确认'){S.confirm={action,version:S.drama.plan.version,dramaVersion:S.drama.version};dialog('action-confirm',titleText,`<p class="ct-note">${text}</p>${form}`,btn('取消','close')+btn(label,'confirm-action',action==='withdraw'?'h5-danger':'h5-primary'));}
+  async function confirmAction(){const c=S.confirm,v=formValues(modalForm());if(!c)throw Error('请重新预览');const id=S.drama.id;
+    if(['schedule','launch-now','publish-next-batch','publish'].includes(c.action)){const out=await api('/dramas/'+id+'/'+c.action,'POST',c.input);S.mainSnapshot=null;await finish(c.action==='schedule'?'计划已启用，尚未到上线时间。':'发布安排已确认。');const d=S.drama;if(c.action!=='schedule')message(`已公开 ${count(d)} / ${d.total_episodes??'未确认'} 集；${count(d)===d.total_episodes?'全集已公开，无后续更新。':`下一批从第 ${next(d)} 集开始；下次时间 ${date(d.plan.next_at)}。`}`);return;}
+    if(c.action==='revise'){if(S.drama.plan.state==='active')await api('/dramas/'+id+'/pause','POST',{version:c.version});await refreshDrama();closeDialog();S.releaseEditing=true;render();message('已进入计划修改；保存草稿不会启用，确认安排后才启用。');return;}
+    const payload=c.action==='withdraw'?{version:c.dramaVersion}:c.action==='relist'?{version:c.dramaVersion,choice:v.choice,next_at:v.choice==='restore'?utc(v.date):null}:c.action==='resume'?{version:c.version,next_at:utc(v.date)}:{version:c.version};
+    await api('/dramas/'+id+'/'+c.action,'POST',payload);await finish(c.action==='withdraw'?'整剧已下架，旧计划停用。':c.action==='pause'?'后续更新已暂停，公开内容保留。':'已按确认的选择保存。');
   }
-  function renderAssetOptions(d) {
-    const assetLabel=x=>`${x.metadata?.original_filename||x.id.slice(-8)} · ${statuses[x.state]}${x.metadata?.width?' · '+x.metadata.width+'×'+x.metadata.height:''}`;
-    for(const [el,kind] of [['cover-assets','cover'],['banner-assets','banner'],['video-assets','video'],['subtitle-assets','subtitle']])optionList(el,d.assets.filter(a=>a.kind===kind),assetLabel);
+  async function assetPreview(id){const a=asset(id);if(!a||a.state!=='ready')throw Error('素材尚未就绪');let el=$('candidate-preview');if(el)el.remove();el=document.createElement('div');el.id='candidate-preview';el.className='ct-candidate';
+    if(a.kind==='video'){const video=document.createElement('video');video.controls=true;video.className='ct-media-preview';video.src=base+'/assets/'+id+'/preview';el.append(video);}else if(a.kind==='subtitle'){const r=await fetch(base+'/assets/'+id+'/preview',{headers:{Accept:'text/vtt'}});if(!r.ok)throw Error('字幕预览未授权或不可用');const pre=document.createElement('pre');pre.textContent=await r.text();el.append(pre);}else el.innerHTML=imagePreview(id,'ct-banner-image');$('content-dialog-content').append(el);
   }
-  function renderAssets(d) {
-    $('asset-list').replaceChildren();
-    d.assets.forEach(a=>row($('asset-list'),`${a.metadata?.original_filename||a.id} · ${a.kind} · ${statuses[a.state]} · ${a.received_bytes}/${a.expected_bytes}${a.error_code?' · '+a.error_code:''}`,a.state==='uploading'?[['取消上传',async()=>{await api('/uploads/'+a.id+'/cancel','POST',{});await reload();}]]:a.state==='failed'?[['重试处理',async()=>{await api('/uploads/'+a.id+'/retry','POST',{});await reload();}]]:[]));
-    $('more-assets').disabled=!d.asset_cursor;
+  async function action(button){const a=button.dataset.action,n=Number(button.dataset.number),id=button.dataset.id;
+    if(a==='close')return requestClose();if(a==='dialog-save')return saveDialog();if(a==='confirm-action')return confirmAction();
+    if(a==='back'){if(!await guard())return;S.drama=null;S.result=null;S.view='dramas';await loadIndex();render();writeUrl();}
+    else if(['open','open-release','open-issues'].includes(a)){await openDrama(id,a==='open-release'?'release':'episodes');if(a==='open-issues'){S.filter='issues';renderDetailBody();}}
+    else if(['episodes','release'].includes(a)){if(await guard()){S.tab=a;render();writeUrl();}}
+    else if(['filter','issues','previous','next'].includes(a)){if(a==='filter'||a==='issues'){S.filter=button.dataset.filter||'issues';S.page=0;}else S.page+=a==='next'?1:-1;renderDetailBody();}
+    else if(a==='new-drama'){dialog('new-drama','新建剧目',`<form><p class="ct-note">先建草稿，再进入单剧工作页补齐资料与素材。</p>${field('剧目名称','name','','placeholder="输入中文或英文剧名" maxlength="200" required')}<p class="ct-note">新剧默认前 ${S.data.default_free_count} 集免费。</p></form>`,btn('取消','close')+btn('创建并继续','dialog-save','h5-primary'));}
+    else if(a==='episode')openEpisode(n);
+    else if(a==='replace')choose(button.dataset.role==='video'?'.mp4':'.srt',false,files=>replacement(button.dataset.role,files));
+    else if(a==='cancel-candidate'){const role=button.dataset.role,ed=S.editor,c=ed.candidates[role];ed.cancel=true;if(c){await api('/uploads/'+c.id+'/cancel','POST',{});delete ed.candidates[role];renderEpisodeMedia();}}
+    else if(a==='retry'){const fresh=await api('/uploads/'+id+'/retry','POST',{});S.assets.set(id,fresh);if(S.editor)for(const role of Object.keys(S.editor.candidates))if(S.editor.candidates[role].id===id)S.editor.candidates[role]=fresh;if(S.batch)for(const r of S.batch.rows)if(r.asset?.id===id){r.asset=fresh;r.error=null;}if(S.image?.asset?.id===id)S.image.asset=fresh;renderEpisodeMedia();renderBatch();renderImageStatus();pollAssets();}
+    else if(a==='asset-preview')await assetPreview(id);
+    else if(a==='preview'){const ep=n?episodes().find(e=>e.number===n):S.drama.episodes.find(ready);if(!ep?.id)throw Error('暂无可预览分集');dialog('preview','预览 · '+title(S.drama)+' · 第 '+ep.number+' 集',`<video class="ct-media-preview" controls src="${base}/preview/${ep.id}/media.mp4">${ep.subtitle_asset_id?`<track kind="subtitles" default src="${base}/preview/${ep.id}/subtitles.vtt" srclang="${ep.subtitle_language==='zh_CN'?'zh':'en'}">`:''}</video><dl class="ct-dl"><dt>视频</dt><dd>${esc(fileName(ep.video_asset_id))}</dd><dt>字幕</dt><dd>${langs[ep.subtitle_language]||'未登记'} · ${esc(fileName(ep.subtitle_asset_id))}</dd><dt>发布状态</dt><dd>${ep.published_at?'已公开':'草稿 · 仅员工预览'}</dd></dl><p class="ct-note">员工会话专用预览，不代表观众付费链路通过。</p>`,btn('关闭','close'));}
+    else if(a==='upload')batchOpen();
+    else if(a==='choose-batch')choose(S.batch.kind==='video'?'.mp4':'.srt',true,files=>{if(!files.length)return;for(const f of files)validateFile(f,S.batch.kind);S.batch.rows=files.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})).map(file=>({file,number:Number(file.name.match(/^(\d+)\./)?.[1]||0)}));S.batch.stage='review';renderBatch();});
+    else if(a==='reset-batch'){S.batch.rows=[];S.batch.stage='choose';renderBatch();}
+    else if(a==='start-batch')await startBatch();
+    else if(a==='cancel-batch')await cancelBatch();
+    else if(a==='apply-batch')await applyBatch();
+    else if(a==='batch-done'){if(S.batch.rows.some(r=>r.asset&&!r.applied&&r.asset.state!=='canceled'))return requestClose();await finish('上传处理状态已保存；未自动公开。');}
+    else if(a==='cover'){if(S.dialog==='new-drama')throw Error('请先保存新剧，再上传封面');dialog('cover','更换竖版封面',imageEditor('cover',activeForm().elements.cover_asset_id.value),btn('取消','close')+btn('使用候选封面','dialog-save','h5-primary'));}
+    else if(a==='choose-image')choose('.png,.jpg,.jpeg',false,imageUpload);
+    else if(a==='category')openCategory(id);
+    else if(a==='banner')openBanner(id);
+    else if(a==='save-plan')await savePlan();
+    else if(a==='release-confirm')await releaseConfirm();
+    else if(a==='manual')dialog('manual','手动发布连续分集',`<form>${field('从第 '+next(S.drama)+' 集起，发布至','through',next(S.drama),'type="number" min="'+next(S.drama)+'" max="'+(S.drama.total_episodes||10000)+'" required')}</form><p class="ct-note">不能跳过缺集；下一步只读预览实际范围，不改变排期。</p>`,btn('取消','close')+btn('预览范围','manual-preview','h5-primary'));
+    else if(a==='manual-preview'){const through=Number(formValues(modalForm()).through),p=await api('/dramas/'+S.drama.id+'/publication-preview','POST',{through});S.confirm={action:'publish',input:{version:p.drama_version,through,confirmation:p.confirmation}};dialog('release-confirm','确认手动发布',`<p>立即公开第 ${p.from}–${p.through} 集；前 ${S.drama.free_count} 集免费。</p><p class="ct-note">${p.blocked_reason?'当前阻断：'+esc(p.blocked_reason):'确认时再次检查素材与授权；已公开内容不重复发布。'}</p>`,btn('取消','close')+btn('确认发布','confirm-action','h5-primary',p.blocked_reason?'disabled':''));}
+    else if(a==='pause')confirmation('pause','暂停后续更新','已公开内容保留。暂停后不再按当前排期继续发布，恢复时重新确认下一时间。','','确认暂停');
+    else if(a==='revise')confirmation('revise',S.drama.plan.state==='active'?'暂停并修改计划':'修改发布计划',S.drama.plan.state==='active'?'当前计划正在运行。确认后暂停后续更新，再修改安排；已公开内容保持。':'现有公开内容保持，修改后需要重新确认安排。','',S.drama.plan.state==='active'?'暂停并修改':'进入修改');
+    else if(a==='resume')confirmation('resume','恢复后续更新','从下一未公开集开始，不累计补发。请确认下一时间。',`<form>${field('下一次更新（北京时间）','date',local(new Date(Date.now()+86400000)),'type="datetime-local" required')}</form>`,'确认恢复');
+    else if(a==='withdraw')confirmation('withdraw','整剧下架','全剧将从网站隐藏，播放许可失效，旧发布计划停用。已公开记录和文件保留。','','确认下架');
+    else if(a==='relist')confirmation('relist','重新上架','请选择恢复旧规则并确认下一时间，或重设为草稿。',`<form><label class="h5-field">恢复方式${select('choice',[['reset','重新设置计划'],['restore','恢复规则并确认下一时间']],'reset')}</label>${field('下一时间（恢复规则时必填）','date',local(new Date(Date.now()+86400000)),'type="datetime-local"')}</form>`,'确认重新上架');
+    else if(a==='early'){const p=await api('/dramas/'+S.drama.id+'/next-batch-preview','POST',{});S.confirm={action:'publish-next-batch',input:{plan_version:p.plan_version,confirmation:p.confirmation}};dialog('release-confirm','提前发布下一批',`<p>现在公开第 ${p.from}–${p.through} 集。</p><p class="ct-note">后续批次保留原确认时间：${date(p.next_at)}</p>${p.blocked_reason?'<p class="h5-alert">'+esc(p.blocked_reason)+'</p>':''}`,btn('取消','close')+btn('确认提前发布','confirm-action','h5-primary',p.blocked_reason?'disabled':''));}
   }
-  function newDrama(navigate=true) {beginSelection();state.selectionLoading=false;fill('drama-form',{sort_order:0});fill('rights-form',{});rememberForm(form('drama-form'));rememberForm(form('rights-form'));$('drama-heading').textContent='新剧草稿';$('drama-summary').textContent='先保存基本资料，再登记分集、授权和发布安排。';lockDetailTabs();if(navigate){setView('dramas');setDetail('basics');}writeTabUrl(true);}
-  async function selectDrama(id,targetDetail=state.detail,guard=true) {
-    if(guard&&!await guardUnsaved())return;
-    const selection=beginSelection(),result=await api('/dramas/'+id);
-    if(selection!==state.selection)return;
-    const d=state.drama=result.drama;state.selectionLoading=false;lockDetailTabs();$('drama-library').open=false;
-    const publishedCount=d.episodes.filter(ep=>ep.published_at).length;
-    $('drama-summary').textContent=`${title(d)} · ${statuses[d.state]} · 已公开 ${publishedCount}/${d.total_episodes??'总数未定'} · 前 ${d.free_count} 集免费`;
-    setView('dramas');setDetail(allowedDetails.includes(targetDetail)?targetDetail:'basics');writeTabUrl(true);
-    const merged=new Map(state.data.assets.map(a=>[a.id,a]));for(const a of result.assets)merged.set(a.id,a);state.data.assets=[...merged.values()];renderAssetOptions(state.data);renderAssets(state.data);
-    fill('drama-form',{...d,regions:d.regions.join(','),license_from:local(d.license_from),license_until:local(d.license_until),category_ids:d.categories.map(c=>c.id)});
-    rememberForm(form('drama-form'));
-    fill('rights-form',{...d,regions:d.regions.join(','),license_from:local(d.license_from),license_until:local(d.license_until)});rememberForm(form('rights-form'));
-    $('drama-heading').textContent=title(d)+' · '+statuses[d.state];$('selected-tools').hidden=false;
-    fill('free-form',{free_count:d.free_count});$('free-status').textContent=d.free_overridden?'已单独设置，全局同步保留此值。':'沿用创建时默认值，可参加未覆盖剧同步。';
-    rememberForm(form('free-form'));
-    fill('plan-form',{...d.plan,timing:'scheduled',launch_at:local(d.plan.launch_at),next_at:local(d.plan.next_at)});syncPlanFields();$('plan-status').textContent=`${statuses[d.plan.state]} · 版本 ${d.plan.version} · 下次 ${d.plan.next_at?local(d.plan.next_at).replace('T',' '):'未安排'} 北京时间${d.plan.last_error?' · '+d.plan.last_error:''}`;
-    rememberForm(form('plan-form'));
-    state.planPreview=null;state.manualPreview=null;state.launchPreview=null;state.nextBatchPreview=null;$('next-batch-confirm').disabled=true;$('next-batch-preview-text').textContent='';$('confirm-publication').disabled=true;$('manual-confirm').disabled=true;$('plan-preview').textContent='';$('manual-preview').textContent='';
-    resetEpisodeForm();
-    $('episode-list').replaceChildren();
-    d.episodes.forEach(ep=>renderEpisode(d,ep));
-    const actionNames={'drama.saved':'保存剧目或授权','episode.saved':'保存分集','episode.deleted':'删除草稿分集','episode.media_replaced':'确认替换媒体','free.saved':'修改免费数','plan.saved':'保存计划','plan.activated':'启用计划','plan.paused':'暂停计划','plan.resumed':'恢复计划','plan.launched_now':'立即发布并安排后续','plan.batch_published_early':'提前发布下一批','published':'公开分集','drama.withdrawn':'整剧下架','drama.relisted':'重新上架','upload.canceled':'取消候选'};
-    $('operation-history').textContent=(result.operations||[]).map(o=>`${beijing(o.occurred_at)} | ${actionNames[o.action]||o.action} | 版本 ${o.version}`).join('\n')||'暂无升级后的操作记录';
-    $('publication-history').textContent=result.publications.map(p=>`${beijing(p.executed_at)} | 计划 ${p.scheduled_at?beijing(p.scheduled_at):'手动'} | ${p.result} | 第 ${p.episode_numbers.join(',')} 集 | ${p.error_code||''}`).join('\n')||'暂无发布记录';
-  }
-  function assetName(id){const a=state.data.assets.find(a=>a.id===id);return a?`${a.metadata?.original_filename||a.id.slice(-8)} · ${statuses[a.state]}`:'未绑定';}
-  function renderEpisode(drama,ep){
-    const card=document.createElement('details');card.className='episode-card';
-    const heading=document.createElement('summary');heading.textContent=`第 ${ep.number} 集 · ${ep.published_at?'已公开':'草稿'} · ${ep.title_zh||ep.title_en||''}`;card.append(heading);$('episode-list').append(card);
-    row(card,'分集操作',[['编辑',()=>editEpisode(drama.id,ep)],['草稿预览',()=>window.open('/admin/content/episodes/'+ep.id+'/preview','_blank','noopener')],...(!ep.published_at?[['删除草稿分集',async()=>{await api(`/dramas/${drama.id}/episodes/${ep.id}`,'DELETE',{version:ep.version});await reload(drama.id);}]]:[])]);
-    for(const role of ['video','subtitle']){
-      const name=role==='video'?'视频':'字幕',current=ep[role+'_asset_id'];
-      row(card,`当前${name}：${assetName(current)}${role==='subtitle'&&ep.subtitle_language?' · '+ep.subtitle_language:''}`,[[`上传${name}候选`,()=>replacementUpload(ep,role)]]);
-      const candidates=state.data.assets.filter(a=>a.id!==current&&a.kind===role&&a.metadata?.context_drama_id===drama.id&&a.metadata?.context_episode_id===ep.id&&a.metadata?.context_role==='episode_replacement_'+role);
-      for(const candidate of candidates){const actions=[];
-        if(candidate.state==='ready')actions.push(['确认替换'+name,async()=>{
-          if(!window.confirm(`第 ${ep.number} 集${name}：当前 ${assetName(current)} → ${assetName(candidate.id)}。${role==='subtitle'?'登记语言 '+candidate.metadata.context_language+'，请人工核实实际语言。':'视频替换后旧许可下一次请求将要求重新开始。'}确认切换？`))return;
-          await api(`/dramas/${drama.id}/episodes/${ep.id}/media-replacement`,'POST',{drama_version:drama.version,episode_version:ep.version,role,asset_id:candidate.id,subtitle_language:role==='subtitle'?candidate.metadata.context_language:null,confirmation:true});await reload(drama.id);message('素材绑定已确认切换；原文件保留，公开计数与排期不变。');
-        }]);
-        if(['uploading','pending','processing','failed','ready'].includes(candidate.state))actions.push(['放弃此候选',async()=>{await api('/uploads/'+candidate.id+'/cancel','POST',{});await reload(drama.id);message('已取消候选，当前绑定保持。');}]);
-        if(candidate.state==='failed')actions.push(['重试处理',async()=>{await api('/uploads/'+candidate.id+'/retry','POST',{});await reload(drama.id);}]);
-        row(card,`候选${name}：${assetName(candidate.id)}${candidate.metadata?.context_language?' · '+candidate.metadata.context_language:''}${candidate.error_code?' · '+candidate.error_code:''}`,actions);
-      }
-    }
-  }
-  async function replacementUpload(ep,role) {
-    if(!state.drama)return;const dramaId=state.drama.id;const input=document.createElement('input');input.type='file';input.accept=role==='video'?'.mp4':'.srt';input.onchange=async()=>{const file=input.files?.[0];if(!file)return;
-      try {
-        let language=null;if(role==='subtitle'){language=window.prompt('请选择字幕文件中的实际语言：输入 en 或 zh_CN',ep.subtitle_language||'en');if(language===null)return;if(!['en','zh_CN'].includes(language))throw new Error('字幕语言需为 en 或 zh_CN。');}
-        state.uploading=true;const kind=role==='video'?'video':'subtitle',candidate=await api('/uploads','POST',{kind,filename:file.name,bytes:file.size,context_drama_id:dramaId,context_episode_id:ep.id,context_role:'episode_replacement_'+role,...(language?{context_language:language}:{})});
-        for(let pos=0;pos<file.size;pos+=1048576)await api('/uploads/'+candidate.id+'/chunks','POST',file.slice(pos,pos+1048576),{'Content-Type':'application/octet-stream','Upload-Offset':String(pos)});
-        await api('/uploads/'+candidate.id+'/finish','POST',{});state.uploading=false;await reload(dramaId);message(`候选${role==='video'?'视频':'字幕'}已上传并进入处理。当前分集仍使用原素材；处理就绪后再次选择“确认替换”。`);
-      }catch(err){message(err.message,true);}finally{state.uploading=false;}
-    };input.click();
-  }
-  function dramaInput(rights=false){
-    const d=values('drama-form'),r=rights?values('rights-form'):{regions:(state.drama?.regions||[]).join(','),rights_note:state.drama?.rights_note||'',license_from:local(state.drama?.license_from),license_until:local(state.drama?.license_until)};
-    return {...d,...r,total_episodes:integer(d.total_episodes),cover_asset_id:d.cover_asset_id||null,regions:r.regions.split(',').map(x=>x.trim().toUpperCase()).filter(Boolean),license_from:utc(r.license_from),license_until:utc(r.license_until),category_ids:[...form('drama-form').elements.category_ids.selectedOptions].map(x=>x.value),sort_order:Number(d.sort_order),...(state.drama?{version:state.drama.version}:{})};
-  }
-  function lockDetailTabs(){for(const b of document.querySelectorAll('#content-detail-tabs [data-admin-tab]'))b.disabled=!state.drama&&b.dataset.adminTab!=='basics';}
-  function syncPlanFields(){const f=form('plan-form'),updating=f.elements.mode.value==='updating',now=f.elements.timing.value==='now';f.querySelectorAll('[data-updating]').forEach(e=>e.hidden=!updating);$('launch-at-field').hidden=now;f.elements.launch_at.required=!now;$('next-at-field').hidden=!now||!updating;f.elements.start_number.readOnly=now;f.dataset.previewOnly=now?'true':'false';if(now&&state.drama){const published=new Set(state.drama.episodes.filter(e=>e.published_at).map(e=>e.number));let n=1;while(published.has(n))n++;f.elements.start_number.value=n;}}
-  $('more-assets').addEventListener('click',run(async()=>{if(!state.data.asset_cursor)return;const page=await api('/assets?before='+encodeURIComponent(state.data.asset_cursor));const merged=new Map(state.data.assets.map(a=>[a.id,a]));for(const a of page.assets)merged.set(a.id,a);state.data.assets=[...merged.values()];state.data.asset_cursor=page.next_cursor;renderAssetOptions(state.data);renderAssets(state.data);message('已读取更早的素材。');}));
-  $('reload').addEventListener('click',run(async()=>{await reload();message('已刷新处理、公开和计划状态。');}));$('new-drama').addEventListener('click',run(async()=>newDrama()));
-  form('drama-form').addEventListener('submit',run(async()=>{if(state.selectionLoading)throw new Error('剧目正在读取，请稍后保存。');const d=await api('/dramas'+(state.drama?'/'+state.drama.id:''),state.drama?'PATCH':'POST',dramaInput());await reload(d.id);message('剧目已保存。保存和上传不会自动公开。');}));
-  $('new-episode').addEventListener('click',run(async()=>resetEpisodeForm()));
-  root.addEventListener('h5-admin:tab-change',event=>{if(event.detail.group==='content-tabs'){state.view=event.detail.id;}else if(event.detail.group==='content-detail-tabs'){state.detail=event.detail.id;if(state.detail==='history')$('publication-history').closest('details').open=true;}if(!restoringUrl)writeTabUrl();});
-  window.addEventListener('popstate',async()=>{
-    const url=new URL(location.href),view=allowedViews.includes(url.searchParams.get('content_view'))?url.searchParams.get('content_view'):'dramas',detail=allowedDetails.includes(url.searchParams.get('content_detail'))?url.searchParams.get('content_detail'):'basics';
-    if(dirty()&&!await guardUnsaved()){writeTabUrl(true);return;}
-    restoringUrl=true;
-    try{const id=url.searchParams.get('content_drama');if(id&&id!==state.drama?.id)await selectDrama(id,detail,false);setView(view);setDetail(detail);}catch(err){message(err.message,true);}finally{restoringUrl=false;writeTabUrl(true);}
-  });
-  form('rights-form').addEventListener('submit',run(async()=>{await api('/dramas/'+state.drama.id,'PATCH',dramaInput(true));await reload();message('授权登记已保存，不代表真实版权已经核验。');}));
-  form('episode-form').addEventListener('submit',run(async()=>{
-    if(state.selectionLoading||!state.drama)throw new Error('请先选择并读取一部剧目。');
-    const dramaId=state.drama.id,selection=state.selection,editing=state.episodeEdit,d=values('episode-form');
-    if(editing&&editing.dramaId!==dramaId)throw new Error('编辑对象已变化，请重新选择分集。');
-    d.number=Number(d.number);d.video_asset_id=d.video_asset_id??editing?.video_asset_id??null;d.subtitle_asset_id=d.subtitle_asset_id??editing?.subtitle_asset_id??null;d.video_asset_id||=null;d.subtitle_asset_id||=null;if(!d.subtitle_asset_id)d.subtitle_language=null;
-    if(editing)d.version=editing.version;
-    const button=$('save-episode');button.disabled=true;
-    try {
-      await api('/dramas/'+dramaId+'/episodes'+(editing?'/'+editing.id:''),editing?'PATCH':'POST',d);
-      if(selection===state.selection&&state.drama?.id===dramaId)await reload(dramaId);
-      message(editing?'原分集的修改已保存。':'新分集已创建。');
-    }finally{button.disabled=false;}
-  }));
-  form('free-form').addEventListener('submit',run(async()=>{await api('/dramas/'+state.drama.id+'/free','PATCH',{version:state.drama.version,free_count:Number(values('free-form').free_count)});await reload();message('已保存单剧覆盖，含手动同值。');}));
-  form('plan-form').addEventListener('input',()=>{syncPlanFields();state.planPreview=state.launchPreview=null;$('confirm-publication').disabled=true;});
-  form('plan-form').addEventListener('submit',run(async()=>{
-    const d=values('plan-form');
-    if(d.timing==='now'){
-      state.launchPreview=await api('/dramas/'+state.drama.id+'/launch-preview','POST',{mode:d.mode,interval_days:Number(d.interval_days),batch_size:Number(d.batch_size),next_at:utc(d.next_at)});state.planPreview=null;
-      const p=state.launchPreview;const next=p.through+1;
-      $('plan-preview').textContent=`现在：第 ${p.from}—${p.through} 集（${p.count} 集）\n${p.next_at?`下一批：${next}—${Math.min(state.drama.total_episodes,next+p.batch_size-1)} 集，${beijing(p.next_at)}；之后每 ${p.interval_days} 天，每批 ${p.batch_size} 集。`:'完成后无后续排期。'}\n${p.blocked_reason?'阻断：'+p.blocked_reason:'当前检查通过，确认时再次核验。'}`;
-      $('confirm-publication').disabled=Boolean(p.blocked_reason);
-    }else{
-      await api('/dramas/'+state.drama.id+'/plan','PUT',{...d,version:state.drama.plan.version,start_number:Number(d.start_number),interval_days:Number(d.interval_days),batch_size:Number(d.batch_size),launch_at:utc(d.launch_at)});
-      await reload();state.planPreview=await api('/dramas/'+state.drama.id+'/publication-preview','POST',{});$('plan-preview').textContent=previewText(state.planPreview);$('confirm-publication').disabled=Boolean(state.planPreview.blocked_reason);
-    }
-    message('请核对显示的范围和时间，然后确认发布安排。');
-  }));
-  function previewText(d){return `本次：第 ${d.from}—${d.through} 集（${d.count} 集）\n${d.mode==='completed'?'全集一次上线':'分批更新'} · ${d.manual?'确认后立即发布':beijing(d.launch_at)}\n${d.mode==='updating'&&!d.manual?`之后每 ${state.drama.plan.interval_days} 天、每批 ${state.drama.plan.batch_size} 集。\n`:''}${d.blocked_reason?'阻断：'+d.blocked_reason:'当前检查通过；执行时再次核验素材和授权。'}`;}
-  $('confirm-publication').dataset.confirmFor='plan-form';
-  $('confirm-publication').addEventListener('click',run(async()=>{
-    if(dirtyForms().some(f=>f.id!=='plan-form'))throw new Error('请先保存其他表单。');
-    if(state.launchPreview){const p=state.launchPreview;const out=await api('/dramas/'+state.drama.id+'/launch-now','POST',{...p,next_at:p.next_at?new Date(p.next_at).toISOString().replace('.000Z','+00:00'):null});rememberForm(form('plan-form'));await reload();message(`已公开 ${out.published_count}/${state.drama.total_episodes} 集；下一批 ${nextRange(out,p.batch_size,state.drama.total_episodes)}；时间 ${out.next_at?beijing(out.next_at):'无'}。`);}
-    else if(state.planPreview){const p=state.planPreview;await api('/dramas/'+state.drama.id+'/activate','POST',{version:p.plan_version,confirmation:p.confirmation});await reload();message('指定时间安排已启用；尚未到时不会提前公开。');}
-    else throw new Error('安排已变化，请重新预览。');
-  }));
-  $('next-batch-preview').addEventListener('click',run(async()=>{state.nextBatchPreview=await api('/dramas/'+state.drama.id+'/next-batch-preview','POST',{});const p=state.nextBatchPreview;$('next-batch-preview-text').textContent=`提前发布第 ${p.from}—${p.through} 集\n后续下一批保留原确认时间：${beijing(p.next_at)}\n${p.blocked_reason?'阻断：'+p.blocked_reason:'整批已准备好。确认后计划版本会更新，定时执行只处理新的游标。'}`;$('next-batch-confirm').disabled=Boolean(p.blocked_reason);}));
-  $('next-batch-confirm').addEventListener('click',run(async()=>{const p=state.nextBatchPreview;if(!p)throw new Error('请先查看提前发布范围。');const out=await api('/dramas/'+state.drama.id+'/publish-next-batch','POST',{plan_version:p.plan_version,confirmation:p.confirmation});const batch=state.drama.plan.batch_size,total=state.drama.total_episodes;await reload();message(`已提前发布第 ${out.published.join(',')} 集，共公开 ${out.published_count} 集；下一批 ${nextRange(out,batch,total)}，时间 ${out.next_at?beijing(out.next_at):'无'}。`);}));
-  $('pause-plan').addEventListener('click',run(async()=>{await api('/dramas/'+state.drama.id+'/pause','POST',{version:state.drama.plan.version});await reload();message('后续更新已暂停；已公开内容保留。');}));
-  form('resume-form').addEventListener('submit',run(async()=>{await api('/dramas/'+state.drama.id+'/resume','POST',{version:state.drama.plan.version,next_at:utc(values('resume-form').next_at)});await reload();message('已按确认的新时间恢复，不累计补发。');}));
-  form('manual-form').addEventListener('submit',run(async()=>{const through=Number(values('manual-form').through);state.manualPreview=await api('/dramas/'+state.drama.id+'/publication-preview','POST',{through});state.manualPreview.requestThrough=through;$('manual-preview').textContent=previewText(state.manualPreview);$('manual-confirm').disabled=Boolean(state.manualPreview.blocked_reason);}));
-  $('manual-confirm').addEventListener('click',run(async()=>{const p=state.manualPreview;await api('/dramas/'+state.drama.id+'/publish','POST',{version:p.drama_version,through:p.requestThrough,confirmation:p.confirmation});rememberForm(form('manual-form'));await reload();message('本次连续分集已实际公开。');}));
-  $('withdraw').addEventListener('click',run(async()=>{if(!window.confirm('确认整剧下架，并停用旧发布计划？'))return;await api('/dramas/'+state.drama.id+'/withdraw','POST',{version:state.drama.version});await reload();message('已下架；旧计划和旧播放会话不能重新放行。');}));
-  form('relist-form').addEventListener('submit',run(async()=>{const d=values('relist-form');await api('/dramas/'+state.drama.id+'/relist','POST',{version:state.drama.version,choice:d.choice,next_at:utc(d.next_at)});await reload();message('已按明确选择重新上架。请核对计划状态。');}));
-  for(const kind of ['category','banner']) {
-    $('new-'+kind).addEventListener('click',run(async()=>{state[kind]=null;form(kind+'-form').reset();rememberForm(form(kind+'-form'));}));
-    form(kind+'-form').addEventListener('submit',run(async()=>{const d=values(kind+'-form');d.sort_order=Number(d.sort_order);const current=state[kind];if(current)d.version=current.version;await api('/'+(kind==='category'?'categories':'banners')+(current?'/'+current.id:''),current?'PATCH':'POST',d);state[kind]=null;form(kind+'-form').reset();await reload();message('已保存，公开首页将按当前状态和授权过滤。');}));
-  }
-  if($('default-form')) {
-    form('default-form').addEventListener('submit',run(async()=>{const d=values('default-form');state.defaultPreview=await api('/default-preview','POST',{...d,free_count:Number(d.free_count)});const p=state.defaultPreview;$('default-preview').textContent=`新默认 N=${p.free_count} · ${p.scope==='sync'?'同步未覆盖剧':'仅新剧'}\n影响已有剧 ${p.count} 部\n`+p.dramas.map(d=>`${title(d)}：${d.free_count} → ${p.free_count}`).join('\n');$('default-confirm').disabled=false;}));
-    $('default-confirm').addEventListener('click',run(async()=>{const p=state.defaultPreview;await api('/default','PATCH',{version:p.version,free_count:p.free_count,scope:p.scope,confirmation:p.confirmation});rememberForm(form('default-form'));state.defaultPreview=null;$('default-confirm').disabled=true;await reload();message('全局默认已更新；手动覆盖剧保留。');}));
-  }
-  for(const [id,button] of [['manual-form','manual-confirm'],['default-form','default-confirm']])if(form(id)){form(id).dataset.previewOnly='true';$(button).dataset.confirmFor=id;form(id).addEventListener('input',()=>{$(button).disabled=true;if(id==='manual-form')state.manualPreview=null;else state.defaultPreview=null;});}
-  trackedFormIds.forEach(id=>rememberForm(form(id)));
-  window.H5Admin?.protect(root,{isDirty:dirty,save:saveDirtyForm,discard:async()=>!state.uploading&&restoreDirtyForms()});
-  form('upload-form').addEventListener('submit',run(async()=>{
-    const f=form('upload-form'),kind=f.elements.kind.value,language=f.elements.language.value,attach=f.elements.attach.checked,dramaId=state.drama.id;
-    const files=[...f.elements.files.files].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
-    if(attach&&['video','subtitle'].includes(kind)&&files.some(x=>!/^\d+\.(mp4|srt)$/i.test(x.name)))throw new Error('自动登记要求数字文件名，例如 1.mp4 / 1.srt。也可取消自动登记后手动绑定。');
-    if(attach&&['video','subtitle'].includes(kind)){const latest=(await api('/dramas/'+dramaId)).drama;for(const file of files){const ep=latest.episodes.find(e=>e.number===Number(file.name.split('.')[0]));if(ep&&(ep[kind+'_asset_id']||ep.published_at))throw new Error(`第 ${ep.number} 集已有素材或已经公开，请在该集上传候选并确认替换。此次批量上传尚未开始。`);}}
-    const button=f.querySelector('button');button.disabled=true;
-    state.uploading=true;try {for(let i=0;i<files.length;i++) {
-      const file=files[i],asset=await api('/uploads','POST',{kind,filename:file.name,bytes:file.size});
-      for(let pos=0;pos<file.size;pos+=1048576){await api('/uploads/'+asset.id+'/chunks','POST',file.slice(pos,pos+1048576),{'Content-Type':'application/octet-stream','Upload-Offset':String(pos)});$('upload-progress').value=100*(i+Math.min(pos+1048576,file.size)/file.size)/files.length;message(`正在上传 ${i+1}/${files.length}：${file.name}`);}
-      await api('/uploads/'+asset.id+'/finish','POST',{});
-      if(attach&&['video','subtitle'].includes(kind)) {
-        const d=(await api('/dramas/'+dramaId)).drama,num=Number(file.name.split('.')[0]),ep=d.episodes.find(x=>x.number===num);
-        const payload={number:num,title_en:ep?.title_en||'',title_zh:ep?.title_zh||'',video_asset_id:ep?.video_asset_id||null,subtitle_asset_id:ep?.subtitle_asset_id||null,subtitle_language:ep?.subtitle_language||null,...(ep?{version:ep.version}:{})};
-        if(kind==='video')payload.video_asset_id=asset.id;else {payload.subtitle_asset_id=asset.id;payload.subtitle_language=language;}
-        await api('/dramas/'+dramaId+'/episodes'+(ep?'/'+ep.id:''),ep?'PATCH':'POST',payload);
-      }
-    }await reload(dramaId);message(`已完成 ${files.length} 个文件上传；等待媒体处理，未自动发布。`);}finally{state.uploading=false;button.disabled=false;}
-  }));
-  for(const kind of ['cover','banner'])form(kind+'-upload-form').addEventListener('submit',run(async()=>{
-    const f=form(kind+'-upload-form'),file=f.elements.file.files[0];if(!file)return;state.uploading=true;const button=f.querySelector('button');button.disabled=true;
-    try{const a=await api('/uploads','POST',{kind,filename:file.name,bytes:file.size});for(let pos=0;pos<file.size;pos+=1048576)await api('/uploads/'+a.id+'/chunks','POST',file.slice(pos,pos+1048576),{'Content-Type':'application/octet-stream','Upload-Offset':String(pos)});const saved=await api('/uploads/'+a.id+'/finish','POST',{});state.data.assets.push(saved);renderAssetOptions(state.data);$(kind+'-upload-status').textContent=`${file.name} 已上传，等待处理。刷新状态后，选择就绪候选并保存${kind==='cover'?'基本资料':'Banner'}。`;f.reset();message('上传已记录；当前图片绑定未切换。');}finally{state.uploading=false;button.disabled=false;}
-  }));
-  restoringUrl=true;setView(state.view);setDetail(state.detail);restoringUrl=false;
-  run(async()=>{const wantedView=state.view,wantedDetail=state.detail;await reload(initialUrl.searchParams.get('content_drama'));if(wantedView!=='dramas')setView(wantedView);if(state.drama)setDetail(wantedDetail);writeTabUrl(true);message('已读取真实内容。保存和上传不会自动公开。');})();
+  async function run(work){try{await work();}catch(e){message(e.message,true);}}
+  root.addEventListener('click',event=>{const b=event.target.closest('[data-action]');if(!b||b.disabled)return;event.preventDefault();if(S.busy&&!['cancel-batch','cancel-candidate'].includes(b.dataset.action))return;const cancel=['cancel-batch','cancel-candidate'].includes(b.dataset.action);if(!cancel){S.busy=true;root.setAttribute('aria-busy','true');}run(()=>action(b)).finally(()=>{if(!cancel){S.busy=false;root.removeAttribute('aria-busy');root.querySelectorAll('[data-content-busy]').forEach(el=>{el.disabled=false;el.removeAttribute('data-content-busy');});}});});
+  root.addEventListener('submit',event=>{event.preventDefault();if(S.busy)return;S.busy=true;root.setAttribute('aria-busy','true');run(()=>S.dialog?saveDialog():saveMain()).finally(()=>{S.busy=false;root.removeAttribute('aria-busy');root.querySelectorAll('[data-content-busy]').forEach(el=>{el.disabled=false;el.removeAttribute('data-content-busy');});});});
+  root.addEventListener('input',event=>{const el=event.target;if(el.id==='content-search'){S.search=el.value;const pos=el.selectionStart;renderList();$('content-search').focus();$('content-search').setSelectionRange(pos,pos);}if(el.dataset.mapping!==undefined)S.batch.rows[Number(el.dataset.mapping)].number=Number(el.value);if(el.closest('#release-plan'))updateSchedule();});
+  root.addEventListener('change',event=>{const el=event.target;if(el.name==='list_status'){S.status=el.value;renderList();}if(el.name==='batch_kind'){S.batch.kind=el.value;renderBatch();}if(el.name==='batch_language')S.batch.language=el.value;if(el.id==='episode-language')S.editor.language=el.value;});
+  root.addEventListener('h5-admin:tab-change',event=>{if(syncing)return;if(event.detail.group==='content-tabs'){S.view=event.detail.id;render();}else{S.tab=event.detail.id;renderDetailBody();}writeUrl();});
+  $('content-dialog').addEventListener('h5-admin:dialog-close-request',event=>{event.preventDefault();if(S.busy){message('操作正在确认，请稍后关闭。',true);return;}run(requestClose);});
+  H5Admin.protect(root,{isDirty:dirty,save:saveForLeave,discard:discardForLeave});
+  window.addEventListener('popstate',()=>run(async()=>{if(!await guard()){writeUrl(true);return;}await restoreUrl();}));
+  async function restoreUrl(){const u=new URL(location.href),view=u.searchParams.get('content_view'),tab=u.searchParams.get('content_detail'),id=u.searchParams.get('content_drama');S.view=['dramas','releases','categories','banners'].includes(view)?view:'dramas';S.tab=['basics','episodes','rights','release','history'].includes(tab)?tab:'episodes';if(id){S.result=await fetchDrama(id);S.drama=S.result.drama;}else{S.drama=null;S.result=null;}render();writeUrl(true);}
+  const heading=root.querySelector(':scope > .h5-heading');heading.querySelector('h1').id='content-drama-title';heading.querySelector('p').id='content-drama-summary';root.insertBefore($('content-crumb'),heading);
+  run(async()=>{await loadIndex();await restoreUrl();message('已读取真实内容。保存和上传不会自动公开。');});
 })();

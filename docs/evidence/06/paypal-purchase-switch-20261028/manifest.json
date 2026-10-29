@@ -1,0 +1,27 @@
+{
+  "tool_candidate": "942e6a4fd0739afab0c8bd25be79477603bcdc17",
+  "billing_readiness_candidate": "e50d7f2cb6852f31b46ac6ea8f9c0f5dd1217a0e",
+  "actual_window_application": "64e8273261dd0c2f0f751a383d548edc9233ccb4",
+  "regression": {
+    "total": 72,
+    "credentials": 18,
+    "url": 18,
+    "merchant": 16,
+    "switch": 20,
+    "skip": 0
+  },
+  "real_cli_scope": "negative readiness and offline disable using synthetic configuration only; no official authentication",
+  "actual_purchase_enabled_by_06": false,
+  "actual_user_env_modified_by_06": false,
+  "source_sha256": {
+    "scripts/ops/paypal_apply_credentials.py": "20148a8e24e423e25afab021db9622afbe8fe076648eae398535d1919d61e56d",
+    "scripts/ops/paypal_purchase_switch.py": "83d3daa5b5d55e86e6cf4f9dd13d3a6da23c4566eb523247efc3f4e5590016b1",
+    "scripts/ops/tests/test_paypal_purchase_switch.py": "95e58632f1ed4b61d70bc4a0cc29bf7b739fa83112f794568e189b6cf8517354"
+  },
+  "artifacts_sha256": {
+    "synthetic-cli-replay.py": "e977c2a365fdde86b88d6cddffb993003f22788224533a2910217d5c2c9082df",
+    "regression.txt": "f5c32ef43c1b61eb50eda21ef23cc52cf99f839a014b2658576da37b588ee279",
+    "resumed-window.json": "6005a02ccfb71477627545d8705d7762f5a75e3b68377b644108ae56d573b3dc",
+    "cli-compat.json": "2754d1a503085027c33a3ff124e5e505c3c8216179990f79386ae11ec81407d1"
+  }
+}

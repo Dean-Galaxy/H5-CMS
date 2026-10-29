@@ -1,0 +1,22 @@
+{
+  "official_read_only": true,
+  "test_only": true,
+  "diagnostic": null,
+  "b_official_active": true,
+  "b_official_first_amount_minor": 300,
+  "b_currency": "USD",
+  "b_weekly_plan_verified": true,
+  "b_regular_amount_minor": 1200,
+  "b_local_paid_and_access_active": true,
+  "b_payment_count": 1,
+  "b_entitlement_count": 1,
+  "b_outbox_count": 1,
+  "b_sale_signature_event_processed": true,
+  "b_refunds": 0,
+  "b_next_time_matches_user_feedback": true,
+  "a_official_suspended": true,
+  "a_paid_interval_preserved": true,
+  "a_refunds": 0,
+  "c_test_email_unused": true,
+  "automatic_renewal_verified": false
+}

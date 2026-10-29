@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->prepend(RequestContext::class);
         $middleware->web(append: [SessionProtection::class]);
         $middleware->redirectGuestsTo(fn (Request $r) => $r->is('admin*', 'api/v1/admin/*') ? '/admin/login' : '/identity/login');
-        $middleware->validateCsrfTokens(except: ['webhooks/stripe']);
+        $middleware->validateCsrfTokens(except: ['webhooks/stripe', 'webhooks/paypal']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn (Request $r) => $r->is('api/*', 'webhooks/*') || $r->expectsJson());

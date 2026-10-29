@@ -1,0 +1,29 @@
+{
+  "candidate": "ec3f6124f4e2e0c575c08ac144b2768de4a55b3f",
+  "source_candidate": "64e8273261dd0c2f0f751a383d548edc9233ccb4",
+  "fast_forward_only": true,
+  "migrations": 19,
+  "billing_counts_preserved": true,
+  "counts": {
+    "billing_orders": 0,
+    "billing_subscriptions": 0,
+    "billing_payments": 0,
+    "billing_refunds": 0,
+    "billing_entitlements": 0,
+    "billing_inbox": 0,
+    "billing_outbox": 0,
+    "billing_provider_intents": 1,
+    "billing_paypal_observations": 0
+  },
+  "staged_credentials_unchanged": true,
+  "changed_env_fields": [
+    "H5_BILLING_NEW_PURCHASE_PROVIDER"
+  ],
+  "api_enabled": true,
+  "new_purchase_provider": "paypal",
+  "mail": "local preview only",
+  "region": "synthetic local US",
+  "callback_window": "active; callback-only; 00 owns closure",
+  "official_payment": "not performed",
+  "thursday_environment_touched": false
+}

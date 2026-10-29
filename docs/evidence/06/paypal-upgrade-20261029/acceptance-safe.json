@@ -1,0 +1,215 @@
+{
+  "executed_at": "2026-10-29T02:32:43.068485+00:00",
+  "runtime_candidate": "ca279acad01793203c7976154acca9fd3e71c248",
+  "previous_runtime": "cfd24cbb6fe42ab959bd547d7ca70a02a8f2ae35",
+  "contract": "1.0.5",
+  "health": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "migration_count": 19,
+  "migration_added": 0,
+  "billing_13_unchanged_after_upgrade_reconcile_scheduler_window": true,
+  "billing_counts": {
+    "billing_accounts": 1,
+    "billing_orders": 1,
+    "billing_subscriptions": 1,
+    "billing_payments": 1,
+    "billing_entitlements": 1,
+    "billing_inbox": 2,
+    "billing_outbox": 1,
+    "billing_operations": 1,
+    "billing_refunds": 0,
+    "billing_resume_quotes": 0,
+    "billing_provider_intents": 3,
+    "billing_provider_resources": 2,
+    "billing_paypal_observations": 2
+  },
+  "protected_table_count": 45,
+  "protected_tables_full_rows_preserved": true,
+  "config_credentials_workspace_password_bytes_preserved": true,
+  "media_files_preserved": 42,
+  "database_archive_bytes": 125031,
+  "archive_list_readable": true,
+  "full_restore_executed_this_round": false,
+  "api_enabled": false,
+  "new_purchase_provider": "unconfigured",
+  "official_paypal_calls_by_06": false,
+  "credential_ui_8407_closed": true,
+  "public_entire_website": false,
+  "window_processes": {
+    "uid": 501,
+    "bridge_pid": 67398,
+    "tunnel_pid": 67403,
+    "process_started_at": {
+      "bridge_pid": "Thu Oct 29 10:31:42 2026",
+      "tunnel_pid": "Thu Oct 29 10:31:42 2026"
+    }
+  },
+  "window_record_binding_verified": true,
+  "https_checks": [
+    {
+      "check": "GET blocked /",
+      "method": "GET",
+      "path": "/",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /admin",
+      "method": "GET",
+      "path": "/admin",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /.env",
+      "method": "GET",
+      "path": "/.env",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /metrics",
+      "method": "GET",
+      "path": "/metrics",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /credentials",
+      "method": "GET",
+      "path": "/credentials",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /api/admin/v1/staff",
+      "method": "GET",
+      "path": "/api/admin/v1/staff",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /media/test.m3u8",
+      "method": "GET",
+      "path": "/media/test.m3u8",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /webhooks/paypal",
+      "method": "GET",
+      "path": "/webhooks/paypal",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "private POST",
+      "method": "POST",
+      "path": "/admin",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "query denied",
+      "method": "POST",
+      "path": "/webhooks/paypal?extra=1",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "missing signature headers",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 400,
+      "expected": 400,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "cookie denied",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 403,
+      "expected": 403,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "authorization denied",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 403,
+      "expected": 403,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "content type denied",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 415,
+      "expected": 415,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "synthetic event to real application",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 503,
+      "expected": 503,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    }
+  ],
+  "transport": {
+    "body_bytes_identical": true,
+    "raw_body_hash_identical": true,
+    "five_paypal_headers_identical": true,
+    "only_allowlisted_outbound_headers": true,
+    "actual_application_response": true
+  },
+  "application_response": 503,
+  "official_payment_or_signature_claim": false,
+  "scope": "preserved-data upgrade and API-off callback transport; no new official payment acceptance"
+}

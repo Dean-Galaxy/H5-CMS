@@ -1,0 +1,32 @@
+{
+    "candidate": "ca279acad01793203c7976154acca9fd3e71c248",
+    "paypal_api_enabled": true,
+    "new_purchase_provider": "paypal",
+    "original_access_active": true,
+    "original_renewal_disabled": true,
+    "original_resolution_clear": true,
+    "original_provider_status": "SUSPENDED",
+    "original_paid_interval_preserved": true,
+    "original_viewing_progress_preserved": true,
+    "original_order_paid": true,
+    "original_refunds": 0,
+    "new_renewal_email_unused": true,
+    "price": {
+        "first_week_amount_minor": 300,
+        "regular_amount_minor": 1200,
+        "currency": "USD",
+        "is_test": true
+    },
+    "mail_preview_only": "preview",
+    "local_us_fixture": true,
+    "acquisition_ready": false,
+    "migrations": 19,
+    "counts": {
+        "billing_orders": 1,
+        "billing_subscriptions": 1,
+        "billing_payments": 1,
+        "billing_entitlements": 1,
+        "billing_refunds": 0,
+        "billing_inbox": 2
+    }
+}

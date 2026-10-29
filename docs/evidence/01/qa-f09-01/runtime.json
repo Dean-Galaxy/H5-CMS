@@ -1,0 +1,10 @@
+{
+    "php": "8.4.26",
+    "imagick": false,
+    "packages": {
+        "filament\/filament": "v5.9.0",
+        "pragmarx\/google2fa-qrcode": "v4.0.0",
+        "pragmarx\/google2fa": "v9.1.0",
+        "bacon\/bacon-qr-code": "v3.1.1"
+    }
+}

@@ -1,0 +1,25 @@
+{
+  "phase": "after",
+  "checkout": "c9da6746105a219a4ae8b92a887dfa9d78567099",
+  "webPort": 8377,
+  "postgresPort": 5877,
+  "tables": 48,
+  "mediaFiles": 490,
+  "businessTablesUnchanged": true,
+  "changedTables": [
+    "sessions"
+  ],
+  "operationalTablesExcluded": [
+    "cache",
+    "cache_locks",
+    "failed_jobs",
+    "job_batches",
+    "jobs",
+    "sessions"
+  ],
+  "mediaUnchanged": true,
+  "configurationAndKeysUnchanged": true,
+  "postgresRestarted": true,
+  "allApplicationProcessesAlive": true,
+  "passed": true
+}

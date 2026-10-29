@@ -1,0 +1,38 @@
+{
+  "application_commit": "e821e85956093c8932c933b98b8e8527a3195b91",
+  "shared_commit": "8dc6197ecc259aedd5dd1b3e2d171b3a4e90e2e9",
+  "source": {
+    "h5-platform/public/content/admin.js": "ed67b373d7765ebe42d40c9c2e7da962a7a07ff708a1aedbf9e3efaf8b06a3ef",
+    "h5-platform/tests/Feature/Content/Support/release-list.browser.cjs": "86ab5de5b75b383dacd6b606de57b4a90cb18caf8938fff28a979c24b8b1c211"
+  },
+  "screenshots": [
+    {
+      "path": "actual-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "7176c86de1f2d8cdc859ec7de21c05ac442e5026a089115a237020fe5fef1d1e",
+      "boundary": "real unchanged API list"
+    },
+    {
+      "path": "actual-mobile-range.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "6e3fedf840cf904547c55c16422c0173b8e7865b90fa7b47a9495df94db66dd2",
+      "boundary": "real unchanged API list"
+    },
+    {
+      "path": "response-fixture-desktop.png",
+      "width": 1100,
+      "height": 1000,
+      "sha256": "177c81f4650788f848b9ee62b71d2884cb30b2b7a69ca507936b202a85dc004a",
+      "boundary": "browser response fixture only, no database write"
+    },
+    {
+      "path": "response-fixture-mobile-range.png",
+      "width": 375,
+      "height": 812,
+      "sha256": "956fb92c12b00517249383bd39929f9d1c7694156481a16a2b8c252fa6efca34",
+      "boundary": "browser response fixture only, no database write"
+    }
+  ]
+}

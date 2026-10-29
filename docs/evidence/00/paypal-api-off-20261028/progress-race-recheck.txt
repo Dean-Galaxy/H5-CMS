@@ -1,0 +1,7 @@
+
+   PASS  Tests\Feature\Audience\ProgressConcurrencyTest
+  ✓ concurrent first writes keep newest session and highest sequence w… 19.28s  
+
+  Tests:    1 passed (17 assertions)
+  Duration: 21.58s
+

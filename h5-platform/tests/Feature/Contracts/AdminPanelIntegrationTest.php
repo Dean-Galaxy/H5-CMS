@@ -30,6 +30,38 @@ class AdminPanelIntegrationTest extends TestCase
         $this->withCookie($cookie, $session->getId());
     }
 
+    public function test_registered_staff_mfa_provider_generates_one_decodable_qr_data_uri(): void
+    {
+        $panel = Filament::getPanel('admin');
+        Filament::setCurrentPanel($panel);
+        $this->assertTrue($panel->isMultiFactorAuthenticationRequired());
+        $providers = $panel->getMultiFactorAuthenticationProviders();
+        $this->assertSame(['app'], array_keys($providers));
+        $provider = $providers['app'];
+        $this->assertTrue($provider->isRecoverable());
+        $staff = Staff::create(['name' => 'QR integration fixture', 'email' => 'qr-integration@example.test', 'password' => 'FixturePassword123', 'role' => Role::Owner]);
+        $this->actingAs($staff, 'staff');
+
+        // Use the provider installed on the real panel, not an unregistered adapter.
+        // Only booleans are asserted, so failure output cannot print the QR secret.
+        $uri = $provider->generateQrCodeDataUri($provider->generateSecret());
+        $this->assertTrue(str_starts_with($uri, 'data:image/'));
+        $parts = explode(',', $uri, 2);
+        $this->assertCount(2, $parts);
+        $payload = base64_decode($parts[1], true);
+        $this->assertTrue(is_string($payload));
+        $this->assertFalse(str_starts_with($payload, 'data:'), 'QR payload must be image bytes, not another data URI.');
+        if ($parts[0] === 'data:image/svg+xml;base64') {
+            $xml = new \DOMDocument();
+            $this->assertTrue($xml->loadXML($payload, LIBXML_NONET));
+            $this->assertSame('svg', $xml->documentElement->localName);
+        } else {
+            $this->assertSame('data:image/png;base64', $parts[0]);
+            $this->assertTrue(getimagesizefromstring($payload) !== false);
+        }
+        $this->assertNull($staff->fresh()->getAppAuthenticationSecret());
+    }
+
     public function test_actual_staff_profile_route_uses_staff_policy_and_same_origin_avatar(): void
     {
         $panel = Filament::getPanel('admin');
@@ -47,6 +79,35 @@ class AdminPanelIntegrationTest extends TestCase
             $this->assertSame(asset('admin-ui/staff-avatar.svg'), app(StaffAvatarProvider::class)->get($staff));
         }
         $this->assertFileExists(public_path('admin-ui/staff-avatar.svg'));
+    }
+
+    public function test_design_navigation_keeps_role_permissions_and_optional_module_gate(): void
+    {
+        $panel = Filament::getPanel('admin');
+        Filament::setCurrentPanel($panel);
+        $this->assertSame('164px', $panel->getSidebarWidth());
+        foreach ([Role::Owner, Role::ContentOperator, Role::Support, Role::Acquisition] as $role) {
+            $staff = Staff::create(['name' => 'Navigation fixture', 'email' => 'nav-'.$role->value.'@example.test', 'password' => 'FixturePassword123', 'role' => $role]);
+            $this->actingAs($staff, 'staff');
+            config(['h5.modules.acquisition.ready' => false]);
+            $labels = collect($panel->getNavigation())->flatMap(fn ($group) => $group->getItems())->map(fn ($item) => $item->getLabel())->all();
+            $expected = match ($role) {
+                Role::Owner => ['内容管理', '订单与会员', '员工与权限'],
+                Role::ContentOperator => ['内容管理'],
+                Role::Support => ['订单与会员'],
+                Role::Acquisition => [],
+            };
+            // Content owns this separately gated page; it can arrive after the shell.
+            if ($role === Role::Owner && in_array('App\\Modules\\Content\\Filament\\Pages\\ContentSettings', $panel->getPages(), true)) {
+                $expected[] = '全局设置';
+            }
+            $this->assertSame($expected, $labels);
+            config(['h5.modules.acquisition.ready' => true]);
+            $labels = collect($panel->getNavigation())->flatMap(fn ($group) => $group->getItems())->map(fn ($item) => $item->getLabel())->all();
+            $this->assertSame(in_array($role, [Role::Owner, Role::Acquisition], true), in_array('投流管理', $labels, true));
+            $staff->active = false;
+            $this->assertSame([], collect($panel->getNavigation())->flatMap(fn ($group) => $group->getItems())->all());
+        }
     }
 
     public function test_guest_cannot_open_staff_profile_and_fixture_is_not_a_production_route(): void

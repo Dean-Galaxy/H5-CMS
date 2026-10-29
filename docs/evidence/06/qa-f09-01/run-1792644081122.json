@@ -1,0 +1,62 @@
+{
+  "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "checkout": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "base": "http://127.0.0.1:8391",
+  "dbPort": 5891,
+  "startedAt": "2026-10-22T04:41:21.142Z",
+  "checks": [
+    {
+      "name": "fresh synthetic owner has no MFA or recovery codes",
+      "passed": true
+    },
+    {
+      "name": "actual PHP has no imagick",
+      "passed": true
+    },
+    {
+      "name": "first login requires normal setup",
+      "passed": true
+    },
+    {
+      "name": "first QR decodes with positive natural width and one SVG data layer",
+      "passed": true
+    },
+    {
+      "name": "cancel leaves no persisted MFA or recovery codes",
+      "passed": true
+    },
+    {
+      "name": "reopen creates a different candidate and a decodable QR",
+      "passed": true
+    },
+    {
+      "name": "invalid setup code rejected without persistence",
+      "passed": true
+    },
+    {
+      "name": "normal recovery step creates eight unique codes",
+      "passed": true
+    },
+    {
+      "name": "before final confirmation MFA and recovery codes are not persisted",
+      "passed": true
+    },
+    {
+      "name": "final confirmation persists MFA and eight recovery hashes",
+      "passed": true
+    }
+  ],
+  "failures": [
+    {
+      "stage": "normal final confirmation",
+      "type": "TimeoutError"
+    }
+  ],
+  "screenshots": false,
+  "trace": false,
+  "secretsExported": false,
+  "browser": "155.0.8059.85",
+  "result": "failed",
+  "finishedAt": "2026-10-22T04:41:41.479Z",
+  "browserScriptErrors": 0
+}

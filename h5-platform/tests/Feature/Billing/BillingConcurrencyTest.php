@@ -9,6 +9,7 @@ use App\Data\ResumeInput;
 use App\Data\ViewerIdentity;
 use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Services\BillingEngine;
 use App\Modules\Billing\Services\BillingStore;
 use App\Modules\Billing\Services\SettlementService;
@@ -18,6 +19,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
 use Tests\Feature\Billing\Support\BillingRace;
 use Tests\Feature\Billing\Support\FakeGateway;
+use Tests\Feature\Billing\Support\ProviderLedgerFixture;
 use Tests\TestCase;
 
 /** Run serially: child connections intentionally share the isolated PostgreSQL DB. */
@@ -33,7 +35,7 @@ final class BillingConcurrencyTest extends TestCase
     {
         parent::setUp();
         $this->app->register(BillingServiceProvider::class);
-        config(['billing.quote_policy_approved' => true]);
+        config(['billing.quote_policy_approved' => true, 'billing.new_purchase_provider' => 'stripe']);
         $this->gateway = new FakeGateway;
         $this->app->instance(PaymentGateway::class, $this->gateway);
         $this->app->bind(RegionResolver::class, fn () => new class implements RegionResolver
@@ -47,6 +49,40 @@ final class BillingConcurrencyTest extends TestCase
         DB::table('billing_prices')->insert(['id' => BillingStore::id(), 'version' => 1,
             'regular_amount_minor' => 1200, 'first_week_amount_minor' => 300, 'currency' => 'USD', 'is_test' => true, 'created_at' => now()]);
         $this->assertSame(0, DB::transactionLevel(), 'Race fixtures must be committed, not wrapped in a parent test transaction.');
+    }
+
+    protected function tearDown(): void
+    {
+        // These are committed test fixtures only; allow the test migration rollback to remove this schema.
+        foreach (['billing_refunds', 'billing_inbox', 'billing_payments', 'billing_orders', 'billing_subscriptions'] as $table) {
+            DB::table($table)->where('provider', 'paypal')->delete();
+        }
+        parent::tearDown();
+    }
+
+    public function test_two_processes_settling_one_paypal_fact_share_one_payment_entitlement_and_outbox(): void
+    {
+        $scope = new ProviderScope('paypal', 'sandbox', 'merchant-a');
+        [$viewer, , $sub, $fact] = ProviderLedgerFixture::create($scope);
+        $runner = new BillingRace;
+        $fixture = ['provider_payment' => [
+            'provider' => 'paypal', 'environment' => 'sandbox', 'merchant_scope' => 'merchant-a',
+            'reference' => $fact->reference, 'charge_id' => $fact->chargeId, 'subscription_id' => $fact->externalSubscriptionId,
+            'customer_id' => $fact->customerId, 'first_order_id' => $fact->firstOrderId,
+            'period_start' => BillingStore::iso($fact->periodStart), 'period_end' => BillingStore::iso($fact->periodEnd), 'paid_at' => BillingStore::iso($fact->paidAt),
+        ]];
+        $action = ['action' => 'provider_settle', 'local_subscription_id' => $sub->id];
+        $results = $runner->run($viewer->id, $fixture, [$action, $action]);
+        $this->assertTrue($runner->report['lock_observed']);
+        $this->assertCount(2, $runner->report['blocked_waiters']);
+        $this->assertCount(3, array_unique([$runner->report['parent_pg_pid'], ...array_column($runner->report['workers'], 'pg_pid')]));
+        $this->assertTrue($runner->report['children_stopped']);
+        $this->assertSame('OK', $results[0]['code']);
+        $this->assertSame($results[0]['payment_id'], $results[1]['payment_id']);
+        $this->assertDatabaseCount('billing_payments', 1);
+        $this->assertDatabaseCount('billing_entitlements', 1);
+        $this->assertDatabaseCount('billing_outbox', 1);
+        $this->assertNotNull(DB::table('billing_accounts')->where('viewer_id', $viewer->id)->first()->first_offer_used_at);
     }
 
     private function viewer(): ViewerIdentity

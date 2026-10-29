@@ -204,6 +204,81 @@ final class BillingUiTest extends BillingTestCase
         $this->assertDatabaseCount('billing_entitlements', 0);
     }
 
+    public function test_checkout_without_provider_expiry_never_displays_a_cached_link_or_fake_countdown(): void
+    {
+        $this->travelTo(now()->setTime(12, 0, 0));
+        $this->loginViewer();
+        $input = $this->buyInput();
+        $response = $this->post('/membership/checkout', $input)->assertRedirect();
+        $url = $response->headers->get('Location');
+        $orderId = DB::table('billing_orders')->value('id');
+        $savedKey = 'audience.billing.checkouts.'.$orderId;
+        $saved = session($savedKey);
+        $saved['checkout']['checkout_url'] = 'https://www.sandbox.paypal.com/checkoutnow?token=approved-test-token';
+        $saved['checkout']['expires_at'] = null;
+        session()->put($savedKey, $saved);
+
+        $this->get($url)->assertOk()->assertSee('The payment link is no longer shown while the order is being checked.')
+            ->assertDontSee('https://www.sandbox.paypal.com/checkoutnow?token=approved-test-token', false)
+            ->assertDontSee('data-payment-countdown', false)->assertDontSee('data-billing-deadline', false)
+            ->assertSee('Recheck this original payment')->assertSee('No active paid access');
+
+        $saved['checkout']['checkout_url'] = null;
+        session()->put($savedKey, $saved);
+        $this->get($url)->assertOk()->assertSee('The payment provider has not supplied an expiry time.')
+            ->assertDontSee('data-payment-countdown', false)->assertSee('Recheck this original payment');
+
+        $createCalls = $this->gateway->createCalls;
+        $this->post('/billing/return/recheck', ['order_id' => $orderId])->assertRedirect($url);
+        $this->assertSame($createCalls, $this->gateway->createCalls);
+        $this->get($url)->assertOk()->assertDontSee('https://www.sandbox.paypal.com/checkoutnow?token=approved-test-token', false)
+            ->assertSee('Awaiting payment');
+        $this->assertDatabaseCount('billing_orders', 1);
+        $this->assertDatabaseCount('billing_entitlements', 0);
+    }
+
+    public function test_recheck_post_reuses_only_the_confirmed_attempt_without_creating_another_order(): void
+    {
+        $this->travelTo(now()->setTime(12, 0, 0));
+        $this->loginViewer();
+        $input = $this->buyInput();
+        $response = $this->post('/membership/checkout', $input)->assertRedirect();
+        $url = $response->headers->get('Location');
+        $orderId = DB::table('billing_orders')->value('id');
+        $savedKey = 'audience.billing.checkouts.'.$orderId;
+        $saved = session($savedKey);
+        $attempt = session('audience.billing.attempts.'.$input['offer_id']);
+        session()->put('audience.billing.attempts.'.$input['offer_id'], $attempt);
+        $beforeCalls = $this->gateway->createCalls;
+
+        $this->travel(32)->minutes();
+        $this->post('/billing/return/recheck', ['order_id' => $orderId])->assertRedirect($url);
+        $this->assertSame($beforeCalls, $this->gateway->createCalls);
+        $this->assertDatabaseCount('billing_orders', 1);
+
+        // Without the original confirmed session credentials, POST can only fall back to status display.
+        session()->forget('audience.billing.attempts.'.$input['offer_id']);
+        $this->post('/billing/return/recheck', ['order_id' => $orderId])->assertRedirect($url)->assertSessionHas('audience.billing.notice', 'recovery_missing');
+        $this->assertSame($beforeCalls, $this->gateway->createCalls);
+        $this->assertDatabaseCount('billing_orders', 1);
+    }
+
+    public function test_return_rejects_untrusted_or_non_https_checkout_approval_links(): void
+    {
+        $this->loginViewer();
+        $input = $this->buyInput();
+        $url = $this->post('/membership/checkout', $input)->headers->get('Location');
+        $orderId = DB::table('billing_orders')->value('id');
+        $savedKey = 'audience.billing.checkouts.'.$orderId;
+        $saved = session($savedKey);
+        $saved['checkout']['checkout_url'] = 'https://www.sandbox.paypal.com.attacker.invalid/checkoutnow?token=x';
+        $saved['checkout']['expires_at'] = null;
+        session()->put($savedKey, $saved);
+
+        $this->get($url)->assertOk()->assertDontSee('attacker.invalid')->assertDontSee('Open secure payment page')
+            ->assertSee('Payment is not yet confirmed. Check the status before trying again.');
+    }
+
     public function test_cancel_and_resume_read_original_quote_and_require_explicit_confirmation(): void
     {
         [$viewer, $order, $sub] = $this->paidFixture();
@@ -267,5 +342,24 @@ final class BillingUiTest extends BillingTestCase
     {
         $this->get('/membership?lang=zh_CN')->assertOk()->assertSee('会员中心')->assertSee('USD 3.00')->assertSee('USD 12.00');
         $this->get('/membership?lang=en')->assertOk()->assertSee('Membership')->assertSee('USD 3.00')->assertSee('USD 12.00');
+    }
+
+    public function test_payment_wait_hint_is_bilingual_and_only_shown_for_pending_payment_returns(): void
+    {
+        $viewer = $this->loginViewer();
+        $order = $this->checkoutFor($viewer);
+        $url = '/billing/return?order_id='.$order->id;
+        $english = 'Payment confirmation may take about a minute. Refresh shortly to check your membership.';
+        $chinese = '付款确认约需1分钟，请稍后刷新查看会员状态。';
+        $this->get($url.'&lang=en')->assertOk()->assertSee($english)->assertDontSee($chinese);
+        $this->get($url.'&lang=zh_CN')->assertOk()->assertSee($chinese)->assertDontSee($english);
+
+        foreach ([['paid', 'succeeded'], ['failed', 'failed'], ['paid', 'refunded'], ['review_required', 'partially_refunded'], ['expired', 'pending']] as [$state, $payment]) {
+            DB::table('billing_orders')->where('id', $order->id)->update(['state' => $state, 'payment_state' => $payment]);
+            $this->get($url.'&lang=en')->assertOk()->assertDontSee($english);
+            $this->get($url.'&lang=zh_CN')->assertOk()->assertDontSee($chinese);
+        }
+        $this->get('/membership?purchase=1&lang=en')->assertOk()->assertDontSee($english);
+        $this->get('/billing/return?order_id='.BillingStore::id().'&lang=en')->assertNotFound()->assertDontSee($english);
     }
 }

@@ -1,0 +1,20 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Integration\EntitlementPlaybackTest
+  ✓ audience progress survives refund but media and renewal are revoked  8.52s  
+  ✓ original price resume and unpaid expiry reach audience authorizatio… 0.12s  
+
+   PASS  Tests\Integration\RecoveryScenarioTest
+  ✓ preexisting unpaid accounts do not select the recovery subject       0.21s  
+  ✓ manifest cannot switch to an existing unpaid viewer                  0.05s  
+  ✓ a payment for another viewer is rejected even when that payment exi… 0.05s  
+  ✓ changes to preexisting unpaid accounts fail verification             0.04s  
+
+   PASS  Tests\Security\CrossModuleBoundaryTest
+  ✓ viewer cannot use another order or bypass media after signout        2.55s  
+  ✓ content staff has no billing authority even with mfa                 0.60s  
+
+  Tests:    8 passed (84 assertions)
+  Duration: 13.88s

@@ -1,0 +1,42 @@
+PASS current desktop approved hierarchy and size
+PASS current desktop no overflow and safe close/footer
+PASS candidate desktop approved hierarchy and size
+PASS candidate desktop no overflow and safe close/footer
+PASS candidate desktop upload alone leaves server binding and dirty synopsis unchanged
+PASS cancel desktop continue retains candidate
+PASS cancel desktop discard candidate keeps original binding and other dirty fields
+PASS current mobile-light approved hierarchy and size
+PASS current mobile-light no overflow and safe close/footer
+PASS candidate mobile-light approved hierarchy and size
+PASS candidate mobile-light no overflow and safe close/footer
+PASS candidate mobile-light upload alone leaves server binding and dirty synopsis unchanged
+PASS cancel mobile-light continue retains candidate
+PASS cancel mobile-light discard candidate keeps original binding and other dirty fields
+PASS current mobile-dark approved hierarchy and size
+PASS current mobile-dark no overflow and safe close/footer
+PASS candidate mobile-dark approved hierarchy and size
+PASS candidate mobile-dark no overflow and safe close/footer
+PASS candidate mobile-dark upload alone leaves server binding and dirty synopsis unchanged
+PASS cancel mobile-dark continue retains candidate
+PASS cancel mobile-dark discard candidate keeps original binding and other dirty fields
+PASS current short-light approved hierarchy and size
+PASS current short-light no overflow and safe close/footer
+PASS candidate short-light approved hierarchy and size
+PASS candidate short-light no overflow and safe close/footer
+PASS candidate short-light upload alone leaves server binding and dirty synopsis unchanged
+PASS cancel short-light continue retains candidate
+PASS cancel short-light discard candidate keeps original binding and other dirty fields
+PASS current short-dark approved hierarchy and size
+PASS current short-dark no overflow and safe close/footer
+PASS candidate short-dark approved hierarchy and size
+PASS candidate short-dark no overflow and safe close/footer
+PASS candidate short-dark upload alone leaves server binding and dirty synopsis unchanged
+PASS use candidate only changes local form; no other dirty fields saved
+PASS navigation protection retains chosen cover and dirty synopsis
+PASS explicit basic save commits chosen cover and intended synopsis
+PASS failed short-dark approved hierarchy and size
+PASS failed short-dark no overflow and safe close/footer
+PASS real failed image cannot replace current binding
+PASS failed candidate cancel retains saved cover
+PASS no browser or native-dialog errors
+PASS own synthetic draft withdrawn without publishing

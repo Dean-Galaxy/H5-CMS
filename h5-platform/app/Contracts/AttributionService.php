@@ -8,6 +8,9 @@ interface AttributionService
 {
     public function enabled(): bool;
 
-    /** Raw browser marker is untrusted; null means unavailable/unattributed, never verified success. */
+    /** Null reads the current trusted server session when enabled (analytics-v1).
+     * A non-null raw browser marker is untrusted and must never grant attribution.
+     * Returns null when unavailable, expired, revoked, or otherwise unattributed.
+     */
     public function snapshot(?string $untrustedMarker): ?AttributionSnapshot;
 }

@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-28 Asia/Shanghai",
+  "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+  "runtime_checkout": "5a4019e3815ae70ac9763e1954d165d5bfe1f08c",
+  "probe_sha256": "171d9078f2f8e658da5fa57b8a923a0358fed7ba6035e408ed6db1300e24d51d",
+  "evidence_sha256": {
+    "README.md": "c0b0cab823d8f6f1bc814aa55f08a96a24834d87e95e29a0bd6619c99798dfaa",
+    "acceptance.json": "e6b7ef0054ee045a0218ee7c400253565194595a33a873bb98995a250c6bb918",
+    "closure.json": "12ce07ce739e601bfdd3f035f14befb7ef7355da485b0bc119eac954e0d5272b",
+    "diagnosis.json": "5ba3f248312e93601493400b71c0d412f8cddff37b9cb671d2e48a763b597179",
+    "first-probe.json": "c75e1c25f1db024e078714bcf83fada87021c0da4a33dc025687cf9abf7e7fd5",
+    "runtime-after-closure.json": "f63f32992cd2afc6e2b1aa839952745e0b620b54a7fcab6f35846f0db4283939"
+  }
+}

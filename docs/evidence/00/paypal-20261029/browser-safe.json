@@ -1,0 +1,15 @@
+{
+  "checks": {
+    "register_page": true,
+    "email_input": true,
+    "password_inputs": true,
+    "membership_page": true,
+    "first_price_visible": true,
+    "regular_price_visible": true,
+    "guest_requires_login": true,
+    "guest_cannot_checkout": true,
+    "no_external_requests": true
+  },
+  "user_registration_performed": false,
+  "purchase_performed": false
+}

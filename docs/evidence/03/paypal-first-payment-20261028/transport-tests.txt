@@ -1,0 +1,74 @@
+INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Billing\PayPalSandboxApiTest
+  ✓ calls fixed sandbox with tls no redirects and server generated week… 0.08s  
+  ✓ suspend is only an operation response and does not claim membership… 0.01s  
+  ✓ verification failure is false and success still requires fact looku… 0.01s  
+  ✓ other webhook scope is rejected before network                       0.01s  
+  ✓ unknown verification status never becomes success                    0.01s  
+  ✓ redirect is not followed or retried                                  0.01s  
+  ✓ unknown mutation response is not automatically retried or exposed    0.01s  
+  ✓ missing configuration blocks even a cached token without http        0.01s  
+  ✓ configuration change discards old merchant token                     0.01s  
+  ✓ live environment and fake transport outside testing are rejected     0.01s  
+  ✓ path injection is rejected before oauth                              0.01s  
+  ✓ missing enablement is not inferred from credentials                  0.01s  
+  ✓ verification transport diagnostics contain only fixed safe fields w… 0.01s  
+  ✓ verification transport diagnostics contain only fixed safe fields w… 0.01s  
+  ✓ verification transport diagnostics contain only fixed safe fields w… 0.01s  
+  ✓ verification transport diagnostics contain only fixed safe fields w… 0.01s  
+  ✓ verification transport diagnostics contain only fixed safe fields w… 0.01s  
+  ✓ verification transport diagnostics contain only fixed safe fields w… 0.01s  
+  ✓ verification transport diagnostics contain only fixed safe fields w… 0.01s  
+  ✓ diagnostics do not log subscription id query or redirect location    0.01s  
+  ✓ successful transport and signature failure do not emit sensitive di… 0.01s  
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.31s  
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.15s  
+  ✓ renewal uses original price and original period when delivery is la… 0.12s  
+  ✓ failed renewal never adds access and blocks second purchase          0.12s  
+  ✓ partial then full refund only revokes its payment and stops renewal  0.13s  
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.10s  
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.12s  
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.11s  
+  ✓ setup checks existing binding and creates one product without webho… 0.10s  
+  ✓ unconfigured new purchase stays disabled even after setup            0.10s  
+  ✓ refund correction restores only original interval without restoring… 0.13s  
+  ✓ terminal without proof of no payment retains unique occupancy        0.11s  
+  ✓ late cancel event rereads current provider state and cannot extend…  0.12s  
+  ✓ unavailable app authentication is a safe diagnostic and cannot crea… 0.10s  
+  ✓ wrong sale binding amount or currency cannot grant access            0.12s  
+  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 0.12s  
+  ✓ lagging transaction history cannot release a terminal subscription   0.12s  
+  ✓ reversal stop intent survives failed read transaction                0.12s  
+  ✓ incomplete webhook events cannot create checkout                     0.10s  
+  ✓ actual response shape settles one original order and recheck never…  0.13s  
+  ✓ observed first boundary is preserved when the next week is paid      0.12s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.12s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.13s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.12s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.12s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.11s  
+  ✓ unobserved short first period cannot be backfilled from multiple pa… 0.11s  
+  ✓ changed historical anchor cannot rewrite or extend paid access       0.12s  
+  ✓ active without payment or unavailable read never returns stored app… 0.12s  
+  ✓ explicit recheck reads only and never cancels an expired approval    0.11s  
+
+  Tests:    65 passed (1092 assertions)
+  Duration: 5.62s

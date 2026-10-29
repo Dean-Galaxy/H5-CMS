@@ -1,0 +1,17 @@
+{
+  "configuration_valid": true,
+  "network_requested": true,
+  "merchant_binding_valid": true,
+  "app_authenticated": true,
+  "webhook_registration_valid": true,
+  "product_valid": true,
+  "purchase_readiness_valid": true,
+  "diagnostic_code": null,
+  "binding_source": "operator_dashboard",
+  "official_payment_verification": "not_performed",
+  "existing_webhook_id_preserved": true,
+  "webhook_event_set_preserved": true,
+  "webhook_update_http": 200,
+  "webhook_readback_http": 200,
+  "new_official_payment_performed_by_00": false
+}

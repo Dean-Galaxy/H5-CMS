@@ -1,0 +1,30 @@
+{
+  "implementation": "0569e502327d95f208fe2939435fcf3dada12a2c",
+  "baseline": "185bb2bbe5b8f338f2f50ef17779780bd4b40b1b",
+  "files": [
+    {
+      "path": "h5-platform/app/Modules/Identity/Filament/Auth/StaffAppAuthentication.php",
+      "sha256": "34043011a15170fef0e4c49b7635315c2c36b03f7ec547bbe778b72c9a1e5311"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Identity/StaffAppAuthenticationTest.php",
+      "sha256": "8d89a65df047a1c128240d347d221b806d8048c3ef492991735e6c977e9dfc59"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Identity/MfaTest.php",
+      "sha256": "d3d8fa1f97b59b68d1314a4dcba5a4c91f9863be7b0d59dc1c150b6421c72f75"
+    },
+    {
+      "path": "h5-platform/composer.lock",
+      "sha256": "077219134203096b32abb3db2685c3defbab1c893ea89345f2882b2e7596ad48"
+    },
+    {
+      "path": "h5-platform/vendor/filament/filament/src/Auth/MultiFactor/App/AppAuthentication.php",
+      "sha256": "7ecb4cd0ea92f958bcbb394d855dd7e17830ec4f61a75c1653b6266dc27eb3f8"
+    },
+    {
+      "path": "h5-platform/vendor/pragmarx/google2fa-qrcode/src/QRCode/Bacon.php",
+      "sha256": "035cfe99743a1ac7bee58fe713ebc287d6d1a513d1ba0d096d7897c84187d257"
+    }
+  ]
+}

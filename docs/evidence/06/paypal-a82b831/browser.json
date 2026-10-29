@@ -1,0 +1,92 @@
+{
+  "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+  "checkout_sha": "9364edc61616179567090e76560527c23aabf0cf",
+  "browser": "156.0.8078.48",
+  "checks": {
+    "home": true,
+    "watch": true,
+    "actual_mse_decode": true,
+    "signed_playlist_and_segments": true,
+    "unsigned_media_denied": true,
+    "member_episode_denied": true,
+    "denied_has_no_media_requests": true,
+    "test_prices_shown": true,
+    "synthetic_viewer_login": true,
+    "purchase_not_falsely_successful": true,
+    "no_external_or_script_errors": true
+  },
+  "playback": {
+    "readyState": 4,
+    "time": 1.010118,
+    "decodedFrames": 27,
+    "error": null,
+    "mse": true
+  },
+  "media_requests": [
+    {
+      "type": "playlist",
+      "status": 200
+    },
+    {
+      "type": "playlist",
+      "status": 200
+    },
+    {
+      "type": "playlist",
+      "status": 200
+    },
+    {
+      "type": "other",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    },
+    {
+      "type": "segment",
+      "status": 200
+    }
+  ],
+  "local_region": "explicit synthetic US",
+  "mail": "preview only",
+  "non_native_branch": "forced via canPlayType; decoded actual generated media",
+  "phone_tested": false,
+  "paypal_contacted": false
+}

@@ -1,0 +1,28 @@
+
+   PASS  Tests\Feature\Content\DesignWorkflowTest
+  ✓ active proposed preview is read only and only explicit pause allows… 6.29s  
+  ✓ draft timing migration preserves existing running paused and schedu… 0.08s  
+  ✓ operation actor comes from frozen identity context and old rows sta… 0.09s  
+  ✓ now draft saves intent without publishing or activating              0.03s  
+  ✓ failed final schedule rolls back draft and its audit projection      0.05s  
+  ✓ processed asset preview requires staff permission even for range an… 0.35s  
+  ✓ default preview distinguishes zero sync from new only and never wri… 0.04s  
+  ✓ global settings page is owner only and list does not leak media pat… 3.12s  
+
+   PASS  Tests\Feature\Content\ManagementTest
+  ✓ new drama snapshots defaults and fixed beijing tomorrow              0.06s  
+  ✓ license offsets round trip without beijing drift                     0.02s  
+  ✓ manual same value is override and sync requires current impact       0.06s  
+  ✓ content permissions mfa and viewer staff separation                  0.07s  
+  ✓ older bound assets remain editable after more than 200 uploads       0.09s  
+  ✓ edit keeps original identity and rejects conflict without changing…  0.07s  
+  ✓ versions and episode object scope prevent overwrite                  0.04s  
+  ✓ content workspace renders module owned navigation and release contr… 0.03s  
+  ✓ published episode media replacement requires ready contextual candi… 0.04s  
+  ✓ subtitle candidate upload preserves context and cancel cannot chang… 0.14s  
+  ✓ replacement rejects wrong context timing and missing files without…  0.04s  
+  ✓ draft media binding cannot be replaced by generic edit before candi… 0.04s  
+
+  Tests:    20 passed (257 assertions)
+  Duration: 12.42s
+

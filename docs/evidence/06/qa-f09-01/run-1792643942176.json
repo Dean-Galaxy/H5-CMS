@@ -1,0 +1,38 @@
+{
+  "candidate": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "checkout": "6b6e7d5149b2e4b599766e22d73ff99e65c159d5",
+  "base": "http://127.0.0.1:8391",
+  "dbPort": 5891,
+  "startedAt": "2026-10-22T04:39:02.208Z",
+  "checks": [
+    {
+      "name": "fresh synthetic owner has no MFA or recovery codes",
+      "passed": true
+    },
+    {
+      "name": "actual PHP has no imagick",
+      "passed": true
+    },
+    {
+      "name": "first login requires normal setup",
+      "passed": true
+    },
+    {
+      "name": "first QR decodes with positive natural width and one SVG data layer",
+      "passed": true
+    }
+  ],
+  "failures": [
+    {
+      "stage": "cancel setup",
+      "type": "TimeoutError"
+    }
+  ],
+  "screenshots": false,
+  "trace": false,
+  "secretsExported": false,
+  "browser": "155.0.8059.85",
+  "result": "failed",
+  "finishedAt": "2026-10-22T04:39:19.429Z",
+  "browserScriptErrors": 0
+}

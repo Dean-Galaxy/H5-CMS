@@ -4,15 +4,49 @@
     if (window.H5Admin) return;
     const acceptedTabs = new WeakSet();
     const protections = new WeakMap();
+    const dialogLayouts = new WeakMap();
     let asking = false;
     let promptId = 0;
     const element = value => typeof value === 'string' ? document.getElementById(value) : value;
     const unavailable = button => button.disabled || button.getAttribute('aria-disabled') === 'true';
 
+    function watchDialogLayout(dialog) {
+        dialogLayouts.get(dialog)?.();
+        const header = dialog.querySelector('.h5-dialog-header');
+        const close = header?.querySelector('.h5-dialog-close');
+        if (!header || !close) return;
+        const measure = () => {
+            const title = header.querySelector('h2');
+            if (!dialog.open || !title) return;
+            const closeHeight = close.getBoundingClientRect().height;
+            const extra = Math.max(0, closeHeight - title.getBoundingClientRect().height);
+            for (const [name, value] of [['--h5-dialog-close-height', closeHeight], ['--h5-dialog-header-extra', extra]]) {
+                const pixels = value.toFixed(4) + 'px';
+                if (dialog.style.getPropertyValue(name) !== pixels) dialog.style.setProperty(name, pixels);
+            }
+        };
+        // Reserve the close button's entire box outside the scrolling body. The declared
+        // gap is measured from the natural title bottom, so 18/20px layouts stay unchanged.
+        const resize = new ResizeObserver(measure);
+        resize.observe(header);
+        resize.observe(close);
+        const mutation = new MutationObserver(measure);
+        mutation.observe(header, { childList: true, subtree: true, characterData: true });
+        const dispose = () => {
+            resize.disconnect(); mutation.disconnect();
+            dialog.removeEventListener('close', dispose);
+            dialogLayouts.delete(dialog);
+        };
+        dialogLayouts.set(dialog, dispose);
+        dialog.addEventListener('close', dispose, { once: true });
+        measure();
+    }
+
     function openDialog(value) {
         const dialog = element(value);
         if (!(dialog instanceof HTMLDialogElement)) return false;
         if (!dialog.open) dialog.showModal();
+        watchDialogLayout(dialog);
         return true;
     }
 
@@ -108,7 +142,7 @@
             dialog.className = 'h5-admin-dialog h5-confirm-leave';
             dialog.setAttribute('aria-labelledby', titleId);
             // Static text only; form values and server messages are never interpolated.
-            dialog.innerHTML = '<div class="h5-dialog-header"><h2>修改尚未保存</h2></div><div class="h5-dialog-body"><p>保存成功后再继续，或放弃本次修改。</p><p class="h5-error" role="alert" hidden></p></div><div class="h5-dialog-actions"><button type="button" class="h5-button" data-choice="stay" autofocus>继续编辑</button><button type="button" class="h5-button h5-danger" data-choice="discard">放弃修改</button><button type="button" class="h5-button h5-primary" data-choice="save">保存并继续</button></div>';
+            dialog.innerHTML = '<div class="h5-dialog-header"><h2>修改尚未保存</h2><button type="button" class="h5-button h5-dialog-close" data-choice="stay" aria-label="关闭弹窗"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="h5-dialog-body"><p>保存成功后再继续，或放弃本次修改。</p><p class="h5-error" role="alert" hidden></p></div><div class="h5-dialog-actions"><button type="button" class="h5-button" data-choice="stay" autofocus>继续编辑</button><button type="button" class="h5-button h5-danger" data-choice="discard">放弃修改</button><button type="button" class="h5-button h5-primary" data-choice="save">保存并继续</button></div>';
             dialog.querySelector('h2').id = titleId;
             const buttons = [...dialog.querySelectorAll('button')];
             const error = dialog.querySelector('[role=alert]');
@@ -143,10 +177,10 @@
                 error.textContent = choice === 'save' ? '未确认保存成功，请继续编辑并检查表单或网络。' : '未能还原修改，请继续编辑。';
                 error.hidden = false;
                 for (const item of buttons) item.disabled = item.dataset.choice !== 'stay' && typeof callbacks[item.dataset.choice] !== 'function';
-                dialog.querySelector('[data-choice=stay]').focus();
+                dialog.querySelector('[data-choice=stay][autofocus]').focus();
             });
             document.body.append(dialog);
-            dialog.showModal();
+            openDialog(dialog);
         });
     }
 

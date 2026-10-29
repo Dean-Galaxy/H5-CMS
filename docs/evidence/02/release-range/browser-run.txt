@@ -1,0 +1,17 @@
+PASS all real ranges are ascending
+PASS real five-episode withdrawn completion has no inverted range
+PASS real thirty-five-episode withdrawn completion has no inverted range
+PASS real partially published disabled plan shows stopped
+PASS real unknown total stays unknown
+PASS real normal pending range remains visible
+PASS 已完结且全部公开
+PASS 下架且全部公开
+PASS 下架仍有未公开
+PASS 正常下一批
+PASS 最后不足一批
+PASS 总集数未知
+PASS 游标越界但有未公开
+PASS 已结束但公开数不齐
+PASS real content payload is identical before and after
+PASS no content mutation requests
+PASS no browser script errors

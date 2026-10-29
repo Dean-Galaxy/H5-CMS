@@ -39,7 +39,7 @@ final class DeskTest extends AcquisitionTestCase
     public function test_form_save_reopen_local_probe_link_edit_disable_and_summary(): void
     {
         $this->signIn();
-        $page = Livewire::test(AcquisitionDesk::class)->assertOk()->assertSee('平台确认分别记录')
+        $page = Livewire::test(AcquisitionDesk::class)->assertOk()->assertSee('外部平台联调待完成')
             ->assertSee('尚无可见像素')->set('pixel', $this->pixelInput('tiktok'))->call('savePixel')->assertHasNoErrors();
         $pixelId = $page->get('pixelId');
         $this->assertNotNull($pixelId);
@@ -62,6 +62,40 @@ final class DeskTest extends AcquisitionTestCase
         Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixelId)->assertSet('pixel.active', 0);
         $this->assertDatabaseHas('acquisition_links', ['id' => $linkId, 'name' => 'Renamed link', 'active' => false]);
         $this->assertDatabaseCount('acquisition_receipts', 0);
+    }
+
+    public function test_link_validation_is_actionable_chinese_and_preserves_unsaved_input(): void
+    {
+        $this->signIn();
+        $page = Livewire::test(AcquisitionDesk::class)->call('newLink')
+            ->set('link.name', '尚未保存的推广名称')->set('link.platform', 'tiktok')
+            ->call('saveLink')->assertHasErrors(['drama_id' => 'required', 'pixel_id' => 'required'])
+            ->assertSee('请选择已发布剧目')->assertSee('请选择授权像素')
+            ->assertDontSee('The drama id field is required')->assertDontSee('The pixel id field is required')
+            ->assertSet('link.name', '尚未保存的推广名称')->assertSet('link.platform', 'tiktok')->assertSet('linkId', null);
+        $page->set('link.drama_id', 'invalid-drama')->set('link.pixel_id', 'invalid-pixel')->call('saveLink')
+            ->assertHasErrors(['drama_id' => 'uuid', 'pixel_id' => 'uuid'])
+            ->assertSee('剧目选择无效，请重新读取并选择已发布剧目')->assertSee('像素选择无效，请重新选择授权像素')
+            ->assertSet('link.name', '尚未保存的推广名称')->assertSet('link.platform', 'tiktok')
+            ->assertSet('link.drama_id', 'invalid-drama')->assertSet('link.pixel_id', 'invalid-pixel');
+        $this->assertDatabaseCount('acquisition_links', 0);
+    }
+
+    public function test_pixel_and_assignment_validation_stays_strict_with_chinese_messages(): void
+    {
+        $staff = $this->signIn($this->staff(Role::Owner));
+        [$pixel] = $this->assets();
+        Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixel['id'])
+            ->set('pixel.name', '')->set('pixel.external_id', 'invalid!')->call('savePixel')
+            ->assertHasErrors(['name' => 'required', 'external_id' => 'regex'])
+            ->assertSee('请填写像素名称')->assertSee('像素编号格式无效，请核对所选平台的编号')
+            ->assertSet('pixel.name', '')->assertSet('pixel.external_id', 'invalid!');
+        $this->assertDatabaseHas('acquisition_pixels', ['id' => $pixel['id'], 'name' => $pixel['name'], 'version' => 1]);
+        Livewire::test(AcquisitionDesk::class)->call('selectAssignment', 'pixel', $pixel['id'])
+            ->set('staffIds', [$staff->id, $staff->id])->call('share')
+            ->assertHasErrors(['staff_ids.0' => 'distinct', 'staff_ids.1' => 'distinct'])
+            ->assertSee('员工不能重复选择，请重新读取名单后选择')->assertSet('staffIds', [$staff->id, $staff->id]);
+        $this->assertDatabaseCount('acquisition_assignments', 0);
     }
 
     public function test_hidden_action_calls_cannot_edit_foreign_pixel_or_self_assign(): void
@@ -93,14 +127,14 @@ final class DeskTest extends AcquisitionTestCase
     public function test_workspace_tabs_are_allowlisted_and_assignment_tab_is_owner_only(): void
     {
         $this->signIn($this->staff(Role::Owner));
-        Livewire::test(AcquisitionDesk::class)->assertOk()->assertSee('推广链接')->assertSee('像素资产')->assertSee('本站付款汇总')->assertSee('发送状态')
+        Livewire::test(AcquisitionDesk::class)->assertOk()->assertSee('推广链接')->assertSee('像素资产')->assertSee('付款汇总')->assertSee('发送记录')
             ->assertSee('负责人分配')
             ->assertSet('tab', 'links')
             ->call('selectTab', 'pixels')->assertSet('tab', 'pixels')
             ->call('selectTab', 'deliveries')->assertSet('tab', 'deliveries')
             ->call('selectTab', 'payments')->assertSet('tab', 'payments')
-            ->call('selectTab', 'assignments')->assertSet('tab', 'assignments')
-            ->call('selectTab', 'unknown')->assertSet('tab', 'assignments');
+            ->call('selectTab', 'assignments')->assertSet('tab', 'payments')
+            ->call('selectTab', 'unknown')->assertSet('tab', 'payments');
 
         $this->signIn($this->staff(Role::Acquisition));
         $this->get('/admin/acquisition-desk')->assertOk()->assertDontSee('负责人分配');
@@ -110,10 +144,11 @@ final class DeskTest extends AcquisitionTestCase
     public function test_url_tab_restores_only_authorized_context_and_invalid_input_falls_back(): void
     {
         $this->signIn($this->staff(Role::Owner));
-        foreach (['pixels', 'payments', 'deliveries', 'assignments'] as $tab) {
+        foreach (['pixels', 'payments', 'deliveries'] as $tab) {
             Livewire::withQueryParams(['tab' => $tab])->test(AcquisitionDesk::class)->assertSet('tab', $tab);
         }
         Livewire::withQueryParams(['tab' => 'unknown'])->test(AcquisitionDesk::class)->assertSet('tab', 'links');
+        Livewire::withQueryParams(['tab' => 'assignments'])->test(AcquisitionDesk::class)->assertSet('tab', 'links');
         $this->signIn();
         Livewire::withQueryParams(['tab' => 'assignments'])->test(AcquisitionDesk::class)
             ->assertSet('tab', 'links')->assertDontSee('负责人分配')
@@ -122,20 +157,33 @@ final class DeskTest extends AcquisitionTestCase
         $this->get('/admin/acquisition-desk?tab=assignments')->assertOk()->assertDontSee('负责人分配');
     }
 
-    public function test_assignment_opens_authorized_tab_and_failed_save_preserves_editor(): void
+    public function test_asset_dialog_actions_keep_context_and_failed_save_preserves_editor(): void
     {
         $this->signIn($this->staff(Role::Owner));
         [$pixel] = $this->assets();
-        Livewire::test(AcquisitionDesk::class)->call('selectAssignment', 'pixel', $pixel['id'])
-            ->assertSet('tab', 'assignments')->assertSet('shareId', $pixel['id']);
+        Livewire::test(AcquisitionDesk::class)->call('selectTab', 'pixels')->call('selectAssignment', 'pixel', $pixel['id'])
+            ->assertReturned(true)->assertSet('tab', 'pixels')->assertSet('shareId', $pixel['id']);
         $page = Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixel['id'])
             ->set('pixel.name', '')->call('savePixel')->assertReturned(false)->assertSet('pixel.name', '')
             ->call('restoreEditor', 'pixel')->assertReturned(true)->assertSet('pixel.name', $pixel['name']);
         $this->signIn();
         Livewire::test(AcquisitionDesk::class)->set('pixelId', $pixel['id'])
             ->set('pixel.name', 'Unauthorized edit')->call('restoreEditor', 'pixel')->assertReturned(false)
-            ->assertSet('pixel.name', 'Unauthorized edit')->call('selectAssignment', 'pixel', $pixel['id'])
+            ->assertSet('pixel.name', 'Unauthorized edit')->call('selectAssignment', 'pixel', $pixel['id'])->assertReturned(false)
             ->assertSet('tab', 'links')->assertSet('shareId', '');
+    }
+
+    public function test_editors_are_shared_dialogs_and_tab_list_has_only_four_entries(): void
+    {
+        $this->signIn($this->staff(Role::Owner));
+        $page = Livewire::test(AcquisitionDesk::class)->assertSee('新增链接')
+            ->assertSeeHtml('id="acquisition-link-editor"')->assertSeeHtml('id="acquisition-pixel-editor"')
+            ->assertSeeHtml('id="acquisition-assignment-editor"')->assertDontSeeHtml('data-admin-tab="assignments"');
+        $page->call('newLink')->assertReturned(true)->call('newPixel')->assertReturned(true);
+        [$pixel, $link] = $this->assets();
+        $this->signIn();
+        Livewire::test(AcquisitionDesk::class)->call('selectPixel', $pixel['id'])->assertReturned(false)
+            ->assertSet('pixelId', null)->call('selectLink', $link['id'])->assertReturned(false)->assertSet('linkId', null);
     }
 
     public function test_payment_display_uses_shared_exact_usd_format_without_float_conversion(): void

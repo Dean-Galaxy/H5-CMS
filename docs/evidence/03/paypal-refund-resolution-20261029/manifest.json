@@ -1,0 +1,25 @@
+{
+  "baseline": "a7b5454ac977e51be7d0f11093df0450a96a468c",
+  "source_commit": "b1da054f108df0150761cd00803fc8dfd9f07317",
+  "contract": "1.0.5",
+  "environment": "03 isolated PostgreSQL _test and HTTP Mock",
+  "official_api_calls": false,
+  "actual_06_modified": false,
+  "baseline_reproduction": {
+    "failed": 2,
+    "assertions": 90
+  },
+  "combined_before_last_test": {
+    "passed": 432,
+    "assertions": 6467,
+    "seconds": 31.33
+  },
+  "final_runtime_class": {
+    "passed": 71,
+    "assertions": 2052,
+    "seconds": 8.96
+  },
+  "contract_examples_passed": 59,
+  "migration_changes": false,
+  "source_sha256": "9abd00117aadb173b1eb59c89d2ad222a1a221abd53cd18723d237a344577e3b"
+}

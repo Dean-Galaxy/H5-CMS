@@ -1,0 +1,78 @@
+test_01_two_transmissions_same_event_counted_without_private_content (test_paypal_replay_observation.ReplayTests) ... ok
+test_02_exact_raw_body_five_headers_and_allowlist_unchanged (test_paypal_replay_observation.ReplayTests) ... ok
+test_03_default_disabled_records_nothing_even_with_policy (test_paypal_replay_observation.ReplayTests) ... ok
+test_04_unrelated_event_ignored (test_paypal_replay_observation.ReplayTests) ... ok
+test_05_invalid_json_duplicate_id_encoding_shape_ignored (test_paypal_replay_observation.ReplayTests) ... ok
+test_06_private_paths_missing_headers_and_credentials_still_rejected (test_paypal_replay_observation.ReplayTests) ... ok
+test_07_observation_status_is_actual_response_not_signature_success (test_paypal_replay_observation.ReplayTests) ... ok
+test_08_wrong_workspace_or_window_ignored (test_paypal_replay_observation.ReplayTests) ... ok
+test_09_closed_or_recycled_process_ignored (test_paypal_replay_observation.ReplayTests) ... ok
+test_10_wider_tunnel_command_ignored (test_paypal_replay_observation.ReplayTests) ... ok
+test_11_other_bridge_pid_ignored (test_paypal_replay_observation.ReplayTests) ... ok
+test_12_policy_symlink_mode_hardlink_and_owner_denied (test_paypal_replay_observation.ReplayTests) ... ok
+test_13_private_directories_symlink_or_wrong_mode_denied (test_paypal_replay_observation.ReplayTests) ... ok
+test_14_malformed_policy_startup_denied_without_recording (test_paypal_replay_observation.ReplayTests) ... ok
+test_15_invalid_transmission_not_observed (test_paypal_replay_observation.ReplayTests) ... ok
+test_16_64_record_cap_no_unbounded_growth (test_paypal_replay_observation.ReplayTests) ... ok
+test_17_concurrent_counts_are_unique_or_safely_skipped (test_paypal_replay_observation.ReplayTests) ... ok
+test_18_output_symlink_or_corruption_not_followed_or_replaced (test_paypal_replay_observation.ReplayTests) ... ok
+test_19_policy_rotation_between_selection_and_response_ignored (test_paypal_replay_observation.ReplayTests) ... ok
+test_20_expiry_mid_request_ignored_without_affecting_application (test_paypal_replay_observation.ReplayTests) ... ok
+test_21_synthetic_transport_receipt_remains_compatible (test_paypal_replay_observation.ReplayTests) ... ok
+test_22_readonly_window_guard_accepts_appended_optin_and_stop_matching (test_paypal_replay_observation.ReplayTests) ... ok
+test_23_observation_error_does_not_log_request_or_change_response (test_paypal_replay_observation.ReplayTests) ... ok
+test_24_policy_oversize_and_duplicate_keys_denied (test_paypal_replay_observation.ReplayTests) ... ok
+test_25_log_mode_owner_size_and_hardlink_safely_skipped (test_paypal_replay_observation.ReplayTests) ... ok
+test_26_lock_contention_does_not_block_or_duplicate (test_paypal_replay_observation.ReplayTests) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 1.126s
+
+OK
+
+test_01_exact_path_and_byte_preservation (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_02_all_private_paths_and_variants_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_03_every_other_method_is_rejected (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_04_host_rebinding_is_rejected (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_05_credentials_are_rejected_not_forwarded (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_06_proxy_identity_and_arbitrary_targets_are_not_forwarded (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_07_body_limits_include_boundary (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_08_transfer_compression_expect_upgrade_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_09_missing_signature_headers_and_bad_types_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_10_duplicate_headers_and_short_body_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_11_application_errors_are_not_confirmed_or_leaked (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_12_redirects_are_not_followed (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_13_unavailable_upstream_is_retryable (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_14_oversize_header_is_rejected (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_15_upstream_loop_and_occupied_listener_are_rejected (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_16_saturated_bridge_returns_retryable_status (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+test_17_global_budget_rejects_excess_without_trusting_ip (test_paypal_callback_bridge.BridgeBoundaryTests) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 8.913s
+
+OK
+
+test_actual_command_extra_origin_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_api_on_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_candidate_mismatch_and_missing_shared_field_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_candidate_without_field_even_when_clean_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_change_during_backup_refused (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_check_is_readonly (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_closed_or_recycled_window_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_old_url_replaced_without_identity_change (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_only_url_changes_without_secret_output (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_other_worktree_record_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_post_write_guard_reports_written_state_without_blind_rollback (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_private_record_mode_and_symlink_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_running_application_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_shared_apply_lock_blocks_concurrent_writer (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_staged_credentials_not_needed_or_read (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_untracked_application_source_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_url_input_cannot_escape_authorized_origin (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+test_wider_tunnel_command_rejected (test_paypal_complete_webhook_url.URLCompletionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 7.299s
+
+OK

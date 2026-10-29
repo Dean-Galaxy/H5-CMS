@@ -1,0 +1,74 @@
+PASS staff password and MFA session loaded real content
+PASS library desktop tabs to first business block is 22px
+PASS library desktop following toolbar gap stays 16px
+PASS library mobile tabs to first business block is 22px
+PASS library mobile following toolbar gap stays 16px
+PASS new drama modal persists draft only
+PASS unsaved title retained on stay
+PASS episodes table uses five rows and real missing projections
+PASS episodes desktop tabs to first business block is 22px
+PASS episodes desktop following toolbar gap stays 16px
+PASS episodes mobile tabs to first business block is 22px
+PASS episodes mobile following toolbar gap stays 16px
+PASS mobile content navigation and upload button are inside viewport
+PASS issues filter shows only two missing episodes
+PASS mapping review sends zero upload requests
+PASS explicit start uploads both actual files
+PASS batch confirms bindings without publishing
+PASS candidate upload preserves current binding
+PASS episode-candidate short screen keeps close and actions visible
+PASS candidate confirmation preserves original episode identity
+PASS SRT batch separately confirms language and binding
+PASS real media failure has actionable Chinese
+PASS candidate-failed short screen keeps close and actions visible
+PASS real decode failure remains candidate not current
+PASS cancel failed candidate retains current binding
+PASS real stale version preserves input and explains newer content in Chinese
+PASS save-stale short screen keeps close and actions visible
+PASS server committed but response lost retains editor input
+PASS lost response test actually committed server change
+PASS save-unknown short screen keeps close and actions visible
+PASS unknown result does not automatically retry mutation
+PASS basics desktop tabs to first business block is 22px
+PASS basics mobile tabs to first business block is 22px
+PASS cover explains the second explicit save before choosing
+PASS cover current and candidate use independent contain dimensions
+PASS cover-candidate short screen keeps close and actions visible
+PASS using cover candidate keeps binding and other dirty fields uncommitted
+PASS rights desktop tabs to first business block is 22px
+PASS rights mobile tabs to first business block is 22px
+PASS release-draft desktop tabs to first business block is 22px
+PASS release-draft mobile tabs to first business block is 22px
+PASS now draft survives refresh without publication activation or date drift
+PASS release-confirm short screen keeps close and actions visible
+PASS proposed scheduled preview leaves persisted plan unchanged
+PASS cancel preview leaves persisted plan unchanged
+PASS final scheduled confirmation activates without early publication
+PASS release-active desktop tabs to first business block is 22px
+PASS release-active mobile tabs to first business block is 22px
+PASS cancel modify preserves active next_at and version
+PASS explicit pause then edit changes state to paused
+PASS now first batch atomically publishes 10 and keeps next time
+PASS release-paused desktop tabs to first business block is 22px
+PASS release-paused mobile tabs to first business block is 22px
+PASS 35 episodes publish 10 10 10 5 without catchup
+PASS history desktop tabs to first business block is 22px
+PASS history mobile tabs to first business block is 22px
+PASS releases desktop tabs to first business block is 22px
+PASS releases mobile tabs to first business block is 22px
+PASS categories desktop tabs to first business block is 22px
+PASS categories mobile tabs to first business block is 22px
+PASS banners desktop tabs to first business block is 22px
+PASS banners mobile tabs to first business block is 22px
+PASS banner current and candidate use independent contain dimensions
+PASS banner-candidate short screen keeps close and actions visible
+PASS cancel Banner candidate preserves binding
+PASS owner global settings has independent route
+PASS global new_only confirmation reflects server scope count and names
+PASS global-new_only short screen keeps close and actions visible
+PASS global sync confirmation reflects server scope count and names
+PASS global-sync short screen keeps close and actions visible
+PASS both real impact previews cancel without any settings or drama writes
+PASS zero eligible sync still explicitly differs from new-only
+PASS global-sync-zero-fixture short screen keeps close and actions visible
+PASS no native prompts or script errors

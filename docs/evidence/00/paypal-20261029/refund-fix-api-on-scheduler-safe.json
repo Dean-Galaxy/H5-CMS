@@ -1,0 +1,8 @@
+{
+  "api_on_two_runs_observed": [
+    "2026-10-29 07:09:00 Running ['artisan' billing:reconcile] ........ 17 秒 DONE",
+    "2026-10-29 07:10:00 Running ['artisan' billing:reconcile] ........ 18 秒 DONE"
+  ],
+  "scope": "Only these two completed runs were followed by the saved successful C1 observation; later logs are not claimed here.",
+  "financial_counts_preserved_in_two_manual_full_cycles": true
+}

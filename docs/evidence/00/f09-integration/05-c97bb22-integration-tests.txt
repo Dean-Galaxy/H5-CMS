@@ -1,0 +1,17 @@
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 5.73s  
+  ✓ form save reopen local probe link edit disable and summary           0.24s  
+  ✓ link validation is actionable chinese and preserves unsaved input    0.14s  
+  ✓ pixel and assignment validation stays strict with chinese messages   0.06s  
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.15s  
+  ✓ page permissions do not bootstrap assets or bypass mfa               1.06s  
+  ✓ workspace tabs are allowlisted and assignment tab is owner only      1.05s  
+  ✓ url tab restores only authorized context and invalid input falls ba… 0.05s  
+  ✓ asset dialog actions keep context and failed save preserves editor   0.06s  
+  ✓ editors are shared dialogs and tab list has only four entries        0.04s  
+  ✓ payment display uses shared exact usd format without float conversi… 0.05s  
+
+  Tests:    11 passed (141 assertions)
+  Duration: 11.15s
+

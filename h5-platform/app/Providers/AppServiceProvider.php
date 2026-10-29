@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Contracts\AcquisitionStaffDirectory;
 use App\Contracts\AttributionService;
+use App\Contracts\BehaviorEventRecorder;
+use App\Contracts\BillingAnalyticsReader;
 use App\Contracts\BillingService;
 use App\Contracts\CatalogReader;
 use App\Contracts\MembershipReader;
@@ -12,6 +14,8 @@ use App\Contracts\ProgressService;
 use App\Contracts\PromotableCatalog;
 use App\Contracts\RegionResolver;
 use App\Support\DisabledAttribution;
+use App\Support\DisabledBehaviorEventRecorder;
+use App\Support\UnavailableBillingAnalyticsReader;
 use App\Support\LocalModuleRegistry;
 use App\Support\RuntimeEnvironmentGuard;
 use App\Support\ServerRegionResolver;
@@ -32,6 +36,8 @@ class AppServiceProvider extends ServiceProvider
             $this->app->bind($contract, UnavailableServices::class);
         }
         $this->app->bind(AttributionService::class, DisabledAttribution::class);
+        $this->app->bind(BehaviorEventRecorder::class, DisabledBehaviorEventRecorder::class);
+        $this->app->bind(BillingAnalyticsReader::class, UnavailableBillingAnalyticsReader::class);
         $this->app->bind(AcquisitionStaffDirectory::class, UnavailableStaffDirectory::class);
         $this->app->bind(PromotableCatalog::class, UnavailablePromotableCatalog::class);
         $this->app->bind(RegionResolver::class, fn ($app) => new ServerRegionResolver(

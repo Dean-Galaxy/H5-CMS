@@ -1,0 +1,15 @@
+{
+  "source": "docs/ui/08-admin-v2/index.html",
+  "root": "exact index.html data-srcdoc rendered as standalone document",
+  "outerViewport": {
+    "width": 1100,
+    "height": 1000
+  },
+  "canvas": {
+    "x": 0,
+    "y": 0,
+    "width": 1100,
+    "height": 692
+  },
+  "notes": "Exact original srcdoc, only export iframe wrapper omitted; viewport 1100x1000 and 375x812 matches application, DPR 1. Source files unchanged. Prototype interactions simulated."
+}

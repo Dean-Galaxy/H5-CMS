@@ -1,0 +1,85 @@
+{
+  "recorded_at": "2026-10-27T09:14:13.906914+00:00",
+  "application_candidate": "a82b831ba5d03064d7d1564a93a5b201298571ce",
+  "final_tool_checkout": "9364edc61616179567090e76560527c23aabf0cf",
+  "targeted_tests_checkout": "a3a5d0ade408576233893a79b9d15c6c87ddc042",
+  "contract": "1.0.5",
+  "business_trees_equal": {
+    "h5-platform/app": {
+      "candidate": "cd1f15b7ebc911123d73dd13ae395c8a47e51b72",
+      "actual": "cd1f15b7ebc911123d73dd13ae395c8a47e51b72"
+    },
+    "h5-platform/bootstrap": {
+      "candidate": "ffa21da9f49349ab38b77d6061d139101c72493f",
+      "actual": "ffa21da9f49349ab38b77d6061d139101c72493f"
+    },
+    "h5-platform/config": {
+      "candidate": "f834f90c8b081fe19240af09fbe61fde775a1387",
+      "actual": "f834f90c8b081fe19240af09fbe61fde775a1387"
+    },
+    "h5-platform/database": {
+      "candidate": "5ba0832bcc0246e7cf4f79b8e1b7e26abcd50611",
+      "actual": "5ba0832bcc0246e7cf4f79b8e1b7e26abcd50611"
+    },
+    "h5-platform/resources": {
+      "candidate": "e156204eed57e9bfc03806a11eb3960a12b72ed3",
+      "actual": "e156204eed57e9bfc03806a11eb3960a12b72ed3"
+    },
+    "h5-platform/routes": {
+      "candidate": "c1f2b4265c58305313b52a4315a9e9a7e014ad73",
+      "actual": "c1f2b4265c58305313b52a4315a9e9a7e014ad73"
+    },
+    "h5-platform/public": {
+      "candidate": "dd3f7b0a7f8e3cd9be488685dc6e45ae6dd0f507",
+      "actual": "dd3f7b0a7f8e3cd9be488685dc6e45ae6dd0f507"
+    },
+    "h5-platform/composer.json": {
+      "candidate": "47691a6c6ba4d2df9407da5ce62d3559a27f59b8",
+      "actual": "47691a6c6ba4d2df9407da5ce62d3559a27f59b8"
+    },
+    "h5-platform/composer.lock": {
+      "candidate": "e0a1315cd4593b0c28e8d543dd75cddf516ab09c",
+      "actual": "e0a1315cd4593b0c28e8d543dd75cddf516ab09c"
+    }
+  },
+  "test_summary": {
+    "targeted_tests": 44,
+    "assertions": 787,
+    "contract_examples": 59,
+    "tool_tests": 48,
+    "joint_http_checks": 25,
+    "chrome_checks": 11
+  },
+  "entry": {
+    "home": "http://127.0.0.1:8406/",
+    "drama": "http://127.0.0.1:8406/dramas/01a17c99-e015-701a-aac6-2817c9e29e89",
+    "membership": "http://127.0.0.1:8406/membership?purchase=1"
+  },
+  "actual_external_payment": false,
+  "actual_restore_in_this_run": false,
+  "tunnel_opened": false,
+  "ports": {
+    "8406": true,
+    "5906": true,
+    "8407": true,
+    "8408": false,
+    "8409": false
+  },
+  "artifact_sha256": {
+    "runtime-final.json": "f63f32992cd2afc6e2b1aa839952745e0b620b54a7fcab6f35846f0db4283939",
+    "joint-http.json": "1fcfdad3f8b82972faecbbb3f29b59b77fa3791108c133ea5bf18529cdf94d31",
+    "migrations-and-start.txt": "b3767fa6caefc932eeed71bf2cfc6e5dccee6441b82c0ed2a2483e2786e23c75",
+    "membership-gate.png": "a9cdad6e6a616d81f83d6e0cc720771a6b299bd2c8fdc9cc4bd74687d10fa33e",
+    "home.png": "5ced494d6ba75297b2dbed18e732c645c2d196fbfb01165dba76f02ce23d7d81",
+    "cloudflared-release.json": "4caa5d05738e0363c4bcec4bffdcccdf72af2e773b46ee88959c3be607c08257",
+    "http-registration.json": "8da39ab53cf28ee99ca290d75044ac24238a3fb1e48ecaa9e8802321f237c074",
+    "test-offer.png": "10be18b7b5de0556fe5e8a01261681bc36d207a6e1d9d1d393d5acbb8ef9916a",
+    "contracts.txt": "aea6b6c9fdfa0feb860540ce88c4aeca0c1ab1782369759aaa0ffd7394020f66",
+    "targeted-tests.txt": "8adc52627973d61177b9b425c2f5e134bfa4d27f2d6d8b9bd8f80e51effd916a",
+    "dependency-audit.json": "5336f8aa9a59cd25dde3c3079ee514fff801762ab600e79073e4cc82a73ca668",
+    "browser.json": "535cc4781cc974d8ab19d9ee0570163739bc2c14b21c957e1a4d249b98481e98",
+    "ops-tests.txt": "1200960143489b50deb35a8b6be15480f76bb1f5418cd2cbb4718c499606b909",
+    "free-playback.png": "9854dbed8e4dbd7514909e8baa2f588070b4bc595001dd8c459c18c02796be30",
+    "joint-http-superseded-cookie.json": "1e65bc5f977a639043ff2d3724df9fd6fe7690adcd569c0b02f9000cb49af957"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-28 Asia/Shanghai",
+  "application_observed": "ec3f6124f4e2e0c575c08ac144b2768de4a55b3f",
+  "bridge_start_candidate": "64e8273261dd0c2f0f751a383d548edc9233ccb4",
+  "bridge_sources_match_start_candidate": true,
+  "bridge_sha256": "b924bcf65870f0fd7a49b1b19b1acd74cd433f2bcc6fc851167826805f73d57f",
+  "observer_sha256": "482784cf41d447c9f3eeaab5686e0ce775cc7645ba7d3b820f8d07fa62c38c71",
+  "bridge_pid": 27535,
+  "tunnel_pid": 27536,
+  "pid_start_times_match": true,
+  "full_tunnel_command_matches": true,
+  "bridge_command_matches": true,
+  "configured_and_window_callback_sha256": "55b93900941a1a8d1fbcc8957f1b83aa9748f006d76f667fc76a3f75ee944077",
+  "tls": "system default CA and hostname verification enabled",
+  "get_checks": [
+    {"path": "/webhooks/paypal", "status": 404, "body_bytes": 0},
+    {"path": "/admin", "status": 404, "body_bytes": 0}
+  ],
+  "aggregate_metrics_after_two_gets": {
+    "total_requests": 32,
+    "request_errors": 0,
+    "http_status_counts": {"400": 3, "403": 2, "404": 17, "415": 1, "500": 9}
+  },
+  "tunnel_log_aggregate": {
+    "registered_count": 1,
+    "last_registration_utc": "2026-10-28T07:06:58Z",
+    "error_count": 2,
+    "last_error_utc": "2026-10-28T07:06:57Z",
+    "dns_error_count": 1,
+    "quic_idle_timeout_count": 0
+  },
+  "scope": "read-only endpoint/config-URL-digest/source/aggregate metrics; no event correlation",
+  "post_sent": false,
+  "real_request_body_or_header_values_captured": false,
+  "database_read_or_modified_by_06": false,
+  "env_or_runtime_source_modified": false,
+  "processes_stopped_or_restarted": false,
+  "official_delivery_proven": false
+}

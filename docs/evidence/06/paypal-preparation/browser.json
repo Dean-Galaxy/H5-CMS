@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-10-27T08:27:34.490Z",
+  "source_sha": "272b2ac1ae7b1d3fdb8a990ec3c20a5f810165e7",
+  "browser": "156.0.8078.48",
+  "synthetic_only": true,
+  "application_started": false,
+  "paypal_contacted": false,
+  "checks": {
+    "form_status": true,
+    "masked_fields": true,
+    "no_store": true,
+    "saved_message": true,
+    "saved_correctly": true,
+    "private_mode": true,
+    "no_secret_response": true,
+    "no_prefill": true,
+    "shutdown_message": true,
+    "no_external_requests": true
+  },
+  "request_paths": [
+    "/",
+    "/save",
+    "/",
+    "/stop"
+  ],
+  "errors": []
+}

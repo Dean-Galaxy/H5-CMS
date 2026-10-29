@@ -1,0 +1,18 @@
+{
+  "source_commit": "3693f83bb41778a8446c10a8a52d97524233397b",
+  "baseline": "93649870405d36ecaecd4d39811e053f5be0fb14",
+  "contract": "1.0.5",
+  "test_environment": "03 isolated PostgreSQL; signature SUCCESS and provider facts are HTTP Mock fixtures",
+  "reproduction": {
+    "conflict_rollback_cases": 5,
+    "subsecond_precision_assertion_failures": 2,
+    "original_cases_passed": 10
+  },
+  "targeted_tests": 67,
+  "targeted_assertions": 1122,
+  "final_tests": 426,
+  "final_assertions": 5613,
+  "new_migrations": 0,
+  "official_calls_by_03": false,
+  "actual_callback_delivery_verified_by_03": false
+}

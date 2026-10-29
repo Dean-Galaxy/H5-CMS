@@ -1,0 +1,204 @@
+
+   PASS  Tests\Feature\Content\CatalogTest
+  ✓ real home category banner language and actual published counts       6.40s  
+  ✓ visibility expiry drafts unknown region and empty category           0.05s  
+  ✓ cursor is stable signed and bound to filter locale region sort vers… 0.07s  
+
+   PASS  Tests\Feature\Content\ConcurrencyTest
+  ✓ separate processes cannot publish an occurrence twice                3.08s  
+  ✓ manual publish edit and withdraw serialize with scheduler            1.55s  
+  ✓ slow startup has its own budget and still contends on real locks    12.62s  
+  ✓ failed startup reports the phase and cleans children before unlocki… 1.18s  
+  ✓ launch now competes with scheduler and duplicate confirmation only…  0.88s  
+
+   PASS  Tests\Feature\Content\DesignWorkflowTest
+  ✓ active proposed preview is read only and only explicit pause allows… 0.53s  
+  ✓ draft timing migration preserves existing running paused and schedu… 0.06s  
+  ✓ operation actor comes from frozen identity context and old rows sta… 0.05s  
+  ✓ now draft saves intent without publishing or activating              0.02s  
+  ✓ failed final schedule rolls back draft and its audit projection      0.03s  
+  ✓ processed asset preview requires staff permission even for range an… 0.14s  
+  ✓ global settings page is owner only and list does not leak media pat… 4.10s  
+
+   PASS  Tests\Feature\Content\ManagementTest
+  ✓ new drama snapshots defaults and fixed beijing tomorrow              0.09s  
+  ✓ license offsets round trip without beijing drift                     0.02s  
+  ✓ manual same value is override and sync requires current impact       0.06s  
+  ✓ content permissions mfa and viewer staff separation                  0.10s  
+  ✓ older bound assets remain editable after more than 200 uploads       0.12s  
+  ✓ edit keeps original identity and rejects conflict without changing…  0.04s  
+  ✓ versions and episode object scope prevent overwrite                  0.04s  
+  ✓ content workspace renders module owned navigation and release contr… 0.03s  
+  ✓ published episode media replacement requires ready contextual candi… 0.04s  
+  ✓ subtitle candidate upload preserves context and cancel cannot chang… 0.11s  
+  ✓ replacement rejects wrong context timing and missing files without…  0.04s  
+  ✓ draft media binding cannot be replaced by generic edit before candi… 0.04s  
+
+   PASS  Tests\Feature\Content\MediaTest
+  ✓ upload is private sequential owned and rejects traversal type size   0.15s  
+  ✓ cancel is owned and a canceled partial upload cannot finish          0.08s  
+  ✓ subtitles reorder without retiming and reject markup bad utf8 or ti… 0.04s  
+  ✓ actual small h264 aac is decoded and packaged privately              0.31s  
+  ✓ real image is reencoded and subtitle out of duration blocks publish  0.05s  
+  ✓ draft preview and private range require mfa and content permission   0.09s  
+
+   PASS  Tests\Feature\Content\PlaybackTest
+  ✓ free fifth paid sixth and no raw media or forged grant access        0.36s  
+  ✓ hls subtitle map and every caption request are protected             0.05s  
+  ✓ head and invalid range do not start a session and missing hls block… 0.06s  
+  ✓ n change only protects started same episode with finite window       0.08s  
+  ✓ refund membership loss is checked on every manifest segment range a… 0.10s  
+  ✓ expiry region withdrawal and other identity cannot reuse grants      0.07s  
+  ✓ video replacement retains files but old manifest segment and range…  0.08s  
+
+   PASS  Tests\Feature\Content\PromotableCatalogTest
+  ✓ provider returns minimal dtos from real publication facts and exist… 0.19s  
+  ✓ both methods require current staff mfa and published catalog permis… 0.07s  
+  ✓ inventory is us scoped without reading or changing viewer region or… 0.04s  
+  ✓ us licence uses current half open interval and each read revalidate… 0.04s  
+  ✓ only currently published episodes with usable media qualify          0.05s  
+  ✓ missing or unsafe media and subtitle files are rechecked on every c… 0.05s  
+  ✓ keyset pagination skips unusable batches and single lookup fills an… 0.08s  
+  ✓ cursor integrity purpose country locale order and version are bound  0.04s  
+  ✓ empty inventory and invalid inputs do not fabricate candidates       0.03s  
+
+   PASS  Tests\Feature\Content\PublicationTest
+  ✓ 35 episodes publish 10 10 10 5 and each occurrence is idempotent     0.07s  
+  ✓ completed requires all and missing or processing blocks whole batch  0.07s  
+  ✓ missing packaged segment blocks the entire scheduled batch           0.04s  
+  ✓ manual pause resume edit and withdraw make old executions obsolete   0.07s  
+  ✓ saving plan invalidates old job and activation requires preview and… 0.06s  
+  ✓ unapproved missed schedule is held and not silently caught up        0.04s  
+  ✓ immediate updating launch and early next batch preserve cursor and…  0.07s  
+  ✓ immediate completed launch blocks incomplete total without partial…  0.04s  
+
+   FAIL  Tests\Feature\Contracts\AcceptedAudienceTest
+  ⨯ default website and progress use the accepted provider without loca… 0.16s  
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.15s  
+  ✓ fresh progress is empty and a guest cannot write account progress    0.05s  
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund   0.28s  
+
+   FAIL  Tests\Feature\Contracts\AcceptedBillingTest
+  ⨯ real billing loads without opt in and does not enable external paym… 0.01s  
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.08s  
+
+   FAIL  Tests\Feature\Contracts\AcceptedContentTest
+  ⨯ content loads without local opt in and registers each job once       0.01s  
+  ✓ public content still requires a trusted region then reads its own d… 0.02s  
+
+   PASS  Tests\Feature\Contracts\AcquisitionReadPortsTest
+  ✓ consumers read typed minimal pages without private staff or media f… 0.10s  
+  ✓ absent read providers do not turn into successful empty lists or sa… 0.02s  
+
+   PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
+  ✓ actual staff profile route uses staff policy and same origin avatar  1.17s  
+  ✓ design navigation keeps role permissions and optional module gate    0.02s  
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.07s  
+  ✓ staff contract is relaxed without changing viewer passwords          0.06s  
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.02s  
+  ✓ usd rejects wrong types precision notation and overflow              0.01s  
+  ✓ tabs render one selected panel and escape labels                     0.04s  
+  ✓ livewire tabs call the module method without using inline user code  0.04s  
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.25s  
+  ✓ dialog has accessible title and real submit button can target its f… 0.03s  
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.01s  
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.01s  
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.01s  
+
+   PASS  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
+  ✓ default off does not release an origin and every call rechecks       0.01s  
+  ✓ boolean environment and nonlocal overrides fail closed               0.01s  
+  ✓ opt in never enables production or local and local mail remains ava… 0.01s  
+  ✓ origin cannot contain unsafe components or non domain hosts          0.01s  
+  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.01s  
+  ✓ approved smtp configuration builds real tls transport without conne… 0.25s  
+  ✓ direct connection discards previous proxy trust and hosting auto de… 0.01s  
+  ✓ nonlocal http requires direct tls canonical host and default port    0.03s  
+  ✓ real staging boot and cached configuration are checked without net… 10.43s  
+  ✓ real uncached environment loading preserves invalid booleans         1.37s  
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.17s  
+  ✓ home consumer can follow a category and banner without media or ext… 0.07s  
+  ✓ new ports require the real provider even when empty examples exist   0.01s  
+  ✓ public home and categories remain accessible to guests but unavaila… 0.03s  
+  ✓ resume quote and submission require an audience session              0.02s  
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.03s  
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s  
+  ✓ allowlisted local provider can load without a root config edit       0.01s  
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s  
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s  
+  ✓ explicit us fixture is limited to direct loopback http               0.01s  
+  ✓ production never accepts forged country headers or local region ove… 0.01s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Contracts\AcceptedAudienceTest > default website an…   
+  Failed asserting that two strings are identical.
+  -''
+  +'acquisition'
+  
+
+  at tests/Feature/Contracts/AcceptedAudienceTest.php:24
+     20▕     use RefreshDatabase;
+     21▕ 
+     22▕     public function test_default_website_and_progress_use_the_accepted_provider_without_local_opt_in(): void
+     23▕     {
+  ➜  24▕         $this->assertSame('', config('h5.local_modules'));
+     25▕         $this->assertSame(['provider' => AudienceServiceProvider::class, 'ready' => true], config('h5.modules.audience'));
+     26▕         $this->assertInstanceOf(ProgressRecorder::class, app(ProgressService::class));
+     27▕         $this->assertFalse(app(AttributionService::class)->enabled());
+     28▕         $this->assertSame(CatalogController::class.'@home', Route::getRoutes()->match(Request::create('/'))->getActionName());
+
+  1   tests/Feature/Contracts/AcceptedAudienceTest.php:24
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Contracts\AcceptedBillingTest > real billing loads…    
+  Failed asserting that two strings are identical.
+  -''
+  +'acquisition'
+  
+
+  at tests/Feature/Contracts/AcceptedBillingTest.php:27
+     23▕     use RefreshDatabase;
+     24▕ 
+     25▕     public function test_real_billing_loads_without_opt_in_and_does_not_enable_external_payments_or_acquisition(): void
+     26▕     {
+  ➜  27▕         $this->assertSame('', config('h5.local_modules'));
+     28▕         $this->assertSame(['provider' => BillingServiceProvider::class, 'ready' => true], config('h5.modules.billing'));
+     29▕         $this->assertInstanceOf(BillingEngine::class, app(BillingService::class));
+     30▕         $this->assertInstanceOf(BillingEngine::class, app(MembershipReader::class));
+     31▕         $this->assertInstanceOf(UnconfiguredGateway::class, app(PaymentGateway::class));
+
+  1   tests/Feature/Contracts/AcceptedBillingTest.php:27
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Contracts\AcceptedContentTest > content loads witho…   
+  Failed asserting that two strings are identical.
+  -''
+  +'acquisition'
+  
+
+  at tests/Feature/Contracts/AcceptedContentTest.php:23
+     19▕     use RefreshDatabase;
+     20▕ 
+     21▕     public function test_content_loads_without_local_opt_in_and_registers_each_job_once(): void
+     22▕     {
+  ➜  23▕         $this->assertSame('', config('h5.local_modules'));
+     24▕         $this->assertSame(['provider' => ContentServiceProvider::class, 'ready' => true], config('h5.modules.content'));
+     25▕         $this->assertInstanceOf(ContentCatalog::class, app(CatalogReader::class));
+     26▕         $this->assertInstanceOf(PlaybackService::class, app(PlaybackAuthorizer::class));
+     27▕         $this->getJson('/health')->assertOk()->assertJsonPath('modules.content', 'ready');
+
+  1   tests/Feature/Contracts/AcceptedContentTest.php:23
+
+
+  Tests:    3 failed, 99 passed (1557 assertions)
+  Duration: 51.05s
+
