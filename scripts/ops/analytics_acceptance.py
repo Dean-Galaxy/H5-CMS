@@ -51,7 +51,7 @@ def testing_environment(root, config):
                ACQUISITION_CREDENTIALS_FILE='', ACQUISITION_PLATFORM_REVIEWED='false')
     # No staged secrets from shell or an old own local .env reach the provider adapters.
     for key in ('CLIENT_ID','CLIENT_SECRET','MERCHANT_ID','MERCHANT_SCOPE','WEBHOOK_ID','PRODUCT_ID','WEBHOOK_URL'):
-        env['H5_BILLING_PAYPAL_SANDBOX_'+key] = ''
+        env['H5_BILLING_PAYPAL_SANDBOX_'+key] = '(null)'
     for key in ('H5_STRIPE_SECRET_KEY','H5_STRIPE_WEBHOOK_SECRET','STRIPE_SECRET','STRIPE_KEY','STRIPE_WEBHOOK_SECRET'):
         env[key] = ''
     return env
