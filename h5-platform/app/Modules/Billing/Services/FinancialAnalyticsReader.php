@@ -48,8 +48,8 @@ final class FinancialAnalyticsReader implements BillingAnalyticsReader
         }
         if (! is_array($value) || Validator::make($value, [
             'source_id' => 'required|uuid', 'link_id' => 'required|uuid', 'channel' => 'required|in:meta,tiktok',
-            'pixel_config_version' => 'required|integer|min:1', 'captured_at' => 'required|date', 'consent' => 'required|in:granted,denied,unknown',
-        ])->fails()) {
+            'pixel_config_version' => 'required|integer|min:1', 'captured_at' => 'required|string', 'consent' => 'required|in:granted,denied,unknown',
+        ])->fails() || ! self::validCapturedAt($value['captured_at'] ?? null)) {
             logger()->warning('billing.analytics_snapshot_invalid');
 
             return null;
@@ -57,5 +57,16 @@ final class FinancialAnalyticsReader implements BillingAnalyticsReader
 
         return ['source_id' => $value['source_id'], 'link_id' => $value['link_id'], 'channel' => $value['channel'],
             'pixel_config_version' => (int) $value['pixel_config_version'], 'captured_at' => BillingStore::iso($value['captured_at']), 'consent' => $value['consent']];
+    }
+
+    private static function validCapturedAt(mixed $value): bool
+    {
+        if (! is_string($value) || preg_match('/\A[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\.[0-9]{1,6})?(?:Z|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])\z/D', $value) !== 1) {
+            return false;
+        }
+        $parsed = \DateTimeImmutable::createFromFormat(str_contains($value, '.') ? '!Y-m-d\TH:i:s.uP' : '!Y-m-d\TH:i:sP', $value);
+        $errors = \DateTimeImmutable::getLastErrors();
+
+        return $parsed !== false && ($errors === false || ($errors['warning_count'] === 0 && $errors['error_count'] === 0));
     }
 }

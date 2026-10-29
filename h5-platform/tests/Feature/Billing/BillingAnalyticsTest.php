@@ -73,6 +73,55 @@ final class BillingAnalyticsTest extends BillingTestCase
         Log::shouldHaveReceived('warning')->once()->with('billing.analytics_snapshot_invalid');
     }
 
+    public static function invalidSnapshotTimes(): array
+    {
+        return array_map(fn ($value) => [$value], [
+            'today', 'now', '+1 day', '2026-10-29', '2026-10-29T09:00:00', '2026-10-29 09:00:00Z',
+            '2026-02-30T09:00:00Z', '2026-02-29T09:00:00Z', '2026-13-01T09:00:00Z',
+            '2026-10-29T24:00:00Z', '2026-10-29T09:60:00Z', '2026-10-29T09:00:60Z',
+            '2026-10-29T09:00:00+24:00', '2026-10-29T09:00:00+08:60',
+            '2026-10-29T09:00:00+0800', '2026-10-29T09:00:00 America/New_York',
+            '2026-10-29T09:00:00.1234567Z', '2026-10-29T09:00:00Z ', "2026-10-29T09:00:00Z\n", 1793226000,
+        ]);
+    }
+
+    #[DataProvider('invalidSnapshotTimes')]
+    public function test_snapshot_rejects_relative_unzoned_or_invalid_calendar_time_without_reinterpreting_it(mixed $capturedAt): void
+    {
+        [, $order] = $this->paidFixture();
+        $payment = DB::table('billing_payments')->sole();
+        $snapshot = ['source_id' => BillingStore::id(), 'link_id' => BillingStore::id(), 'channel' => 'meta',
+            'pixel_config_version' => 1, 'captured_at' => $capturedAt, 'consent' => 'granted'];
+        DB::table('billing_orders')->where('id', $order->id)->update(['attribution_snapshot' => json_encode($snapshot)]);
+        Log::spy();
+        $row = app(BillingAnalyticsReader::class)->payments([$payment->id])[$payment->id];
+        self::assertNull($row['attribution_snapshot']);
+        self::assertSame(300, $row['amount_minor']);
+        self::assertSame(BillingStore::iso($payment->paid_at), $row['paid_at']);
+        Log::shouldHaveReceived('warning')->once()->with('billing.analytics_snapshot_invalid');
+    }
+
+    public static function validSnapshotTimes(): array
+    {
+        return [
+            ['2026-10-29T09:00:00Z', '2026-10-29T09:00:00Z'],
+            ['2026-10-29T09:00:00+08:00', '2026-10-29T01:00:00Z'],
+            ['2026-10-29T09:00:00-07:00', '2026-10-29T16:00:00Z'],
+            ['2026-10-29T09:00:00.123456Z', '2026-10-29T09:00:00Z'],
+            ['2024-02-29T09:00:00.1+00:00', '2024-02-29T09:00:00Z'],
+        ];
+    }
+
+    #[DataProvider('validSnapshotTimes')]
+    public function test_snapshot_keeps_valid_explicit_zone_time_as_the_same_utc_instant(string $capturedAt, string $expected): void
+    {
+        $snapshot = ['source_id' => BillingStore::id(), 'link_id' => BillingStore::id(), 'channel' => 'tiktok',
+            'pixel_config_version' => 1, 'captured_at' => $capturedAt, 'consent' => 'granted'];
+        Log::spy();
+        self::assertSame($expected, FinancialAnalyticsReader::snapshot($snapshot)['captured_at']);
+        Log::shouldNotHaveReceived('warning');
+    }
+
     public function test_successful_refund_snapshots_are_versioned_and_corrections_can_reduce_to_zero(): void
     {
         [, $order, $sub] = $this->paidFixture();
