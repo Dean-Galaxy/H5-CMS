@@ -30,6 +30,7 @@ foreach ($routes as $uri => $present) {
 }
 if ($recorder === App\Support\DisabledBehaviorEventRecorder::class) { $missing[] = '05:recorder'; }
 if ($reader === App\Support\UnavailableBillingAnalyticsReader::class) { $missing[] = '03:financial_reader'; }
+if (config('acquisition.analytics_enabled') !== true) { $missing[] = '05:analytics_enabled'; }
 if (! view()->exists('audience.partials.tracking')) { $missing[] = '04:tracking_partial'; }
 echo json_encode(['schema' => 1, 'contract' => 'analytics-v1', 'routes' => $routes,
     'bindings' => ['recorder' => $recorder, 'financial_reader' => $reader], 'missing' => $missing,

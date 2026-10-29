@@ -44,7 +44,7 @@ def testing_environment(root, config):
                H5_WORKSPACE=config['workspace']+'_test', H5_LOCAL_MODULES='acquisition',
                H5_BILLING_DRIVER='unconfigured', H5_BILLING_NEW_PURCHASE_PROVIDER='unconfigured',
                H5_BILLING_PAYPAL_SANDBOX_ENABLED='false', H5_SIMULATION='false',
-               ACQUISITION_TRANSPORT='disabled', ACQUISITION_EXTERNAL_ENABLED='false',
+               ACQUISITION_TRANSPORT='disabled', ACQUISITION_EXTERNAL_ENABLED='false', ACQUISITION_ANALYTICS_ENABLED='true',
                ACQUISITION_CREDENTIALS_FILE='', ACQUISITION_PLATFORM_REVIEWED='false')
     # No staged secrets from shell or an old own local .env reach the provider adapters.
     for key in ('CLIENT_ID','CLIENT_SECRET','MERCHANT_ID','MERCHANT_SCOPE','WEBHOOK_ID','PRODUCT_ID','WEBHOOK_URL'):
@@ -97,16 +97,21 @@ def main():
     report = {'candidate':args.candidate,'contract':'analytics-v1','stage':args.stage,'database':config['db']+'_test',
               'preparation_passed':None,'combined_acceptance':'not_executed','missing':ready['missing'],
               'official_platform_verified':False,'external_delivery_enabled':False}
-    if args.stage == 'combined':
-        # The consumers + 00's candidate are required before extending the concrete combination tests.
-        report['combined_acceptance'] = 'blocked_pending_06_combined_suite' if ready['combined_ready'] else 'blocked_missing_consumers'
+    if args.stage == 'combined' and not ready['combined_ready']:
+        report['combined_acceptance'] = 'blocked_missing_consumers'
         (output/'result.json').write_text(json.dumps(report,indent=2)+'\n')
         print(json.dumps(report));return 77
-    command=[dev.PHP,str(dev.APP/'artisan'),'test','tests/Feature/Contracts/AnalyticsContractsTest.php',
-             'tests/Integration/Analytics','tests/Security/Analytics']
+    suites = ['tests/Feature/Contracts/AnalyticsContractsTest.php', 'tests/Integration/Analytics', 'tests/Security/Analytics']
+    if args.stage == 'combined':
+        suites.append('tests/Integration/AnalyticsCombined')
+    command=[dev.PHP,str(dev.APP/'artisan'),'test',*suites]
     with (output/'tests-private.txt').open('w') as stream:
         run=subprocess.run(command,cwd=dev.APP,env=env,stdout=stream,stderr=subprocess.STDOUT)
     report['preparation_passed']=run.returncode==0
+    if args.stage == 'combined':
+        report['integration_passed']=run.returncode==0
+        report['combined_acceptance']='integration_only_browser_and_matrix_pending' if run.returncode==0 else 'integration_failed'
+        report['browser_executed']=False
     report['tests_exit_code']=run.returncode
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({**report,'evidence_directory':str(output)}));return run.returncode
