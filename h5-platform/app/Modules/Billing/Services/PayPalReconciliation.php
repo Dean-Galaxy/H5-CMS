@@ -229,7 +229,8 @@ final class PayPalReconciliation
         });
         $this->syncRefunds($payment->id);
         $sub = DB::table('billing_subscriptions')->find($payment->subscription_id);
-        if ($sub->refund_stopped || $sub->desired_renewal === false) {
+        $pending = DB::table('billing_operations')->where('subscription_id', $sub->id)->where('state', 'pending')->exists();
+        if (($sub->refund_stopped || $sub->desired_renewal === false) && (! $this->renewalStopConfirmed($sub) || $pending)) {
             app(BillingEngine::class)->cancelSubscriptionForRefund($sub->id);
         }
     }
@@ -261,6 +262,7 @@ final class PayPalReconciliation
         }
         DB::transaction(function () use ($payment, $sub, $state, $refunds, $scope) {
             BillingStore::lock($sub->viewer_id);
+            $currentSubscription = DB::table('billing_subscriptions')->find($sub->id);
             foreach ($refunds as $id => $status) {
                 DB::table('billing_refunds')->where($scope->columns())->where('provider_refund_id', $id)->update(['status' => $status]);
             }
@@ -274,10 +276,22 @@ final class PayPalReconciliation
             DB::table('billing_entitlements')->where('payment_id', $payment->id)->update(['revoked_at' => $total === $payment->amount_minor ? now() : null]);
             DB::table('billing_orders')->where('id', $payment->order_id)->update(['payment_state' => $state === 'refunded' ? 'refunded' : ($state === 'partially_refunded' ? 'partially_refunded' : 'succeeded'), 'updated_at' => now()]);
             if ($state !== 'completed') {
-                DB::table('billing_subscriptions')->where('id', $sub->id)->update(['refund_stopped' => true, 'desired_renewal' => false, 'resolution_required' => true, 'updated_at' => now()]);
+                $changes = ['refund_stopped' => true, 'desired_renewal' => false, 'updated_at' => now()];
+                // Preserve an already confirmed stop, and preserve any unrelated unresolved
+                // check. Only a full subscription reconciliation may clear that check.
+                if (! $this->renewalStopConfirmed($currentSubscription)) {
+                    $changes['resolution_required'] = true;
+                }
+                DB::table('billing_subscriptions')->where('id', $sub->id)->update($changes);
             }
         });
         // A durable desired_renewal=false is consumed by the operation worker; never recurse from a read transaction.
+    }
+
+    private function renewalStopConfirmed(object $sub): bool
+    {
+        return $sub->desired_renewal === false && $sub->renewal_enabled === false
+            && in_array($sub->provider_status, ['SUSPENDED', 'CANCELLED', 'EXPIRED'], true);
     }
 
     private function knownHistoryMatches(array $info, int $count, object $latest): bool
