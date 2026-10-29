@@ -1,0 +1,21 @@
+✔ hidden/denied pages emit nothing; independent advertising uses only landing API; withdrawal clears offline buffer (3175.689459ms)
+✔ 503/refresh retries retain event UUID and content; session boundary and 24h expiry discard stale buffers (5203.806ms)
+✔ actual decoded playback starts after movement, seek adds no watch time, and membership denial is observed without media credentials (13428.122292ms)
+✔ Chinese privacy controls fit small screens; oversized/invalid batch response terminates retry (3629.025458ms)
+✔ decoded full episode emits one completion and a cumulative progress value; duplicate ended does not double count (11574.215875ms)
+✔ buffer count/bytes stay bounded and disabled analytics never blocks actual playback (1070.45275ms)
+✔ consented slow landing sends only whitelisted ephemeral click context before page events, then cleans only click parameters (1867.61475ms)
+✔ only advertising consent permits reading cookies; independent advertising sends no analytics events (3127.957292ms)
+✔ disabled, non-pending and hidden pages do not read matching cookies even with advertising consent (1316.826041ms)
+✔ oversized, script/URL and ambiguous duplicate click/cookie input never enters a landing payload (590.085416ms)
+✔ unconfirmed landing never lets generic landing_view race to fix missing context and does not clear click URL (1193.9735ms)
+✔ disabled or mismatched consent response preserves choices and dialog with conservative local pause (932.38225ms)
+✔ a late landing acknowledgment after withdrawal cannot resume collection or clean the newer privacy state (2255.104292ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49672.513
