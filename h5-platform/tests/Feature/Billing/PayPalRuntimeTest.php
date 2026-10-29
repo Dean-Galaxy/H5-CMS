@@ -609,6 +609,55 @@ final class PayPalRuntimeTest extends TestCase
         self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
     }
 
+    public function test_protected_suspended_subscription_expires_locally_without_remote_lifecycle_changes(): void
+    {
+        $order = $this->checkout();
+        $this->observedFirstCycle();
+        $this->sync($order);
+        $this->billing->cancel($this->viewer());
+        $payment = DB::table('billing_payments')->first();
+        $end = CarbonImmutable::parse($payment->period_end);
+        config(['billing.paypal.enabled' => false, 'billing.new_purchase_provider' => 'unconfigured']);
+        $snapshot = $this->billingSnapshot();
+        $calls = $this->calls;
+
+        $this->travelTo($end->subSecond());
+        self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+        $this->travelTo($end);
+        self::assertSame(0, Artisan::call('billing:reconcile', ['--limit' => 1]));
+        $member = $this->billing->membership($this->user->id, now()->toDateTimeImmutable());
+        self::assertFalse($member->access_active);
+        self::assertFalse($member->renewal_enabled);
+        self::assertSame($snapshot, $this->billingSnapshot());
+        self::assertSame($calls, $this->calls);
+        self::assertSame('SUSPENDED', $this->remote['status']);
+
+        // A targeted observation may update local diagnostics, but must not hard-cancel
+        // this protected fixture. This is not a promise that refund processing is read-only.
+        config(['billing.paypal.enabled' => true]);
+        app(PayPalReconciliation::class)->sync($order->subscription_id, allowLifecycleChanges: false);
+        $newCalls = array_slice($this->calls, count($calls));
+        self::assertContains('GET /v1/billing/subscriptions/I-FIXTURE', $newCalls);
+        foreach (['cancel', 'suspend', 'activate', 'capture'] as $action) {
+            self::assertNotContains('POST /v1/billing/subscriptions/I-FIXTURE/'.$action, $newCalls);
+        }
+        self::assertSame('SUSPENDED', $this->remote['status']);
+        $after = $this->billingSnapshot();
+        foreach (['billing_accounts', 'billing_orders', 'billing_payments', 'billing_entitlements', 'billing_refunds', 'billing_outbox'] as $table) {
+            self::assertSame($snapshot[$table], $after[$table], $table);
+        }
+        self::assertFalse($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+        self::assertTrue(DB::table('billing_subscriptions')->first()->resolution_required);
+        $offer = $this->billing->offer($this->viewer());
+        self::assertFalse($offer->eligible_for_first_offer);
+        config(['billing.new_purchase_provider' => 'paypal']);
+        $calls = $this->calls;
+        $this->pending(fn () => $this->billing->checkout($this->viewer(), new CheckoutInput($offer->offer_id, $offer->price_version, '/membership'), BillingStore::id(), null));
+        self::assertSame(['GET /v1/notifications/webhooks/1AB23456CD789012E', 'GET /v1/catalogs/products/'.self::PRODUCT], array_slice($this->calls, count($calls)));
+        self::assertDatabaseCount('billing_orders', 1);
+        self::assertDatabaseCount('billing_subscriptions', 1);
+    }
+
     public function test_explicitly_disabled_paypal_reconciliation_preserves_confirmed_cancellation_and_all_rows(): void
     {
         $order = $this->checkout();
