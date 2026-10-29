@@ -98,5 +98,23 @@
     "skipped": 0,
     "milliseconds": 67591.032458,
     "boundary": "Actual Chrome/decoding; synthetic intercepted APIs, not actual 05 endpoints"
+  },
+  "final_06_acceptance": {
+    "delivery": "6ea9d506f6537a9f0ca53164d1da36bd609dea15",
+    "targeted_tests": 81,
+    "targeted_assertions": 950,
+    "manifest_files_verified": 26,
+    "business_matches_source": "6effb469002466d509c6dbdd8a7145167ac600ba",
+    "real_process_retry_and_replay": true,
+    "official_platform": false,
+    "human_analytics_acceptance": false
+  },
+  "final_received_combination_00": {
+    "source_candidate": "0870c757e958990128ea8a5ed825b7772f1facda",
+    "tests": 15,
+    "assertions": 450,
+    "seconds": 11.79,
+    "passed": true,
+    "includes_new_owned_assigned_revoked_scope": true
   }
 }

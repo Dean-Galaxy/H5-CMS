@@ -1,0 +1,31 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Integration\AnalyticsCombined\LifecycleMicrosecondsTest
+  ✓ refund after consent in the same second keeps real microseconds and… 7.77s
+  ✓ schema has precision six via a new migration without rewriting adop… 0.08s
+
+   PASS  Tests\Integration\AnalyticsCombined\MatchingContextTest
+  ✓ slow or reordered landing does not freeze empty context or leak pla… 0.19s
+  ✓ unknown or denied advertising never persists matching identifiers    0.06s
+  ✓ matching context size and value limits are enforced on the dedicate… 0.08s
+
+   PASS  Tests\Integration\AnalyticsCombined\OwnershipScopeTest
+  ✓ owned or assigned finance dimensions and diagnostics revoke immedia… 0.53s
+
+   PASS  Tests\Integration\AnalyticsCombined\PaymentAttributionTest
+  ✓ real source registration verification checkout payment and replay s… 0.33s
+  ✓ logout is not withdrawal for a delayed payment and new account does… 0.14s
+  ✓ explicit withdrawal prevents old delayed conversion but keeps finan… 0.14s
+  ✓ refund cumulative versions use real reader not sum of behavior even… 0.18s
+  ✓ advertising only visible landing creates source without an analytic… 0.06s
+
+   PASS  Tests\Integration\AnalyticsCombined\PrivacyApiTest
+  ✓ server events and client authority properties cannot fabricate succ… 0.09s
+  ✓ same uuid retries are idempotent but different content is rejected   0.05s
+  ✓ collection storage failure does not undo paid access and reliable p… 0.23s
+  ✓ denial and cross origin requests do not create behavior or financia… 0.05s
+
+  Tests:    15 passed (450 assertions)
+  Duration: 11.79s
