@@ -48,7 +48,7 @@ class AnalyticsIsolationTests(unittest.TestCase):
             self.assertEqual(self.config['db']+'_test',env['DB_DATABASE'])
             self.assertEqual(env['DB_DATABASE'],env['H5_TEST_DATABASE'])
             self.assertEqual('false',env['ACQUISITION_EXTERNAL_ENABLED']);self.assertEqual('disabled',env['ACQUISITION_TRANSPORT'])
-            self.assertEqual('false',env['H5_BILLING_PAYPAL_SANDBOX_ENABLED']);self.assertEqual('',env['H5_BILLING_PAYPAL_SANDBOX_CLIENT_SECRET'])
+            self.assertEqual('false',env['H5_BILLING_PAYPAL_SANDBOX_ENABLED']);self.assertEqual('(null)',env['H5_BILLING_PAYPAL_SANDBOX_CLIENT_SECRET'])
 
     def test_loopback_proxy_bypass_drops_inherited_proxy_credentials(self):
         with tempfile.TemporaryDirectory() as d:
