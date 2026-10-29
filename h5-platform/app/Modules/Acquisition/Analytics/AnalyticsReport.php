@@ -23,7 +23,7 @@ final class AnalyticsReport
         $delivery = DB::table('acquisition_deliveries');
         $receipts = DB::table('acquisition_receipts');
         if ($staff->role !== Role::Owner) {
-            $links = DB::table('acquisition_assignments')->where('resource_type', 'link')->where('staff_id', $staff->id)->pluck('resource_id');
+            $links = app(AssetAccess::class)->query('link', $staff)->pluck('id');
             $q->whereIn('link_id', $links);
             $delivery->whereIn('link_id', $links);
             $receipts->whereIn('link_id', $links);
