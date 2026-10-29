@@ -12,3 +12,12 @@
 - billing-runtime-tests.txt：00在main集成后独立5541的_test运行54项1314断言，通过；只包含HTTP Mock，不是官方续扣/到期。
 
 临时窗口现交07指导本人，00负责暂停/结束收尾。当前没有设置未来自动监控或提醒；原A到期、新B续费、C退款、D恢复分别等待其实际证据。GitHub成功以远程回读回执为准。
+
+## B首款与后续工程追加
+
+- b-first-payment-safe.json：本人反馈后00实际官方只读核B首款、Plan、本地唯一付款/权益/outbox及真实Sale签名收件，A仍官方SUSPENDED且区间保持。具体对象、日期及下一次时间私密登记，自动续扣未发生。
+- b-data-backup-safe.json：B首款后新增归档可读，不是完整恢复演练。
+- refund-tests.txt：00独立_test的C两项新回归及原部分/全额退款，3项173断言通过；Mock，不算官方退款。
+- replay-observer-summary-safe.json及replay-observer-tests.txt：00系统Python独立61项、0skip。工具已接收未部署，当前窗口不变；未实际重送或观察第二次官方通知。首次汇总脚本误把测试名中的skipped当skip，修汇总后最终完整61项通过。
+
+当前最新交接见[00-38](../../../handoffs/00-38-B首款核验与C退款准备.md)。
