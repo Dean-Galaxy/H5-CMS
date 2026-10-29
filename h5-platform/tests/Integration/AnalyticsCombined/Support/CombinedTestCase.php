@@ -128,9 +128,11 @@ abstract class CombinedTestCase extends ContentTestCase
     protected function checkout(): object
     {
         $offer = $this->get('/membership?purchase=1')->assertOk()->viewData('offer');
-        $this->post('/membership/checkout', ['offer_id' => $offer->offer_id, 'price_version' => $offer->price_version,
+        $response = $this->post('/membership/checkout', ['offer_id' => $offer->offer_id, 'price_version' => $offer->price_version,
             'confirmed' => '1'])->assertRedirect();
-        return DB::table('billing_orders')->sole();
+        parse_str(parse_url($response->headers->get('Location'), PHP_URL_QUERY) ?? '', $query);
+        $this->assertTrue(Str::isUuid($query['order_id'] ?? ''), 'Checkout must return the actual local order identity.');
+        return DB::table('billing_orders')->where('id', $query['order_id'])->sole();
     }
 
     protected function names(): array
