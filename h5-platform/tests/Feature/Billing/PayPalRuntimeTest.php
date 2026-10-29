@@ -59,6 +59,8 @@ final class PayPalRuntimeTest extends TestCase
 
     private array $refund = [];
 
+    private array $refunds = [];
+
     private bool $failSuspend = false;
 
     private bool $merchantUnavailable = false;
@@ -219,6 +221,84 @@ final class PayPalRuntimeTest extends TestCase
         self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
         self::assertSame(1, DB::table('billing_entitlements')->whereNull('revoked_at')->count());
         self::assertDatabaseCount('billing_refunds', 1); // no invented refund IDs for the missed remainder
+    }
+
+    public function test_two_distinct_refund_notifications_accumulate_only_their_completed_amounts(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $payment = DB::table('billing_payments')->first();
+        $entitlement = DB::table('billing_entitlements')->first();
+        $firstOfferUsed = DB::table('billing_accounts')->first()->first_offer_used_at;
+        $headers = ['paypal-auth-algo' => 'SHA256withRSA', 'paypal-cert-url' => 'https://api.sandbox.paypal.com/v1/notifications/certs/CERT-fixture',
+            'paypal-transmission-id' => 'fixture-refund-delivery', 'paypal-transmission-sig' => base64_encode('fixture'), 'paypal-transmission-time' => now()->toIso8601ZuluString()];
+        foreach ([1 => '1.00', 2 => '2.00'] as $number => $amount) {
+            $id = 'REFUNDLOCAL'.$number;
+            $this->refunds[$id] = ['id' => $id, 'sale_id' => self::SALE, 'amount' => ['total' => $amount, 'currency' => 'USD'], 'state' => 'completed'];
+            $this->sales[self::SALE]['state'] = $number === 1 ? 'partially_refunded' : 'refunded';
+            $event = ['id' => 'WH-LOCAL-REFUND-'.$number, 'event_type' => 'PAYMENT.SALE.REFUNDED',
+                'create_time' => now()->toIso8601ZuluString(), 'resource' => ['id' => $id]];
+            $this->postJson('/webhooks/paypal', $event, $headers)->assertOk();
+            self::assertSame(1, app(WebhookService::class)->processPending());
+            $this->postJson('/webhooks/paypal', $event, $headers)->assertOk();
+            self::assertSame(0, app(WebhookService::class)->processPending());
+            self::assertSame($number === 1 ? 100 : 300, DB::table('billing_payments')->first()->refunded_amount_minor);
+            self::assertSame($number === 1 ? 100 : 300, (int) DB::table('billing_refunds')->where('status', 'succeeded')->sum('amount_minor'));
+            self::assertSame($number === 1, $this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+            $sub = DB::table('billing_subscriptions')->first();
+            self::assertFalse($sub->renewal_enabled);
+            self::assertFalse($sub->desired_renewal);
+            self::assertFalse($sub->resolution_required);
+            self::assertTrue($sub->refund_stopped);
+            self::assertSame('SUSPENDED', $this->remote['status']);
+            self::assertSame($entitlement->access_from, DB::table('billing_entitlements')->first()->access_from);
+            self::assertSame($entitlement->access_until, DB::table('billing_entitlements')->first()->access_until);
+            self::assertSame($firstOfferUsed, DB::table('billing_accounts')->first()->first_offer_used_at);
+        }
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertDatabaseCount('billing_entitlements', 1);
+        self::assertDatabaseCount('billing_outbox', 1);
+        self::assertDatabaseCount('billing_refunds', 2);
+        self::assertDatabaseCount('billing_inbox', 2);
+        self::assertNotNull(DB::table('billing_entitlements')->first()->revoked_at);
+        self::assertSame('refunded', DB::table('billing_orders')->first()->payment_state);
+        self::assertSame(1, count(array_filter($this->calls, fn ($call) => $call === 'POST /v1/billing/subscriptions/I-FIXTURE/suspend')));
+    }
+
+    public function test_partial_refund_stop_failure_keeps_payment_fact_and_retries_only_its_operation(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $payment = DB::table('billing_payments')->first();
+        $this->sales[self::SALE]['state'] = 'partially_refunded';
+        $this->refund = ['id' => 'REFUNDLOCAL1', 'sale_id' => self::SALE, 'amount' => ['total' => '1.00', 'currency' => 'USD'], 'state' => 'completed'];
+        $this->failSuspend = true;
+        app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
+        $sub = DB::table('billing_subscriptions')->first();
+        self::assertTrue($sub->renewal_enabled);
+        self::assertFalse($sub->desired_renewal);
+        self::assertTrue($sub->resolution_required);
+        self::assertTrue($sub->refund_stopped);
+        self::assertSame(100, DB::table('billing_payments')->first()->refunded_amount_minor);
+        self::assertNull(DB::table('billing_entitlements')->first()->revoked_at);
+        self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+        $operation = DB::table('billing_operations')->sole();
+        self::assertSame('pending', $operation->state);
+        self::assertSame('PROVIDER_RESULT_UNRESOLVED', $operation->last_error);
+        $this->failSuspend = false;
+        $this->billing->executeOperation($operation->id);
+        $sub = DB::table('billing_subscriptions')->first();
+        self::assertFalse($sub->renewal_enabled);
+        self::assertFalse($sub->resolution_required);
+        self::assertSame('SUSPENDED', $this->remote['status']);
+        self::assertSame('succeeded', DB::table('billing_operations')->sole()->state);
+        self::assertSame(100, DB::table('billing_payments')->first()->refunded_amount_minor);
+        self::assertDatabaseCount('billing_refunds', 1);
+        self::assertDatabaseCount('billing_operations', 1);
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertDatabaseCount('billing_outbox', 1);
     }
 
     public function test_wrong_merchant_blocks_creation_and_empty_unconfigured_cannot_buy(): void
@@ -960,7 +1040,7 @@ final class PayPalRuntimeTest extends TestCase
             $path === '/v1/billing/subscriptions/I-FIXTURE' => $this->remote,
             str_ends_with($path, '/transactions') => ['transactions' => $this->transactions] + ($this->pageMetadata ?? ['total_items' => count($this->transactions), 'total_pages' => $this->missingPage ? 2 : 1]),
             str_starts_with($path, '/v1/payments/sale/') => $this->sales[basename($path)] ?? [],
-            str_starts_with($path, '/v1/payments/refund/') => $this->refund,
+            str_starts_with($path, '/v1/payments/refund/') => $this->refunds[basename($path)] ?? $this->refund,
             $path === '/v1/notifications/verify-webhook-signature' => ['verification_status' => $this->validSignature ? 'SUCCESS' : 'FAILURE'],
             str_ends_with($path, '/suspend') || str_ends_with($path, '/cancel') => [],
             default => throw new RuntimeException('UNEXPECTED_FIXTURE_REQUEST'),
