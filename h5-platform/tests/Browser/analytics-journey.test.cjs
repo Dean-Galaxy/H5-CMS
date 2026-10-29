@@ -18,3 +18,12 @@ test('browser guard refuses protected ports and foreign workspaces',()=>{
  for(const p of [8406,5906,8407,8408,8409,8377,5877,8303])assert.throws(()=>m.workspace(root,{...ws,port:p},'a'.repeat(40)));
  assert.throws(()=>m.workspace(root,{...ws,db:'other'},'a'.repeat(40)));
 });
+
+test('browser checks the own live web process binding before connecting',()=>{
+ const root='/private/tmp/synthetic-06',router=root+'/h5-platform/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php';
+ const record={pid:12001,marker:router},cmd='php -S 127.0.0.1:8726 -t '+root+'/h5-platform/public '+router;
+ m.ownWebCommand(record,cmd,root,8726);
+ assert.throws(()=>m.ownWebCommand(record,cmd,root,8406));
+ assert.throws(()=>m.ownWebCommand({...record,marker:'/other/router'},cmd,root,8726));
+ assert.throws(()=>m.ownWebCommand(record,cmd+' --other',root,8726));
+});

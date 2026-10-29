@@ -14,6 +14,12 @@ function workspace(root, ws, candidate) {
   assert.notEqual(ws.port, ws.db_port);
   return 'http://127.0.0.1:' + ws.port;
 }
+function ownWebCommand(record, command, root, port) {
+  const router = root + '/h5-platform/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php';
+  assert(Number.isInteger(record.pid) && record.pid > 1 && record.marker === router);
+  assert(command.includes(' -S 127.0.0.1:' + port + ' ') && command.includes(root + '/h5-platform/public'));
+  assert(command.trim().endsWith(router));
+}
 function privateJson(file) {
   const s = fs.lstatSync(file);
   assert(s.isFile() && !s.isSymbolicLink() && s.nlink === 1 && s.uid === process.getuid() && (s.mode & 0o077) === 0);
@@ -50,7 +56,9 @@ async function run(candidate, fixtureFile) {
   const readiness = privateJson(path.join(ROOT, '.runtime/06/analytics-browser-readiness.json'));
   assert.equal(readiness.candidate, candidate);
   if (!readiness.combined_ready) { console.log(JSON.stringify({candidate, result: 'blocked_missing_consumers', browser_executed: false})); return 77; }
-  const flags = JSON.parse(cp.execFileSync(process.env.H5_PHP_BIN || '/opt/homebrew/opt/php@8.4/bin/php', [ROOT + '/scripts/ops/analytics_browser_runtime.php'], {cwd: ROOT, encoding: 'utf8', stdio: ['ignore','pipe','pipe']}));
+  const web = privateJson(ROOT + '/.runtime/pids/web.json');
+  ownWebCommand(web, cp.execFileSync('ps', ['-p', String(web.pid), '-o', 'command='], {encoding: 'utf8'}), ROOT, ws.port);
+  const flags = JSON.parse(cp.execFileSync(process.env.H5_PHP_BIN || '/opt/homebrew/opt/php@8.4/bin/php', [ROOT + '/scripts/ops/analytics_browser_runtime.php'], {cwd: ROOT, encoding: 'utf8', stdio: ['ignore','pipe','pipe'], env: {PATH: process.env.PATH || '/opt/homebrew/bin:/usr/bin:/bin', LANG: 'C'}}));
   assert.equal(flags.runtime_safe, true); assert.equal(flags.external_enabled, false); assert.equal(flags.purchase_enabled, false);
   const { chromium } = require(process.env.H5_PLAYWRIGHT_MODULE || 'playwright');
   const browser = await chromium.launch({headless: true, executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
@@ -129,7 +137,7 @@ async function run(candidate, fixtureFile) {
     console.log(JSON.stringify({candidate, browser_observation_completed: result.completed, external_attempts: result.external_attempts, official_platform_verified: false}));
   }
 }
-module.exports = {workspace, privateJson, localPath, summarizeBatch};
+module.exports = {workspace, privateJson, localPath, summarizeBatch, ownWebCommand};
 if (require.main === module) {
   const [candidate, fixture] = process.argv.slice(2);
   run(candidate, fixture).then(code => {process.exitCode = code;}).catch(() => {console.error('06 browser refused/failed; inspect own private evidence. No raw inputs printed.');process.exitCode = 1;});
