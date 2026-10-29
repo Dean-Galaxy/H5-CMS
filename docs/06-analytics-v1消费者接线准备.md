@@ -53,3 +53,9 @@
 新的LifecycleMicrosecondsTest将同意及合法来源/身份/订单链固定在同一秒.100，.200由真实本地SettlementService处理confirmed的合成退款，核03 outbox属性/DB及05行为均为200000微秒、退款事实delivered且重放不加计、已付时间/权益区间保持。另一用例核新schema精度6和既有200800源码摘要不变，paid_at/权益字段不顺带改精度。05仍按真实发生时同意严格判断；不能把consumer放宽到整秒来掩盖生产者回拨。
 
 本轮没有运行迁移、应用或测试库，没有修旧outbox/Skipped记录，也不把旧秒精度证据虚构成可恢复的微秒。详见[新增语法/未执行回执](evidence/06/analytics-precision-wiring-20261029/README.md)。
+
+## 独立landing优先接线修正
+
+源码 `c5ccb4d771ff1bc5c0c7acb7a81fc6a238748ce6`。旧helper在analytics=true时只发generic landing_view的假设已删除：现在总是先独立POST landing（可选click_context只进此请求）并confirmed=true，真实context显示analytics granted后才发generic行为；广告only不发行为。乱序用例明确先503且无source/behavior/event-key，独立确认后原UUID重复仍只一条。仅两文件语法检查，不重标前述消费者为通过。[增量回执](evidence/06/analytics-landing-wiring-20261029/README.md)。
+
+05旧接线实跑失败日志不回写。最终浏览器候选还须包含04修复隐私草稿被慢GET覆盖及加载/保存反馈的问题；本区先修PHP接线不等UI，不启动旧候选。14个消费者测试依然待完整候选实跑。

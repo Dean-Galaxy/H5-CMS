@@ -1,0 +1,14 @@
+{
+  "source_candidate": "c5ccb4d771ff1bc5c0c7acb7a81fc6a238748ce6",
+  "source_sha256": {
+    "h5-platform/tests/Integration/AnalyticsCombined/Support/CombinedTestCase.php": "f29721f9de767228876a2dea5f8c617dd3c29fd5d78ec34b4ec274ace21a10a0",
+    "h5-platform/tests/Integration/AnalyticsCombined/MatchingContextTest.php": "9a6422348dc78fa37b140cfde059280d68b7f81af0ae2e27cbe3e4841705a042"
+  },
+  "php_lint_passed": 2,
+  "consumer_tests_executed": false,
+  "database_or_runtime_started": false,
+  "protected_environment_touched": false,
+  "behavior_protocol": "dedicated landing confirmed -> verify analytics granted -> generic landing_view without matching context",
+  "reordering_protocol": "generic 503 with no source/behavior/event-key -> dedicated confirmation -> identical UUID replay persisted once",
+  "full_combination_candidate": null
+}

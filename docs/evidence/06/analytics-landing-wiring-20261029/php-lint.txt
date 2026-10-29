@@ -1,0 +1,4 @@
+Source candidate: c5ccb4d771ff1bc5c0c7acb7a81fc6a238748ce6
+Syntax only; no application/bootstrap/database/consumer execution
+No syntax errors detected in h5-platform/tests/Integration/AnalyticsCombined/Support/CombinedTestCase.php
+No syntax errors detected in h5-platform/tests/Integration/AnalyticsCombined/MatchingContextTest.php
