@@ -1,0 +1,12 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ partial then full refund only revokes its payment and stops renewal  4.83s  
+  ✓ two distinct refund notifications accumulate only their completed a… 1.99s  
+  ✓ partial refund stop failure keeps payment fact and retries only its… 0.77s  
+
+  Tests:    3 passed (173 assertions)
+  Duration: 9.42s
+
