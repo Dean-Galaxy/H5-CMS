@@ -94,9 +94,15 @@ async function run(candidate, fixtureFile) {
   const { chromium } = require(process.env.H5_PLAYWRIGHT_MODULE || 'playwright');
   const browser = await chromium.launch({headless: true, args: ['--no-proxy-server'], executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
   const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block'});
+  if (fixture.force_mse === true) await context.addInitScript(() => {
+    const original = HTMLMediaElement.prototype.canPlayType;
+    HTMLMediaElement.prototype.canPlayType = function(type) {
+      return /mpegurl/i.test(type) ? '' : original.call(this, type);
+    };
+  });
   const result = {candidate, contract: 'analytics-v1', scope: 'browser observations only; DB/funnel/money/authority acceptance is separate',
     browser: browser.version(), external_attempts: 0, tracking: [], playback: [], steps: [], media_requests: 0, landing_sequence: [],
-    official_platform_verified: false, real_device: false, completed: false};
+    official_platform_verified: false, real_device: false, force_mse: fixture.force_mse === true, completed: false};
   const startedAt = Date.now();
   const page = await context.newPage();
   const pending = new Set(); let finished = false;
@@ -134,6 +140,19 @@ async function run(candidate, fixtureFile) {
         case 'click': assert(typeof step.selector === 'string'); await page.locator(step.selector).click(); break;
         case 'fill': assert(typeof step.selector === 'string' && typeof step.value === 'string'); await page.locator(step.selector).fill(step.value); break;
         case 'wait_url': await page.waitForURL(base + localPath(step.path)); break;
+        case 'wait_selector': assert(typeof step.selector === 'string'); await page.locator(step.selector).waitFor({state:step.hidden === true ? 'hidden' : 'visible'}); break;
+        case 'screenshot': {
+          assert.match(step.name,/^[a-z0-9-]{1,60}$/);
+          const directory=ROOT+'/.runtime/06/analytics-browser/screenshots';fs.mkdirSync(directory,{mode:0o700,recursive:true});
+          await page.screenshot({path:directory+'/'+step.name+'.png',fullPage:true,mask:[page.locator('input[type=email]'),page.locator('input[type=password]')]});
+          break;
+        }
+        case 'buffer_pending': {
+          await page.waitForFunction(() => !!sessionStorage.getItem('h5.analytics.buffer.v1'));
+          const size=await page.evaluate(()=>new TextEncoder().encode(sessionStorage.getItem('h5.analytics.buffer.v1')||'').length);
+          assert(size>0 && size<=65536);result.steps.push({index,kind:'bounded_buffer',bytes:size});break;
+        }
+        case 'buffer_cleared': await page.waitForFunction(() => sessionStorage.getItem('h5.analytics.buffer.v1') === null); break;
         case 'promotional_entry': {
           assert.match(step.code,/^[A-Za-z0-9_-]{1,128}$/); assert(['meta','tiktok'].includes(step.platform));
           assert.match(step.click_id,/^SYNTHETIC06[A-Za-z0-9_-]{0,480}$/);
@@ -193,9 +212,10 @@ async function run(candidate, fixtureFile) {
           await page.waitForFunction(() => {const v=document.querySelector('video'); return v && !v.paused && v.currentTime > .1 && (v.getVideoPlaybackQuality?.().totalVideoFrames || 0) > 0;});
           const start = await page.locator('video').evaluate(v => ({time: v.currentTime, frames: v.getVideoPlaybackQuality().totalVideoFrames}));
           await page.waitForTimeout(1200);
-          const end = await page.locator('video').evaluate(v => ({time: v.currentTime, frames: v.getVideoPlaybackQuality().totalVideoFrames, error: v.error?.code || null}));
+          const end = await page.locator('video').evaluate(v => ({time: v.currentTime, frames: v.getVideoPlaybackQuality().totalVideoFrames, error: v.error?.code || null, mse: v.currentSrc.startsWith('blob:')}));
           assert(end.time > start.time + .5 && end.frames > start.frames && end.error === null);
-          result.steps.push({index, kind: 'decoded_playback', advanced_seconds: end.time - start.time, additional_frames: end.frames - start.frames});
+          if(fixture.force_mse === true) assert.equal(end.mse,true);
+          result.steps.push({index, kind: 'decoded_playback', advanced_seconds: end.time - start.time, additional_frames: end.frames - start.frames, mse:end.mse});
           break;
         }
         default: throw Error('UNKNOWN_FIXTURE_ACTION');

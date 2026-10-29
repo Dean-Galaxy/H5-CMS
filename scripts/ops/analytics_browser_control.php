@@ -90,10 +90,23 @@ if ($action === 'flags') {
     $verified = DB::table('identity_viewers')->whereNotNull('email_verified_at')->count();
     $required = ['landing_view','registration_succeeded','email_verified','checkout_created','payment_confirmed'];
     $stagesPresent = collect($required)->every(fn ($name) => $events->contains('event_name', $name));
+    $owner = Staff::where('role', Role::Owner)->sole();
+    $session = app('session.store'); $session->start(); request()->setLaravelSession($session);
+    auth('staff')->login($owner); $session->put('identity.version.staff', $owner->session_version); $session->put('identity.mfa_staff', $owner->id);
+    $report = app(App\Modules\Acquisition\Analytics\AnalyticsReport::class)->read(['test' => 'test']);
+    $sources = DB::table('acquisition_sources')->whereIn('link_id', $linkIds)->get();
+    $matching = $sources->map(function ($source) {
+        $context = json_decode(Illuminate\Support\Facades\Crypt::decryptString($source->context_encrypted), true);
+        return ['platform' => $source->platform, 'synthetic_click_present' => str_contains(json_encode($context), 'SYNTHETIC06'),
+            'encrypted_at_rest' => ! str_contains($source->context_encrypted, 'SYNTHETIC06'),
+            'page_query_absent' => ! str_contains($context['page_url'] ?? '', '?')];
+    })->all();
     echo json_encode(['candidate' => getenv('H5_ANALYTICS_BROWSER_CANDIDATE'), 'events' => $events->groupBy('event_name')->map->count()->all(),
         'payment_count' => DB::table('billing_payments')->count(), 'entitlement_count' => DB::table('billing_entitlements')->count(),
         'verified_viewers' => $verified, 'payment_is_test' => $payment ? (bool) $payment->is_test : null,
         'gross_minor' => (int) DB::table('billing_payments')->sum('amount_minor'), 'refund_minor' => (int) DB::table('billing_payments')->sum('refunded_amount_minor'),
+        'migrations' => DB::table('migrations')->count(), 'matching' => $matching,
+        'report' => array_intersect_key($report, array_flip(['finance','funnel','registration_funnel','observing_people','watched_seconds','errors'])),
         'one_subject_for_full_chain' => $stagesPresent && $events->whereIn('event_name', $required)->pluck('subject_id')->unique()->count() === 1,
         'provider_off' => config('billing.paypal.enabled') === false, 'external_disabled' => config('acquisition.transport') === 'disabled' && config('acquisition.external_enabled') === false], JSON_THROW_ON_ERROR)."\n";
 } else { throw new LogicException('EXPLICIT FIXTURE ACTION REQUIRED'); }
