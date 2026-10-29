@@ -55,6 +55,7 @@ final class BillingText
             'payment_expired' => ['The payment window has ended. Refresh the verified status before starting again.', '支付窗口已结束，请先刷新核实状态，再重新开始。'],
             'return_note' => ['Returning from payment does not activate membership. This page only reads your order and membership facts.', '从支付页返回不代表已开通会员；本页只查询订单和会员事实。'],
             'payment_pending' => ['Payment is not yet confirmed. Check the status before trying again.', '付款尚未核实成功，请先查看状态，勿重复购买。'],
+            'payment_wait_hint' => ['Payment confirmation may take about a minute. Refresh shortly to check your membership.', '付款确认约需1分钟，请稍后刷新查看会员状态。'],
             'partial' => ['A partial refund is recorded. The original paid period is preserved; membership and renewal processing are shown separately below.', '已记录部分退款，原已付周期保留；当前会员权益与续费处理状态分别显示如下。'],
             'full_refund' => ['A full refund is recorded. Membership below reflects the remaining verified paid periods, if any.', '已记录全额退款；以下会员状态显示其他已核实付款可能保留的有效权益。'],
             'unavailable' => ['Payment is not available. The payment service or price has not been configured. You can continue watching free episodes.', '当前无法创建付款：支付服务或价格尚未配置。你仍可继续观看免费剧集。'],

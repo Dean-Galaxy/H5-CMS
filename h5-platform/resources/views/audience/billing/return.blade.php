@@ -11,7 +11,10 @@
     </dl>
     @if($order->payment_state->value === 'partially_refunded')<p class="billing-notice">{{ B::get('partial') }}</p>@endif
     @if($order->payment_state->value === 'refunded')<p class="billing-notice">{{ B::get('full_refund') }}</p>@endif
-    @if(in_array($order->state->value, ['pending', 'processing', 'review_required'], true))<p role="status">{{ B::get('payment_pending') }}</p>@endif
+    @if(in_array($order->state->value, ['pending', 'processing', 'review_required'], true))
+        <p role="status">{{ B::get('payment_pending') }}</p>
+        @if($order->payment_state->value === 'pending')<p>{{ B::get('payment_wait_hint') }}</p>@endif
+    @endif
     @if($checkout && $checkoutLinkSafe && $order->state->value === 'pending' && $checkoutDeadlineKnown)
     <div data-billing-deadline="{{ $checkoutDeadline }}" data-payment-countdown data-expired-message="{{ B::get('payment_expired') }}">
         <p>{{ B::get('payment_deadline') }} <time datetime="{{ $checkoutDeadline }}">{{ B::date($checkoutDeadline) }}</time> · <span data-countdown></span></p>

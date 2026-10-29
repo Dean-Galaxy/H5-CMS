@@ -343,4 +343,23 @@ final class BillingUiTest extends BillingTestCase
         $this->get('/membership?lang=zh_CN')->assertOk()->assertSee('会员中心')->assertSee('USD 3.00')->assertSee('USD 12.00');
         $this->get('/membership?lang=en')->assertOk()->assertSee('Membership')->assertSee('USD 3.00')->assertSee('USD 12.00');
     }
+
+    public function test_payment_wait_hint_is_bilingual_and_only_shown_for_pending_payment_returns(): void
+    {
+        $viewer = $this->loginViewer();
+        $order = $this->checkoutFor($viewer);
+        $url = '/billing/return?order_id='.$order->id;
+        $english = 'Payment confirmation may take about a minute. Refresh shortly to check your membership.';
+        $chinese = '付款确认约需1分钟，请稍后刷新查看会员状态。';
+        $this->get($url.'&lang=en')->assertOk()->assertSee($english)->assertDontSee($chinese);
+        $this->get($url.'&lang=zh_CN')->assertOk()->assertSee($chinese)->assertDontSee($english);
+
+        foreach ([['paid', 'succeeded'], ['failed', 'failed'], ['paid', 'refunded'], ['review_required', 'partially_refunded'], ['expired', 'pending']] as [$state, $payment]) {
+            DB::table('billing_orders')->where('id', $order->id)->update(['state' => $state, 'payment_state' => $payment]);
+            $this->get($url.'&lang=en')->assertOk()->assertDontSee($english);
+            $this->get($url.'&lang=zh_CN')->assertOk()->assertDontSee($chinese);
+        }
+        $this->get('/membership?purchase=1&lang=en')->assertOk()->assertDontSee($english);
+        $this->get('/billing/return?order_id='.BillingStore::id().'&lang=en')->assertNotFound()->assertDontSee($english);
+    }
 }
