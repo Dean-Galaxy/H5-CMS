@@ -1,0 +1,63 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 5.86s  
+  ✓ cancel requires observed stop preserves paid period and disables re… 1.30s  
+  ✓ renewal uses original price and original period when delivery is la… 0.96s  
+  ✓ failed renewal never adds access and blocks second purchase          1.13s  
+  ✓ partial then full refund only revokes its payment and stops renewal  1.00s  
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     1.71s  
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.68s  
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.52s  
+  ✓ setup checks existing binding and creates one product without webho… 0.65s  
+  ✓ unconfigured new purchase stays disabled even after setup            0.56s  
+  ✓ refund correction restores only original interval without restoring… 0.70s  
+  ✓ terminal without proof of no payment retains unique occupancy        0.91s  
+  ✓ late cancel event rereads current provider state and cannot extend…  1.49s  
+  ✓ unavailable app authentication is a safe diagnostic and cannot crea… 0.37s  
+  ✓ wrong sale binding amount or currency cannot grant access            0.53s  
+  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 0.49s  
+  ✓ lagging transaction history cannot release a terminal subscription   1.18s  
+  ✓ reversal stop intent survives failed read transaction                0.51s  
+  ✓ incomplete webhook events cannot create checkout                     0.41s  
+  ✓ actual response shape settles one original order and recheck never…  0.51s  
+  ✓ observed first boundary is preserved when the next week is paid      1.01s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.51s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.33s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.43s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.78s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.47s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.44s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.77s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.44s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.36s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.40s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.46s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.31s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.84s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.36s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.52s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.33s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.43s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.40s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.05s  
+  ✓ unobserved short first period cannot be backfilled from multiple pa… 0.33s  
+  ✓ changed historical anchor cannot rewrite or extend paid access       0.59s  
+  ✓ active without payment or unavailable read never returns stored app… 0.40s  
+  ✓ explicit recheck reads only and never cancels an expired approval    0.67s  
+  ✓ protected suspended subscription expires locally without remote lif… 1.72s  
+  ✓ explicitly disabled paypal reconciliation preserves confirmed cance… 0.81s  
+  ✓ disabled direct calls and callback report unavailable without modif… 1.24s  
+  ✓ disabled retry preserves pending cancel and resumes only after api…  0.64s  
+  ✓ disabled checkout retry keeps its original intent untouched          0.74s  
+  ✓ enabled network failure is not silently treated as an operator paus… 0.73s  
+  ✓ invalid or missing enablement is not an operator pause with data se… 0.88s  
+  ✓ invalid or missing enablement is not an operator pause with data se… 0.73s  
+  ✓ invalid or missing enablement is not an operator pause with data se… 0.90s  
+  ✓ disabled paypal does not starve stripe at limit one and pending wor… 1.03s  
+
+  Tests:    54 passed (1314 assertions)
+  Duration: 48.37s
+
