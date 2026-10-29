@@ -1,126 +1,125 @@
 
-   INFO  Configuration cache cleared successfully.  
+   INFO  Configuration cache cleared successfully.
 
 
    PASS  Tests\Feature\Audience\TrackingUiTest
-  ✓ privacy controls are bilingual separate optional and only mounted w… 5.51s  
+  ✓ privacy controls are bilingual separate optional and only mounted w… 5.51s
 
    PASS  Tests\Feature\Billing\BillingAnalyticsTest
-  ✓ internal reader returns only authoritative whitelisted payment fact… 0.71s  
-  ✓ reader rejects invalid or over limit original inputs without silent… 0.11s  
-  ✓ damaged snapshot returns null and safe diagnostic                    0.16s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.03s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.03s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.06s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.03s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.06s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s  
-  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s  
-  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.01s  
-  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.02s  
-  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.02s  
-  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.01s  
-  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.01s  
-  ✓ successful refund snapshots are versioned and corrections can reduc… 0.13s  
-  ✓ cancel resume confirmations are durable and replay does not create…  0.16s  
-  ✓ unknown cancel does not emit success until the original operation i… 0.03s  
-  ✓ recorder failure isolated from finance backoffs and retries with sa… 0.29s  
-  ✓ recorder failure isolated from finance backoffs and retries with sa… 0.12s  
-  ✓ refused consent is final and replay cannot retrack after later cons… 0.06s  
-  ✓ missing consumer is retryable and versions are delivered in order    0.04s  
-  ✓ financial rollback does not leave a phantom behavior fact            0.03s  
-  ✓ same second refund retains actual confirmation microseconds in payl… 0.04s  
-  ✓ precision upgrade preserves legacy second facts without fabricating… 0.29s  
-  ✓ upgrade baselines existing refunds and cancellations without retroa… 0.14s  
-  ✓ blocked aggregate cannot starve others at limit one and backoff cap… 0.07s  
+  ✓ internal reader returns only authoritative whitelisted payment fact… 0.71s
+  ✓ reader rejects invalid or over limit original inputs without silent… 0.11s
+  ✓ damaged snapshot returns null and safe diagnostic                    0.16s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.03s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.03s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.06s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.03s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.06s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.05s
+  ✓ snapshot rejects relative unzoned or invalid calendar time without…  0.04s
+  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.01s
+  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.02s
+  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.02s
+  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.01s
+  ✓ snapshot keeps valid explicit zone time as the same utc instant wit… 0.01s
+  ✓ successful refund snapshots are versioned and corrections can reduc… 0.13s
+  ✓ cancel resume confirmations are durable and replay does not create…  0.16s
+  ✓ unknown cancel does not emit success until the original operation i… 0.03s
+  ✓ recorder failure isolated from finance backoffs and retries with sa… 0.29s
+  ✓ recorder failure isolated from finance backoffs and retries with sa… 0.12s
+  ✓ refused consent is final and replay cannot retrack after later cons… 0.06s
+  ✓ missing consumer is retryable and versions are delivered in order    0.04s
+  ✓ financial rollback does not leave a phantom behavior fact            0.03s
+  ✓ same second refund retains actual confirmation microseconds in payl… 0.04s
+  ✓ precision upgrade preserves legacy second facts without fabricating… 0.29s
+  ✓ upgrade baselines existing refunds and cancellations without retroa… 0.14s
+  ✓ blocked aggregate cannot starve others at limit one and backoff cap… 0.07s
 
    PASS  Tests\Feature\Billing\PayPalRuntimeTest
-  ✓ checkout webhook reconciliation membership and duplicate delivery s… 2.38s  
-  ✓ cancel requires observed stop preserves paid period and disables re… 0.77s  
-  ✓ renewal uses original price and original period when delivery is la… 0.54s  
-  ✓ failed renewal never adds access and blocks second purchase          0.60s  
-  ✓ partial then full refund only revokes its payment and stops renewal  0.60s  
-  ✓ two distinct refund notifications accumulate only their completed a… 1.53s  
-  ✓ confirmed refund stop survives repeated full reconciliation without… 0.50s  
-  ✓ confirmed refund stop survives repeated full reconciliation without… 0.53s  
-  ✓ refund reader preserves only confirmed stop without clearing existi… 0.46s  
-  ✓ refund reader preserves only confirmed stop without clearing existi… 0.78s  
-  ✓ refund reader preserves only confirmed stop without clearing existi… 0.53s  
-  ✓ refund reader preserves only confirmed stop without clearing existi… 0.56s  
-  ✓ refund reader preserves only confirmed stop without clearing existi… 0.52s  
-  ✓ refund reader preserves only confirmed stop without clearing existi… 0.88s  
-  ✓ refund reader preserves only confirmed stop without clearing existi… 0.60s  
-  ✓ refund reader preserves only confirmed stop without clearing existi… 0.54s  
-  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.54s  
-  ✓ refund replay cannot create another cancel to clear an unrelated re… 1.04s  
-  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.62s  
-  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.69s  
-  ✓ refund replay completes the original pending stop after provider su… 0.78s  
-  ✓ partial refund stop failure keeps payment fact and retries only its… 0.45s  
-  ✓ paypal behavior facts use confirmed reads and refund correction ver… 0.56s  
-  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.68s  
-  ✓ incomplete transaction page or ambiguous cycle never settles         0.38s  
-  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.41s  
-  ✓ setup checks existing binding and creates one product without webho… 0.75s  
-  ✓ unconfigured new purchase stays disabled even after setup            0.38s  
-  ✓ refund correction restores only original interval without restoring… 0.87s  
-  ✓ terminal without proof of no payment retains unique occupancy        0.74s  
-  ✓ late cancel event rereads current provider state and cannot extend…  1.48s  
-  ✓ unavailable app authentication is a safe diagnostic and cannot crea… 1.49s  
-  ✓ wrong sale binding amount or currency cannot grant access            1.92s  
-  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 1.43s  
-  ✓ lagging transaction history cannot release a terminal subscription   1.95s  
-  ✓ reversal stop intent survives failed read transaction                2.76s  
-  ✓ incomplete webhook events cannot create checkout                     2.70s  
-  ✓ actual response shape settles one original order and recheck never…  1.42s  
-  ✓ observed first boundary is preserved when the next week is paid      1.61s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.71s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 0.90s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 0.98s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.77s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.29s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.97s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.80s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.14s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 3.03s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.50s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.02s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.28s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 0.99s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 0.78s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 0.82s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 0.87s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 2.06s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.66s  
-  ✓ optional metadata does not weaken payment or period evidence with d… 1.92s  
-  ✓ unobserved short first period cannot be backfilled from multiple pa… 2.55s  
-  ✓ changed historical anchor cannot rewrite or extend paid access       1.67s  
-  ✓ active without payment or unavailable read never returns stored app… 1.70s  
-  ✓ explicit recheck reads only and never cancels an expired approval    2.28s  
-  ✓ protected suspended subscription expires locally without remote lif… 1.53s  
-  ✓ explicitly disabled paypal reconciliation preserves confirmed cance… 1.38s  
-  ✓ disabled direct calls and callback report unavailable without modif… 2.79s  
-  ✓ disabled retry preserves pending cancel and resumes only after api…  1.41s  
-  ✓ disabled checkout retry keeps its original intent untouched          1.41s  
-  ✓ enabled network failure is not silently treated as an operator paus… 2.23s  
-  ✓ invalid or missing enablement is not an operator pause with data se… 2.99s  
-  ✓ invalid or missing enablement is not an operator pause with data se… 4.33s  
-  ✓ invalid or missing enablement is not an operator pause with data se… 1.71s  
-  ✓ disabled paypal does not starve stripe at limit one and pending wor… 3.24s  
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 2.38s
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.77s
+  ✓ renewal uses original price and original period when delivery is la… 0.54s
+  ✓ failed renewal never adds access and blocks second purchase          0.60s
+  ✓ partial then full refund only revokes its payment and stops renewal  0.60s
+  ✓ two distinct refund notifications accumulate only their completed a… 1.53s
+  ✓ confirmed refund stop survives repeated full reconciliation without… 0.50s
+  ✓ confirmed refund stop survives repeated full reconciliation without… 0.53s
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.46s
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.78s
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.53s
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.56s
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.52s
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.88s
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.60s
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.54s
+  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.54s
+  ✓ refund replay cannot create another cancel to clear an unrelated re… 1.04s
+  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.62s
+  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.69s
+  ✓ refund replay completes the original pending stop after provider su… 0.78s
+  ✓ partial refund stop failure keeps payment fact and retries only its… 0.45s
+  ✓ paypal behavior facts use confirmed reads and refund correction ver… 0.56s
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.68s
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.38s
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.41s
+  ✓ setup checks existing binding and creates one product without webho… 0.75s
+  ✓ unconfigured new purchase stays disabled even after setup            0.38s
+  ✓ refund correction restores only original interval without restoring… 0.87s
+  ✓ terminal without proof of no payment retains unique occupancy        0.74s
+  ✓ late cancel event rereads current provider state and cannot extend…  1.48s
+  ✓ unavailable app authentication is a safe diagnostic and cannot crea… 1.49s
+  ✓ wrong sale binding amount or currency cannot grant access            1.92s
+  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 1.43s
+  ✓ lagging transaction history cannot release a terminal subscription   1.95s
+  ✓ reversal stop intent survives failed read transaction                2.76s
+  ✓ incomplete webhook events cannot create checkout                     2.70s
+  ✓ actual response shape settles one original order and recheck never…  1.42s
+  ✓ observed first boundary is preserved when the next week is paid      1.61s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.71s
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.90s
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.98s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.77s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.29s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.97s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.80s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.14s
+  ✓ optional metadata does not weaken payment or period evidence with d… 3.03s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.50s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.02s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.28s
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.99s
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.78s
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.82s
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.87s
+  ✓ optional metadata does not weaken payment or period evidence with d… 2.06s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.66s
+  ✓ optional metadata does not weaken payment or period evidence with d… 1.92s
+  ✓ unobserved short first period cannot be backfilled from multiple pa… 2.55s
+  ✓ changed historical anchor cannot rewrite or extend paid access       1.67s
+  ✓ active without payment or unavailable read never returns stored app… 1.70s
+  ✓ explicit recheck reads only and never cancels an expired approval    2.28s
+  ✓ protected suspended subscription expires locally without remote lif… 1.53s
+  ✓ explicitly disabled paypal reconciliation preserves confirmed cance… 1.38s
+  ✓ disabled direct calls and callback report unavailable without modif… 2.79s
+  ✓ disabled retry preserves pending cancel and resumes only after api…  1.41s
+  ✓ disabled checkout retry keeps its original intent untouched          1.41s
+  ✓ enabled network failure is not silently treated as an operator paus… 2.23s
+  ✓ invalid or missing enablement is not an operator pause with data se… 2.99s
+  ✓ invalid or missing enablement is not an operator pause with data se… 4.33s
+  ✓ invalid or missing enablement is not an operator pause with data se… 1.71s
+  ✓ disabled paypal does not starve stripe at limit one and pending wor… 3.24s
 
   Tests:    113 passed (2394 assertions)
   Duration: 107.45s
-

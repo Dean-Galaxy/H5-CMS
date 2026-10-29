@@ -1,0 +1,108 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Integration\AnalyticsCombined\LifecycleMicrosecondsTest
+  ✓ refund after consent in the same second keeps real microseconds and… 7.30s
+  ✓ schema has precision six via a new migration without rewriting adop… 0.08s
+
+   PASS  Tests\Integration\AnalyticsCombined\MatchingContextTest
+  ✓ slow or reordered landing does not freeze empty context or leak pla… 0.13s
+  ✓ unknown or denied advertising never persists matching identifiers    0.05s
+  ✓ matching context size and value limits are enforced on the dedicate… 0.09s
+
+   PASS  Tests\Integration\AnalyticsCombined\PaymentAttributionTest
+  ✓ real source registration verification checkout payment and replay s… 0.29s
+  ✓ logout is not withdrawal for a delayed payment and new account does… 0.22s
+  ✓ explicit withdrawal prevents old delayed conversion but keeps finan… 0.16s
+  ✓ refund cumulative versions use real reader not sum of behavior even… 0.16s
+  ✓ advertising only visible landing creates source without an analytic… 0.05s
+
+   PASS  Tests\Integration\AnalyticsCombined\PrivacyApiTest
+  ✓ server events and client authority properties cannot fabricate succ… 0.12s
+  ✓ same uuid retries are idempotent but different content is rejected   0.08s
+  ✓ collection storage failure does not undo paid access and reliable p… 0.20s
+  ✓ denial and cross origin requests do not create behavior or financia… 0.05s
+
+   PASS  Tests\Feature\Contracts\AcceptedAudienceTest
+  ✓ default website and progress use the accepted provider without loca… 0.11s
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.12s
+  ✓ fresh progress is empty and a guest cannot write account progress    0.10s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund   0.26s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 0.12s
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.06s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.03s
+  ✓ public content still requires a trusted region then reads its own d… 0.20s
+
+   PASS  Tests\Feature\Contracts\AcquisitionReadPortsTest
+  ✓ consumers read typed minimal pages without private staff or media f… 0.29s
+  ✓ absent read providers do not turn into successful empty lists or sa… 0.03s
+
+   PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
+  ✓ registered staff mfa provider generates one decodable qr data uri    1.17s
+  ✓ actual staff profile route uses staff policy and same origin avatar  3.91s
+  ✓ design navigation keeps role permissions and optional module gate    0.06s
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.14s
+  ✓ staff contract is relaxed without changing viewer passwords          0.06s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.02s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.08s
+  ✓ livewire tabs call the module method without using inline user code  0.05s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.26s
+  ✓ dialog has accessible title and real submit button can target its f… 0.05s
+
+   PASS  Tests\Feature\Contracts\AnalyticsContractsTest
+  ✓ disabled recorder is safe for existing business without a consumer   0.02s
+  ✓ missing financial reader does not fabricate zero revenue             0.02s
+  ✓ browser allowlist cannot produce authoritative success events        0.01s
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.01s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.02s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.02s
+
+   PASS  Tests\Feature\Contracts\PayPalSharedConfigurationTest
+  ✓ default is off and missing credentials do not make network calls     0.50s
+  ✓ invalid configuration fails with fixed nonsecret diagnostics         0.43s
+  ✓ webhook registration target is optional but strictly callback only   0.59s
+  ✓ paypal is rejected in production and uncontrolled staging            0.52s
+  ✓ csrf exception is limited to exact webhook path                      0.43s
+
+   PASS  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
+  ✓ default off does not release an origin and every call rechecks       0.01s
+  ✓ boolean environment and nonlocal overrides fail closed               0.02s
+  ✓ opt in never enables production or local and local mail remains ava… 0.02s
+  ✓ origin cannot contain unsafe components or non domain hosts          0.02s
+  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.02s
+  ✓ approved smtp configuration builds real tls transport without conne… 0.20s
+  ✓ direct connection discards previous proxy trust and hosting auto de… 0.01s
+  ✓ nonlocal http requires direct tls canonical host and default port    0.03s
+  ✓ real staging boot and cached configuration are checked without netw… 9.10s
+  ✓ real uncached environment loading preserves invalid booleans         1.81s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   0.53s
+  ✓ home consumer can follow a category and banner without media or ext… 0.07s
+  ✓ new ports require the real provider even when empty examples exist   0.01s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.05s
+  ✓ resume quote and submission require an audience session              0.02s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.03s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+  Tests:    68 passed (1140 assertions)
+  Duration: 32.59s

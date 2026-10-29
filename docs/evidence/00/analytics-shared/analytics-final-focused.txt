@@ -1,0 +1,206 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Acquisition\AnalyticsCapacityTest
+  ✓ heartbeats cannot displace filtered complete cohorts or independent… 7.24s
+  ✓ real entrance limit is explicit without truncating independent epis… 3.33s
+  ✓ finance keyset batches are at most two hundred and do not double co… 0.09s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsLinkFilterTest
+  ✓ search finds old link beyond main page and has its own bounded pagi… 0.30s
+  ✓ selected authorized link survives other search and page while draft… 0.17s
+  ✓ own and assigned search scope never leaks same keyword and revoked…  0.15s
+  ✓ search treats sql wildcards as literal name characters               0.02s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsProvidersTest
+  ✓ real identity audience checkout reader and delayed payment outbox s… 2.72s
+  ✓ true withdrawal after logout by same viewer stops delayed fact with… 0.26s
+  ✓ account b does not inherit a and cannot withdraw as consent for a    0.08s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsTest
+  ✓ click requires visible confirmation consent and exact window withou… 0.27s
+  ✓ advertising only landing does not create analysis subject and withd… 0.04s
+  ✓ valid new click overrides but invalid prefetch disabled and normal…  0.03s
+  ✓ separate analytics consent client idempotency forged fields and pla… 0.06s
+  ✓ anonymous login chain is preserved but account switch and logout ro… 0.04s
+  ✓ reliable payment dedup refund corrections and current finance witho… 0.07s
+  ✓ savepoint failure is retry without poisoning outer transaction and…  0.11s
+  ✓ rebinding produces new code preserves history and prune leaves sour… 0.10s
+  ✓ report authorized scope zero denominator and out of order funnel ar… 0.07s
+  ✓ same second provider payment uses exact order causality even when o… 0.08s
+  ✓ consented cookie restores anonymous source across server session ex… 0.03s
+  ✓ episode cutpoints use verified labels cumulative deltas and matchin… 0.09s
+  ✓ analytics tab renders with scope and invalid date keeps filter inpu… 0.06s
+  ✓ explicit advertising withdrawal blocks previously queued delivery a… 0.08s
+  ✓ assigned operator sees only its link aggregates and revocation remo… 0.06s
+  ✓ own links remain visible after redundant assignment revocation with… 0.07s
+
+   PASS  Tests\Feature\Acquisition\AssetTest
+  ✓ owner and assigned scope is enforced for reads writes probe summary… 0.03s
+  ✓ mfa disabled staff and wrong roles cannot read assets                0.02s
+  ✓ registration does not enable external delivery or accept script or…  0.04s
+  ✓ pixel versions and link versions reject stale updates and unfrozen…  0.07s
+  ✓ link requires accessible matching pixel and current content          0.03s
+  ✓ unfrozen attribution is explicitly unavailable and does not trust m… 0.19s
+
+   PASS  Tests\Feature\Acquisition\AssignmentTest
+  ✓ owner shares multiple people and removal revokes access without cha… 0.04s
+  ✓ selected person outside current page is repopulated and revalidated… 0.57s
+  ✓ unavailable read ports are explicit and never replaced with public…  0.04s
+
+   PASS  Tests\Feature\Acquisition\BillingBridgeTest
+  ✓ consumer failure leaves verified payment and membership intact and…  0.05s
+  ✓ real billing outbox reaches consumer once and unattributed does not… 0.04s
+
+   PASS  Tests\Feature\Acquisition\ClickMatchingTest
+  ✓ meta and dotted tiktok url to encrypted source to fake http payload… 1.11s
+  ✓ unknown denied malformed and oversized matching is not persisted     0.07s
+  ✓ late landing confirmation retries entry events then attributes with… 0.06s
+  ✓ dotted tiktok boundary retains case and rejects urls scripts whites… 0.08s
+
+   PASS  Tests\Feature\Acquisition\ConcurrencyTest
+  ✓ two postgresql connections contend and record one payment even wit… 12.67s
+
+   PASS  Tests\Feature\Acquisition\DeliveryBoundaryTest
+  ✓ lost or expired lease during preparation never sends or changes the… 0.67s
+  ✓ sixth attempt is reserved with frozen payload and original first ti… 0.06s
+  ✓ late response cannot overwrite expired or replaced lease             0.04s
+  ✓ consent revoked during payload preparation blocks reservation and s… 0.03s
+
+   PASS  Tests\Feature\Acquisition\DeliveryProcessTest
+  ✓ real process takeover leaves resumed old preparer without transport… 7.96s
+  ✓ six sigkills inside http do not lose reservations or allow a sevent… 2.80s
+
+   PASS  Tests\Feature\Acquisition\DeliveryTest
+  ✓ both platforms have explicit local sending and no external requests  0.39s
+  ✓ disabled sender and unknown or revoked consent block real attempts   0.03s
+  ✓ test payments can never be sent to production assets                 0.03s
+  ✓ http adapters map integer usd stable ids and do not send contact or… 0.05s
+  ✓ failed retry uses frozen payload and stable event id then stops aft… 0.05s
+  ✓ http 200 errors and redirects are not marked accepted                0.05s
+  ✓ external review match context and event age are checked before http  0.03s
+  ✓ simulated context missing credentials and disabled pixel are blocke… 0.03s
+  ✓ active lease prevents duplicate sending and expired lease can recov… 0.03s
+  ✓ retry limit and production simulation boot guard                     0.02s
+  ✓ unknown remote outcome is not resent after the retry window even if… 0.04s
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.41s
+  ✓ form save reopen local probe link edit disable and summary           0.19s
+  ✓ link validation is actionable chinese and preserves unsaved input    0.09s
+  ✓ pixel and assignment validation stays strict with chinese messages   0.07s
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.15s
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.32s
+  ✓ workspace tabs are allowlisted and assignment tab is owner only      1.27s
+  ✓ url tab restores only authorized context and invalid input falls ba… 0.07s
+  ✓ asset dialog actions keep context and failed save preserves editor   0.08s
+  ✓ editors are shared dialogs and tab list has only four entries        0.05s
+  ✓ payment display uses shared exact usd format without float conversi… 0.04s
+
+   PASS  Tests\Feature\Acquisition\PaymentTest
+  ✓ event and payment deduplication preserve one receipt and one conver… 0.03s
+  ✓ same payment with changed facts is rejected without overwriting his… 0.03s
+  ✓ unknown source is not reinterpreted as current pixel and no source…  0.03s
+  ✓ first resubscription renewal and test real are separate but same ki… 0.04s
+  ✓ pixel and link edits do not rewrite already received attribution or… 0.03s
+
+   PASS  Tests\Feature\Acquisition\ReadProvidersIntegrationTest
+  ✓ real directories support both platforms sharing revocation and publ… 0.55s
+  ✓ workbench uses real cursor and repopulates saved choices before rev… 0.24s
+
+   PASS  Tests\Feature\Acquisition\TrackingHttpTest
+  ✓ default unknown and disabled context is private and records no subj… 0.07s
+  ✓ consent http batch retries and unknown fields do not leak identifie… 0.05s
+  ✓ payload size count origin and boolean strictness are enforced        0.03s
+  ✓ transient storage 503 allows same id replay after rollback           0.04s
+  ✓ diagnostics separate no consent schema conflict and temporary catal… 0.05s
+  ✓ http rate limit has safe persistent diagnostic                       0.32s
+
+   PASS  Tests\Feature\Contracts\AcceptedAudienceTest
+  ✓ default website and progress use the accepted provider without loca… 0.20s
+  ✓ fresh local content and unconfigured prices are not replaced by sam… 0.16s
+  ✓ fresh progress is empty and a guest cannot write account progress    0.02s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingPlaybackTest
+  ✓ real billing controls content after cancel partial and full refund   0.22s
+
+   PASS  Tests\Feature\Contracts\AcceptedBillingTest
+  ✓ real billing loads without opt in and does not enable external paym… 0.18s
+  ✓ real nonmember and configured price remain truthful when stripe is…  0.03s
+
+   PASS  Tests\Feature\Contracts\AcceptedContentTest
+  ✓ content loads without local opt in and registers each job once       0.02s
+  ✓ public content still requires a trusted region then reads its own d… 0.06s
+
+   PASS  Tests\Feature\Contracts\AcquisitionReadPortsTest
+  ✓ consumers read typed minimal pages without private staff or media f… 0.07s
+  ✓ absent read providers do not turn into successful empty lists or sa… 0.01s
+
+   PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
+  ✓ registered staff mfa provider generates one decodable qr data uri    0.35s
+  ✓ actual staff profile route uses staff policy and same origin avatar  1.85s
+  ✓ design navigation keeps role permissions and optional module gate    0.02s
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.03s
+  ✓ staff contract is relaxed without changing viewer passwords          0.04s
+
+   PASS  Tests\Feature\Contracts\AdminUiTest
+  ✓ usd round trips without float or a hundredfold change                0.01s
+  ✓ usd rejects wrong types precision notation and overflow              0.01s
+  ✓ tabs render one selected panel and escape labels                     0.02s
+  ✓ livewire tabs call the module method without using inline user code  0.06s
+  ✓ shared styles are loaded only in the staff panel and do not bypass…  0.26s
+  ✓ dialog has accessible title and real submit button can target its f… 0.04s
+
+   PASS  Tests\Feature\Contracts\AnalyticsContractsTest
+  ✓ disabled recorder is safe for existing business without a consumer   0.03s
+  ✓ missing financial reader does not fabricate zero revenue             0.02s
+  ✓ browser allowlist cannot produce authoritative success events        0.01s
+
+   PASS  Tests\Feature\Contracts\BillingLocalLoadingTest
+  ✓ billing allowlist does not enable an unaccepted module               0.02s
+  ✓ explicit local loading only changes billing and never grants fixtur… 0.01s
+  ✓ billing opt in rejects nonlocal missing invalid and replacement pro… 0.02s
+
+   PASS  Tests\Feature\Contracts\PayPalSharedConfigurationTest
+  ✓ default is off and missing credentials do not make network calls     0.47s
+  ✓ invalid configuration fails with fixed nonsecret diagnostics         0.32s
+  ✓ webhook registration target is optional but strictly callback only   0.47s
+  ✓ paypal is rejected in production and uncontrolled staging            0.39s
+  ✓ csrf exception is limited to exact webhook path                      0.54s
+
+   PASS  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
+  ✓ default off does not release an origin and every call rechecks       0.02s
+  ✓ boolean environment and nonlocal overrides fail closed               0.01s
+  ✓ opt in never enables production or local and local mail remains ava… 0.01s
+  ✓ origin cannot contain unsafe components or non domain hosts          0.01s
+  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.02s
+  ✓ approved smtp configuration builds real tls transport without conne… 0.25s
+  ✓ direct connection discards previous proxy trust and hosting auto de… 0.02s
+  ✓ nonlocal http requires direct tls canonical host and default port    0.03s
+  ✓ real staging boot and cached configuration are checked without netw… 5.81s
+  ✓ real uncached environment loading preserves invalid booleans         1.48s
+
+   PASS  Tests\Feature\Contracts\SharedContractsTest
+  ✓ consumer can confirm original terms after the public price changes   1.20s
+  ✓ home consumer can follow a category and banner without media or ext… 0.40s
+  ✓ new ports require the real provider even when empty examples exist   0.33s
+  ✓ public home and categories remain accessible to guests but unavaila… 0.05s
+  ✓ resume quote and submission require an audience session              0.03s
+
+   PASS  Tests\Feature\Contracts\SharedInfrastructureTest
+  ✓ runtime contract version matches the published openapi               0.04s
+  ✓ absent local opt in preserves the missing provider and unresolved r… 0.01s
+  ✓ allowlisted local provider can load without a root config edit       0.01s
+  ✓ local loading rejects unknown missing invalid and nonlocal provider… 0.01s
+  ✓ audience and acquisition can opt in without replacing other modules  0.01s
+  ✓ explicit us fixture is limited to direct loopback http               0.01s
+  ✓ production never accepts forged country headers or local region ove… 0.01s
+
+   PASS  Tests\Integration\Analytics\DisabledConsumerBusinessTest
+  ✓ unavailable analytics does not block payment entitlement or refund   0.12s
+  ✓ missing recorder never claims accepted or skipped reliable facts     0.02s
+  ✓ disabled collection does not turn an unpaid viewer into a member     0.11s
+
+  Tests:    140 passed (1942 assertions)
+  Duration: 65.77s

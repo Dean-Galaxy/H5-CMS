@@ -1,0 +1,26 @@
+✔ hidden/denied pages emit nothing; independent advertising uses only landing API; withdrawal clears offline buffer (3394.883917ms)
+✔ 503/refresh retries retain event UUID and content; session boundary and 24h expiry discard stale buffers (5224.031ms)
+✔ actual decoded playback starts after movement, seek adds no watch time, and membership denial is observed without media credentials (13508.132334ms)
+✔ Chinese privacy controls fit small screens; oversized/invalid batch response terminates retry (3744.698708ms)
+✔ decoded full episode emits one completion and a cumulative progress value; duplicate ended does not double count (11795.369459ms)
+✔ buffer count/bytes stay bounded and disabled analytics never blocks actual playback (1348.695458ms)
+✔ consented slow landing sends only whitelisted ephemeral click context before page events, then cleans only click parameters (1928.382125ms)
+✔ only advertising consent permits reading cookies; independent advertising sends no analytics events (3068.787583ms)
+✔ disabled, non-pending and hidden pages do not read matching cookies even with advertising consent (1321.314958ms)
+✔ oversized, script/URL and ambiguous duplicate click/cookie input never enters a landing payload (985.661125ms)
+✔ unconfirmed landing never lets generic landing_view race to fix missing context and does not clear click URL (1249.934917ms)
+✔ disabled or mismatched consent response preserves choices and dialog with conservative local pause (1183.278958ms)
+✔ a late landing acknowledgment after withdrawal cannot resume collection or clean the newer privacy state (2371.813333ms)
+✔ slow open GET cannot overwrite a draft edited after the request started (2135.555584ms)
+✔ background event-flush GET cannot overwrite an open dirty privacy draft (3275.671916ms)
+✔ privacy GET and save progress/failure are visible and keep the failed draft editable (3643.868625ms)
+✔ disabled and failed reads have distinct bilingual status without losing editable choices (2881.859333ms)
+✔ 320 by 500 short-screen dialogs scroll to reject, withdraw and close in both languages (4185.631583ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 67591.032458

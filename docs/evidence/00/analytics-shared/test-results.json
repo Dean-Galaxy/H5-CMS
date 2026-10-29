@@ -44,5 +44,59 @@
     "skipped": 0,
     "milliseconds": 49672.513,
     "boundary": "Actual Chrome and decoding; synthetic route-intercepted API, not actual 05 combined provider"
+  },
+  "acquisition_acceptance": {
+    "source_candidate": "30466b272a4d9f4b7e8308a4d3583e83ccdb6b9d",
+    "tests": 78,
+    "assertions": 1035,
+    "seconds": 31.05,
+    "passed": true
+  },
+  "default_and_real_consumer_combination": {
+    "source_candidate": "f9aa488c660cdbcad88a1c61a6f25074ce8a22e1",
+    "tests": 68,
+    "assertions": 1140,
+    "seconds": 32.59,
+    "passed": true,
+    "global_optional_module": "off; real consumer enabled within individual test app only"
+  },
+  "full_regression_attempt": {
+    "source_candidate": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+    "memory_limit": "128M",
+    "completed": false,
+    "reason": "PHP process exhausted default test memory in Blade IconsManifest during RecoveryScenarioTest; no full pass claimed",
+    "followup": "test-only phpunit.xml raised to512M in50184e8;06 independently reports767/10531 at512M, awaiting fixed evidence"
+  },
+  "github_candidate_backup": {
+    "candidate": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+    "tag": "h5-analytics-candidate-2026-10-29",
+    "remote_branch": "codex/h5-platform",
+    "remote_verified": true,
+    "not_final_system_acceptance": true
+  },
+  "final_acquisition_contracts_disabled": {
+    "source_candidate": "306d44040c51811e8867badcedf83d525b59c4c8",
+    "tests": 140,
+    "assertions": 1942,
+    "seconds": 65.77,
+    "passed": true,
+    "scope": "Separate run; not summed into one whole-suite count"
+  },
+  "final_real_consumers": {
+    "source_candidate": "306d44040c51811e8867badcedf83d525b59c4c8",
+    "tests": 14,
+    "assertions": 361,
+    "seconds": 11.68,
+    "passed": true,
+    "scope": "Separate run; not summed into one whole-suite count"
+  },
+  "final_audience_real_chrome": {
+    "source_candidate": "306d44040c51811e8867badcedf83d525b59c4c8",
+    "tests": 18,
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0,
+    "milliseconds": 67591.032458,
+    "boundary": "Actual Chrome/decoding; synthetic intercepted APIs, not actual 05 endpoints"
   }
 }
