@@ -51,6 +51,17 @@ abstract class CombinedTestCase extends ContentTestCase
         $this->withHeader('User-Agent', 'Mozilla/5.0 06 explicit local browser fixture');
     }
 
+    public function call($method, $uri, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
+    {
+        // Laravel test applications reuse Route controller instances. A cached Fortify controller would retain
+        // the first SessionGuard while ContentTestCase creates fresh guards/session stores per request.
+        // Real PHP HTTP requests construct fresh controllers; model that boundary without forcing authentication.
+        foreach (\Illuminate\Support\Facades\Route::getRoutes() as $route) {
+            $route->flushController();
+        }
+        return parent::call($method, $uri, $parameters, $cookies, $files, $server, $content);
+    }
+
     protected function anonymous(): void
     {
         $name = config('h5.workspace').'_viewer';
@@ -92,9 +103,10 @@ abstract class CombinedTestCase extends ContentTestCase
         // PHP integration checks the real signed URL handler; actual preview-mail browser click is a separate required run.
         Notification::fake();
         $email = 'analytics-'.Str::uuid().'@example.test';
-        $this->postJson('/api/v1/auth/register', ['name' => '06 synthetic viewer', 'email' => $email,
+        $registered = $this->postJson('/api/v1/auth/register', ['name' => '06 synthetic viewer', 'email' => $email,
             'password' => 'Synthetic06Password!', 'password_confirmation' => 'Synthetic06Password!'])->assertOk();
         $viewer = Viewer::where('email', $email)->sole();
+        $registered->assertJsonPath('identity.viewer.id', $viewer->id);
         $this->assertNull($viewer->email_verified_at);
         $this->getJson(app(Verification::class)->url($viewer->fresh()))->assertOk();
         $this->assertTrue($viewer->fresh()->hasVerifiedEmail());
