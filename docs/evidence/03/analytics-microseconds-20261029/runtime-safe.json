@@ -1,0 +1,19 @@
+{
+  "workspace": "03-billing",
+  "web_port": 8203,
+  "db_port": 5603,
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "precision": [
+    "billing_analytics_states.observed_at=6",
+    "billing_behavior_outbox.occurred_at=6"
+  ],
+  "migrations_ran": 21,
+  "actual_payment_site_modified": false,
+  "thursday_site_modified": false
+}
