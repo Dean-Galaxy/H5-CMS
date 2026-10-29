@@ -66,14 +66,16 @@ abstract class CombinedTestCase extends ContentTestCase
             'policy_version' => 'analytics-v1'])->assertOk();
     }
 
-    protected function landing(bool $analytics = true): void
+    protected function landing(bool $analytics = true, array $clickContext = []): void
     {
         $this->get('/r/'.basename($this->link['url']))->assertRedirect();
         $properties = ['page_instance_id' => (string) Str::uuid(), 'path' => '/dramas/'.$this->drama->id, 'drama_id' => $this->drama->id];
+        // Dedicated source confirmation ALWAYS precedes the generic behavior. Matching values never enter events.
+        $confirmation = $clickContext === [] ? $properties : $properties + ['click_context' => $clickContext];
+        $this->postJson('/api/v1/tracking/landing', $confirmation)->assertOk()->assertJsonPath('confirmed', true);
         if ($analytics) {
+            $this->getJson('/api/v1/tracking/context')->assertOk()->assertJsonPath('consent.analytics', 'granted');
             $this->browser('landing_view', $properties);
-        } else {
-            $this->postJson('/api/v1/tracking/landing', $properties)->assertOk()->assertJsonPath('confirmed', true);
         }
     }
 
