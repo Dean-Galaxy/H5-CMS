@@ -20,7 +20,7 @@ $contexts = [];
 foreach ($f['links'] as $platform => $link) {
     $s = DB::table('acquisition_sources')->where('link_id', $link['id'])->orderByDesc('captured_at')->first();
     $v = $s?->context_encrypted ? json_decode(Crypt::decryptString($s->context_encrypted), true, flags: JSON_THROW_ON_ERROR) : [];
-    $contexts[$platform] = ['sources' => DB::table('acquisition_sources')->where('link_id', $link['id'])->count(), 'revoked' => $s?->revoked_at !== null, 'query_free' => ! isset(parse_url($v['page_url'] ?? '')['query']), 'has_fbc' => isset($v['fbc']), 'has_fbp' => isset($v['fbp']), 'has_ttclid' => isset($v['ttclid']), 'has_ttp' => isset($v['ttp']), 'synthetic_click' => $platform === 'meta' ? str_contains($v['fbc'] ?? '', 'LOCAL_BROWSER_META') : str_starts_with($v['ttclid'] ?? '', 'LOCAL_BROWSER_TIKTOK')];
+    $contexts[$platform] = ['sources' => DB::table('acquisition_sources')->where('link_id', $link['id'])->count(), 'revoked' => $s?->revoked_at !== null, 'query_free' => ! isset(parse_url($v['page_url'] ?? '')['query']), 'has_fbc' => isset($v['fbc']), 'has_fbp' => isset($v['fbp']), 'has_ttclid' => isset($v['ttclid']), 'has_ttp' => isset($v['ttp']), 'synthetic_click' => $platform === 'meta' ? str_contains($v['fbc'] ?? '', 'LOCAL_BROWSER_META') : str_starts_with($v['ttclid'] ?? '', 'E.C.P.LOCAL_BROWSER_TIKTOK_')];
 }
 $counts = (clone $q)->select('event_name')->selectRaw('count(*) as count')->groupBy('event_name')->pluck('count', 'event_name')->all();
 $watched = (clone $q)->whereIn('event_name', ['watch_progress', 'episode_completed'])->get(['properties'])->sum(fn ($r) => json_decode($r->properties, true)['watched_delta'] ?? 0);
