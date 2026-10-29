@@ -102,11 +102,15 @@ def main():
         if record.get('candidate')!=args.candidate or not matching(record,config):raise ValueError('OWN_FIXTURE_WEB_NOT_CURRENT')
     data=sys.stdin.read() if args.action=='settle' else ''
     result=subprocess.run([PHP,str(ROOT/'scripts/ops/analytics_browser_control.php'),args.action],cwd=ROOT,env=env,input=data,capture_output=True,text=True)
-    if result.returncode:
+    try:
+        document=json.loads(result.stdout)
+    except ValueError:
+        document=None
+    if result.returncode or not isinstance(document,dict):
         # Diagnostics stay private and must be reviewed before any export.
         (DIRECTORY/'control-error-private.txt').write_text(result.stdout+result.stderr)
         raise ValueError('OWN_FIXTURE_CONTROL_FAILED')
-    print(json.dumps(json.loads(result.stdout)));return 0
+    print(json.dumps(document));return 0
 
 
 if __name__=='__main__':

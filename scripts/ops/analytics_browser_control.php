@@ -95,9 +95,9 @@ if ($action === 'flags') {
     auth('staff')->login($owner); $session->put('identity.version.staff', $owner->session_version); $session->put('identity.mfa_staff', $owner->id);
     $report = app(App\Modules\Acquisition\Analytics\AnalyticsReport::class)->read(['test' => 'test']);
     $sources = DB::table('acquisition_sources')->whereIn('link_id', $linkIds)->get();
-    $matching = $sources->map(function ($source) {
+    $matching = $sources->map(function ($source) use ($fixture) {
         $context = json_decode(Illuminate\Support\Facades\Crypt::decryptString($source->context_encrypted), true);
-        return ['platform' => $source->platform, 'synthetic_click_present' => str_contains(json_encode($context), 'SYNTHETIC06'),
+        return ['platform' => collect($fixture['links'])->firstWhere('id', $source->link_id)['platform'] ?? 'unknown', 'synthetic_click_present' => str_contains(json_encode($context), 'SYNTHETIC06'),
             'encrypted_at_rest' => ! str_contains($source->context_encrypted, 'SYNTHETIC06'),
             'page_query_absent' => ! str_contains($context['page_url'] ?? '', '?')];
     })->all();
