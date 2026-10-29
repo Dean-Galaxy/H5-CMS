@@ -16,6 +16,8 @@
 
 浏览器允许的通用上下文为 `page_instance_id`（UUID）、`play_instance_id`（UUID）、`path`（固定同站无query路径）、`drama_id/episode_id`（仅引用，服务端复核目录及对应关系），以及事件自身数值/错误白名单；绝不信浏览器 viewer/source/价格/成功结果。04 和05沿用这些字段，不另起同义命名。
 
+05-002 浏览器补充由00接收，`play_session_id` 改为公共的 `play_instance_id`（不收 Content 播放许可 ID）。同内容重复 accepted、不重复计数；跨主体/同ID不同内容 rejected。未同意不建分析主体；存储暂时失败503允许同ID有界重试；整包422/413、单条拒绝计rejected。`watched_seconds`为每play_instance_id累计实际观看增量，seek不计；服务端进行单调/合理上限校验。
+
 允许受信 properties 按事件白名单含 opaque `viewer_id,drama_id,episode_id,order_id,payment_id,subscription_id,source_id`；这些**绝不接受浏览器指定**身份/来源/金额/成功状态。`position_seconds,duration_seconds,watched_seconds,startup_ms,stall_ms,error_code,transaction_kind,amount_minor,refunded_amount_minor,currency,is_test,occurred_at` 依事件校验范围。事件时间以服务器接收为准；财务事实可使用经 03 核定的 occurred_at。无邮箱/密码/token/原支付 ID/媒体 URL/任意 query/自由错误堆栈进入行为库或报表。合法页面仅固定同站路径，查询参数白名单。05 对 IP/UA 的广告匹配用途加密、限制访问，不进入普通分析明细。
 
 `BillingAnalyticsReader::payments(array $paymentIds):array`，最多 200 个唯一 UUID。结果按 payment_id 索引，缺失省略；每项仅 `payment_id,viewer_id,order_id,subscription_id,transaction_kind,amount_minor,refunded_amount_minor,currency,is_test,paid_at,attribution_snapshot`。时间 UTC ISO8601，金额整数 cents；退款只统计已确认成功累计额；snapshot 为既有 DTO array 或 null。禁止消费者读 Billing 表，05 先按员工可见 link/payment 范围选 ID；财务接口仅进程内，禁止公开或让前端枚举。
@@ -26,6 +28,7 @@
 
 - `GET /api/v1/tracking/context` 返回 `{enabled:boolean,consent:{analytics:'unknown|granted|denied',advertising:'unknown|granted|denied'},policy_version:'analytics-v1',pending_landing:boolean}`。不返回任何内部 subject/source ID、平台 token 或原始匹配信息；缺模块明确未启用。响应 no-store。
 - `POST /api/v1/tracking/consent`：同站会话、CSRF、限流；body `{analytics:boolean,advertising:boolean,policy_version:'analytics-v1'}`；返回同上。两种用途分别选择，默认 unknown；拒绝/撤回正常使用网站。广告撤回实时禁止后续发送（包括旧快照）；分析撤回后不再行为采集/关联。既有必要账务保留，不冒称本轮完成全部法域隐私法律审查。
+- `POST /api/v1/tracking/landing`：独立广告落地确认（会话/CSRF/限流/no-store）；body `{page_instance_id:UUID,drama_id:UUID,path:string}`，不接受link/source/像素/actor。仅详情页真正可见且advertising granted且服务器pending候选复验通过才归属；返回 `{confirmed:boolean}`。analytics denied时也可确认广告来源，但**不记录分析事件**。04在重读context后可见详情+pending时调用；不要借通用行为事件绕过analytics拒绝。原events中analytics granted的landing_view可以走同一幂等来源确认，重复不延长7天来源。未同意/候选无效confirmed=false。
 - `POST /api/v1/tracking/events`：会话、CSRF、限流、no-store。body `{events:[{event_id:UUID,event_name:string,properties:object}]}` 最多 20 项、请求最大 32KiB（05 实际强制）。response `{accepted:number,rejected:number}`；未同意不建立 analytics subject、不记录行为。拒绝客户端权威财务/身份成功事件、伪造 actor/source/金额、未知字段/超长内容；服务器生成/校验来源/身份/地区/设备分类。客户端 UUID 重传同一事件不加计；同 ID 不同内容拒绝。离线/刷新恢复使用有界短期缓冲，撤回清空，不承诺关页绝不丢失。
 - `/r/{code}` 只允许内部可用剧目落地。未同意时仅服务器保存短期导航候选（非跟踪 source/不计访问）；详情页可见后前端 `landing_view` 触发真实落地确认；同意时复验候选才归属。客户端不得提供可信 link/source/pixel。无广告同意但有 analytics 同意可分析站内行为，渠道显示 unknown/unattributed，不伪造归因。
 
