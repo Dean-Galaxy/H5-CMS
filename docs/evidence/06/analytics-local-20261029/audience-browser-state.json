@@ -1,0 +1,10 @@
+{
+  "candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "application_candidate": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+  "scope": "Chrome with HTTP state substitutes; distinct from actual local HTTP journey",
+  "tests": 18,
+  "passed": 18,
+  "failed": 0,
+  "official_platform": false,
+  "real_device": false
+}

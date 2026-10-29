@@ -1,0 +1,26 @@
+{
+  "counts": {
+    "acquisition_subjects": 7,
+    "acquisition_sources": 7,
+    "acquisition_behaviors": 104,
+    "acquisition_event_keys": 91
+  },
+  "ledger_hashes": {
+    "billing_orders": "7ed709f5ec56c0c542b703e604c238c44d1cf12f059c2017c4782f10103b4d15",
+    "billing_payments": "e000521be3e0b5590b28d5572965bddf9cdfc672498ee79bc8f32a2513a12d69",
+    "billing_entitlements": "f9ed58c4f7fd183610bc2b274a394cb6262a7af7e73fce952afcfcd14204df62",
+    "billing_subscriptions": "521c916d555e101c095e2114680af055bccf6b7b19736254132ed75dd0d5afa8",
+    "billing_refunds": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "paid_actor_full_chain": true,
+  "frozen_order_and_actor_source_match": true,
+  "tiktok_sources": [
+    {
+      "synthetic_click_present": true,
+      "encrypted": true,
+      "platform_isolated": true,
+      "revoked": true
+    }
+  ],
+  "behavior_matching_id_leak": false
+}

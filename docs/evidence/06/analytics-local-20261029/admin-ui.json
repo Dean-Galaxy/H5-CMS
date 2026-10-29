@@ -1,0 +1,18 @@
+{
+  "candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "passed": true,
+  "phase": "admin-analytics",
+  "checks": [
+    {
+      "name": "MFA owner opens analytics tab",
+      "passed": true
+    },
+    {
+      "name": "zero external browser requests",
+      "passed": true
+    }
+  ],
+  "external_attempts": 0,
+  "real_device": false,
+  "official_platform": false
+}

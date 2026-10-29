@@ -1,0 +1,12 @@
+{
+  "candidate": "e7e8575fefdc8fe05e82341773817301c867beff",
+  "own_ports_closed": {
+    "8206": true,
+    "5606": true
+  },
+  "own_pid_records_absent": true,
+  "recovery_instances_stopped": true,
+  "permanent_workers_started": false,
+  "data_preserved": true,
+  "actual_paypal_and_thursday_untouched": true
+}

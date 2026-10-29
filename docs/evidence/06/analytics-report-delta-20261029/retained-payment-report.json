@@ -1,0 +1,165 @@
+{
+  "candidate": "c770d4b3a43558e677f9f98d29cec77962c9eb4a",
+  "events": {
+    "page_view": 28,
+    "landing_view": 6,
+    "drama_view": 19,
+    "play_requested": 7,
+    "play_started": 7,
+    "player_startup": 3,
+    "watch_progress": 7,
+    "player_error": 6,
+    "paywall_view": 5,
+    "registration_succeeded": 5,
+    "email_verified": 3,
+    "checkout_created": 2,
+    "payment_pending": 2,
+    "payment_confirmed": 1,
+    "checkout_click": 1,
+    "payment_return_view": 1
+  },
+  "payment_count": 1,
+  "entitlement_count": 1,
+  "verified_viewers": 3,
+  "payment_is_test": true,
+  "gross_minor": 300,
+  "refund_minor": 0,
+  "migrations": 23,
+  "matching": [
+    {
+      "platform": "meta",
+      "synthetic_click_present": true,
+      "encrypted_at_rest": true,
+      "page_query_absent": true
+    },
+    {
+      "platform": "meta",
+      "synthetic_click_present": true,
+      "encrypted_at_rest": true,
+      "page_query_absent": true
+    },
+    {
+      "platform": "meta",
+      "synthetic_click_present": true,
+      "encrypted_at_rest": true,
+      "page_query_absent": true
+    },
+    {
+      "platform": "meta",
+      "synthetic_click_present": true,
+      "encrypted_at_rest": true,
+      "page_query_absent": true
+    },
+    {
+      "platform": "meta",
+      "synthetic_click_present": true,
+      "encrypted_at_rest": true,
+      "page_query_absent": true
+    },
+    {
+      "platform": "meta",
+      "synthetic_click_present": true,
+      "encrypted_at_rest": true,
+      "page_query_absent": true
+    },
+    {
+      "platform": "tiktok",
+      "synthetic_click_present": true,
+      "encrypted_at_rest": true,
+      "page_query_absent": true
+    }
+  ],
+  "report": {
+    "watched_seconds": 7,
+    "errors": {
+      "player_error:membership": 6,
+      "player_error:network": 1,
+      "payment_pending:unknown": 2
+    },
+    "funnel": [
+      {
+        "step": "entry",
+        "people": 8,
+        "rate": null
+      },
+      {
+        "step": "play_started",
+        "people": 6,
+        "rate": 75
+      },
+      {
+        "step": "checkout_created",
+        "people": 2,
+        "rate": 33.33
+      },
+      {
+        "step": "payment_confirmed",
+        "people": 1,
+        "rate": 50
+      },
+      {
+        "step": "paid_play",
+        "people": 1,
+        "rate": 100
+      }
+    ],
+    "registration_funnel": [
+      {
+        "step": "entry",
+        "people": 8,
+        "rate": null
+      },
+      {
+        "step": "play_started",
+        "people": 6,
+        "rate": 75
+      },
+      {
+        "step": "paywall_view",
+        "people": 5,
+        "rate": 83.33
+      },
+      {
+        "step": "registration_succeeded",
+        "people": 5,
+        "rate": 100
+      },
+      {
+        "step": "email_verified",
+        "people": 3,
+        "rate": 60
+      },
+      {
+        "step": "checkout_created",
+        "people": 2,
+        "rate": 66.67
+      },
+      {
+        "step": "payment_confirmed",
+        "people": 1,
+        "rate": 50
+      },
+      {
+        "step": "paid_play",
+        "people": 1,
+        "rate": 100
+      }
+    ],
+    "observing_people": 8,
+    "finance": {
+      "status": "known",
+      "gross_minor": 300,
+      "refund_minor": 0,
+      "net_minor": 300,
+      "kinds": {
+        "test:first_subscription": {
+          "payments": 1,
+          "gross_minor": 300
+        }
+      }
+    }
+  },
+  "one_subject_for_full_chain": true,
+  "provider_off": true,
+  "external_disabled": true
+}

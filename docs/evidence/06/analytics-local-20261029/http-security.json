@@ -1,0 +1,112 @@
+{
+  "candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "script_sha256": "e3f112e739560bf59d2dc7bd5055922ccde4e2ed23388c4d751e86661cdc0253",
+  "checks": [
+    {
+      "name": "consent_missing_token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "name": "consent_wrong_token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "name": "consent_foreign_origin",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "name": "events_missing_token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "name": "events_wrong_token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "name": "events_foreign_origin",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "name": "landing_missing_token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "name": "landing_wrong_token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "name": "landing_foreign_origin",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "name": "rejected_mutations_do_not_create_sources_subjects_events_keys",
+      "passed": true
+    },
+    {
+      "name": "normal_same_origin_consent",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "name": "same_uuid_accepted",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "name": "same_uuid_accepted",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "name": "same_uuid_durable_once",
+      "passed": true
+    },
+    {
+      "name": "changed_uuid_rejected",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "name": "over_20_events",
+      "passed": true,
+      "status": 422
+    },
+    {
+      "name": "over_32k_body",
+      "passed": true,
+      "status": 413
+    },
+    {
+      "name": "unknown_envelope",
+      "passed": true,
+      "status": 422
+    },
+    {
+      "name": "withdrawal",
+      "passed": true
+    },
+    {
+      "name": "withdrawn_no_capture",
+      "passed": true
+    },
+    {
+      "name": "actual_http_rate_limit",
+      "passed": true,
+      "status": 429
+    }
+  ],
+  "passed": true,
+  "real_http": true,
+  "csrf_disabled": false,
+  "proxy_bypassed": true,
+  "provider_calls": false
+}

@@ -1,0 +1,28 @@
+{
+  "candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "result": "passed",
+  "script_sha256": "0609428d6e3dba65d98cf270acec2e01e78ac03348403971f0df65c4e5b38ef6",
+  "independent_pg_instance": true,
+  "source_test_database_only": true,
+  "source_unchanged": true,
+  "matched_tables": 62,
+  "migration_rows": 22,
+  "all_rows_match_after_restore_and_restart": true,
+  "payment_count": 1,
+  "entitlement_count": 1,
+  "publish_due_runs": 2,
+  "business_tables_unchanged_after_two_runs": [
+    "billing_orders",
+    "billing_payments",
+    "billing_entitlements",
+    "billing_subscriptions",
+    "content_dramas",
+    "content_episodes",
+    "content_publications"
+  ],
+  "media_files": 7,
+  "media_hashes_match": true,
+  "dump_sha256": "519627132cfb3c84c798229c64e505421a0293f2961343cb3cd3465349e6aa6a",
+  "official_calls": false,
+  "cloud_reboot_verified": false
+}

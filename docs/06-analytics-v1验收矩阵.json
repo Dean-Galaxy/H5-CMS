@@ -2,194 +2,261 @@
   "schema": 1,
   "contract": "analytics-v1",
   "preparation_candidate": "bb947dcb7a56b04d5ce27433ab4dfdffeef26a31",
-  "combined_candidate": null,
+  "combined_candidate": "d7cbaed2dd4abb155aeea5c129364e5a3c91a2fa",
   "scenarios": [
     {
       "id": "AN06-P01",
       "scenario": "关闭采集业务保护",
       "method": "PHP测试：付款/权益/退款/重复结算，游客免费与付费门槛",
       "expected": "8项170断言中对应关闭消费者用例；不是启用后消费者验收",
-      "status": "passed_preparation"
+      "status": "passed_local_php",
+      "preparation_status": "passed_preparation",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-P02",
       "scenario": "缺消费者/身份权威边界",
       "method": "公共契约和目录，缺财务reader抛未就绪，默认recordFact Retry",
       "expected": "不把未知收入变0、可靠事实不虚报Accepted；浏览器不能产生权威成功事件",
-      "status": "passed_preparation"
+      "status": "passed_local_php",
+      "preparation_status": "passed_preparation",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-P03",
       "scenario": "工作区/候选/配置隔离",
       "method": "6项Python、5项Node；保护端口、外发强制关、夹具权限/导航/脱敏",
       "expected": "仅原06_test，候选精确，浏览器不读取其他工作区夹具",
-      "status": "passed_preparation"
+      "status": "passed_local_php",
+      "preparation_status": "passed_preparation",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-P04",
       "scenario": "消费者缺失闸门",
       "method": "prepare能力清单；combined及browser入口实际返回77",
       "expected": "不启动浏览器、不记组合通过",
-      "status": "passed_preparation"
+      "status": "passed_historical_preparation_gate",
+      "preparation_status": "passed_preparation",
+      "latest_evidence": "analytics-local-20261029/full-php.json",
+      "evidence_candidate": "bb947dcb7a56b04d5ce27433ab4dfdffeef26a31"
     },
     {
       "id": "AN06-P05",
       "scenario": "合成媒体准备",
       "method": "本机ffmpeg lavfi 8秒H264，4TS，ffprobe+各文件摘要",
       "expected": "没有解码浏览器结果；素材只在自有.runtime",
-      "status": "passed_preparation"
+      "status": "passed_local_php",
+      "preparation_status": "passed_preparation",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-J01",
       "scenario": "有来源完整链路",
       "method": "可见/r落地→同意→实际时间前进及帧增长→第6集门槛→注册/验证→受控付款→会员播放",
       "expected": "同入口来源、匿名到同意后登录主体贯通；客户端按钮/支付返回不算成功",
-      "status": "pending_consumers"
+      "status": "passed_actual_browser_and_db",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/browser-journey.json; paid-actor-source-check.json"
     },
     {
       "id": "AN06-J02",
       "scenario": "广告同意/分析拒绝",
       "method": "仅POST /tracking/landing；拒绝analytics；检查subject/行为库及建单来源",
       "expected": "可见广告来源有效且不写行为，不以landing_view绕过拒绝",
-      "status": "pending_consumers"
+      "status": "passed_local_ui_http_and_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/privacy-ui-partial.json; http-security.json; full-php.json"
     },
     {
       "id": "AN06-J03",
       "scenario": "两项拒绝与撤回",
       "method": "unknown/denied不创建subject；同意后撤回分析及广告；断线缓冲后恢复",
       "expected": "拒绝不影响业务；撤回清缓冲、停止关联/广告，包括旧snapshot待发",
-      "status": "pending_consumers"
+      "status": "passed_local_ui_http_and_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/privacy-ui-partial.json; http-security.json; full-php.json"
     },
     {
       "id": "AN06-J04",
       "scenario": "可见性及目录校验",
       "method": "隐藏tab/预取/可识别机器人/不可用或停用code；剧集错配",
       "expected": "不计有效落地/来源；可见确认后复验目录和来源，不外跳/换剧",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-J05",
       "scenario": "来源窗和建单冻结",
       "method": "第二有效点击覆盖；普通访问/刷新不延长；7天前1微秒/到期/跨日；晚付款/续费",
       "expected": "[captured_at,expires_at)精确；建单后快照不变，续费单列原订阅来源",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-J06",
       "scenario": "换号和同意时间",
       "method": "A登录/退出/B登录，注册前后贯通；事件发生后再同意；后台无request事实",
       "expected": "合法本次链路合并；换号旋转，不补采后同意之前事件；撤回优先；logout不撤回历史已建单授权，付款后立即退出的迟到PaymentSettled仍应记录/生成原授权待发，实际撤回才阻断",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-S01",
       "scenario": "CSRF/会话/限流",
       "method": "实际HTTP无token/错token/外站Origin/限流/失效会话；覆盖consent/events/landing",
       "expected": "状态拒绝、来源/subject/事件无新增，正常站内请求可用；PHP测试禁用CSRF不能代证",
-      "status": "pending_consumers"
+      "status": "partial_real_http_21_passed",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json",
+      "not_executed": "server session natural expiry TTL not separately tested"
     },
     {
       "id": "AN06-S02",
       "scenario": "伪造财务/身份及属性",
       "method": "browser API提交所有server事件；viewer/source/amount/country/IP/secret/任意query；实许可play_session_id",
       "expected": "拒绝或按契约过滤且不造成功；play_instance_id与实际许可分离",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-S03",
       "scenario": "采集请求边界与去重",
       "method": ">20项/>32KiB/未知字段；同UUID同内容重发/同UUID改内容/两次刷新",
       "expected": "同事件不加计，变内容拒绝；不把网络请求次数当持久接受数",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-F01",
       "scenario": "网络重试与采集故障",
       "method": "仅阻断tracking请求后恢复；模拟存储失败/savepoint回滚；保留业务事务",
       "expected": "播放/注册/付款正常；有界短缓冲和稳定UUID；不写重复权益/付款",
-      "status": "pending_consumers"
+      "status": "passed_actual_network_and_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/browser-journey.json; media-network.json; full-php.json"
     },
     {
       "id": "AN06-F02",
       "scenario": "可靠财务待发",
       "method": "Accepted同重放/Skipped无同意与永久无效/Retry临时故障；进程重启",
       "expected": "稳定key有界退避，拒绝不永久卡待发，暂未就绪不丢事实；有安全诊断",
-      "status": "pending_consumers"
+      "status": "passed_actual_independent_cli_restart",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-report-delta-20261029/outbox-restart.json",
+      "not_executed": "permanent queue/cloud server restart not executed"
     },
     {
       "id": "AN06-M01",
       "scenario": "毛收退款净收",
       "method": "BillingAnalyticsReader与真本地账本核300付款/成功退款100→300→纠正0；pending/失败退款",
       "expected": "毛收300，净收200→0→300；累计快照不相加，旧fact_version不回滚新版本",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-M02",
       "scenario": "Reader输入和脱敏",
       "method": "0/200/201原始ID、重复UUID、损坏snapshot、未知付款；05先筛可见ID",
       "expected": "先限制原始数量再严格UUID/去重；缺省略，坏snapshot null诊断；无secret/PII",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-R01",
       "scenario": "同入口7天漏斗",
       "method": "A完整/B只有后半/C先后逆序/D跨日/E窗口外/F重复/G观察中；入口期与后续窗分开",
       "expected": "每步去重且按时间递进；不拿全站总量相除；分母0为—，观察中单列",
-      "status": "pending_consumers"
+      "status": "passed_targeted_capacity_and_scoped_funnel",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-report-delta-20261029/targeted-php.json",
+      "not_executed": "real production throughput/lock window not benchmarked"
     },
     {
       "id": "AN06-R02",
       "scenario": "资产/角色和聚合隔离",
       "method": "Owner/分配投流甲乙/内容/客服/匿名，同过滤器换link/payment范围",
       "expected": "仅获授权资产聚合；不可枚举财务/逐人联系方式；测试真实分栏、null不显0",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-A01",
       "scenario": "外发关闭时本站仍可用",
       "method": "明确analytics启用并同意，platform disabled/external false；浏览器外网计数+服务端HTTP拦截",
       "expected": "采集/报表可用，浏览器/服务端零HTTP尝试；旧测试单不发正式资产",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-A02",
       "scenario": "Meta/TikTok HTTP替身",
       "method": "固定本机接收端、有效/拒绝/超时/429/5xx/重放/撤回",
       "expected": "稳定event_id/去重/预算/诊断，不另发浏览器Purchase；api_accepted≠平台核验",
-      "status": "pending_consumers"
+      "status": "passed_http_fake_only",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json",
+      "not_executed": "real Meta/TikTok platform matching/attribution"
     },
     {
       "id": "AN06-L01",
       "scenario": "留存和诊断",
       "method": "原始90天/缓冲24h/上限；收件故障/来源缺失/耗尽；后台无secret日志",
       "expected": "不删财务、待完成转化、冻结来源；禁用/未知/0分别显示",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-X01",
       "scenario": "真实平台与真机",
       "method": "投流同事账号/像素授权/官方测试事件面板；实际手机完整链路",
       "expected": "另取外部及真机证据；本机替身与浏览器模拟不能代证",
-      "status": "external_pending"
+      "status": "external_pending",
+      "preparation_status": "external_pending",
+      "latest_evidence": null
     },
     {
       "id": "AN06-A03",
       "scenario": "广告同意后的点击匹配字段完整链路",
       "method": "合成fbclid/ttclid与已有_fbc/_fbp/_ttp；独立landing先于入口事件；慢1秒/乱序；加密context和双平台HTTP替身payload核对",
       "expected": "未知/拒绝不存；值<=512bytes/整包<=4KiB；按平台隔离；当前点击优先旧fbc；普通events/报表/log无原ID；不假造匹配成功或改旧单快照；generic先到必须503且不写source/behavior/event-key，独立确认后原UUID重试只计一条",
-      "status": "pending_consumers"
+      "status": "passed_local_php",
+      "preparation_status": "pending_consumers",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     },
     {
       "id": "AN06-M03",
       "scenario": "同秒同意后真实退款的微秒顺序及新迁移",
       "method": "真实本地业务链同意.100→确认退款.200；比较03属性/DB/05行为时间、可靠投递/去重、财务区间；核新precision6迁移与200800固定摘要",
       "expected": "同意不被错误判断为晚于退款；不放宽consumer、不动paid_at/权益、不改已采用迁移；旧秒级证据不虚构微秒或伪造新通过",
-      "status": "pending_03_precision_fix_and_full_candidate"
+      "status": "passed_real_local_php_precision",
+      "preparation_status": "pending_03_precision_fix_and_full_candidate",
+      "latest_evidence": "analytics-local-20261029/full-php.json"
     }
   ],
   "wiring_candidate": "4ba3ede74067ecf7d2c88733b858a1fd8361f550",
-  "wiring_consumer_tests_executed": false,
   "precision_wiring_candidate": "7b02431005d4ab2583c55acfc6c55d2dc5f3469a",
-  "requires_03_precision_fix_and_new_migration": true,
-  "landing_wiring_candidate": "c5ccb4d771ff1bc5c0c7acb7a81fc6a238748ce6"
+  "requires_03_precision_fix_and_new_migration": false,
+  "landing_wiring_candidate": "c5ccb4d771ff1bc5c0c7acb7a81fc6a238748ce6",
+  "actual_php_candidate": "a7570f3e02d78d49f786dce9a61eea22dfd9ba43",
+  "actual_browser_candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "latest_result": "authorized_local_acceptance_passed_external_and_manual_pending",
+  "report": "06-analytics-v1本地组合验收报告.md",
+  "current_precision_fix_received": true,
+  "base_combined_candidate": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+  "incremental_actual_php_candidate": "c770d4b3a43558e677f9f98d29cec77962c9eb4a",
+  "actual_outbox_restart_candidate": "e7e8575fefdc8fe05e82341773817301c867beff",
+  "current_consumer_tests_executed": true,
+  "incremental_report": "06-analytics-v1报表增量与待发恢复验收.md",
+  "historical_wiring_consumer_tests_executed": false
 }

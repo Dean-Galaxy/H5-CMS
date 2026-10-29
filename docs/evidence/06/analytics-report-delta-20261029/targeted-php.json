@@ -1,0 +1,20 @@
+{
+  "candidate": "c770d4b3a43558e677f9f98d29cec77962c9eb4a",
+  "incremental_source": "6effb469002466d509c6dbdd8a7145167ac600ba",
+  "search_delivery": "0e55b7c26a401a228c6e0fcf24a0e929784bfc06",
+  "exit_code": 0,
+  "original_browser_database_untouched": true,
+  "suites": [
+    "tests/Feature/Acquisition/AnalyticsCapacityTest.php",
+    "tests/Feature/Acquisition/AnalyticsTest.php",
+    "tests/Feature/Acquisition/AnalyticsLinkFilterTest.php",
+    "tests/Feature/Acquisition/AnalyticsProvidersTest.php",
+    "tests/Feature/Billing/BillingAnalyticsTest.php",
+    "tests/Integration/AnalyticsCombined"
+  ],
+  "summary": [
+    "Time: 00:08.093, Memory: 95.00 MB",
+    "OK (81 tests, 950 assertions)"
+  ],
+  "full_767_not_repeated": true
+}

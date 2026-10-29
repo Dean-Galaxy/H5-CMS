@@ -1,0 +1,10 @@
+{
+  "candidate": "a87ea029fa0e3f46948b03696e06166242294b05",
+  "own_ports_closed": {
+    "8206": true,
+    "5606": true
+  },
+  "own_pid_files_absent": true,
+  "data_retained": true,
+  "official_and_thursday_touched": false
+}

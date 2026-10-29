@@ -14,7 +14,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 PROTECTED_PORTS = {8377, 5877, 8406, 5906, 8407, 8408, 8409, 8303}
-SOURCE_PATHS = ['h5-platform', 'scripts/ops/analytics_acceptance.py', 'scripts/ops/analytics_preflight.php', 'scripts/ops/analytics_browser_runtime.php']
+SOURCE_PATHS = ['h5-platform', 'scripts/ops/analytics_acceptance.py', 'scripts/ops/analytics_preflight.php', 'scripts/ops/analytics_browser_runtime.php', 'scripts/ops/analytics_browser_fixture.py', 'scripts/ops/analytics_browser_control.php']
 
 
 def private_json(path):
@@ -86,7 +86,7 @@ def candidate_guard(root, candidate):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--candidate', required=True)
-    parser.add_argument('--stage', choices=['prepare','combined'], default='prepare')
+    parser.add_argument('--stage', choices=['prepare','combined','full'], default='prepare')
     args = parser.parse_args()
     candidate_guard(ROOT,args.candidate)
     config = validate_workspace(ROOT,private_json(ROOT/'.runtime/workspace.json'))
@@ -125,6 +125,12 @@ def main():
     if args.stage == 'combined':
         suites.append('tests/Integration/AnalyticsCombined')
     command=[dev.PHP,str(dev.APP/'artisan'),'test',*suites]
+    if args.stage == 'full':
+        # Default-off regression and explicit per-test consumers must coexist; do not globally turn analysis on.
+        env.update(H5_LOCAL_MODULES='', ACQUISITION_ANALYTICS_ENABLED='false')
+        command=[dev.PHP,'-d','memory_limit=512M',str(dev.APP/'vendor/bin/phpunit'),'--colors=never',
+                 'tests/Feature','tests/Integration','tests/Security']
+        report['test_defaults']={'modules':'off','analytics':'off','memory_limit':'512M'}
     with (output/'tests-private.txt').open('w') as stream:
         run=subprocess.run(command,cwd=dev.APP,env=env,stdout=stream,stderr=subprocess.STDOUT)
     report['preparation_passed']=run.returncode==0
@@ -133,6 +139,10 @@ def main():
         report['combined_acceptance']='integration_only_browser_and_matrix_pending' if run.returncode==0 else 'integration_failed'
         report['browser_executed']=False
     report['tests_exit_code']=run.returncode
+    if args.stage == 'full':
+        report['full_php_passed']=run.returncode==0
+        report['summary']=[line for line in (output/'tests-private.txt').read_text().splitlines()
+                           if re.search(r'OK |Tests:|Assertions:|Time:|ERRORS|FAILURES',line)]
     (output/'result.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({**report,'evidence_directory':str(output)}));return run.returncode
 

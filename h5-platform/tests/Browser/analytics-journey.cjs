@@ -15,8 +15,9 @@ function workspace(root, ws, candidate) {
   return 'http://127.0.0.1:' + ws.port;
 }
 function ownWebCommand(record, command, root, port) {
-  const router = root + '/h5-platform/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php';
-  assert(Number.isInteger(record.pid) && record.pid > 1 && record.marker === router);
+  const known = [root + '/h5-platform/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php', root + '/h5-platform/tests/Browser/Support/analytics-router.php'];
+  const router = record.marker;
+  assert(Number.isInteger(record.pid) && record.pid > 1 && known.includes(router));
   assert(command.includes(' -S 127.0.0.1:' + port + ' ') && command.includes(root + '/h5-platform/public'));
   assert(command.trim().endsWith(router));
 }
@@ -87,20 +88,36 @@ async function run(candidate, fixtureFile) {
   if (!readiness.combined_ready) { console.log(JSON.stringify({candidate, result: 'blocked_missing_consumers', browser_executed: false})); return 77; }
   const web = privateJson(ROOT + '/.runtime/pids/web.json');
   ownWebCommand(web, cp.execFileSync('ps', ['-p', String(web.pid), '-o', 'command='], {encoding: 'utf8'}), ROOT, ws.port);
-  const flags = JSON.parse(cp.execFileSync(process.env.H5_PHP_BIN || '/opt/homebrew/opt/php@8.4/bin/php', [ROOT + '/scripts/ops/analytics_browser_runtime.php'], {cwd: ROOT, encoding: 'utf8', stdio: ['ignore','pipe','pipe'], env: {PATH: process.env.PATH || '/opt/homebrew/bin:/usr/bin:/bin', LANG: 'C'}}));
+  const control = (action,input) => JSON.parse(cp.execFileSync(process.env.H5_PYTHON_BIN || '/usr/bin/python3', [ROOT+'/scripts/ops/analytics_browser_fixture.py','--candidate',candidate,action], {cwd:ROOT,encoding:'utf8',input:input===undefined?undefined:JSON.stringify(input),stdio:['pipe','pipe','pipe'],env:{PATH:process.env.PATH||'/opt/homebrew/bin:/usr/bin:/bin',LANG:'C'}}));
+  const flags = web.marker.endsWith('/tests/Browser/Support/analytics-router.php') ? control('flags') : JSON.parse(cp.execFileSync(process.env.H5_PHP_BIN || '/opt/homebrew/opt/php@8.4/bin/php', [ROOT + '/scripts/ops/analytics_browser_runtime.php'], {cwd: ROOT, encoding: 'utf8', stdio: ['ignore','pipe','pipe'], env: {PATH: process.env.PATH || '/opt/homebrew/bin:/usr/bin:/bin', LANG: 'C'}}));
   assert.equal(flags.runtime_safe, true); assert.equal(flags.external_enabled, false); assert.equal(flags.purchase_enabled, false);
   const { chromium } = require(process.env.H5_PLAYWRIGHT_MODULE || 'playwright');
   const browser = await chromium.launch({headless: true, args: ['--no-proxy-server'], executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
-  const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block'});
+  const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block',
+    userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'});
+  if (fixture.force_mse === true) await context.addInitScript(() => {
+    const original = HTMLMediaElement.prototype.canPlayType;
+    HTMLMediaElement.prototype.canPlayType = function(type) {
+      return /mpegurl/i.test(type) ? '' : original.call(this, type);
+    };
+  });
   const result = {candidate, contract: 'analytics-v1', scope: 'browser observations only; DB/funnel/money/authority acceptance is separate',
-    browser: browser.version(), external_attempts: 0, tracking: [], playback: [], steps: [], media_requests: 0, landing_sequence: [],
-    official_platform_verified: false, real_device: false, completed: false};
+    browser: browser.version(), external_attempts: 0, intercepted_test_provider_navigations:0, tracking: [], playback: [], steps: [], media_requests: 0, landing_sequence: [],
+    official_platform_verified: false, real_device: false, force_mse: fixture.force_mse === true, completed: false};
   const startedAt = Date.now();
   const page = await context.newPage();
   const pending = new Set(); let finished = false;
   await context.route('**/*', async route => {
     const url = new URL(route.request().url());
     if (url.protocol === 'blob:' || url.protocol === 'data:') return route.continue();
+    // The real checkout returns 03's FakeGateway URL. Intercept ONLY that explicit test protocol;
+    // never contact Stripe or imply its page/API was verified. Settlement remains a separate CLI action.
+    if (fixture.controlled_provider_redirect === true && flags.test_provider_stub === true
+        && route.request().isNavigationRequest() && url.origin === 'https://checkout.stripe.com'
+        && /^\/c\/pay\/cs_test_[a-f0-9-]{36}$/.test(url.pathname) && url.search === '') {
+      result.intercepted_test_provider_navigations++;
+      return route.fulfill({status:302,headers:{location:base+'/billing/return?order_id='+url.pathname.slice('/c/pay/cs_test_'.length)}});
+    }
     if (url.origin !== base) { result.external_attempts++; return route.abort('blockedbyclient'); }
     return route.continue();
   });
@@ -127,11 +144,25 @@ async function run(candidate, fixtureFile) {
   });
   try {
     for (const [index, step] of fixture.steps.entries()) {
+      result.active_step = {index,kind:step.kind};
       switch (step.kind) {
         case 'goto': await page.goto(base + localPath(step.path)); break;
         case 'click': assert(typeof step.selector === 'string'); await page.locator(step.selector).click(); break;
         case 'fill': assert(typeof step.selector === 'string' && typeof step.value === 'string'); await page.locator(step.selector).fill(step.value); break;
         case 'wait_url': await page.waitForURL(base + localPath(step.path)); break;
+        case 'wait_selector': assert(typeof step.selector === 'string'); await page.locator(step.selector).waitFor({state:step.hidden === true ? 'hidden' : 'visible'}); break;
+        case 'screenshot': {
+          assert.match(step.name,/^[a-z0-9-]{1,60}$/);
+          const directory=ROOT+'/.runtime/06/analytics-browser/screenshots';fs.mkdirSync(directory,{mode:0o700,recursive:true});
+          await page.screenshot({path:directory+'/'+step.name+'.png',fullPage:true,mask:[page.locator('input[type=email]'),page.locator('input[type=password]')]});
+          break;
+        }
+        case 'buffer_pending': {
+          await page.waitForFunction(() => !!sessionStorage.getItem('h5.analytics.buffer.v1'));
+          const size=await page.evaluate(()=>new TextEncoder().encode(sessionStorage.getItem('h5.analytics.buffer.v1')||'').length);
+          assert(size>0 && size<=65536);result.steps.push({index,kind:'bounded_buffer',bytes:size});break;
+        }
+        case 'buffer_cleared': await page.waitForFunction(() => sessionStorage.getItem('h5.analytics.buffer.v1') === null); break;
         case 'promotional_entry': {
           assert.match(step.code,/^[A-Za-z0-9_-]{1,128}$/); assert(['meta','tiktok'].includes(step.platform));
           assert.match(step.click_id,/^SYNTHETIC06[A-Za-z0-9_-]{0,480}$/);
@@ -145,6 +176,13 @@ async function run(candidate, fixtureFile) {
           assert(response>=0 && event>response,'Dedicated landing must respond before the first entrance behavior request');
           break;
         }
+        case 'controlled_settle': {
+          assert.equal(flags.test_provider_stub,true);const current=new URL(page.url());
+          assert(current.origin===base && current.pathname==='/billing/return');
+          const order=current.searchParams.get('order_id');assert.match(order,/^[a-f0-9-]{36}$/);
+          assert.equal(control('settle',{order_id:order}).settled_existing_test_order,true);break;
+        }
+        case 'dispatch_local': assert.equal(flags.test_provider_stub,true);assert.equal(control('dispatch').local_outboxes_dispatched,true);break;
         case 'membership_offer': await page.goto(base + '/membership?purchase=1'); break;
         case 'verify_preview_mail': {
           // Read this run's OWN preview mail, render it, and click its actual signed link in the same cookie context.
@@ -159,11 +197,12 @@ async function run(candidate, fixtureFile) {
               if(verificationLink(await anchors.nth(index).getAttribute('href'),base)) { target=anchors.nth(index); break; }
             }
             assert(target, 'No same-origin signed verification link in own preview');
-            const response = mailPage.waitForResponse(r => verificationLink(r.url(),base));
+            // Laravel mail buttons use target=_blank. Observe the shared browser context, including its popup.
+            const response = context.waitForEvent('response',{predicate:r => verificationLink(r.url(),base)});
             await target.click();
             assert([200,302,303].includes((await response).status()));
             result.steps.push({index,kind:'signed_preview_link_clicked',completed:true});
-          } finally { await mailPage.close(); }
+          } finally { for (const opened of context.pages()) if(opened !== page) await opened.close(); }
           // Server email_verified and resulting real account state are independently checked in DB evidence.
           break;
         }
@@ -184,9 +223,10 @@ async function run(candidate, fixtureFile) {
           await page.waitForFunction(() => {const v=document.querySelector('video'); return v && !v.paused && v.currentTime > .1 && (v.getVideoPlaybackQuality?.().totalVideoFrames || 0) > 0;});
           const start = await page.locator('video').evaluate(v => ({time: v.currentTime, frames: v.getVideoPlaybackQuality().totalVideoFrames}));
           await page.waitForTimeout(1200);
-          const end = await page.locator('video').evaluate(v => ({time: v.currentTime, frames: v.getVideoPlaybackQuality().totalVideoFrames, error: v.error?.code || null}));
+          const end = await page.locator('video').evaluate(v => ({time: v.currentTime, frames: v.getVideoPlaybackQuality().totalVideoFrames, error: v.error?.code || null, mse: v.currentSrc.startsWith('blob:')}));
           assert(end.time > start.time + .5 && end.frames > start.frames && end.error === null);
-          result.steps.push({index, kind: 'decoded_playback', advanced_seconds: end.time - start.time, additional_frames: end.frames - start.frames});
+          if(fixture.force_mse === true) assert.equal(end.mse,true);
+          result.steps.push({index, kind: 'decoded_playback', advanced_seconds: end.time - start.time, additional_frames: end.frames - start.frames, mse:end.mse});
           break;
         }
         default: throw Error('UNKNOWN_FIXTURE_ACTION');
@@ -196,7 +236,12 @@ async function run(candidate, fixtureFile) {
     await Promise.allSettled([...pending]);
     assert.equal(result.external_attempts, 0, 'External HTTP requests attempted while external delivery is off');
     result.completed = true;
+    delete result.active_step;
     return 0;
+  } catch(error) {
+    result.failure_type = ['TimeoutError','AssertionError'].includes(error?.name) ? error.name : 'HarnessError';
+    result.last_path = new URL(page.url()).pathname.replace(/[a-f0-9]{8}-[a-f0-9-]{27}/g,':id');
+    throw error;
   } finally {
     finished = true;
     await context.close(); await browser.close();
