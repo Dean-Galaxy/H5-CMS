@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'analytics_enabled' => (bool) env('ACQUISITION_ANALYTICS_ENABLED', false),
+    'behavior_retention_days' => 90,
     // Asset registration never turns external delivery on.
     'transport' => env('ACQUISITION_TRANSPORT', 'disabled'),
     'external_enabled' => (bool) env('ACQUISITION_EXTERNAL_ENABLED', false),

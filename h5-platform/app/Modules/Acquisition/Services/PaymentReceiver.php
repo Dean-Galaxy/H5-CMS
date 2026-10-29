@@ -2,7 +2,10 @@
 
 namespace App\Modules\Acquisition\Services;
 
+use App\Contracts\BehaviorEventRecorder;
 use App\Data\PaymentSettled;
+use App\Enums\BehaviorRecordingResult;
+use App\Modules\Acquisition\Analytics\TrackingContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -45,6 +48,8 @@ final class PaymentReceiver
                     DB::table('acquisition_event_ids')->insert(['event_id' => $event->event_id, 'payment_id' => $event->payment_id]);
                 }
 
+                $this->behavior($event);
+
                 return;
             }
             $snapshot = $event->attribution_snapshot;
@@ -64,6 +69,7 @@ final class PaymentReceiver
                 'source_status' => ! $snapshot ? 'unattributed' : ($matched ? 'matched' : 'unresolved_source'), 'received_at' => now(),
             ]);
             DB::table('acquisition_event_ids')->insert(['event_id' => $event->event_id, 'payment_id' => $event->payment_id]);
+            $this->behavior($event);
             if ($matched) {
                 DB::table('acquisition_deliveries')->insert([
                     'id' => AcquisitionStore::id(), 'receipt_id' => $event->event_id, 'link_id' => $source->link_id,
@@ -74,5 +80,20 @@ final class PaymentReceiver
                 ]);
             }
         }, 3);
+    }
+
+    private function behavior(PaymentSettled $event): void
+    {
+        if (! app(TrackingContext::class)->enabled()) {
+            return;
+        }
+        $result = app(BehaviorEventRecorder::class)->recordFact('payment_confirmed', [
+            'payment_id' => $event->payment_id, 'order_id' => $event->order_id, 'subscription_id' => $event->subscription_id,
+            'transaction_kind' => $event->transaction_kind->value, 'amount_minor' => $event->amount_minor,
+            'currency' => $event->currency, 'is_test' => $event->is_test, 'occurred_at' => $event->occurred_at,
+        ], 'payment:'.$event->payment_id);
+        if ($result === BehaviorRecordingResult::Retry) {
+            throw new \RuntimeException('ACQUISITION_ANALYTICS_RETRY');
+        }
     }
 }

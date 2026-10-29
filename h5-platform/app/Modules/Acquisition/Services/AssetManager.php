@@ -8,6 +8,7 @@ use App\Contracts\IdentityContext;
 use App\Contracts\PromotableCatalog;
 use App\Enums\Permission;
 use App\Enums\Role;
+use App\Modules\Acquisition\Analytics\TrackingContext;
 use App\Modules\Acquisition\Sending\LocalSimulator;
 use App\Modules\Acquisition\Sending\MetaAdapter;
 use App\Modules\Acquisition\Sending\TikTokAdapter;
@@ -56,7 +57,10 @@ final class AssetManager
             $row = $id ? $this->access->get('pixel', $id, true) : null;
             $this->version($row, (int) $data['version']);
             if ($row && ($row->external_id !== $data['external_id'] || $row->platform !== $data['platform'] || $row->environment !== $data['environment'])) {
-                throw new ApiProblem('DEPENDENCY_NOT_READY', 503, '资产编号、平台和环境变更等待 D05 规则；可另行登记资产');
+                if (! app(TrackingContext::class)->enabled()) {
+                    throw new DependencyNotReady('Acquisition：来源采集未显式启用');
+                }
+                throw new ApiProblem('VALIDATION_FAILED', 422, '资产编号、平台和用途不可覆盖历史版本，请另行登记新资产');
             }
             $duplicate = DB::table('acquisition_pixels')->where('platform', $data['platform'])->where('external_id', $data['external_id'])
                 ->when($id, fn ($q) => $q->where('id', '!=', $id))->exists();
@@ -135,7 +139,14 @@ final class AssetManager
             $row = $id ? $this->access->get('link', $id, true) : null;
             $this->version($row, (int) $data['version']);
             if ($row && ($row->drama_id !== $data['drama_id'] || $row->pixel_id !== $data['pixel_id'] || $row->platform !== $data['platform'])) {
-                throw new DependencyNotReady('D05：链接目标与像素变更规则');
+                if (! app(TrackingContext::class)->enabled()) {
+                    throw new DependencyNotReady('D05：来源采集未显式启用');
+                }
+                DB::table('acquisition_links')->where('id', $id)->update(['active' => false, 'version' => $row->version + 1, 'updated_at' => now()]);
+                app(AuditRecorder::class)->record('acquisition.link.retired', 'acquisition_link', $id, 'success');
+                $row = null;
+                $id = null;
+                $data['version'] = 0;
             }
             // Stopping a stale/unpublished link must remain possible.
             if (! $row || (bool) $data['active']) {
@@ -258,7 +269,7 @@ final class AssetManager
         return ['payments' => $rows->map(fn ($r) => ['is_test' => (bool) $r->is_test, 'transaction_kind' => $r->transaction_kind,
             'currency' => $r->currency, 'payments' => (int) $r->payments, 'amount_minor' => (int) $r->amount_minor])->all(),
             'deliveries' => $deliveries->map(fn ($r) => ['state' => $r->state, 'reason' => $r->last_error, 'count' => (int) $r->count])->all(),
-            'visits' => null, 'visits_status' => 'DEPENDENCY_NOT_READY',
+            'visits' => null, 'visits_status' => app(TrackingContext::class)->enabled() ? 'AVAILABLE_IN_ANALYTICS_REPORT' : 'DEPENDENCY_NOT_READY',
             'definition' => '本站核实付款总额，未扣退款；测试与真实分列；不是平台归因、ROAS 或真实观看'];
     }
 
@@ -286,7 +297,7 @@ final class AssetManager
     private function linkView(object $r): array
     {
         return array_intersect_key((array) $r, array_flip(['id', 'name', 'platform', 'drama_id', 'drama_title', 'pixel_id', 'active', 'version', 'owner_id']))
-            + ['url' => rtrim(config('app.url'), '/').'/r/'.$r->code, 'landing_status' => 'D05_PENDING'];
+            + ['url' => rtrim(config('app.url'), '/').'/r/'.$r->code, 'landing_status' => app(TrackingContext::class)->enabled() ? 'CONSENTED_LANDING_READY' : 'D05_PENDING'];
     }
 
     private function version(?object $row, int $version): void

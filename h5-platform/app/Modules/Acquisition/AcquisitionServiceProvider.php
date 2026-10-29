@@ -3,8 +3,11 @@
 namespace App\Modules\Acquisition;
 
 use App\Contracts\AttributionService;
+use App\Contracts\BehaviorEventRecorder;
 use App\Data\PaymentSettled;
+use App\Modules\Acquisition\Analytics\BehaviorRecorder;
 use App\Modules\Acquisition\Console\DispatchAcquisition;
+use App\Modules\Acquisition\Console\PruneAnalytics;
 use App\Modules\Acquisition\Services\AttributionRecorder;
 use App\Modules\Acquisition\Services\PaymentReceiver;
 use Illuminate\Console\Scheduling\Schedule;
@@ -17,6 +20,7 @@ final class AcquisitionServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/config.php', 'acquisition');
         $this->app->bind(AttributionService::class, AttributionRecorder::class);
+        $this->app->bind(BehaviorEventRecorder::class, BehaviorRecorder::class);
     }
 
     public function boot(): void
@@ -27,9 +31,10 @@ final class AcquisitionServiceProvider extends ServiceProvider
             throw new \LogicException('Acquisition transport is invalid or simulation is forbidden outside local/testing.');
         }
         Event::listen(PaymentSettled::class, [PaymentReceiver::class, 'handle']);
-        $this->commands([DispatchAcquisition::class]);
+        $this->commands([DispatchAcquisition::class, PruneAnalytics::class]);
         $this->app->afterResolving(Schedule::class, function (Schedule $schedule) {
             $schedule->command('acquisition:dispatch')->everyMinute()->withoutOverlapping(5);
+            $schedule->command('acquisition:analytics-prune')->daily()->withoutOverlapping(5);
         });
     }
 }
