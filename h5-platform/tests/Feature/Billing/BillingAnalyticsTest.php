@@ -5,10 +5,12 @@ namespace Tests\Feature\Billing;
 use App\Contracts\BehaviorEventRecorder;
 use App\Contracts\BillingAnalyticsReader;
 use App\Data\ResumeInput;
+use App\Enums\BehaviorRecordingResult;
 use App\Modules\Billing\Services\BillingBehaviorOutbox;
 use App\Modules\Billing\Services\BillingStore;
 use App\Modules\Billing\Services\FinancialAnalyticsReader;
 use App\Modules\Billing\Services\SettlementService;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -151,7 +153,7 @@ final class BillingAnalyticsTest extends BillingTestCase
             self::assertSame($sub->id, $props['subscription_id']);
             self::assertSame('USD', $props['currency']);
             self::assertTrue($props['is_test']);
-            self::assertSame(BillingStore::iso($event->occurred_at), $props['occurred_at']);
+            self::assertSame(CarbonImmutable::parse($event->occurred_at)->utc()->format('Y-m-d\TH:i:s.u\Z'), $props['occurred_at']);
         }
         self::assertSame(0, app(BillingAnalyticsReader::class)->payments([$payment->id])[$payment->id]['refunded_amount_minor']);
         self::assertNull(DB::table('billing_entitlements')->sole()->revoked_at);
@@ -277,6 +279,92 @@ final class BillingAnalyticsTest extends BillingTestCase
         self::assertDatabaseCount('billing_behavior_outbox', 0);
         self::assertSame(0, DB::table('billing_payments')->sole()->refunded_amount_minor);
         self::assertNull(DB::table('billing_entitlements')->sole()->revoked_at);
+    }
+
+    public function test_same_second_refund_retains_actual_confirmation_microseconds_in_payload_and_database(): void
+    {
+        $consentedAt = CarbonImmutable::parse('2026-10-29T10:00:00.100000Z');
+        $this->travelTo($consentedAt);
+        [, , $sub] = $this->paidFixture();
+        $payment = DB::table('billing_payments')->sole();
+        $originalInterval = DB::table('billing_entitlements')->sole();
+        $originalFirstOffer = DB::table('billing_accounts')->sole()->first_offer_used_at;
+        $confirmedAt = CarbonImmutable::parse('2026-10-29T10:00:00.200000Z');
+        $this->travelTo($confirmedAt);
+        $this->gateway->refunds[$payment->provider_charge_id] = [['id' => 're_microsecond', 'amount_minor' => 100, 'currency' => 'USD', 'status' => 'succeeded']];
+        app(SettlementService::class)->syncRefunds($payment->provider_charge_id);
+        $fact = DB::table('billing_behavior_outbox')->where('event_name', 'refund_confirmed')->sole();
+        $properties = BillingStore::json($fact->properties);
+        self::assertSame('2026-10-29T10:00:00.200000Z', $properties['occurred_at']);
+        self::assertSame('2026-10-29T10:00:00.200000Z', CarbonImmutable::parse($fact->occurred_at)->utc()->format('Y-m-d\TH:i:s.u\Z'));
+        $state = DB::table('billing_analytics_states')->where('aggregate_key', 'refund:'.$payment->id)->sole();
+        self::assertSame('2026-10-29T10:00:00.200000Z', CarbonImmutable::parse($state->observed_at)->utc()->format('Y-m-d\TH:i:s.u\Z'));
+        self::assertTrue(CarbonImmutable::parse($properties['occurred_at'])->gte($consentedAt));
+        // Explicit local consent boundary fixture: no rounding or tolerance is allowed.
+        $recorder = new class($consentedAt) implements BehaviorEventRecorder
+        {
+            public function __construct(private CarbonImmutable $consentedAt) {}
+
+            public function record(string $eventName, array $properties = [], ?string $deduplicationKey = null): bool
+            {
+                return false;
+            }
+
+            public function recordFact(string $eventName, array $properties, string $deduplicationKey): BehaviorRecordingResult
+            {
+                return CarbonImmutable::parse($properties['occurred_at'])->gte($this->consentedAt)
+                    ? BehaviorRecordingResult::Accepted : BehaviorRecordingResult::Skipped;
+            }
+
+            public function clearBrowserContext(): void {}
+        };
+        self::assertSame(BehaviorRecordingResult::Skipped, $recorder->recordFact('refund_confirmed',
+            ['occurred_at' => '2026-10-29T10:00:00.099999Z'], 'fixture-before-consent'));
+        app()->instance(BehaviorEventRecorder::class, $recorder);
+        app(BillingBehaviorOutbox::class)->dispatchPending();
+        self::assertSame('delivered', DB::table('billing_behavior_outbox')->find($fact->id)->state);
+        $this->travel(1)->seconds();
+        app(SettlementService::class)->syncRefunds($payment->provider_charge_id);
+        $again = DB::table('billing_behavior_outbox')->where('event_name', 'refund_confirmed')->sole();
+        self::assertSame($fact->id, $again->id);
+        self::assertSame($fact->fact_version, $again->fact_version);
+        self::assertSame($fact->properties, $again->properties);
+        self::assertSame($fact->occurred_at, $again->occurred_at);
+        self::assertSame(100, DB::table('billing_payments')->sole()->refunded_amount_minor);
+        self::assertSame($payment->paid_at, DB::table('billing_payments')->sole()->paid_at);
+        self::assertSame($originalInterval->access_from, DB::table('billing_entitlements')->sole()->access_from);
+        self::assertSame($originalInterval->access_until, DB::table('billing_entitlements')->sole()->access_until);
+        self::assertSame($originalFirstOffer, DB::table('billing_accounts')->sole()->first_offer_used_at);
+        self::assertFalse(DB::table('billing_subscriptions')->find($sub->id)->renewal_enabled);
+        // The legacy financial helper intentionally retains its original whole-second format.
+        self::assertSame('2026-10-29T10:00:00Z', BillingStore::iso($confirmedAt));
+    }
+
+    public function test_precision_upgrade_preserves_legacy_second_facts_without_fabricating_microseconds(): void
+    {
+        $this->travelTo(CarbonImmutable::parse('2026-10-29T10:00:00Z'));
+        $this->paidFixture();
+        $payment = DB::table('billing_payments')->sole();
+        $this->gateway->refunds[$payment->provider_charge_id] = [['id' => 're_legacy_precision', 'amount_minor' => 100, 'currency' => 'USD', 'status' => 'succeeded']];
+        app(SettlementService::class)->syncRefunds($payment->provider_charge_id);
+        $migration = require database_path('migrations/2026_10_29_200900_preserve_billing_behavior_microseconds.php');
+        $migration->down();
+        // Emulate an actual old second-only JSON, without manufacturing missing fractions.
+        $legacy = DB::table('billing_behavior_outbox')->where('event_name', 'refund_confirmed')->sole();
+        $properties = BillingStore::json($legacy->properties);
+        $properties['occurred_at'] = '2026-10-29T10:00:00Z';
+        DB::table('billing_behavior_outbox')->where('id', $legacy->id)->update(['properties' => json_encode($properties)]);
+        $before = DB::table('billing_behavior_outbox')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
+        $states = DB::table('billing_analytics_states')->orderBy('aggregate_key')->get()->map(fn ($row) => (array) $row)->all();
+        $financial = $this->financialSnapshot();
+        $migration->up();
+        self::assertSame($before, DB::table('billing_behavior_outbox')->orderBy('id')->get()->map(fn ($row) => (array) $row)->all());
+        self::assertSame($states, DB::table('billing_analytics_states')->orderBy('aggregate_key')->get()->map(fn ($row) => (array) $row)->all());
+        self::assertSame($financial, $this->financialSnapshot());
+        foreach ([['billing_behavior_outbox', 'occurred_at'], ['billing_analytics_states', 'observed_at']] as [$table, $column]) {
+            self::assertSame(6, DB::table('information_schema.columns')->where('table_schema', 'public')->where('table_name', $table)->where('column_name', $column)->value('datetime_precision'));
+        }
+        self::assertSame('2026-10-29T10:00:00Z', BillingStore::json(DB::table('billing_behavior_outbox')->find($legacy->id)->properties)['occurred_at']);
     }
 
     public function test_upgrade_baselines_existing_refunds_and_cancellations_without_retroactive_events(): void
