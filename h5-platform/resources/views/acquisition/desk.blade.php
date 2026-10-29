@@ -11,7 +11,7 @@
                 <div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>链接</th><th>复制与状态</th><th>管理</th></tr></thead><tbody>
                 @forelse($links as $entry)
                     <tr wire:key="link-{{ $entry['id'] }}"><td><strong>{{ $entry['name'] }}</strong><br>{{ $entry['drama_title'] }}<br>{{ ucfirst($entry['platform']) }} · 版本 {{ $entry['version'] }}</td>
-                        <td><input class="h5-input" readonly value="{{ $entry['url'] }}" aria-label="推广链接" onclick="this.select()"><button type="button" class="h5-button" x-data="{ copied: false }" x-on:click="navigator.clipboard.writeText(@js($entry['url'])).then(() => copied = true)" x-text="copied ? '已复制' : '复制链接'">复制链接</button><br>{{ $entry['active'] ? '启用配置' : '停用' }} · 落地待 D05</td>
+                        <td><input class="h5-input" readonly value="{{ $entry['url'] }}" aria-label="推广链接" onclick="this.select()"><button type="button" class="h5-button" x-data="{ copied: false }" x-on:click="navigator.clipboard.writeText(@js($entry['url'])).then(() => copied = true)" x-text="copied ? '已复制' : '复制链接'">复制链接</button><br>{{ $entry['active'] ? '启用配置' : '停用' }} · 受控落地</td>
                         <td><div class="h5-toolbar"><button class="h5-link" data-editor-action="selectLink" data-editor-id="{{ $entry['id'] }}">编辑 / 停用</button><button class="h5-link" data-editor-action="showSummary" data-editor-id="{{ $entry['id'] }}">查看本站汇总</button><button class="h5-link" wire:click="retry('{{ $entry['id'] }}')">重试待处理发送</button>@if($owner)<button class="h5-link" data-editor-action="selectAssignment" data-editor-type="link" data-editor-id="{{ $entry['id'] }}">分配链接</button>@endif</div></td></tr>
                 @empty<tr><td colspan="3">尚无可见推广链接。</td></tr>@endforelse
                 </tbody></table></div>
@@ -37,19 +37,25 @@
                     <div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>环境</th><th>交易类型</th><th>笔数</th><th>已核实付款（USD）</th></tr></thead><tbody>
                     @forelse($summary['payments'] as $row)<tr><td>{{ $row['is_test'] ? '测试' : '真实' }}</td><td>{{ ['first_subscription'=>'首次订阅','resubscription'=>'再次订阅','renewal'=>'续费'][$row['transaction_kind']] ?? $row['transaction_kind'] }}</td><td>{{ $row['payments'] }}</td><td>{{ \App\Support\Admin\UsdAmount::format($row['amount_minor']) }}</td></tr>@empty<tr><td colspan="4">暂无对应付款事实。</td></tr>@endforelse
                     </tbody></table></div>
-                    <p class="h5-muted">{{ $summary['definition'] }} 落地访问尚未接入，预加载不计真实观看。</p>
+                    <p class="h5-muted">{{ $summary['definition'] }} {{ app(\App\Modules\Acquisition\Analytics\TrackingContext::class)->enabled() ? '访问、播放和退款后的净收请查看“站内分析”；预加载不计真实观看。' : '来源采集尚未显式启用，访问人数未知。' }}</p>
                 @else<section class="h5-card"><h3>付款汇总</h3><p class="h5-muted">先在“推广链接”中选择一条有权限的链接，再点击“查看本站汇总”。仅展示该链接的核实付款，不提供用户联系方式或逐人订单。</p></section>@endif
         </x-admin.panel>
 
         <x-admin.panel group="acquisition-tabs" name="deliveries" :active="$tab">
             <section class="h5-card"><h3>发送记录</h3>
                 @if($summary)<p>对应链接的脱敏聚合结果；失败重试仅适用于尚未成功发送的项目。重试不变更订单，也不会在页面中直接发送。</p>
-                    @forelse($summary['deliveries'] as $row)<p><span class="h5-badge">{{ $row['state'] }}</span> {{ $row['count'] }} 项 @if($row['reason'])（{{ $row['reason'] }}）@endif</p>@empty<p>暂无对应发送记录。</p>@endforelse
+                    @forelse($summary['deliveries'] as $row)<p><span class="h5-badge">{{ \App\Modules\Acquisition\Analytics\Labels::state($row['state']) }}</span> {{ $row['count'] }} 项 @if($row['reason'])（{{ \App\Modules\Acquisition\Analytics\Labels::error($row['reason']) }}）@endif</p>@empty<p>暂无对应发送记录。</p>@endforelse
                 @else<p class="h5-muted">先在“推广链接”中选择一条有权限的链接，再点击“查看本站汇总”。这里仅展示发送状态和失败原因聚合，不显示订单或用户标识。</p>@endif
             </section>
         </x-admin.panel>
 
-        <p class="h5-muted" data-acquisition-environment>外部发送：{{ config('acquisition.transport') === 'disabled' ? '关闭' : config('acquisition.transport') }} · 来源与落地规则待确认；无来源不阻塞订阅。</p>
+        @if(app(\App\Modules\Acquisition\Analytics\TrackingContext::class)->enabled())
+        <x-admin.panel group="acquisition-tabs" name="analytics" :active="$tab">
+            @include('acquisition.analytics')
+        </x-admin.panel>
+        @endif
+
+        <p class="h5-muted" data-acquisition-environment>外部发送：{{ config('acquisition.transport') === 'disabled' ? '关闭' : \App\Modules\Acquisition\Analytics\Labels::state(config('acquisition.transport')) }} · 站内来源独立开关；无来源不阻塞订阅。</p>
         <p class="h5-error" data-editor-error role="alert" hidden></p>
         <x-admin.dialog id="acquisition-link-editor" :title="$linkId ? '编辑推广链接' : '新增链接'" wire:ignore.self data-editor-dialog="link">
                 <p class="h5-note" style="margin-top:0">选择可投放的已发布剧目、平台与获授权的像素。</p><button class="h5-button" wire:click="loadCatalog">{{ $catalogCursor ? '读取下一页剧目' : '读取可投放剧目' }}</button>
@@ -61,7 +67,7 @@
                         <label class="h5-field">授权像素<select class="h5-input" wire:model="link.pixel_id" required><option value="">请选择</option>@foreach($pixelOptions as $asset)<option value="{{ $asset['id'] }}">{{ $asset['name'] }} · {{ $asset['platform'] }}{{ $asset['active'] ? '' : '（停用）' }}</option>@endforeach</select></label>
                         <label class="h5-field">启用状态<select class="h5-input" wire:model="link.active"><option value="1">启用</option><option value="0">停用</option></select></label>
                     </div>
-                    <p class="h5-note">{{ $catalogMessage }}。版本 {{ $link['version'] }}；落地与来源规则待确认。已选像素无权使用时仅可停用已有链接。</p>
+                    <p class="h5-note">{{ $catalogMessage }}。版本 {{ $link['version'] }}；来源同意后7天，建单固定。已选像素无权使用时仅可停用已有链接。</p>
                     @foreach($errors->all() as $error)<p class="h5-error" role="alert">{{ $error }}</p>@endforeach
 
                 </form>

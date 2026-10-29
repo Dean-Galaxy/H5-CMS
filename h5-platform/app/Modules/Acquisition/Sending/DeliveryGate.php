@@ -3,6 +3,7 @@
 namespace App\Modules\Acquisition\Sending;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 
 final class DeliveryGate
 {
@@ -10,6 +11,12 @@ final class DeliveryGate
     {
         if (! $source || $source->consent !== 'granted' || $source->revoked_at !== null || $source->policy_version === '') {
             return 'CONSENT_REQUIRED_OR_REVOKED';
+        }
+        if ($source->privacy_id ?? null) {
+            $privacy = DB::table('acquisition_privacy')->where('id', $source->privacy_id)->first();
+            if (! $privacy || $privacy->advertising !== 'granted') {
+                return 'CONSENT_REQUIRED_OR_REVOKED';
+            }
         }
         if (! $pixel || ! $pixel->active) {
             return 'PIXEL_DISABLED';
