@@ -1,6 +1,8 @@
 import hashlib
 import importlib.util
 import os
+import json
+from unittest.mock import patch
 from pathlib import Path
 import tempfile
 import unittest
@@ -47,5 +49,24 @@ class AnalyticsIsolationTests(unittest.TestCase):
             self.assertEqual(env['DB_DATABASE'],env['H5_TEST_DATABASE'])
             self.assertEqual('false',env['ACQUISITION_EXTERNAL_ENABLED']);self.assertEqual('disabled',env['ACQUISITION_TRANSPORT'])
             self.assertEqual('false',env['H5_BILLING_PAYPAL_SANDBOX_ENABLED']);self.assertEqual('',env['H5_BILLING_PAYPAL_SANDBOX_CLIENT_SECRET'])
+
+    def test_loopback_proxy_bypass_drops_inherited_proxy_credentials(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);(root/'.runtime').mkdir();(root/'.runtime/pg-app-password').write_text('SYNTHETIC')
+            with patch.dict(os.environ,{'HTTPS_PROXY':'http://synthetic.invalid:1','http_proxy':'http://synthetic.invalid:2','ALL_PROXY':'socks5://synthetic.invalid:3'}):
+                env=m.testing_environment(root,self.config)
+            self.assertEqual('127.0.0.1,localhost,::1',env['NO_PROXY'])
+            self.assertEqual(env['NO_PROXY'],env['no_proxy'])
+            self.assertTrue(all(k not in env for k in ['HTTPS_PROXY','http_proxy','ALL_PROXY']))
+
+    def test_mime_installation_must_match_fixed_lock_before_runtime_can_start(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);vendor=root/'h5-platform/vendor/composer';vendor.mkdir(parents=True)
+            lock=root/'h5-platform/composer.lock';installed=vendor/'installed.json'
+            lock.write_text(json.dumps({'packages':[{'name':'symfony/mime','version':'v8.1.10'}]}))
+            installed.write_text(json.dumps({'packages':[{'name':'symfony/mime','version':'v8.1.9'}]}))
+            with self.assertRaises(ValueError):m.mime_version_guard(root)
+            installed.write_text(json.dumps({'packages':[{'name':'symfony/mime','version':'v8.1.10'}]}))
+            self.assertTrue(m.mime_version_guard(root)['matched'])
 
 if __name__=='__main__':unittest.main(verbosity=2)

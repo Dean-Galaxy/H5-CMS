@@ -44,7 +44,7 @@ final class PaymentAttributionTest extends CombinedTestCase
             ->assertOk()->assertJsonPath('allowed', true);
         $this->assertDatabaseCount('billing_payments', 1); $this->assertDatabaseCount('billing_entitlements', 1);
         $this->assertDatabaseCount('acquisition_receipts', 1);
-        $this->assertSame(0, app(DeliveryWorker::class)->run()); Http::assertNothingSent();
+        $this->assertExternalBlocked('EXTERNAL_DISABLED');
     }
 
     public function test_logout_is_not_withdrawal_for_a_delayed_payment_and_new_account_does_not_inherit(): void
@@ -74,7 +74,7 @@ final class PaymentAttributionTest extends CombinedTestCase
         app(OutboxService::class)->dispatchPending();
         $this->assertSame(0, DB::table('acquisition_behaviors')->where('event_name', 'payment_confirmed')->count());
         $this->assertDatabaseCount('billing_payments', 1); $this->assertDatabaseCount('billing_entitlements', 1);
-        $this->assertSame(0, app(DeliveryWorker::class)->run()); Http::assertNothingSent();
+        $this->assertExternalBlocked('CONSENT_REQUIRED_OR_REVOKED');
     }
 
     public function test_refund_cumulative_versions_use_real_reader_not_sum_of_behavior_events(): void
@@ -106,4 +106,28 @@ final class PaymentAttributionTest extends CombinedTestCase
         $this->assertDatabaseCount('acquisition_subjects', 0); $this->assertDatabaseCount('acquisition_behaviors', 0);
         Http::assertNothingSent();
     }
+    private function assertExternalBlocked(string $reason): void
+    {
+        $snapshot = [];
+        foreach (['billing_payments', 'billing_entitlements', 'billing_refunds', 'billing_orders', 'billing_subscriptions'] as $table) {
+            $snapshot[$table] = $this->financialRows($table);
+        }
+        app(DeliveryWorker::class)->run(); // Count is processed/blocked records, NOT requests sent.
+        $delivery = DB::table('acquisition_deliveries')->sole();
+        $this->assertSame('blocked', $delivery->state);
+        $this->assertSame($reason, $delivery->last_error);
+        $this->assertSame(0, (int) $delivery->attempts);
+        foreach ($snapshot as $table => $rows) {
+            $this->assertSame($rows, $this->financialRows($table));
+        }
+        Http::assertNothingSent();
+    }
+
+    private function financialRows(string $table): array
+    {
+        $rows = DB::table($table)->get()->map(fn ($row) => json_encode((array) $row, JSON_THROW_ON_ERROR))->all();
+        sort($rows, SORT_STRING); // billing_refunds has a provider-scoped composite key, no generic id column.
+        return $rows;
+    }
+
 }
