@@ -5,13 +5,14 @@ namespace Tests\Integration\AnalyticsCombined\Support;
 use App\Contracts\BehaviorEventRecorder;
 use App\Contracts\BillingAnalyticsReader;
 use App\Modules\Acquisition\Analytics\AnalyticsReport;
+use App\Modules\Acquisition\Analytics\BehaviorRecorder;
+use App\Modules\Acquisition\AcquisitionServiceProvider;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Services\BillingStore;
+use App\Modules\Billing\Services\FinancialAnalyticsReader;
 use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\Verification;
-use App\Support\DisabledBehaviorEventRecorder;
-use App\Support\UnavailableBillingAnalyticsReader;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -30,8 +31,19 @@ abstract class CombinedTestCase extends ContentTestCase
     {
         parent::setUp();
         Http::preventStrayRequests();
-        $this->assertNotInstanceOf(DisabledBehaviorEventRecorder::class, app(BehaviorEventRecorder::class));
-        $this->assertNotInstanceOf(UnavailableBillingAnalyticsReader::class, app(BillingAnalyticsReader::class));
+        // Keep the suite compatible with ordinary default-off runs: enable the REAL consumer only in this test app.
+        config(['h5.modules.acquisition.ready' => true, 'acquisition.analytics_enabled' => true,
+            'acquisition.transport' => 'disabled', 'acquisition.external_enabled' => false]);
+        $this->app->register(AcquisitionServiceProvider::class);
+        $loaded = false;
+        foreach (\Illuminate\Support\Facades\Route::getRoutes() as $route) {
+            if ($route->uri() === 'api/v1/tracking/context') { $loaded = true; break; }
+        }
+        if (! $loaded) {
+            \Illuminate\Support\Facades\Route::middleware('web')->group(base_path('routes/modules/acquisition.php'));
+        }
+        $this->assertInstanceOf(BehaviorRecorder::class, app(BehaviorEventRecorder::class));
+        $this->assertInstanceOf(FinancialAnalyticsReader::class, app(BillingAnalyticsReader::class));
         $this->assertTrue(class_exists(AnalyticsReport::class), '05 report consumer must be received before this suite runs');
         config(['acquisition.analytics_enabled' => true, 'acquisition.transport' => 'disabled',
             'acquisition.external_enabled' => false, 'billing.quote_policy_approved' => true, 'billing.new_purchase_provider' => 'stripe']);

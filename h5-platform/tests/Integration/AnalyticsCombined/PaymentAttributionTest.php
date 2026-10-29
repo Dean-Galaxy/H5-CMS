@@ -110,7 +110,7 @@ final class PaymentAttributionTest extends CombinedTestCase
     {
         $snapshot = [];
         foreach (['billing_payments', 'billing_entitlements', 'billing_refunds', 'billing_orders', 'billing_subscriptions'] as $table) {
-            $snapshot[$table] = DB::table($table)->orderBy('id')->get()->map(fn ($row) => (array) $row)->all();
+            $snapshot[$table] = $this->financialRows($table);
         }
         app(DeliveryWorker::class)->run(); // Count is processed/blocked records, NOT requests sent.
         $delivery = DB::table('acquisition_deliveries')->sole();
@@ -118,9 +118,16 @@ final class PaymentAttributionTest extends CombinedTestCase
         $this->assertSame($reason, $delivery->last_error);
         $this->assertSame(0, (int) $delivery->attempts);
         foreach ($snapshot as $table => $rows) {
-            $this->assertSame($rows, DB::table($table)->orderBy('id')->get()->map(fn ($row) => (array) $row)->all());
+            $this->assertSame($rows, $this->financialRows($table));
         }
         Http::assertNothingSent();
+    }
+
+    private function financialRows(string $table): array
+    {
+        $rows = DB::table($table)->get()->map(fn ($row) => json_encode((array) $row, JSON_THROW_ON_ERROR))->all();
+        sort($rows, SORT_STRING); // billing_refunds has a provider-scoped composite key, no generic id column.
+        return $rows;
     }
 
 }
