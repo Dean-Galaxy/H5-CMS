@@ -15,8 +15,9 @@ function workspace(root, ws, candidate) {
   return 'http://127.0.0.1:' + ws.port;
 }
 function ownWebCommand(record, command, root, port) {
-  const router = root + '/h5-platform/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php';
-  assert(Number.isInteger(record.pid) && record.pid > 1 && record.marker === router);
+  const known = [root + '/h5-platform/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php', root + '/h5-platform/tests/Browser/Support/analytics-router.php'];
+  const router = record.marker;
+  assert(Number.isInteger(record.pid) && record.pid > 1 && known.includes(router));
   assert(command.includes(' -S 127.0.0.1:' + port + ' ') && command.includes(root + '/h5-platform/public'));
   assert(command.trim().endsWith(router));
 }
@@ -87,7 +88,8 @@ async function run(candidate, fixtureFile) {
   if (!readiness.combined_ready) { console.log(JSON.stringify({candidate, result: 'blocked_missing_consumers', browser_executed: false})); return 77; }
   const web = privateJson(ROOT + '/.runtime/pids/web.json');
   ownWebCommand(web, cp.execFileSync('ps', ['-p', String(web.pid), '-o', 'command='], {encoding: 'utf8'}), ROOT, ws.port);
-  const flags = JSON.parse(cp.execFileSync(process.env.H5_PHP_BIN || '/opt/homebrew/opt/php@8.4/bin/php', [ROOT + '/scripts/ops/analytics_browser_runtime.php'], {cwd: ROOT, encoding: 'utf8', stdio: ['ignore','pipe','pipe'], env: {PATH: process.env.PATH || '/opt/homebrew/bin:/usr/bin:/bin', LANG: 'C'}}));
+  const control = (action,input) => JSON.parse(cp.execFileSync(process.env.H5_PYTHON_BIN || '/usr/bin/python3', [ROOT+'/scripts/ops/analytics_browser_fixture.py','--candidate',candidate,action], {cwd:ROOT,encoding:'utf8',input:input===undefined?undefined:JSON.stringify(input),stdio:['pipe','pipe','pipe'],env:{PATH:process.env.PATH||'/opt/homebrew/bin:/usr/bin:/bin',LANG:'C'}}));
+  const flags = web.marker.endsWith('/tests/Browser/Support/analytics-router.php') ? control('flags') : JSON.parse(cp.execFileSync(process.env.H5_PHP_BIN || '/opt/homebrew/opt/php@8.4/bin/php', [ROOT + '/scripts/ops/analytics_browser_runtime.php'], {cwd: ROOT, encoding: 'utf8', stdio: ['ignore','pipe','pipe'], env: {PATH: process.env.PATH || '/opt/homebrew/bin:/usr/bin:/bin', LANG: 'C'}}));
   assert.equal(flags.runtime_safe, true); assert.equal(flags.external_enabled, false); assert.equal(flags.purchase_enabled, false);
   const { chromium } = require(process.env.H5_PLAYWRIGHT_MODULE || 'playwright');
   const browser = await chromium.launch({headless: true, args: ['--no-proxy-server'], executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
@@ -145,6 +147,13 @@ async function run(candidate, fixtureFile) {
           assert(response>=0 && event>response,'Dedicated landing must respond before the first entrance behavior request');
           break;
         }
+        case 'controlled_settle': {
+          assert.equal(flags.test_provider_stub,true);const current=new URL(page.url());
+          assert(current.origin===base && current.pathname==='/billing/return');
+          const order=current.searchParams.get('order_id');assert.match(order,/^[a-f0-9-]{36}$/);
+          assert.equal(control('settle',{order_id:order}).settled_existing_test_order,true);break;
+        }
+        case 'dispatch_local': assert.equal(flags.test_provider_stub,true);assert.equal(control('dispatch').local_outboxes_dispatched,true);break;
         case 'membership_offer': await page.goto(base + '/membership?purchase=1'); break;
         case 'verify_preview_mail': {
           // Read this run's OWN preview mail, render it, and click its actual signed link in the same cookie context.

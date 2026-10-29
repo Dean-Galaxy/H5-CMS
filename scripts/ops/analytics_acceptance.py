@@ -14,7 +14,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 PROTECTED_PORTS = {8377, 5877, 8406, 5906, 8407, 8408, 8409, 8303}
-SOURCE_PATHS = ['h5-platform', 'scripts/ops/analytics_acceptance.py', 'scripts/ops/analytics_preflight.php', 'scripts/ops/analytics_browser_runtime.php']
+SOURCE_PATHS = ['h5-platform', 'scripts/ops/analytics_acceptance.py', 'scripts/ops/analytics_preflight.php', 'scripts/ops/analytics_browser_runtime.php', 'scripts/ops/analytics_browser_fixture.py', 'scripts/ops/analytics_browser_control.php']
 
 
 def private_json(path):
