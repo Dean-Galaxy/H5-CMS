@@ -1,0 +1,34 @@
+{
+  "targeted_existing_c_only": true,
+  "official_refund_not_created": true,
+  "existing_historical_cancel_count": 2,
+  "diagnostic": null,
+  "stages": [
+    {
+      "full_sync_completed": true,
+      "refund_read_repeat": 0,
+      "resolution_clear": true,
+      "renewal_stopped": true,
+      "refund_amount_minor": 100,
+      "original_interval_and_access_preserved": true
+    },
+    {
+      "full_sync_completed": false,
+      "refund_read_repeat": 1,
+      "resolution_clear": true,
+      "renewal_stopped": true,
+      "refund_amount_minor": 100,
+      "original_interval_and_access_preserved": true
+    },
+    {
+      "full_sync_completed": false,
+      "refund_read_repeat": 2,
+      "resolution_clear": true,
+      "renewal_stopped": true,
+      "refund_amount_minor": 100,
+      "original_interval_and_access_preserved": true
+    }
+  ],
+  "counts_preserved": true,
+  "historical_cancel_rows_preserved_without_new_operations": true
+}

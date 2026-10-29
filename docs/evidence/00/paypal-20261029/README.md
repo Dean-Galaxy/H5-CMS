@@ -29,3 +29,16 @@
 - payment-wait-hint-tests.txt：00集成后22项273断言通过；条件显示/中英文案与既有PayPal重查规则，HTTP Mock，不算新官方付款。04样例窄屏截图由00只读复看，新文案仍未部署到实际06。
 
 最新交接见[00-39](../../../handoffs/00-39-C首款核验与付款等待提示.md)。
+
+## C部分退款恢复与实际接收
+
+00-40保留旧C待核失败及工程红绿证据；实际候选21f33在GitHub回读后保数据接入，06现场证据另见同日paypal-refund-deploy目录。
+
+- c-targeted-recovery-safe.json：原C完整官方事实核准后正常清待核，再两次退款读；不新增原有2条取消，不创建退款。
+- c-two-reconciliation-cycles-safe.json：已预检仅3个固定未到期/无pending对象后，两轮完整真实对账均0、计数保持。
+- refund-fix-api-on-scheduler-safe.json：明确两轮恢复后实际调度；仅这些轮次随后被C1观察覆盖。
+- c-partial-verified-safe.json：对应21f33，在上述实际调度后再次官方只读C1通过，A/B核心保持，诊断时间排除规则明示。
+- refund-fix-official-readiness-safe.json及refund-fix-live-boundaries-safe.json：无新资源的官方准入、正常TLS拒绝边界和实际源码匹配；不代表新购/额外官方重复通知通过。
+- c-partial-verified-backup-safe.json：新136811字节归档可读、第二步准确本机定位资料；非完整恢复，不含原始对象/日期。
+
+实际C1接收及下一步见[00-41](../../../handoffs/00-41-C部分退款修复后实际验收与第二步放行.md)。C2尚待本人操作/真实退款结果，不能将其提前计入。

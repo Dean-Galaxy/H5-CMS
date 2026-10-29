@@ -1,0 +1,23 @@
+{
+  "known_three_subscriptions_only": true,
+  "no_expired_lifecycle_candidates": true,
+  "purchase_disabled": true,
+  "cycles": [
+    {
+      "cycle": 1,
+      "exit": 0,
+      "summary": "Billing reconciliation finished; unresolved checks: 0; events delivered: 0.",
+      "c_resolution_clear": true,
+      "c_existing_cancel_count": 2,
+      "financial_record_counts_preserved": true
+    },
+    {
+      "cycle": 2,
+      "exit": 0,
+      "summary": "Billing reconciliation finished; unresolved checks: 0; events delivered: 0.",
+      "c_resolution_clear": true,
+      "c_existing_cancel_count": 2,
+      "financial_record_counts_preserved": true
+    }
+  ]
+}

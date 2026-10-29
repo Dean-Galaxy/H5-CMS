@@ -1,0 +1,12 @@
+{
+  "configuration_valid": true,
+  "network_requested": true,
+  "merchant_binding_valid": true,
+  "app_authenticated": true,
+  "webhook_registration_valid": true,
+  "product_valid": true,
+  "purchase_readiness_valid": true,
+  "diagnostic_code": null,
+  "binding_source": "operator_dashboard",
+  "official_payment_verification": "not_performed"
+}

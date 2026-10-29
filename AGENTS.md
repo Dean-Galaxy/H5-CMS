@@ -2,6 +2,8 @@
 
 ## 基线与范围
 
+- 2026-10-29 C1修复后实际通过：真实06固定21f33（GitHub修复标签已回读），06保数据接入c880ee1已接收，APIoff13账务/45表保持及15+5正常TLS通过。00 API-only官方准入、原C正常sync(false)+两次syncRefunds、两轮完整真实对账及恢复后两轮API-on实际调度后核验均稳定：Refund completed100/Sale partial、保原期权益/首惠、官方SUSPENDED、renewal/desired=false/refund_stopped=true/resolution=false/pending0，旧2条成功取消保留不增，A/B核心保持。04等待提示已部署，无自动刷新；新购unconfigured、Live关闭，00持callback-only窗口供C2。已交07指导同一C原3USD退剩余2，C2尚待本人/官方结果，不先宣称通过；00-41为准。
+
 - 2026-10-29 C1阻塞工程接收：真实06仍ca279ac；本人已退C100美分，00核官方Refund/Sale、本地100/原权益和实际退款/暂停签名收件均正确、官方SUSPENDED，但resolution被完整对账反复置true、历史C取消2条succeeded。00仅停queue/scheduler保web/DB/callback、另存最新私密数据及13账务基线；A/B仅正常诊断时间变，核心事实保持。03 b1da054/daa901c已接收，00独立200项3486断言通过；修复不手写false、不删历史操作，部署后须原C正常sync(false)及重复对账实际验证。当前待固定GitHub版本与06保数据接入，C2不放行，不让本人重退/取消；00-40为准。
 
 - 2026-10-29 C0首款核验：实际06仍ca279ac，C官方ACTIVE/3USD Sale与WEEK1 Plan、原订单/1付款1权益1outbox及实际验签收件processed均经00只读核实；A官方SUSPENDED/原区间保持、B官方ACTIVE。已私密备份退款前数据、固定C各ID及本机精确交易核对单，07已获准仅C原款退1USD，需核完成/保权益/实际停续费后才第二笔2USD；真实退款未验。本人新增等待提示已由04 e1ad0aa交付并00独立22项273断言接收，中英提示约1分钟并要求刷新，没有自动刷新。新提示尚未部署，不在当前本人退款中改06；操作结束或明确暂停后保数据更新已验且GitHub留存候选。当前窗口00持有；见00-39。
