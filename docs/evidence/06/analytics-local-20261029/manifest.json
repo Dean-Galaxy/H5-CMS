@@ -1,0 +1,38 @@
+{
+  "application_candidate": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+  "php_candidate": "a7570f3e02d78d49f786dce9a61eea22dfd9ba43",
+  "browser_candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "business_files_identical": true,
+  "official_payment": false,
+  "official_platform": false,
+  "real_device": false,
+  "large_report_over_10000": "known_issue_awaiting_05",
+  "files": {
+    "audience-browser-state.json": "40f3c44ec464b01cad878ec0f6979c3134ecaacd7e02821dba237918cd4a1b3c",
+    "paid-episode-denied.png": "dab381b74f787ab8ca14a75b2be0309e6b5f3d02b3505647adb2282ea22dd85e",
+    "privacy-en-320x500.png": "fa24fb60bcf522ce27b632339d867d16e5b695ac58d69a5c26de66b624a6639b",
+    "admin-analytics-1440.png": "6ebf16abc244b5a78598c4993e7f4c33277924f0f144a991baa4bbcc453df3d7",
+    "privacy-ui-partial.json": "9e183d3bc59762063228498a9ddeff80a840191fcb3609a39946245e9cdd7c99",
+    "shutdown.json": "127dfd24ed1e0fd0a2c08a56a1a24eed11672dd4010cb2fe0170404520030df9",
+    "paid-actor-source-check.json": "8bc5320f359ce84b4fc97d6e0b07c0a83cd4753d1063fdd71c8f3dda40cefda5",
+    "browser-journey.json": "600c1f3c4d340eb167f3f51cb875ccf46744158c90b617b0469ae2c2f88c5736",
+    "independent-recovery.json": "53ad6149040842eee75e14f29ea1b16abd8726716583f1028a846e52a450eae5",
+    "privacy-zh-mobile.png": "26c383794123a92e9f8c89797661e41c3e2bb6be408ff51c735a7f05699730f2",
+    "free-mse-player.png": "60e484a637d607f654e318316dcafbdc0e23e828009653c783380261cec9bcbd",
+    "http-security.json": "4f0fff2802bde6b239ab0ef90b3750ad4770637a3b2c337efb81ba85883e8b58",
+    "member-mse-player.png": "2a00b73484de891603603f7f14cf4e07e7c7021dfe8dac07ebb941e1a21d3db4",
+    "dependency-audit.json": "ec6f18f04750ed4b84258acac00a0271f2bdf5b7ddbb1b0fd6db87e1df9f42c9",
+    "admin-ui.json": "0b9bd31c1d89ece05ccdda301b2867750132877c8498c256189fdd58363a2da3",
+    "full-php.json": "2f208bf8e669cbc37d971fb32d03894ac09dc354e5f032d1e24d3e9425f0a515",
+    "independent-recovery-before-privacy.json": "d9fd41ff98bab100cd974a79e8cb3f8d1abec97d0a59f878ac44cf1ee58fd0eb",
+    "media-network.json": "6b2ff938041c1f9f9927edd4cea12af025b411acbc292447e8f15201717c96eb",
+    "privacy-en-advertising-only.png": "9315df25c178489922aa521f6fb989717082a826dfe6bc2aa29093ef0b3504c4"
+  },
+  "tool_candidate": "a87ea029fa0e3f46948b03696e06166242294b05",
+  "private_tested_plan_sha256": "fb451a63f44f2bb046780cbb8861a075133746e3f057e938ab92da1abcdd7883",
+  "probe_sources": {
+    "scripts/ops/analytics_http_acceptance.py": "e3f112e739560bf59d2dc7bd5055922ccde4e2ed23388c4d751e86661cdc0253",
+    "scripts/ops/analytics_recovery.py": "0609428d6e3dba65d98cf270acec2e01e78ac03348403971f0df65c4e5b38ef6",
+    "h5-platform/tests/Browser/analytics-media-network.cjs": "9fcb9716fec8e64bbb8771e02767eae99cdb815de250154252ff37853d4fa6c3"
+  }
+}

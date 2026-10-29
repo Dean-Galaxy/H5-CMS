@@ -1,0 +1,37 @@
+{
+  "candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "passed": true,
+  "checks": [
+    {
+      "name": "actual MSE before network interruption",
+      "passed": true
+    },
+    {
+      "name": "unsigned media path denied",
+      "passed": true
+    },
+    {
+      "name": "network interruption pauses actual video",
+      "passed": true
+    },
+    {
+      "name": "network failure uses bounded buffer without signed URL",
+      "passed": true
+    },
+    {
+      "name": "real playback recovers after network reconnect",
+      "passed": true
+    },
+    {
+      "name": "network error reaches tracking after reconnect",
+      "passed": true
+    },
+    {
+      "name": "zero external requests",
+      "passed": true
+    }
+  ],
+  "external_attempts": 0,
+  "real_device": false,
+  "official_platform": false
+}

@@ -1,0 +1,37 @@
+{
+  "candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "phase": "admin",
+  "checks": [
+    {
+      "name": "paid browser chain one actor and frozen source",
+      "passed": true
+    },
+    {
+      "name": "no raw click in behavior properties",
+      "passed": true
+    },
+    {
+      "name": "unknown consent no new subject source behavior",
+      "passed": true
+    },
+    {
+      "name": "ads only creates one source without subject or behavior",
+      "passed": true
+    },
+    {
+      "name": "TikTok encrypted and isolated",
+      "passed": true
+    },
+    {
+      "name": "explicit UI withdrawal revokes source and clears buffers",
+      "passed": true
+    },
+    {
+      "name": "privacy does not change any financial row",
+      "passed": true
+    }
+  ],
+  "external_attempts": 0,
+  "failure_type": "TimeoutError",
+  "scope": "7 privacy assertions passed; later admin title wait failed, fixed and separately rerun in admin-ui.json"
+}

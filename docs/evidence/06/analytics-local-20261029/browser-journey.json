@@ -1,0 +1,442 @@
+{
+  "candidate": "6729f7f538e67f52634b75fe01568eb9136743a9",
+  "contract": "analytics-v1",
+  "scope": "browser observations only; DB/funnel/money/authority acceptance is separate",
+  "browser": "156.0.8078.49",
+  "external_attempts": 0,
+  "intercepted_test_provider_navigations": 0,
+  "tracking": [
+    {
+      "events": [
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "dabc15ca5f1a872046982593967023d0e1e9d7842c7c618b8514d2f0c909f6e7"
+        },
+        {
+          "event_name": "landing_view",
+          "event_id_sha256": "0f9788c9029b22a261ade836af7bdf2ef1384c18794f595072476ce6f5c1d89a"
+        },
+        {
+          "event_name": "drama_view",
+          "event_id_sha256": "597b52a7a0aba7e56b71b3af109d12cd61ea3cc27f4c87ec864afd741ec6b835"
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "5b0d0fb02797eed7972fbe8728abb343c704f53326fc59135dccf19f6c426889"
+        },
+        {
+          "event_name": "drama_view",
+          "event_id_sha256": "cd58aafc2db6828664e5693dd9df49d4240a89bdc19490b09e70b19b3e8f5171"
+        },
+        {
+          "event_name": "play_requested",
+          "event_id_sha256": "ebd60ab42660982dfa69fae0868f3c851aa470406b88cfa476410c76e5e37b7b"
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "event_name": "play_started",
+          "event_id_sha256": "a4513619ac02fc3cf257e3bffcf71e01a308f6467baf099ae3ae7e69365f1c22"
+        },
+        {
+          "event_name": "player_startup",
+          "event_id_sha256": "63a26d92c7335b8f0f1437c131082c2740c0664a9f3c1a13d501f77a604b30cb"
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "event_name": "watch_progress",
+          "event_id_sha256": "fc09840f4a014ad7955074c45d1a69515bef612daec4fb06dfabbfbfa698c600"
+        },
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "f9724feee3c95b8884d3a2fd30eca353cdf340907d3dbb45d24d404b9f6dbc2e"
+        },
+        {
+          "event_name": "drama_view",
+          "event_id_sha256": "d38c917bd5d922aa4b7ffb37f8d082aec8fc8d59da40cabbd24ea849aa2442b5"
+        },
+        {
+          "event_name": "player_error",
+          "event_id_sha256": "837658d32aefad7abe342be2d13ea759385ea4b94c63bb0c995aa9a9b120ecc7"
+        },
+        {
+          "event_name": "paywall_view",
+          "event_id_sha256": "d3062a21243243f03e1ea18ac3acfae68fa3e2d3005c6a1fce65cb5690d03de7"
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "2f8483c8f191cb72fcbef922e9918c55ea3be90ca05b589362b8054aa8175ea1"
+        },
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "a48812eb31e72d93811d31d7491d12c8bc9e840c91553229e8f2b00b291284b0"
+        },
+        {
+          "event_name": "checkout_click",
+          "event_id_sha256": "b660c36e18c74a0e8df4ed56c40f9a2e676760e8f7fa4d1090ea9b57948bb7a0"
+        },
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "3e70280116cd2001fbd3e33971f74e401c6fdd17c216847d442b9c9d1366b71a"
+        },
+        {
+          "event_name": "payment_return_view",
+          "event_id_sha256": "a01c71d2f376f496b57ed839744fb9e98dec8d1c16b3b7dc2f90e7ec4c50bc6f"
+        },
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "1d2fc4c447e289940b0b0b443e63a792ebff656bd6e8017bd8e614277a41fbcf"
+        },
+        {
+          "event_name": "drama_view",
+          "event_id_sha256": "c07df59a8a923bd8f45e04239b658dad85e11d45f972ed9b796e3ac85c557bbd"
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "event_name": "play_started",
+          "event_id_sha256": "41de12eec391a23fea8318c30c39aaef5bbec519f38029b2715508f26b86c0bd"
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "event_name": "watch_progress",
+          "event_id_sha256": "d1a086be9b3f1b36904b0156adbff16166affe688dbf0370eb1c14c2528b3fc7"
+        },
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "377084895c4036443f74723c30bdb0c3a7535c99acb49731320ad9a255af0fe4"
+        },
+        {
+          "event_name": "page_view",
+          "event_id_sha256": "4f0417352afd2a85543cbe8459d0922d8fa55a6509b607e4455990301a694ee1"
+        }
+      ]
+    }
+  ],
+  "playback": [
+    {
+      "status": 200,
+      "allowed": true,
+      "reason": "allowed_free"
+    },
+    {
+      "status": 200,
+      "allowed": false,
+      "reason": "MEMBERSHIP_REQUIRED"
+    },
+    {
+      "status": 200,
+      "allowed": true,
+      "reason": "allowed_member"
+    }
+  ],
+  "steps": [
+    {
+      "index": 0,
+      "kind": "landing_delay",
+      "completed": true
+    },
+    {
+      "index": 1,
+      "kind": "promotional_entry",
+      "completed": true
+    },
+    {
+      "index": 2,
+      "kind": "wait_selector",
+      "completed": true
+    },
+    {
+      "index": 3,
+      "kind": "screenshot",
+      "completed": true
+    },
+    {
+      "index": 4,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 5,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 6,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 7,
+      "kind": "wait_selector",
+      "completed": true
+    },
+    {
+      "index": 8,
+      "kind": "wait_event",
+      "completed": true
+    },
+    {
+      "index": 9,
+      "kind": "assert_landing_before_events",
+      "completed": true
+    },
+    {
+      "index": 10,
+      "kind": "goto",
+      "completed": true
+    },
+    {
+      "index": 11,
+      "kind": "decoded_playback",
+      "advanced_seconds": 0.895588,
+      "additional_frames": 22,
+      "mse": true
+    },
+    {
+      "index": 11,
+      "kind": "play",
+      "completed": true
+    },
+    {
+      "index": 12,
+      "kind": "wait_event",
+      "completed": true
+    },
+    {
+      "index": 13,
+      "kind": "screenshot",
+      "completed": true
+    },
+    {
+      "index": 14,
+      "kind": "goto",
+      "completed": true
+    },
+    {
+      "index": 15,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 16,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 17,
+      "kind": "wait_event",
+      "completed": true
+    },
+    {
+      "index": 18,
+      "kind": "screenshot",
+      "completed": true
+    },
+    {
+      "index": 19,
+      "kind": "membership_offer",
+      "completed": true
+    },
+    {
+      "index": 20,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 21,
+      "kind": "wait_selector",
+      "completed": true
+    },
+    {
+      "index": 22,
+      "kind": "fill",
+      "completed": true
+    },
+    {
+      "index": 23,
+      "kind": "fill",
+      "completed": true
+    },
+    {
+      "index": 24,
+      "kind": "fill",
+      "completed": true
+    },
+    {
+      "index": 25,
+      "kind": "fill",
+      "completed": true
+    },
+    {
+      "index": 26,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 27,
+      "kind": "signed_preview_link_clicked",
+      "completed": true
+    },
+    {
+      "index": 27,
+      "kind": "verify_preview_mail",
+      "completed": true
+    },
+    {
+      "index": 28,
+      "kind": "membership_offer",
+      "completed": true
+    },
+    {
+      "index": 29,
+      "kind": "wait_selector",
+      "completed": true
+    },
+    {
+      "index": 30,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 31,
+      "kind": "click",
+      "completed": true
+    },
+    {
+      "index": 32,
+      "kind": "wait_selector",
+      "completed": true
+    },
+    {
+      "index": 33,
+      "kind": "controlled_settle",
+      "completed": true
+    },
+    {
+      "index": 34,
+      "kind": "dispatch_local",
+      "completed": true
+    },
+    {
+      "index": 35,
+      "kind": "goto",
+      "completed": true
+    },
+    {
+      "index": 36,
+      "kind": "decoded_playback",
+      "advanced_seconds": 0.7796500000000001,
+      "additional_frames": 20,
+      "mse": true
+    },
+    {
+      "index": 36,
+      "kind": "play",
+      "completed": true
+    },
+    {
+      "index": 37,
+      "kind": "wait_event",
+      "completed": true
+    },
+    {
+      "index": 38,
+      "kind": "screenshot",
+      "completed": true
+    },
+    {
+      "index": 39,
+      "kind": "tracking_offline",
+      "completed": true
+    },
+    {
+      "index": 40,
+      "kind": "goto",
+      "completed": true
+    },
+    {
+      "index": 41,
+      "kind": "bounded_buffer",
+      "bytes": 610
+    },
+    {
+      "index": 41,
+      "kind": "buffer_pending",
+      "completed": true
+    },
+    {
+      "index": 42,
+      "kind": "tracking_online",
+      "completed": true
+    },
+    {
+      "index": 43,
+      "kind": "reload",
+      "completed": true
+    },
+    {
+      "index": 44,
+      "kind": "buffer_cleared",
+      "completed": true
+    },
+    {
+      "index": 45,
+      "kind": "dispatch_local",
+      "completed": true
+    }
+  ],
+  "media_requests": 8,
+  "landing_sequence": [
+    {
+      "kind": "landing_request"
+    },
+    {
+      "kind": "landing_response",
+      "status": 200
+    },
+    {
+      "kind": "events_request"
+    },
+    {
+      "kind": "events_request"
+    },
+    {
+      "kind": "events_request"
+    },
+    {
+      "kind": "events_request"
+    },
+    {
+      "kind": "events_request"
+    },
+    {
+      "kind": "events_request"
+    },
+    {
+      "kind": "events_request"
+    }
+  ],
+  "official_platform_verified": false,
+  "real_device": false,
+  "force_mse": true,
+  "completed": true
+}

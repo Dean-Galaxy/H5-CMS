@@ -1,0 +1,13 @@
+{
+  "candidate": "a7570f3e02d78d49f786dce9a61eea22dfd9ba43",
+  "application_candidate": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+  "memory_limit": "512M",
+  "entry": "phpunit direct",
+  "default_modules_off": true,
+  "default_analytics_off": true,
+  "exit_code": 0,
+  "summary": [
+    "Time: 01:24.165, Memory: 131.00 MB",
+    "OK (767 tests, 10531 assertions)"
+  ]
+}
