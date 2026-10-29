@@ -1,0 +1,34 @@
+{
+  "source_candidate": "307ae93d915e7a9d53db134d67c559320e9bcf4e",
+  "executed_at": "2026-10-29T03:39:14.111543+00:00",
+  "tests_run": 61,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "successful": true,
+  "real_environment_accessed": false,
+  "official_api_called": false,
+  "public_tunnel_started": false,
+  "real_event_duplicate_delivery_observed": false,
+  "signature_verified": false,
+  "billing_state_checked": false,
+  "groups": {
+    "replay_observation": 26,
+    "existing_callback_bridge": 17,
+    "existing_url_window_guard": 18
+  },
+  "source_sha256": {
+    "scripts/ops/paypal_replay_observation.py": "2f19ca381c21b52f4e4894295800b6a7469124e77faa83176e6df5db2101e99b",
+    "scripts/ops/tests/paypal_external_observer.py": "2f16c5b1291b2fe03f2feeb47ba6ceb76f6bdacea70b230bd93f2cdc2300ee2c",
+    "scripts/ops/tests/test_paypal_replay_observation.py": "d37bc0665a9d2515303c614ff06b518e41c870001b9d74b50d51be57e63c0221"
+  },
+  "system_python_verification": {
+    "executable": "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "version": "3.9.6",
+    "tests_run": 61,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "successful": true
+  }
+}
