@@ -8,6 +8,7 @@ use App\Support\Analytics\BehaviorEventCatalog;
 use App\Support\DependencyNotReady;
 use App\Support\DisabledBehaviorEventRecorder;
 use App\Support\UnavailableBillingAnalyticsReader;
+use App\Enums\BehaviorRecordingResult;
 use Tests\TestCase;
 
 class AnalyticsContractsTest extends TestCase
@@ -19,6 +20,7 @@ class AnalyticsContractsTest extends TestCase
         $this->assertFalse($disabled->record('payment_confirmed', ['payment_id' => 'untrusted'], 'same-key'));
         $disabled->clearBrowserContext();
         $this->assertFalse($disabled->record('registration_succeeded'));
+        $this->assertSame(BehaviorRecordingResult::Retry, $disabled->recordFact('refund_confirmed', [], 'same-refund'));
     }
 
     public function test_missing_financial_reader_does_not_fabricate_zero_revenue(): void

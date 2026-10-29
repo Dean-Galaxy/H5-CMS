@@ -10,6 +10,10 @@
 
 `BehaviorEventRecorder::record(string $eventName, array $properties=[], ?string $deduplicationKey=null): bool` 为受信服务器调用。05 实现并绑定；未启用时公共 no-op 返回 false。采集失败/未同意不得阻断业务；实现必须捕获内部错误，事务中失败使用 savepoint 避免污染付款事务。关键付款通过现有可靠 PaymentSettled outbox -> 05 收件及行为记录同事务完成，不能只在浏览器成功页发 Purchase。03 的退款/取消/恢复等事实采用本模块可靠待发机制补传，不依赖一次易失事件。所有重放复用相同 key；服务器结果事件禁止从浏览器 API 直接提交。`clearBrowserContext()` 在退出登录后事件记录完成、session invalidate 前调用；换号/退出不得把两个观众自动合并，原待付订单/原订阅快照不改。
 
+可靠财务事实使用 `recordFact(string $eventName,array $properties,string $deduplicationKey): BehaviorRecordingResult`：`Accepted`（含完全相同重放）、`Skipped`（无/拒绝同意或无效，不再重试）、`Retry`（模块未接收/临时存储故障，保留待发）。默认禁用实现返回 Retry，不能把尚未就绪误当成功；业务不因此阻塞。03 待发重试必须有界退避/诊断，不能每分钟无限轰炸。05 PaymentReceiver 内相同区分，临时失败保留03可靠outbox，拒绝分析仍正常收付款事实。
+
+浏览器允许的通用上下文为 `page_instance_id`（UUID）、`play_instance_id`（UUID）、`path`（固定同站无query路径）、`drama_id/episode_id`（仅引用，服务端复核目录及对应关系），以及事件自身数值/错误白名单；绝不信浏览器 viewer/source/价格/成功结果。04 和05沿用这些字段，不另起同义命名。
+
 允许受信 properties 按事件白名单含 opaque `viewer_id,drama_id,episode_id,order_id,payment_id,subscription_id,source_id`；这些**绝不接受浏览器指定**身份/来源/金额/成功状态。`position_seconds,duration_seconds,watched_seconds,startup_ms,stall_ms,error_code,transaction_kind,amount_minor,refunded_amount_minor,currency,is_test,occurred_at` 依事件校验范围。事件时间以服务器接收为准；财务事实可使用经 03 核定的 occurred_at。无邮箱/密码/token/原支付 ID/媒体 URL/任意 query/自由错误堆栈进入行为库或报表。合法页面仅固定同站路径，查询参数白名单。05 对 IP/UA 的广告匹配用途加密、限制访问，不进入普通分析明细。
 
 `BillingAnalyticsReader::payments(array $paymentIds):array`，最多 200 个唯一 UUID。结果按 payment_id 索引，缺失省略；每项仅 `payment_id,viewer_id,order_id,subscription_id,transaction_kind,amount_minor,refunded_amount_minor,currency,is_test,paid_at,attribution_snapshot`。时间 UTC ISO8601，金额整数 cents；退款只统计已确认成功累计额；snapshot 为既有 DTO array 或 null。禁止消费者读 Billing 表，05 先按员工可见 link/payment 范围选 ID；财务接口仅进程内，禁止公开或让前端枚举。
