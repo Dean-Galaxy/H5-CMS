@@ -35,6 +35,7 @@
   let context = null, queue = [], timer = null, sending = false, contextPromise = null, disposed = false, consentBusy = false;
   let generation = 0, retryRound = 0, requests = [], requestTotal = 0, locallyPaused = false, choiceVersion = 0;
   let landingBusy = false, landingConfirmed = false, landingAttempts = 0, landingPromise = null;
+  let draftDirty = false, draftVersion = 0, reading = false, readFailed = false, saveFailed = false, saved = false;
   const once = new Set();
   const dialog = mount.querySelector('[data-privacy-dialog]'), form = mount.querySelector('[data-privacy-form]');
   const status = mount.querySelector('[data-privacy-status]');
@@ -43,6 +44,14 @@
   const granted = () => context?.enabled === true && context?.policy_version === POLICY && context?.consent?.analytics === 'granted' && !blocked();
   const landingGranted = () => context?.enabled === true && context?.policy_version === POLICY && context?.consent?.advertising === 'granted' && !blocked();
   const canSend = granted;
+  function privacyStatus() {
+    form.setAttribute('aria-busy', consentBusy ? 'true' : 'false');
+    form.querySelectorAll('input[type=checkbox], button[type=submit], [data-privacy-reject], [data-privacy-withdraw]').forEach(control => { control.disabled = consentBusy; });
+    const state = consentBusy ? 'saving' : saveFailed || blocked() ? 'unavailable' : reading ? 'reading'
+      : readFailed ? 'readFailed' : context?.enabled === false ? 'disabled' : saved ? 'saved' : 'ready';
+    status.dataset.state = state;
+    status.textContent = state === 'ready' ? '' : status.dataset[state];
+  }
   function prune() {
     queue = queue.filter(item => item.created > Date.now() - TTL && item.attempts < MAX_ATTEMPTS).slice(-MAX_EVENTS);
     while (queue.length && bytes(queue) > MAX_BYTES) queue.shift();
@@ -82,9 +91,13 @@
       }
       savedBuffer = null;
     }
-    const pendingChoice = read(localStorage, BLOCK);
-    form.elements.analytics.checked = typeof pendingChoice?.analytics === 'boolean' ? pendingChoice.analytics : value.consent.analytics === 'granted';
-    form.elements.advertising.checked = typeof pendingChoice?.advertising === 'boolean' ? pendingChoice.advertising : value.consent.advertising === 'granted';
+    // Server refreshes update the saved context, never an edited draft or an in-flight save.
+    if (!draftDirty && !consentBusy) {
+      const pendingChoice = read(localStorage, BLOCK);
+      form.elements.analytics.checked = typeof pendingChoice?.analytics === 'boolean' ? pendingChoice.analytics : value.consent.analytics === 'granted';
+      form.elements.advertising.checked = typeof pendingChoice?.advertising === 'boolean' ? pendingChoice.advertising : value.consent.advertising === 'granted';
+    }
+    privacyStatus();
     if (value.enabled && value.consent.analytics === 'unknown' && value.consent.advertising === 'unknown' && !blocked() && !dialog.open) dialog.showModal();
     const epoch = generation;
     await confirmLanding();
@@ -169,9 +182,15 @@
   async function loadContext() {
     if (contextPromise) return contextPromise;
     const epoch = generation;
-    contextPromise = request('/api/v1/tracking/context').then(async value => { if (epoch === generation && !disposed) await applyContext(value); return value; }).catch(() => {
-      if (epoch === generation) { context = null; resetViewing(); } return null;
-    }).finally(() => { contextPromise = null; });
+    reading = true; readFailed = false; privacyStatus();
+    contextPromise = request('/api/v1/tracking/context').then(async value => {
+      reading = false;
+      if (epoch === generation && !disposed) await applyContext(value);
+      return value;
+    }).catch(() => {
+      if (epoch === generation) { context = null; readFailed = true; resetViewing(); }
+      return null;
+    }).finally(() => { contextPromise = null; reading = false; privacyStatus(); });
     return contextPromise;
   }
   function properties(name, input) {
@@ -248,35 +267,47 @@
     if (path === '/billing/return') emit('payment_return_view', {}, 'payment_return');
   }
   async function saveChoices(analytics, advertising) {
+    if (consentBusy) return;
     const version = ++choiceVersion;
+    if (form.elements.analytics.checked !== analytics || form.elements.advertising.checked !== advertising) {
+      form.elements.analytics.checked = analytics; form.elements.advertising.checked = advertising;
+      draftDirty = true; draftVersion++;
+    }
+    const submittedDraft = draftVersion;
     clear(); context = null; locallyPaused = true;
     const desired = {analytics, advertising, policy_version: POLICY};
     write(localStorage, BLOCK, desired);
     write(localStorage, NOTICE, uuid());
-    if (consentBusy) return;
     consentBusy = true;
-    status.textContent = '';
+    saveFailed = false; saved = false; privacyStatus();
     try {
       const value = await request('/api/v1/tracking/consent', desired);
       if (version !== choiceVersion) return;
       if (!validContext(value) || value.enabled !== true || value.consent.analytics !== (analytics ? 'granted' : 'denied')
         || value.consent.advertising !== (advertising ? 'granted' : 'denied')) throw new Error('tracking_unavailable');
       locallyPaused = false; write(localStorage, BLOCK, null);
+      if (submittedDraft === draftVersion) draftDirty = false;
       // Consent is saved independently of a bounded source lookup. The lookup itself gates page events.
       applyContext(value).catch(() => {});
       write(localStorage, NOTICE, uuid());
-      status.textContent = status.dataset.saved; dialog.close(); schedule(0);
-    } catch (_) { status.textContent = status.dataset.unavailable; }
+      saved = submittedDraft === draftVersion;
+      if (submittedDraft === draftVersion) dialog.close();
+      schedule(0);
+    } catch (_) { draftDirty = true; saveFailed = true; }
     finally {
       consentBusy = false;
+      privacyStatus();
       if (version !== choiceVersion) {
         const pending = read(localStorage, BLOCK);
         if (pending) saveChoices(pending.analytics, pending.advertising);
       }
     }
   }
-  mount.querySelector('[data-privacy-open]').addEventListener('click', () => { status.textContent = blocked() ? status.dataset.unavailable : ''; dialog.showModal(); loadContext(); });
+  mount.querySelector('[data-privacy-open]').addEventListener('click', () => { saved = false; dialog.showModal(); privacyStatus(); loadContext(); });
   mount.querySelector('[data-privacy-close]').addEventListener('click', () => dialog.close());
+  form.addEventListener('input', event => {
+    if (['analytics', 'advertising'].includes(event.target.name)) { draftDirty = true; draftVersion++; saved = false; }
+  });
   form.addEventListener('submit', event => { event.preventDefault(); saveChoices(form.elements.analytics.checked, form.elements.advertising.checked); });
   mount.querySelector('[data-privacy-reject]').addEventListener('click', () => saveChoices(false, false));
   mount.querySelector('[data-privacy-withdraw]').addEventListener('click', () => saveChoices(false, false));
@@ -394,7 +425,8 @@
   async function foreground() {
     if (document.visibilityState !== 'visible' || disposed) { resetViewing(); return; }
     const pending = read(localStorage, BLOCK);
-    if (pending && typeof pending.analytics === 'boolean' && typeof pending.advertising === 'boolean') await saveChoices(pending.analytics, pending.advertising);
+    const newerDraft = pending && draftDirty && (form.elements.analytics.checked !== pending.analytics || form.elements.advertising.checked !== pending.advertising);
+    if (pending && !newerDraft && typeof pending.analytics === 'boolean' && typeof pending.advertising === 'boolean') await saveChoices(pending.analytics, pending.advertising);
     else await loadContext();
     pageEvents(); if (paywallObserver && playId) watchPaywall(playId); schedule(0);
   }
