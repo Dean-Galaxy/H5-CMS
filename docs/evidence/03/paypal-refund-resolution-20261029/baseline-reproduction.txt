@@ -1,0 +1,47 @@
+Baseline source: a7b5454; new regression tests. Explicit local HTTP Mock, not provider evidence.
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   FAIL  Tests\Feature\Billing\PayPalRuntimeTest
+  ⨯ confirmed refund stop survives repeated full reconciliation without… 0.36s  
+  ⨯ confirmed refund stop survives repeated full reconciliation without… 0.16s  
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\PayPalRuntimeTest > confirmed refund stop s…   
+  Full reconciliation re-opened a confirmed refund stop
+Failed asserting that true is false.
+
+  at tests/Feature/Billing/PayPalRuntimeTest.php:307
+    303▕         $operationCount = DB::table('billing_operations')->count();
+    304▕         self::assertSame(1, $operationCount);
+    305▕         for ($i = 0; $i < 2; $i++) {
+    306▕             self::assertSame(0, Artisan::call('billing:reconcile'));
+  ➜ 307▕             self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required, 'Full reconciliation re-opened a confirmed refund stop');
+    308▕             app(PayPalReconciliation::class)->syncRefunds($payment->id);
+    309▕             self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required);
+    310▕             // A different delivery/event ID about the same refund must not reserve another cancel.
+    311▕             $event['id'] = 'WH-LOCAL-REFUND-STOP-REPLAY-'.$i;
+
+  1   tests/Feature/Billing/PayPalRuntimeTest.php:307
+
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\Billing\PayPalRuntimeTest > confirmed refund stop s…   
+  Failed asserting that 2 is identical to 1.
+
+  at tests/Feature/Billing/PayPalRuntimeTest.php:304
+    300▕         $this->postJson('/webhooks/paypal', $event, $headers)->assertOk();
+    301▕         self::assertSame(1, app(WebhookService::class)->processPending());
+    302▕         self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required);
+    303▕         $operationCount = DB::table('billing_operations')->count();
+  ➜ 304▕         self::assertSame(1, $operationCount);
+    305▕         for ($i = 0; $i < 2; $i++) {
+    306▕             self::assertSame(0, Artisan::call('billing:reconcile'));
+    307▕             self::assertFalse(DB::table('billing_subscriptions')->first()->resolution_required, 'Full reconciliation re-opened a confirmed refund stop');
+    308▕             app(PayPalReconciliation::class)->syncRefunds($payment->id);
+
+  1   tests/Feature/Billing/PayPalRuntimeTest.php:304
+
+
+  Tests:    2 failed (90 assertions)
+  Duration: 0.66s
+
