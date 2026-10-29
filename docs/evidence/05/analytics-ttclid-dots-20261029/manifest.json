@@ -1,0 +1,29 @@
+{
+  "source_commit": "636c1fa1ab16ddb31805819723ac1cabfbd50fdc",
+  "business_contract": "1.0.5",
+  "additive_contract": "analytics-v1",
+  "tests": {
+    "passed": 79,
+    "assertions": 1066
+  },
+  "external_advertising": "disabled",
+  "platform_confirmation": "not_performed",
+  "browser_client_dot_compatibility": "passed_with_00_accepted_04_5d6bc051",
+  "source_sha256": {
+    "h5-platform/app/Modules/Acquisition/Analytics/ClickContext.php": "d7997613d7a327990b950aa6453c344ca3c577067d98f9e592c8609c1f8ff7d7",
+    "h5-platform/app/Modules/Acquisition/Http/TrackingController.php": "c33cf5b8dc95f884500d7a2dbac08f2f7b367ced9ff3686defdf133ec8ba96b8",
+    "h5-platform/app/Modules/Acquisition/Services/AttributionRecorder.php": "cdc5a3db9e4f769990c58199765ae9027b147e6bc0cb7b45bdaea94767626a64",
+    "h5-platform/tests/Feature/Acquisition/ClickMatchingTest.php": "67541cadfde89152d72556272f8a96cca2e711a38484a022c2737b4c6ac40c5e"
+  },
+  "browser_script_commit": "0a387e11ed6a52cbfa73555181686c57c45ec298",
+  "accepted_combination": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+  "combined": {
+    "passed": 14,
+    "assertions": 361
+  },
+  "browser": {
+    "passed": 20,
+    "external_requests": 0,
+    "javascript_errors": 0
+  }
+}

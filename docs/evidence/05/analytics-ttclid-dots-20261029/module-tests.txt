@@ -1,0 +1,112 @@
+
+   PASS  Tests\Feature\Acquisition\AnalyticsProvidersTest
+  ✓ real identity audience checkout reader and delayed payment outbox s… 0.47s
+  ✓ true withdrawal after logout by same viewer stops delayed fact with… 0.08s
+  ✓ account b does not inherit a and cannot withdraw as consent for a    0.07s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsTest
+  ✓ click requires visible confirmation consent and exact window withou… 0.05s
+  ✓ advertising only landing does not create analysis subject and withd… 0.04s
+  ✓ valid new click overrides but invalid prefetch disabled and normal…  0.04s
+  ✓ separate analytics consent client idempotency forged fields and pla… 0.04s
+  ✓ anonymous login chain is preserved but account switch and logout ro… 0.04s
+  ✓ reliable payment dedup refund corrections and current finance witho… 0.05s
+  ✓ savepoint failure is retry without poisoning outer transaction and…  0.03s
+  ✓ rebinding produces new code preserves history and prune leaves sour… 0.03s
+  ✓ report authorized scope zero denominator and out of order funnel ar… 0.03s
+  ✓ same second provider payment uses exact order causality even when o… 0.05s
+  ✓ consented cookie restores anonymous source across server session ex… 0.03s
+  ✓ episode cutpoints use verified labels cumulative deltas and matchin… 0.05s
+  ✓ analytics tab renders with scope and invalid date keeps filter inpu… 0.07s
+  ✓ explicit advertising withdrawal blocks previously queued delivery a… 0.04s
+  ✓ assigned operator sees only its link aggregates and revocation remo… 0.04s
+  ✓ own links remain visible after redundant assignment revocation with… 0.05s
+
+   PASS  Tests\Feature\Acquisition\AssetTest
+  ✓ owner and assigned scope is enforced for reads writes probe summary… 0.03s
+  ✓ mfa disabled staff and wrong roles cannot read assets                0.02s
+  ✓ registration does not enable external delivery or accept script or…  0.02s
+  ✓ pixel versions and link versions reject stale updates and unfrozen…  0.03s
+  ✓ link requires accessible matching pixel and current content          0.02s
+  ✓ unfrozen attribution is explicitly unavailable and does not trust m… 0.02s
+
+   PASS  Tests\Feature\Acquisition\AssignmentTest
+  ✓ owner shares multiple people and removal revokes access without cha… 0.04s
+  ✓ selected person outside current page is repopulated and revalidated… 0.08s
+  ✓ unavailable read ports are explicit and never replaced with public…  0.03s
+
+   PASS  Tests\Feature\Acquisition\BillingBridgeTest
+  ✓ consumer failure leaves verified payment and membership intact and…  0.05s
+  ✓ real billing outbox reaches consumer once and unattributed does not… 0.04s
+
+   PASS  Tests\Feature\Acquisition\ClickMatchingTest
+  ✓ meta and dotted tiktok url to encrypted source to fake http payload… 0.09s
+  ✓ unknown denied malformed and oversized matching is not persisted     0.05s
+  ✓ late landing confirmation retries entry events then attributes with… 0.05s
+  ✓ dotted tiktok boundary retains case and rejects urls scripts whites… 0.07s
+
+   PASS  Tests\Feature\Acquisition\ConcurrencyTest
+  ✓ two postgresql connections contend and record one payment even with… 0.40s
+
+   PASS  Tests\Feature\Acquisition\DeliveryBoundaryTest
+  ✓ lost or expired lease during preparation never sends or changes the… 0.14s
+  ✓ sixth attempt is reserved with frozen payload and original first ti… 0.04s
+  ✓ late response cannot overwrite expired or replaced lease             0.03s
+  ✓ consent revoked during payload preparation blocks reservation and s… 0.03s
+
+   PASS  Tests\Feature\Acquisition\DeliveryProcessTest
+  ✓ real process takeover leaves resumed old preparer without transport… 0.82s
+  ✓ six sigkills inside http do not lose reservations or allow a sevent… 3.04s
+
+   PASS  Tests\Feature\Acquisition\DeliveryTest
+  ✓ both platforms have explicit local sending and no external requests  0.15s
+  ✓ disabled sender and unknown or revoked consent block real attempts   0.03s
+  ✓ test payments can never be sent to production assets                 0.03s
+  ✓ http adapters map integer usd stable ids and do not send contact or… 0.03s
+  ✓ failed retry uses frozen payload and stable event id then stops aft… 0.04s
+  ✓ http 200 errors and redirects are not marked accepted                0.05s
+  ✓ external review match context and event age are checked before http  0.03s
+  ✓ simulated context missing credentials and disabled pixel are blocke… 0.03s
+  ✓ active lease prevents duplicate sending and expired lease can recov… 0.03s
+  ✓ retry limit and production simulation boot guard                     0.03s
+  ✓ unknown remote outcome is not resent after the retry window even if… 0.04s
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.11s
+  ✓ form save reopen local probe link edit disable and summary           0.15s
+  ✓ link validation is actionable chinese and preserves unsaved input    0.06s
+  ✓ pixel and assignment validation stays strict with chinese messages   0.06s
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.07s
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.03s
+  ✓ workspace tabs are allowlisted and assignment tab is owner only      0.09s
+  ✓ url tab restores only authorized context and invalid input falls ba… 0.06s
+  ✓ asset dialog actions keep context and failed save preserves editor   0.08s
+  ✓ editors are shared dialogs and tab list has only four entries        0.04s
+  ✓ payment display uses shared exact usd format without float conversi… 0.04s
+
+   PASS  Tests\Feature\Acquisition\PaymentTest
+  ✓ event and payment deduplication preserve one receipt and one conver… 0.03s
+  ✓ same payment with changed facts is rejected without overwriting his… 0.03s
+  ✓ unknown source is not reinterpreted as current pixel and no source…  0.03s
+  ✓ first resubscription renewal and test real are separate but same ki… 0.04s
+  ✓ pixel and link edits do not rewrite already received attribution or… 0.03s
+
+   PASS  Tests\Feature\Acquisition\ReadProvidersIntegrationTest
+  ✓ real directories support both platforms sharing revocation and publ… 0.12s
+  ✓ workbench uses real cursor and repopulates saved choices before rev… 0.22s
+
+   PASS  Tests\Feature\Acquisition\TrackingHttpTest
+  ✓ default unknown and disabled context is private and records no subj… 0.03s
+  ✓ consent http batch retries and unknown fields do not leak identifie… 0.05s
+  ✓ payload size count origin and boolean strictness are enforced        0.03s
+  ✓ transient storage 503 allows same id replay after rollback           0.03s
+  ✓ diagnostics separate no consent schema conflict and temporary catal… 0.05s
+  ✓ http rate limit has safe persistent diagnostic                       0.26s
+
+   PASS  Tests\Feature\Contracts\AnalyticsContractsTest
+  ✓ disabled recorder is safe for existing business without a consumer   0.01s
+  ✓ missing financial reader does not fabricate zero revenue             0.01s
+  ✓ browser allowlist cannot produce authoritative success events        0.01s
+
+  Tests:    79 passed (1066 assertions)
+  Duration: 8.88s
