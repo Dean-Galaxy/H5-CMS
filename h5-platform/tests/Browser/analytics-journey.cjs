@@ -93,7 +93,8 @@ async function run(candidate, fixtureFile) {
   assert.equal(flags.runtime_safe, true); assert.equal(flags.external_enabled, false); assert.equal(flags.purchase_enabled, false);
   const { chromium } = require(process.env.H5_PLAYWRIGHT_MODULE || 'playwright');
   const browser = await chromium.launch({headless: true, args: ['--no-proxy-server'], executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
-  const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block'});
+  const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block',
+    userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'});
   if (fixture.force_mse === true) await context.addInitScript(() => {
     const original = HTMLMediaElement.prototype.canPlayType;
     HTMLMediaElement.prototype.canPlayType = function(type) {
@@ -101,7 +102,7 @@ async function run(candidate, fixtureFile) {
     };
   });
   const result = {candidate, contract: 'analytics-v1', scope: 'browser observations only; DB/funnel/money/authority acceptance is separate',
-    browser: browser.version(), external_attempts: 0, tracking: [], playback: [], steps: [], media_requests: 0, landing_sequence: [],
+    browser: browser.version(), external_attempts: 0, intercepted_test_provider_navigations:0, tracking: [], playback: [], steps: [], media_requests: 0, landing_sequence: [],
     official_platform_verified: false, real_device: false, force_mse: fixture.force_mse === true, completed: false};
   const startedAt = Date.now();
   const page = await context.newPage();
@@ -109,6 +110,14 @@ async function run(candidate, fixtureFile) {
   await context.route('**/*', async route => {
     const url = new URL(route.request().url());
     if (url.protocol === 'blob:' || url.protocol === 'data:') return route.continue();
+    // The real checkout returns 03's FakeGateway URL. Intercept ONLY that explicit test protocol;
+    // never contact Stripe or imply its page/API was verified. Settlement remains a separate CLI action.
+    if (fixture.controlled_provider_redirect === true && flags.test_provider_stub === true
+        && route.request().isNavigationRequest() && url.origin === 'https://checkout.stripe.com'
+        && /^\/c\/pay\/cs_test_[a-f0-9-]{36}$/.test(url.pathname) && url.search === '') {
+      result.intercepted_test_provider_navigations++;
+      return route.fulfill({status:302,headers:{location:base+'/billing/return?order_id='+url.pathname.slice('/c/pay/cs_test_'.length)}});
+    }
     if (url.origin !== base) { result.external_attempts++; return route.abort('blockedbyclient'); }
     return route.continue();
   });
