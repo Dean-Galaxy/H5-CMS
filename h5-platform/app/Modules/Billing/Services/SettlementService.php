@@ -168,6 +168,7 @@ final class SettlementService
             $total = (int) DB::table('billing_refunds')->where('payment_id', $payment->id)->where('status', 'succeeded')->sum('amount_minor');
             $this->requireFact($total <= $payment->amount_minor);
             DB::table('billing_payments')->where('id', $payment->id)->update(['refunded_amount_minor' => $total]);
+            app(BillingBehaviorFacts::class)->refund($payment->id);
             if ($total === $payment->amount_minor) {
                 DB::table('billing_entitlements')->where('payment_id', $payment->id)->whereNull('revoked_at')->update(['revoked_at' => now()]);
             } elseif ($payment->refunded_amount_minor === $payment->amount_minor) {
@@ -249,6 +250,7 @@ final class SettlementService
             }
         }
         DB::table('billing_subscriptions')->where('id', $sub->id)->update($update);
+        app(BillingBehaviorFacts::class)->subscription($sub->id);
     }
 
     private function requireFact(bool $condition): void

@@ -508,6 +508,7 @@ final class BillingEngine implements BillingService, MembershipReader
                     }
                     app(PayPalReconciliation::class)->cancelOperation($sub);
                     DB::table('billing_operations')->where('id', $op->id)->update(['state' => 'succeeded', 'last_error' => null, 'updated_at' => now()]);
+                    app(BillingBehaviorFacts::class)->subscription($sub->id, confirmedAction: true);
                     app(AuditRecorder::class)->record('billing.cancel', 'billing_subscription', $sub->id, 'confirmed', ['version' => $sub->confirmation_version + 1]);
 
                     return;
@@ -554,6 +555,7 @@ final class BillingEngine implements BillingService, MembershipReader
                 if ($op->quote_id) {
                     DB::table('billing_resume_quotes')->where('id', $op->quote_id)->update(['state' => 'succeeded', 'completed_version' => $version]);
                 }
+                app(BillingBehaviorFacts::class)->subscription($sub->id, confirmedAction: true);
                 app(AuditRecorder::class)->record('billing.'.$op->kind, 'billing_subscription', $sub->id, 'confirmed', ['version' => $version]);
             } catch (\Throwable $e) {
                 DB::table('billing_operations')->where('id', $op->id)->update(['last_error' => 'PROVIDER_RESULT_UNRESOLVED', 'updated_at' => now()]);
