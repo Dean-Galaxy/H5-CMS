@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Billing;
 
+use App\Contracts\BillingAnalyticsReader;
 use App\Contracts\MembershipReader;
 use App\Contracts\RegionResolver;
 use App\Data\Checkout;
@@ -467,6 +468,64 @@ final class PayPalRuntimeTest extends TestCase
         self::assertSame('succeeded', DB::table('billing_operations')->sole()->state);
         self::assertSame(100, DB::table('billing_payments')->first()->refunded_amount_minor);
         self::assertDatabaseCount('billing_refunds', 1);
+        self::assertDatabaseCount('billing_operations', 1);
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertDatabaseCount('billing_outbox', 1);
+    }
+
+    public function test_paypal_behavior_facts_use_confirmed_reads_and_refund_correction_versions(): void
+    {
+        $order = $this->checkout();
+        $source = BillingStore::id();
+        DB::table('billing_orders')->where('id', $order->id)->update(['attribution_snapshot' => json_encode([
+            'source_id' => $source, 'link_id' => BillingStore::id(), 'channel' => 'meta', 'pixel_config_version' => 1,
+            'captured_at' => '2026-10-27T05:00:00Z', 'consent' => 'granted',
+        ])]);
+        $this->observedFirstCycle();
+        $this->sync($order);
+        self::assertDatabaseCount('billing_behavior_outbox', 0); // Activation is not a resume or a second PaymentSettled.
+        $payment = DB::table('billing_payments')->sole();
+        $entitlement = DB::table('billing_entitlements')->sole();
+        $this->failSuspend = true;
+        $this->pending(fn () => $this->billing->cancel($this->viewer()));
+        self::assertDatabaseCount('billing_behavior_outbox', 0);
+        $this->failSuspend = false;
+        $this->billing->cancel($this->viewer());
+        $this->billing->cancel($this->viewer());
+        self::assertSame(['subscription_cancelled'], DB::table('billing_behavior_outbox')->pluck('event_name')->all());
+        $this->refunds['REFUNDLOCAL1'] = ['id' => 'REFUNDLOCAL1', 'sale_id' => self::SALE,
+            'amount' => ['total' => '1.00', 'currency' => 'USD'], 'state' => 'completed'];
+        $this->sales[self::SALE]['state'] = 'partially_refunded';
+        app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
+        app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL1');
+        $this->refunds['REFUNDLOCAL2'] = ['id' => 'REFUNDLOCAL2', 'sale_id' => self::SALE,
+            'amount' => ['total' => '2.00', 'currency' => 'USD'], 'state' => 'completed'];
+        $this->sales[self::SALE]['state'] = 'refunded';
+        app(PayPalReconciliation::class)->refund(ProviderScope::fromRecord($payment), 'REFUNDLOCAL2');
+        $this->refunds['REFUNDLOCAL2']['state'] = 'failed';
+        $this->sales[self::SALE]['state'] = 'partially_refunded';
+        app(PayPalReconciliation::class)->syncRefunds($payment->id);
+        $this->refunds['REFUNDLOCAL1']['state'] = 'failed';
+        $this->sales[self::SALE]['state'] = 'completed';
+        app(PayPalReconciliation::class)->syncRefunds($payment->id);
+        $facts = DB::table('billing_behavior_outbox')->where('event_name', 'refund_confirmed')->orderBy('fact_version')->get();
+        self::assertSame([100, 300, 100, 0], $facts->map(fn ($fact) => BillingStore::json($fact->properties)['refunded_amount_minor'])->all());
+        self::assertSame([1, 2, 3, 4], $facts->map(fn ($fact) => BillingStore::json($fact->properties)['fact_version'])->all());
+        foreach (DB::table('billing_behavior_outbox')->get() as $fact) {
+            $properties = BillingStore::json($fact->properties);
+            self::assertSame($source, $properties['source_id']);
+            self::assertSame($this->user->id, $properties['viewer_id']);
+            self::assertTrue($properties['is_test']);
+            self::assertStringNotContainsString(self::SALE, json_encode($properties));
+            self::assertStringNotContainsString('I-FIXTURE', json_encode($properties));
+        }
+        self::assertSame(0, app(BillingAnalyticsReader::class)->payments([$payment->id])[$payment->id]['refunded_amount_minor']);
+        self::assertSame($entitlement->access_from, DB::table('billing_entitlements')->sole()->access_from);
+        self::assertSame($entitlement->access_until, DB::table('billing_entitlements')->sole()->access_until);
+        self::assertNull(DB::table('billing_entitlements')->sole()->revoked_at);
+        self::assertNotNull(DB::table('billing_accounts')->sole()->first_offer_used_at);
+        self::assertSame('SUSPENDED', $this->remote['status']);
+        self::assertNotContains('POST /v1/billing/subscriptions/I-FIXTURE/activate', $this->calls);
         self::assertDatabaseCount('billing_operations', 1);
         self::assertDatabaseCount('billing_payments', 1);
         self::assertDatabaseCount('billing_outbox', 1);

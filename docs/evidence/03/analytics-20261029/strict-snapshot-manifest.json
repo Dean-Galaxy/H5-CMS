@@ -1,0 +1,18 @@
+{
+  "previous_delivery": "d9540466302af70c1d83aa3ed9e09a8f1e8a058e",
+  "source_commit": "5a3137151a37caaa1666e3eefbd4354c97212274",
+  "targeted_tests": {
+    "passed": 38,
+    "assertions": 212,
+    "seconds": 1.79
+  },
+  "related_regression": {
+    "passed": 172,
+    "assertions": 3180,
+    "seconds": 16.66
+  },
+  "source_sha256": "bccbffe90fe7ab736ddef4a9c0cc475ec54bb31d8b663d83e1ed1e845c3a09b7",
+  "no_shared_schema_or_migration_changes": true,
+  "actual_payment_site_modified": false,
+  "dependency_fix_verified_by": "00 receipt only"
+}

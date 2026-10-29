@@ -9,6 +9,7 @@ use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Billing\Data\ExternalPayment;
 use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Gateway\ProviderScope;
+use App\Modules\Billing\Services\BillingBehaviorFacts;
 use App\Modules\Billing\Services\BillingEngine;
 use App\Modules\Billing\Services\PaymentLedger;
 use App\Modules\Billing\Services\SettlementService;
@@ -90,6 +91,9 @@ try {
                     $f['subscription_id'], $f['customer_id'], $f['first_order_id'], true, 300, 1200, 'USD',
                     new DateTimeImmutable($f['period_start']), new DateTimeImmutable($f['period_end']), new DateTimeImmutable($f['paid_at']));
                 $result['payment_id'] = app(PaymentLedger::class)->record($data['local_subscription_id'], $fact);
+                break;
+            case 'behavior_refund':
+                app(BillingBehaviorFacts::class)->refund($data['payment_id']);
                 break;
             case 'resume':
                 $input = $data['confirmation'];

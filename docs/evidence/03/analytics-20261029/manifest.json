@@ -1,0 +1,32 @@
+{
+  "baseline": "32e878fff9544c5ff23898ad098022edefa2ff1b",
+  "public_contract_patch": "c9a1d9b",
+  "source_commit": "5cc259057e1aa2b714a2299cad584ba6e9a0f4fb",
+  "business_contract": "1.0.5",
+  "analytics_contract": "analytics-v1",
+  "module_tests": {
+    "passed": 451,
+    "assertions": 6751,
+    "seconds": 35.4
+  },
+  "targeted_new_tests": {
+    "passed": 13,
+    "assertions": 122
+  },
+  "paypal_analytics": {
+    "passed": 1,
+    "assertions": 86
+  },
+  "concurrent_new_fact": {
+    "passed": 1,
+    "assertions": 13
+  },
+  "openapi_examples": 59,
+  "official_payment_verified_here": false,
+  "real_consent_recorder_integrated_here": false,
+  "sha256": {
+    "FinancialAnalyticsReader.php": "ae01d975a67f0bfe725d9d93b437350ec1b54e3e3d604c468e3007ee88e94817",
+    "BillingBehaviorFacts.php": "97674da27dc9160e4474aeb440558d5684dc677c1c0d7c2d54a9e04fc153a67b",
+    "BillingBehaviorOutbox.php": "73d398edc10e82c30fb4421ae6d4dad9f425269486d2267ff5bddd19b7182eca"
+  }
+}

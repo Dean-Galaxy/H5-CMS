@@ -12,6 +12,7 @@ use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Services\BillingEngine;
 use App\Modules\Billing\Services\BillingStore;
+use App\Modules\Billing\Services\PaymentLedger;
 use App\Modules\Billing\Services\SettlementService;
 use App\Modules\Identity\Models\Viewer;
 use App\Support\ApiProblem;
@@ -93,6 +94,30 @@ final class BillingConcurrencyTest extends TestCase
         DB::table('billing_accounts')->insert(['viewer_id' => $user->id]);
 
         return new ViewerIdentity($user->id, $user->email, true);
+    }
+
+    public function test_concurrent_lifecycle_observations_commit_one_refund_version_and_one_pending_event(): void
+    {
+        [$viewer, , $sub, $fact] = ProviderLedgerFixture::create(new ProviderScope('paypal', 'sandbox', 'merchant-a'));
+        $paymentId = app(PaymentLedger::class)->record($sub->id, $fact);
+        // Committed local financial fixture only; neither worker contacts a payment provider.
+        DB::table('billing_payments')->where('id', $paymentId)->update(['refunded_amount_minor' => 100]);
+        $action = ['action' => 'behavior_refund', 'payment_id' => $paymentId];
+        $runner = new BillingRace;
+        $results = $runner->run($viewer->id, [], [$action, $action]);
+        self::assertTrue($runner->report['lock_observed']);
+        self::assertCount(2, $runner->report['blocked_waiters']);
+        self::assertTrue($runner->report['children_stopped']);
+        self::assertSame(['OK', 'OK'], array_column($results, 'code'));
+        self::assertDatabaseCount('billing_behavior_outbox', 1);
+        self::assertDatabaseCount('billing_analytics_states', 1);
+        $event = DB::table('billing_behavior_outbox')->sole();
+        self::assertSame('pending', $event->state);
+        self::assertSame(1, $event->fact_version);
+        self::assertSame(100, BillingStore::json($event->properties)['refunded_amount_minor']);
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertDatabaseCount('billing_entitlements', 1);
+        self::assertDatabaseCount('billing_outbox', 1);
     }
 
     private function race(ViewerIdentity $viewer, array $actions): array
