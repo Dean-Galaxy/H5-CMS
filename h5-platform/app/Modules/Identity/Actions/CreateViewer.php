@@ -18,6 +18,10 @@ final class CreateViewer implements CreatesNewUsers
             'password' => ['required', 'string', Password::min(12)->letters()->numbers(), 'max:128', 'confirmed'],
         ], ['email.unique' => '无法使用此邮箱注册，请登录或尝试找回密码。'])->validate();
 
-        return Viewer::create(array_intersect_key($input, array_flip(['name', 'email', 'password'])));
+        $viewer = Viewer::create(array_intersect_key($input, array_flip(['name', 'email', 'password'])));
+        // Server-only outcome marker; middleware records the persisted fact after the action.
+        request()->attributes->set('identity.created_viewer', $viewer->id);
+
+        return $viewer;
     }
 }

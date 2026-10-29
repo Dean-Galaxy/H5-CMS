@@ -4,6 +4,7 @@ use App\Modules\Identity\Http\IdentityController as Identity;
 use App\Modules\Identity\Http\RememberReturn;
 use App\Modules\Identity\Http\StaffController;
 use App\Modules\Identity\Http\StaffMfa;
+use App\Modules\Identity\Http\TrackViewerAuthentication;
 use App\Modules\Identity\Http\VerificationLogin;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -12,8 +13,8 @@ use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 Route::prefix('api/v1/auth')->group(function () {
     Route::get('csrf', [Identity::class, 'csrf']);
     Route::get('me', [Identity::class, 'me']);
-    Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware(['guest:web', 'throttle:identity-login', RememberReturn::class])->name('login.store');
-    Route::post('register', [RegisteredUserController::class, 'store'])->middleware(['guest:web', 'throttle:identity-register', RememberReturn::class])->name('register.store');
+    Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware(['guest:web', TrackViewerAuthentication::class.':login', RememberReturn::class])->name('login.store');
+    Route::post('register', [RegisteredUserController::class, 'store'])->middleware(['guest:web', TrackViewerAuthentication::class.':registration', RememberReturn::class])->name('register.store');
     Route::post('forgot-password', [Identity::class, 'forgot'])->middleware('throttle:identity-mail')->name('password.email');
     Route::post('reset-password', [Identity::class, 'reset'])->middleware('throttle:identity-reset')->name('password.update');
     Route::get('email/verify/{id}/{hash}', [Identity::class, 'verify'])->middleware([VerificationLogin::class, 'throttle:identity-reset'])->name('verification.verify');
