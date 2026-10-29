@@ -1,0 +1,42 @@
+{
+  "source_commit": "6effb469002466d509c6dbdd8a7145167ac600ba",
+  "previous_05_delivery": "0e55b7c26a401a228c6e0fcf24a0e929784bfc06",
+  "business_contract": "1.0.5",
+  "additive_contract": "analytics-v1",
+  "scope": "filtered_analytics_query_correctness_and_capacity",
+  "tests": {
+    "report_capacity_and_existing_scope": {
+      "passed": 26,
+      "assertions": 265
+    },
+    "affected_real_combination": {
+      "passed": 8,
+      "assertions": 214
+    }
+  },
+  "fixtures": {
+    "progress_rows": 20100,
+    "entrance_limit": 10000,
+    "over_limit_entrances": 10001,
+    "distinct_payments": 401,
+    "reader_batches": [
+      200,
+      200,
+      1
+    ]
+  },
+  "browser": {
+    "passed": 8,
+    "external_requests": 0,
+    "javascript_errors": 0
+  },
+  "migration": "2026_10_29_050005_index_acquisition_analytics_queries",
+  "external_advertising": "disabled",
+  "source_sha256": {
+    "h5-platform/app/Modules/Acquisition/Analytics/AnalyticsReport.php": "ebbeb65b7c02f388dd05d632b0bec6c0965b111aa608e494cb140f08432c5acb",
+    "h5-platform/database/migrations/2026_10_29_050005_index_acquisition_analytics_queries.php": "50539855725538457dc3d7ede4435ed6924a5f8cff8e56abafcc6ea65b14ffaa",
+    "h5-platform/resources/views/acquisition/analytics.blade.php": "341d1674e1a4a4b3bed239abeef74da5f083ad5e045db4568a0d546aa3507c5f",
+    "h5-platform/tests/Feature/Acquisition/AnalyticsCapacityTest.php": "c5f67c7bdbf98e137e73d6d1b20d6ada1ea3a3294cae4b034648f7fb22d62a4c",
+    "h5-platform/tests/Feature/Acquisition/AnalyticsLinkFilterTest.php": "f22cd8700bef92dd2f8f7d0383d5d891a2cb38c8c9c9e30161415ab3cb8a5277"
+  }
+}

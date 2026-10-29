@@ -26,7 +26,7 @@
     @if($analyticsError)<p class="h5-error" role="alert">{{ $analyticsError }}</p>@endif
     @if($analytics)
         <p class="h5-note">{{ $analytics['definition'] }} {{ $analytics['from'] }} — {{ $analytics['until'] }}</p>
-        @if($analytics['limited'])<p class="h5-alert">样本超过单次10000条上限，结果不完整，转化率不计算；请缩小日期或筛选。</p>@endif
+        @if($analytics['limited'])<p class="h5-alert">入口主体共{{ $analytics['funnel_entry_people'] }}人，超过10000人上限；漏斗仅处理前{{ $analytics['funnel_processed_people'] }}个入口，不计算漏斗转化率。独立计数、观看、分集和财务仍为完整筛选结果；请缩小入口日期或筛选。</p>@endif
         <p>访问人数 {{ $analytics['visitors'] ?? '—' }} · 会话 {{ $analytics['sessions'] ?? '—' }} · 有效观看累计 {{ $analytics['watched_seconds'] ?? '—' }} 秒 · 仍在7天观察窗 {{ $analytics['observing_people'] }} 人</p>
         <h3>各环节独立计数</h3>
         <div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>事件</th><th>次数</th><th>去重人数</th></tr></thead><tbody>@forelse($analytics['counts'] ?? [] as $event=>$row)<tr><td>{{ $labels::event($event) }}</td><td>{{ $row['events'] }}</td><td>{{ $row['people'] }}</td></tr>@empty<tr><td colspan="3">暂无已同意样本或采集未启用；不代表全站没有行为。</td></tr>@endforelse</tbody></table></div>

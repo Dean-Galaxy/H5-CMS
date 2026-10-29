@@ -1,0 +1,37 @@
+
+   PASS  Tests\Feature\Acquisition\AnalyticsCapacityTest
+  ✓ heartbeats cannot displace filtered complete cohorts or independent… 1.24s
+  ✓ real entrance limit is explicit without truncating independent epis… 0.77s
+  ✓ finance keyset batches are at most two hundred and do not double co… 0.07s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsTest
+  ✓ click requires visible confirmation consent and exact window withou… 0.05s
+  ✓ advertising only landing does not create analysis subject and withd… 0.04s
+  ✓ valid new click overrides but invalid prefetch disabled and normal…  0.04s
+  ✓ separate analytics consent client idempotency forged fields and pla… 0.04s
+  ✓ anonymous login chain is preserved but account switch and logout ro… 0.04s
+  ✓ reliable payment dedup refund corrections and current finance witho… 0.06s
+  ✓ savepoint failure is retry without poisoning outer transaction and…  0.03s
+  ✓ rebinding produces new code preserves history and prune leaves sour… 0.04s
+  ✓ report authorized scope zero denominator and out of order funnel ar… 0.06s
+  ✓ same second provider payment uses exact order causality even when o… 0.07s
+  ✓ consented cookie restores anonymous source across server session ex… 0.03s
+  ✓ episode cutpoints use verified labels cumulative deltas and matchin… 0.08s
+  ✓ analytics tab renders with scope and invalid date keeps filter inpu… 0.06s
+  ✓ explicit advertising withdrawal blocks previously queued delivery a… 0.04s
+  ✓ assigned operator sees only its link aggregates and revocation remo… 0.06s
+  ✓ own links remain visible after redundant assignment revocation with… 0.06s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsLinkFilterTest
+  ✓ search finds old link beyond main page and has its own bounded pagi… 0.15s
+  ✓ selected authorized link survives other search and page while draft… 0.12s
+  ✓ own and assigned search scope never leaks same keyword and revoked…  0.08s
+  ✓ search treats sql wildcards as literal name characters               0.02s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsProvidersTest
+  ✓ real identity audience checkout reader and delayed payment outbox s… 0.14s
+  ✓ true withdrawal after logout by same viewer stops delayed fact with… 0.07s
+  ✓ account b does not inherit a and cannot withdraw as consent for a    0.07s
+
+  Tests:    26 passed (265 assertions)
+  Duration: 3.67s

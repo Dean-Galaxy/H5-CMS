@@ -1,0 +1,15 @@
+
+   PASS  Tests\Integration\AnalyticsCombined\PaymentAttributionTest
+  ✓ real source registration verification checkout payment and replay s… 0.54s
+  ✓ logout is not withdrawal for a delayed payment and new account does… 0.15s
+  ✓ explicit withdrawal prevents old delayed conversion but keeps finan… 0.12s
+  ✓ refund cumulative versions use real reader not sum of behavior even… 0.19s
+  ✓ advertising only visible landing creates source without an analytic… 0.08s
+
+   PASS  Tests\Integration\AnalyticsCombined\MatchingContextTest
+  ✓ slow or reordered landing does not freeze empty context or leak pla… 0.12s
+  ✓ unknown or denied advertising never persists matching identifiers    0.11s
+  ✓ matching context size and value limits are enforced on the dedicate… 0.07s
+
+  Tests:    8 passed (214 assertions)
+  Duration: 1.52s

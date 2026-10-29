@@ -1,0 +1,4 @@
+
+   INFO  Running migrations.
+
+  2026_10_29_050005_index_acquisition_analytics_queries .......... 4.06ms DONE

@@ -22,7 +22,7 @@ final class AnalyticsLinkFilterTest extends AcquisitionTestCase
     {
         $rows = [];
         for ($i = 0; $i < $count; $i++) {
-            $rows[] = ['id' => (string) Str::uuid(), 'owner_id' => $owner,
+            $rows[] = ['id' => $i === $count - 1 ? '00000000-0000-4000-8000-'.bin2hex(random_bytes(6)) : (string) Str::uuid7(), 'owner_id' => $owner,
                 'name' => $i === $count - 1 ? 'Campaign ZZZ old' : sprintf('Campaign %03d', $i),
                 'platform' => 'meta', 'pixel_id' => $pixel['id'], 'drama_id' => array_key_first($this->dramas), 'drama_title' => 'Synthetic fixture',
                 'code' => 'SEARCH'.bin2hex(random_bytes(12)), 'active' => true, 'version' => 1,
