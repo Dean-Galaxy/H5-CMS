@@ -21,11 +21,11 @@ async function eventually(predicate, timeout = 8000) {
 }
 
 async function fixture({consent = 'unknown', advertising = 'unknown', locale = 'en', media = false, hidden = false, enabled = true,
-  clickQuery = '', cookieProbe = null, pendingLanding = true, landingDelay = 0, landingConfirmed = true, consentResponse = null} = {}) {
+  clickQuery = '', cookieProbe = null, pendingLanding = true, landingDelay = 0, landingConfirmed = true, consentResponse = null, contextDelay = 0} = {}) {
   const ctx = await browser.newContext({viewport: {width: 390, height: 844}});
   let server = {enabled, policy_version: 'analytics-v1', consent: {analytics: consent, advertising}, pending_landing: pendingLanding};
-  const observations = {posts: [], events: new Map(), landing: [], consent: [], external: [], errors: [], playback: 0, timeline: [], referrers: []};
-  const fault = {events: 0, status: 503, consent: 0};
+  const observations = {posts: [], events: new Map(), landing: [], consent: [], external: [], errors: [], playback: 0, timeline: [], referrers: [], contextStarted: 0, contextFinished: 0};
+  const fault = {events: 0, status: 503, consent: 0, contextDelay, contextStatus: 200, consentDelay: 0};
   let scope = 'synthetic-browser-scope', member = true;
   if (cookieProbe !== null) await ctx.addInitScript(cookieValue => {
     window.syntheticCookieReads = 0; window.syntheticCookieWrites = 0;
@@ -45,9 +45,16 @@ async function fixture({consent = 'unknown', advertising = 'unknown', locale = '
     if (url.origin !== origin) { observations.external.push(url.origin); return route.abort(); }
     if (url.pathname.startsWith('/api/v1/tracking/')) observations.referrers.push(req.headers().referer || '');
     const json = body => route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(body)});
-    if (url.pathname === '/api/v1/tracking/context') return json(server);
+    if (url.pathname === '/api/v1/tracking/context') {
+      observations.contextStarted++;
+      const snapshot = JSON.parse(JSON.stringify(server)), status = fault.contextStatus;
+      if (fault.contextDelay) await pause(fault.contextDelay);
+      observations.contextFinished++;
+      return status === 200 ? json(snapshot) : route.fulfill({status});
+    }
     if (url.pathname === '/api/v1/tracking/consent') {
       const p = req.postDataJSON(); observations.consent.push(p);
+      if (fault.consentDelay) await pause(fault.consentDelay);
       if (fault.consent-- > 0) return route.fulfill({status: 503});
       if (consentResponse) return json(consentResponse);
       server.consent = {analytics: p.analytics ? 'granted' : 'denied', advertising: p.advertising ? 'granted' : 'denied'};
@@ -263,7 +270,7 @@ test('buffer count/bytes stay bounded and disabled analytics never blocks actual
   } finally { await disabled.ctx.close(); }
 });
 
-const clicks = {fbclid: 'SYNTHETIC_FB_CLICK_ABC-123', ttclid: 'SYNTHETIC_TT_CLICK_DEF-456',
+const clicks = {fbclid: 'SYNTHETIC_FB_CLICK_ABC-123', ttclid: 'E.C.P.SYNTHETIC_06-CLICK',
   fbc: 'fb.1.1770000000000.SYNTHETIC_OLD_FB_CLICK', fbp: 'fb.1.1770000000000.1234567890', ttp: 'SYNTHETIC.TTP_COOKIE-ABC123'};
 const clickQuery = '&fbclid='+clicks.fbclid+'&ttclid='+clicks.ttclid+'&keep=normal#chapter';
 const cookieProbe = '_fbc='+clicks.fbc+'; _fbp='+clicks.fbp+'; _ttp='+clicks.ttp+'; private_other=NEVER-READ-INTO-CONTEXT';
@@ -340,6 +347,8 @@ test('oversized, script/URL and ambiguous duplicate click/cookie input never ent
     {clickQuery: '&fbclid='+('A'.repeat(513))+'&ttclid='+encodeURIComponent('<script>alert(1)</script>'), cookieProbe: '_fbc='+encodeURIComponent('fb.1.1770000000000.<script>')+'; _fbp=fb.1.1770000000000.https://evil.invalid; _ttp='+('B'.repeat(513))},
     {clickQuery: '&fbclid=ONE&fbclid=TWO&ttclid='+encodeURIComponent('https://evil.invalid/?x=y'), cookieProbe: '_fbc=fb.1.1770000000000.A; _fbc=fb.1.1770000000000.B; _fbp=fb.1.1770000000000.123; _fbp=fb.1.1770000000000.456; _ttp='+encodeURIComponent('<img src=x onerror=alert(1)>')},
     {clickQuery: '&fbclid='+encodeURIComponent('mail@example.test')+'&ttclid='+encodeURIComponent('line\nbreak'), cookieProbe: '_fbc=fb.123.1770000000000.A; _fbp=fb.1.1770000000000.'+('1'.repeat(31))+'; _ttp=one%2Ftwo'},
+    {clickQuery: '&ttclid=E.C.P.'+('A'.repeat(507)), cookieProbe: ''},
+    {clickQuery: '&ttclid='+encodeURIComponent('E.C.P.SYNTHETIC_06-CLICK\n'), cookieProbe: ''},
   ]) {
     const f = await fixture({consent: 'denied', advertising: 'granted', ...malicious});
     try {
@@ -404,4 +413,125 @@ test('a late landing acknowledgment after withdrawal cannot resume collection or
     assert.ok(f.page.url().includes('fbclid='+clicks.fbclid));
     assert.deepEqual(f.observations.errors, []);
   } finally { await f.ctx.close(); }
+});
+
+test('slow open GET cannot overwrite a draft edited after the request started', async () => {
+  const f = await fixture({consent: 'granted'});
+  try {
+    await eventually(() => f.observations.events.size >= 2);
+    await f.page.waitForFunction(() => !sessionStorage.getItem('h5.analytics.buffer.v1'));
+    f.fault.contextDelay = 700;
+    const reads = f.observations.contextFinished;
+    await f.page.locator('[data-privacy-open]').click();
+    await f.page.locator('input[name=analytics]').uncheck();
+    await f.page.locator('input[name=advertising]').check();
+    await eventually(() => f.observations.contextFinished > reads); await f.page.waitForTimeout(100);
+    assert.equal(await f.page.locator('input[name=analytics]').isChecked(), false);
+    assert.equal(await f.page.locator('input[name=advertising]').isChecked(), true);
+  } finally { await f.ctx.close(); }
+});
+
+test('background event-flush GET cannot overwrite an open dirty privacy draft', async () => {
+  const f = await fixture({consent: 'granted'});
+  try {
+    await eventually(() => f.observations.events.size >= 2);
+    await f.page.waitForFunction(() => !sessionStorage.getItem('h5.analytics.buffer.v1'));
+    await f.page.locator('[data-privacy-open]').click();
+    await f.page.waitForTimeout(100);
+    await f.page.locator('input[name=analytics]').uncheck(); await f.page.locator('input[name=advertising]').check();
+    const reads = f.observations.contextFinished; f.fault.contextDelay = 700;
+    await f.page.evaluate(() => window.H5AudienceAnalytics.emit('subscribe_click'));
+    await eventually(() => f.observations.contextFinished > reads); await f.page.waitForTimeout(100);
+    assert.equal(await f.page.locator('input[name=analytics]').isChecked(), false);
+    assert.equal(await f.page.locator('input[name=advertising]').isChecked(), true);
+    await f.page.locator('[data-privacy-close]').click(); await f.page.locator('[data-privacy-open]').click();
+    assert.equal(await f.page.locator('input[name=advertising]').isChecked(), true);
+  } finally { await f.ctx.close(); }
+});
+
+test('privacy GET and save progress/failure are visible and keep the failed draft editable', async () => {
+  const f = await fixture({consent: 'granted', contextDelay: 900});
+  try {
+    await f.page.locator('[data-privacy-open]').click();
+    assert.equal(await f.page.locator('[data-privacy-status]').textContent(), 'Loading your privacy choices…');
+    await eventually(() => f.observations.contextFinished > 0); await f.page.waitForTimeout(100);
+    await f.page.locator('input[name=advertising]').check();
+    f.fault.consentDelay = 900; f.fault.consent = 1;
+    await f.page.locator('[data-privacy-form] button[type=submit]').click();
+    assert.equal(await f.page.locator('[data-privacy-status]').textContent(), 'Saving your privacy choices…');
+    assert.equal(await f.page.locator('[data-privacy-form] button[type=submit]').isDisabled(), true);
+    assert.equal(await f.page.locator('[data-privacy-close]').isEnabled(), true);
+    await f.page.locator('[data-privacy-form]').evaluate(form => {
+      form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));
+      form.dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}));
+    });
+    await f.page.getByText('Your choices could not be saved. Optional collection is paused in this browser. Retry when connected.', {exact: true}).waitFor({state: 'visible'});
+    assert.equal(await f.page.locator('input[name=advertising]').isChecked(), true);
+    assert.equal(await f.page.locator('[data-privacy-form] button[type=submit]').isEnabled(), true);
+    assert.equal(f.observations.consent.length, 1);
+    await f.page.locator('input[name=advertising]').uncheck();
+    await f.page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await f.page.waitForTimeout(1000);
+    assert.equal(f.observations.consent.length, 1, 'Foreground retry must not save the superseded failed draft');
+    assert.equal(await f.page.locator('input[name=advertising]').isChecked(), false);
+    f.fault.consentDelay = 0;
+    await f.page.locator('[data-privacy-form] button[type=submit]').click();
+    await f.page.locator('[data-privacy-dialog]').waitFor({state: 'hidden'});
+    assert.deepEqual(f.observations.consent[1], {analytics: true, advertising: false, policy_version: 'analytics-v1'});
+    assert.deepEqual(f.observations.errors, []);
+  } finally { await f.ctx.close(); }
+});
+
+test('disabled and failed reads have distinct bilingual status without losing editable choices', async () => {
+  for (const [locale, messages] of Object.entries({
+    en: {reading: 'Loading your privacy choices…', disabled: 'Optional tracking is not enabled. You can continue using the site.', failed: 'Your saved choices could not be loaded. Your edits are kept. Close and reopen to retry.'},
+    zh_CN: {reading: '正在读取隐私选择…', disabled: '可选跟踪尚未启用，你仍可正常使用网站。', failed: '已保存的选择读取失败，当前修改已保留。可关闭后重开重试。'},
+  })) {
+    const f = await fixture({enabled: false, locale, contextDelay: 700});
+    try {
+      await f.page.locator('[data-privacy-open]').click();
+      assert.equal(await f.page.locator('[data-privacy-status]').textContent(), messages.reading);
+      await f.page.getByText(messages.disabled, {exact: true}).waitFor({state: 'visible'});
+      await f.page.locator('input[name=analytics]').check(); await f.page.locator('input[name=advertising]').check();
+      await f.page.locator('[data-privacy-close]').click();
+      f.fault.contextStatus = 503; f.fault.contextDelay = 250;
+      await f.page.locator('[data-privacy-open]').click();
+      await f.page.getByText(messages.failed, {exact: true}).waitFor({state: 'visible'});
+      assert.equal(await f.page.locator('input[name=analytics]').isChecked(), true);
+      assert.equal(await f.page.locator('input[name=advertising]').isChecked(), true);
+      assert.equal(await f.page.locator('[data-privacy-close]').isEnabled(), true);
+      assert.equal(f.observations.consent.length, 0);
+    } finally { await f.ctx.close(); }
+  }
+});
+
+test('320 by 500 short-screen dialogs scroll to reject, withdraw and close in both languages', async () => {
+  for (const locale of ['en', 'zh_CN']) {
+    const f = await fixture({consent: 'denied', advertising: 'denied', locale});
+    try {
+      await f.page.setViewportSize({width: 320, height: 500});
+      await f.page.locator('[data-privacy-open]').click();
+      for (const selector of ['[data-privacy-reject]', '[data-privacy-withdraw]', '[data-privacy-close]']) {
+        await f.page.locator(selector).scrollIntoViewIfNeeded();
+        const fits = await f.page.locator(selector).evaluate(button => {
+          const rect = button.getBoundingClientRect(), panel = button.closest('dialog').getBoundingClientRect();
+          return rect.top >= panel.top && rect.bottom <= panel.bottom && rect.top >= 0 && rect.bottom <= innerHeight;
+        });
+        assert.equal(fits, true);
+      }
+      assert.equal(await f.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+      await f.page.screenshot({path: path.join(runtime, 'privacy-short-'+locale+'-320x500.png')});
+      f.fault.consentDelay = 500;
+      await f.page.locator('[data-privacy-reject]').click();
+      assert.equal(await f.page.locator('[data-privacy-status]').textContent(), locale === 'en' ? 'Saving your privacy choices…' : '正在保存隐私选择…');
+      await f.page.locator('[data-privacy-dialog]').waitFor({state: 'hidden'});
+      await f.page.locator('[data-privacy-open]').click();
+      await f.page.locator('[data-privacy-withdraw]').click();
+      await f.page.locator('[data-privacy-dialog]').waitFor({state: 'hidden'});
+      await f.page.locator('[data-privacy-open]').click(); await f.page.locator('[data-privacy-close]').click();
+      assert.equal(f.observations.consent.length, 2);
+      assert.ok(f.observations.consent.every(p => p.analytics === false && p.advertising === false));
+      assert.deepEqual(f.observations.errors, []);
+    } finally { await f.ctx.close(); }
+  }
 });

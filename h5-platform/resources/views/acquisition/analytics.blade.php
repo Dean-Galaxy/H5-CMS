@@ -1,7 +1,7 @@
 @php($labels = \App\Modules\Acquisition\Analytics\Labels::class)
 <div class="h5-card">
     <h3>站内分析</h3>
-    <p class="h5-note">仅已同意的观测样本；未知来源/设备单列，不能反推全部用户或平台归因。日期按UTC。投流员工仅查询获分配链接。</p>
+    <p class="h5-note">仅已同意的观测样本；未知来源/设备单列，不能反推全部用户或平台归因。日期按UTC。投流员工仅查询自己或获分配的链接。</p>
     <form wire:submit="refreshAnalytics" class="h5-form-grid">
         <label class="h5-field">入口/付款开始日期<input type="date" class="h5-input" wire:model="analyticsFilters.from"></label>
         <label class="h5-field">结束日期<input type="date" class="h5-input" wire:model="analyticsFilters.until"></label>
