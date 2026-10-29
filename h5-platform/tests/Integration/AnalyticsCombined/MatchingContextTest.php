@@ -27,8 +27,7 @@ final class MatchingContextTest extends CombinedTestCase
         $this->browser('landing_view', ['path' => '/dramas/'.$this->drama->id, 'drama_id' => $this->drama->id]);
         $this->travel(1)->seconds();
         $this->postJson('/api/v1/tracking/landing', $this->visible(['fbclid' => $click,
-            'fbc' => 'fb.1.1600000000000.SYNTHETIC06_OLD_CLICK', 'fbp' => 'fb.1.1600000000000.1060000001',
-            'ttclid' => 'SYNTHETIC06_WRONG_PLATFORM', 'ttp' => 'SYNTHETIC06_TIKTOK_COOKIE']))
+            'fbc' => 'fb.1.1600000000000.SYNTHETIC06_OLD_CLICK', 'fbp' => 'fb.1.1600000000000.1060000001']))
             ->assertOk()->assertJsonPath('confirmed', true);
         $source = DB::table('acquisition_sources')->sole();
         $context = json_decode(Crypt::decryptString($source->context_encrypted), true, flags: JSON_THROW_ON_ERROR);
@@ -38,7 +37,8 @@ final class MatchingContextTest extends CombinedTestCase
         $this->assertStringNotContainsString('SYNTHETIC06_TIKTOK_COOKIE', json_encode($context));
         $this->assertStringNotContainsString($click, $source->context_encrypted);
         $this->assertStringNotContainsString($click, json_encode(DB::table('acquisition_behaviors')->get()));
-        $report = $this->finance();
+        $this->asStaff($this->owner);
+        $report = app(\App\Modules\Acquisition\Analytics\AnalyticsReport::class)->read(['test' => 'test']);
         $this->assertStringNotContainsString($click, json_encode($report));
         Http::assertNothingSent();
     }

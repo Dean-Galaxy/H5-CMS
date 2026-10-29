@@ -93,7 +93,7 @@ async function run(candidate, fixtureFile) {
   const browser = await chromium.launch({headless: true, executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
   const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block'});
   const result = {candidate, contract: 'analytics-v1', scope: 'browser observations only; DB/funnel/money/authority acceptance is separate',
-    browser: browser.version(), external_attempts: 0, tracking: [], playback: [], steps: [], media_requests: 0,
+    browser: browser.version(), external_attempts: 0, tracking: [], playback: [], steps: [], media_requests: 0, landing_sequence: [],
     official_platform_verified: false, real_device: false, completed: false};
   const startedAt = Date.now();
   const page = await context.newPage();
@@ -108,7 +108,9 @@ async function run(candidate, fixtureFile) {
     if (finished) return;
     const url = new URL(req.url());
     if (url.origin !== base) return;
+    if (url.pathname === '/api/v1/tracking/landing' && result.landing_sequence.length < 200) result.landing_sequence.push({kind:'landing_request'});
     if (url.pathname === '/api/v1/tracking/events' && result.tracking.length < 200) {
+      if(result.landing_sequence.length < 200) result.landing_sequence.push({kind:'events_request'});
       result.tracking.push(summarizeBatch(req.postData() || ''));
     }
     if (url.pathname.startsWith('/api/v1/content/playback/')) result.media_requests++;
@@ -116,6 +118,7 @@ async function run(candidate, fixtureFile) {
   page.on('response', response => {
     if (finished) return;
     const url = new URL(response.url());
+    if (url.origin === base && url.pathname === '/api/v1/tracking/landing' && result.landing_sequence.length < 200) result.landing_sequence.push({kind:'landing_response',status:response.status()});
     if (url.origin === base && url.pathname.endsWith('/playback') && result.playback.length < 100) {
       const work = response.json().then(data => result.playback.push({status: response.status(), allowed: data.allowed === true,
         reason: typeof data.reason === 'string' && /^[A-Z_a-z]{1,40}$/.test(data.reason) ? data.reason : 'unknown'})).catch(() => result.playback.push({status: response.status(), invalid_json: true}));
@@ -129,6 +132,19 @@ async function run(candidate, fixtureFile) {
         case 'click': assert(typeof step.selector === 'string'); await page.locator(step.selector).click(); break;
         case 'fill': assert(typeof step.selector === 'string' && typeof step.value === 'string'); await page.locator(step.selector).fill(step.value); break;
         case 'wait_url': await page.waitForURL(base + localPath(step.path)); break;
+        case 'promotional_entry': {
+          assert.match(step.code,/^[A-Za-z0-9_-]{1,128}$/); assert(['meta','tiktok'].includes(step.platform));
+          assert.match(step.click_id,/^SYNTHETIC06[A-Za-z0-9_-]{0,480}$/);
+          const key=step.platform==='meta'?'fbclid':'ttclid';
+          await page.goto(base+'/r/'+step.code+'?'+key+'='+encodeURIComponent(step.click_id));
+          break;
+        }
+        case 'landing_delay': await page.route('**/api/v1/tracking/landing',async r => {await new Promise(resolve=>setTimeout(resolve,1000));await r.continue();}); break;
+        case 'assert_landing_before_events': {
+          const list=result.landing_sequence, response=list.findIndex(x=>x.kind==='landing_response'&&x.status===200), event=list.findIndex(x=>x.kind==='events_request');
+          assert(response>=0 && event>response,'Dedicated landing must respond before the first entrance behavior request');
+          break;
+        }
         case 'membership_offer': await page.goto(base + '/membership?purchase=1'); break;
         case 'verify_preview_mail': {
           // Read this run's OWN preview mail, render it, and click its actual signed link in the same cookie context.
