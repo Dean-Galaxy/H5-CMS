@@ -34,7 +34,7 @@
   const write = (storage, key, value) => { try { value === null ? storage.removeItem(key) : storage.setItem(key, JSON.stringify(value)); } catch (_) {} };
   let context = null, queue = [], timer = null, sending = false, contextPromise = null, disposed = false, consentBusy = false;
   let generation = 0, retryRound = 0, requests = [], requestTotal = 0, locallyPaused = false, choiceVersion = 0;
-  let landingBusy = false, landingConfirmed = false, landingAttempts = 0;
+  let landingBusy = false, landingConfirmed = false, landingAttempts = 0, landingPromise = null;
   const once = new Set();
   const dialog = mount.querySelector('[data-privacy-dialog]'), form = mount.querySelector('[data-privacy-form]');
   const status = mount.querySelector('[data-privacy-status]');
@@ -59,6 +59,7 @@
     const timeout = setTimeout(() => controller.abort(), 5000);
     try {
       const response = await fetch(url, {method: payload ? 'POST' : 'GET', credentials: 'same-origin', cache: 'no-store', signal: controller.signal,
+        referrerPolicy: 'no-referrer',
         headers: {Accept: 'application/json', ...(payload ? {'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''} : {})},
         ...(payload ? {body: JSON.stringify(payload)} : {})});
       if (!response.ok) { const error = new Error('tracking_unavailable'); error.status = response.status; throw error; }
@@ -66,10 +67,10 @@
     } finally { clearTimeout(timeout); }
   }
   function validContext(value) {
-    return value && typeof value.enabled === 'boolean' && value.policy_version === POLICY
+    return value && typeof value.enabled === 'boolean' && typeof value.pending_landing === 'boolean' && value.policy_version === POLICY
       && ['unknown', 'granted', 'denied'].includes(value.consent?.analytics) && ['unknown', 'granted', 'denied'].includes(value.consent?.advertising);
   }
-  function applyContext(value) {
+  async function applyContext(value) {
     if (!validContext(value)) throw new Error('tracking_unavailable');
     context = value;
     if (!canSend()) clear();
@@ -81,27 +82,94 @@
       }
       savedBuffer = null;
     }
-    form.elements.analytics.checked = value.consent.analytics === 'granted';
-    form.elements.advertising.checked = value.consent.advertising === 'granted';
+    const pendingChoice = read(localStorage, BLOCK);
+    form.elements.analytics.checked = typeof pendingChoice?.analytics === 'boolean' ? pendingChoice.analytics : value.consent.analytics === 'granted';
+    form.elements.advertising.checked = typeof pendingChoice?.advertising === 'boolean' ? pendingChoice.advertising : value.consent.advertising === 'granted';
     if (value.enabled && value.consent.analytics === 'unknown' && value.consent.advertising === 'unknown' && !blocked() && !dialog.open) dialog.showModal();
-    pageEvents();
-    confirmLanding();
+    const epoch = generation;
+    await confirmLanding();
+    if (epoch === generation && context === value && !disposed) pageEvents();
+  }
+  function clickContext() {
+    // Called only inside the granted + visible + pending landing branch. Do not persist or synthesize identifiers.
+    const result = {}, params = new URL(location.href).searchParams;
+    const opaque = /^[A-Za-z0-9_-]{1,512}$/;
+    for (const key of ['fbclid', 'ttclid']) {
+      const values = params.getAll(key);
+      if (values.length === 1 && opaque.test(values[0])) result[key] = values[0];
+    }
+    const patterns = {
+      fbc: /^fb\.[0-9]{1,2}\.[0-9]{13}\.[A-Za-z0-9_-]+$/,
+      fbp: /^fb\.[0-9]{1,2}\.[0-9]{13}\.[0-9]{1,30}$/,
+      ttp: /^[A-Za-z0-9_.-]{1,512}$/,
+    };
+    try {
+      const cookies = document.cookie;
+      if (cookies.length <= 16384) {
+        const parts = cookies.split(';').map(part => part.trim());
+        for (const [cookieName, key] of [['_fbc', 'fbc'], ['_fbp', 'fbp'], ['_ttp', 'ttp']]) {
+          const matches = parts.filter(part => part.startsWith(cookieName+'='));
+          if (matches.length !== 1) continue;
+          const raw = matches[0].slice(cookieName.length+1);
+          if (raw.length > 1536) continue;
+          let value;
+          try { value = decodeURIComponent(raw); } catch (_) { continue; }
+          if (value.length <= 512 && patterns[key].test(value)) result[key] = value;
+        }
+      }
+    } catch (_) { /* Cookie access restrictions must not prevent a landing confirmation. */ }
+    return result;
+  }
+  function removeClickParameters() {
+    try {
+      const url = new URL(location.href);
+      if (url.pathname !== path) return;
+      url.searchParams.delete('fbclid'); url.searchParams.delete('ttclid');
+      history.replaceState(history.state, '', url.pathname+url.search+url.hash);
+      // Existing language/sign-in links may have been rendered before the URL was cleaned.
+      document.querySelectorAll('.language a, [data-audience-login]').forEach(link => {
+        try {
+          const target = new URL(link.href, location.href);
+          if (target.origin !== location.origin) return;
+          target.searchParams.delete('fbclid'); target.searchParams.delete('ttclid');
+          const back = target.searchParams.get('return_to');
+          if (back) {
+            const returnUrl = new URL(back, location.href);
+            if (returnUrl.origin === location.origin) {
+              returnUrl.searchParams.delete('fbclid'); returnUrl.searchParams.delete('ttclid');
+              target.searchParams.set('return_to', returnUrl.pathname+returnUrl.search+returnUrl.hash);
+            }
+          }
+          link.href = target.pathname+target.search+target.hash;
+        } catch (_) { /* An unrelated link does not affect navigation. */ }
+      });
+    } catch (_) { /* URL cleanup never changes navigation or permission. */ }
   }
   async function confirmLanding() {
+    if (landingBusy) return landingPromise;
     if (!landingGranted() || !context?.pending_landing || !routeIds || routeIds[2] || document.visibilityState !== 'visible'
-      || landingBusy || landingConfirmed || landingAttempts >= 3 || !budget()) return;
+      || landingConfirmed || landingAttempts >= 3 || !budget()) return false;
     landingBusy = true; landingAttempts++;
     const epoch = generation;
-    try {
-      const result = await request('/api/v1/tracking/landing', {page_instance_id: pageId, drama_id: common.drama_id, path});
-      if (epoch === generation && result.confirmed === true) landingConfirmed = true;
-    } catch (_) { /* Retry only after a foreground/network/context interaction, at most three times per page. */ }
-    finally { landingBusy = false; }
+    landingPromise = (async () => {
+      try {
+        const matching = clickContext();
+        const payload = {page_instance_id: pageId, drama_id: common.drama_id, path, ...(Object.keys(matching).length ? {click_context: matching} : {})};
+        if (bytes(payload) > 4096) return false;
+        const result = await request('/api/v1/tracking/landing', payload);
+        if (epoch === generation && !disposed && result.confirmed === true) {
+          landingConfirmed = true; removeClickParameters(); return true;
+        }
+      } catch (_) { /* At most three attempts, only after a foreground/network/context interaction. */ }
+      finally { landingBusy = false; landingPromise = null; }
+      return false;
+    })();
+    return landingPromise;
   }
   async function loadContext() {
     if (contextPromise) return contextPromise;
     const epoch = generation;
-    contextPromise = request('/api/v1/tracking/context').then(value => { if (epoch === generation && !disposed) applyContext(value); return value; }).catch(() => {
+    contextPromise = request('/api/v1/tracking/context').then(async value => { if (epoch === generation && !disposed) await applyContext(value); return value; }).catch(() => {
       if (epoch === generation) { context = null; resetViewing(); } return null;
     }).finally(() => { contextPromise = null; });
     return contextPromise;
@@ -171,9 +239,9 @@
     }
   }
   function pageEvents() {
-    if (!knownPath) return;
+    if (!knownPath || landingBusy) return;
     emit('page_view', {}, 'page');
-    if (context?.pending_landing && routeIds && !routeIds[2]) emit('landing_view', {}, 'landing');
+    if (context?.pending_landing && routeIds && !routeIds[2] && (!landingGranted() || landingConfirmed)) emit('landing_view', {}, 'landing');
     if (routeIds) emit('drama_view', {}, 'drama');
     if (path === '/identity/register') emit('registration_view', {}, 'registration');
     if (path === '/identity/account' && document.querySelector('form[action="/api/v1/auth/email/verification-notification"]')) emit('verification_view', {}, 'verification');
@@ -191,9 +259,12 @@
     try {
       const value = await request('/api/v1/tracking/consent', desired);
       if (version !== choiceVersion) return;
-      if (!validContext(value) || value.consent.analytics !== (analytics ? 'granted' : 'denied')
+      if (!validContext(value) || value.enabled !== true || value.consent.analytics !== (analytics ? 'granted' : 'denied')
         || value.consent.advertising !== (advertising ? 'granted' : 'denied')) throw new Error('tracking_unavailable');
-      locallyPaused = false; write(localStorage, BLOCK, null); applyContext(value); write(localStorage, NOTICE, uuid());
+      locallyPaused = false; write(localStorage, BLOCK, null);
+      // Consent is saved independently of a bounded source lookup. The lookup itself gates page events.
+      applyContext(value).catch(() => {});
+      write(localStorage, NOTICE, uuid());
       status.textContent = status.dataset.saved; dialog.close(); schedule(0);
     } catch (_) { status.textContent = status.dataset.unavailable; }
     finally {
@@ -204,7 +275,7 @@
       }
     }
   }
-  mount.querySelector('[data-privacy-open]').addEventListener('click', () => { status.textContent = ''; dialog.showModal(); loadContext(); });
+  mount.querySelector('[data-privacy-open]').addEventListener('click', () => { status.textContent = blocked() ? status.dataset.unavailable : ''; dialog.showModal(); loadContext(); });
   mount.querySelector('[data-privacy-close]').addEventListener('click', () => dialog.close());
   form.addEventListener('submit', event => { event.preventDefault(); saveChoices(form.elements.analytics.checked, form.elements.advertising.checked); });
   mount.querySelector('[data-privacy-reject]').addEventListener('click', () => saveChoices(false, false));

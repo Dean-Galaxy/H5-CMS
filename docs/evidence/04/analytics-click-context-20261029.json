@@ -1,0 +1,28 @@
+{
+  "base": "fbafae0f47cf4818563c7353528d62c5527f8996",
+  "scope": "04 browser click-context and consent-save correctness increment; analytics-v1 / business 1.0.5",
+  "implementation": {
+    "read_gate": "enabled, advertising granted, visible drama detail, pending landing; no cookie reads for unknown/denied, hidden, disabled or non-pending",
+    "input": ["URL fbclid", "URL ttclid", "existing _fbc", "existing _fbp", "existing _ttp"],
+    "validation": "Five keys only, ASCII formats aligned with 05 ClickContext, at most 512 bytes per decoded value and 4 KiB per landing request; overlong, invalid and ambiguous duplicate input omitted",
+    "transport": "Only existing same-origin POST /api/v1/tracking/landing click_context; tracking requests use no-referrer",
+    "persistence": "No raw click identifiers in behavior events, sessionStorage or localStorage; no cookie writes, SDKs or platform requests",
+    "ordering": "Pending visible consented landing is awaited before page/landing/drama events; concurrent flush waits for the same bounded confirmation. At most three landing attempts; each request timeout 5 seconds. Failure suppresses generic landing_view source confirmation and leaves URL unchanged.",
+    "cleanup": "After a current-generation confirmed response, remove fbclid/ttclid from URL and existing same-origin language/sign-in return links; preserve language, other query and fragment. Late response after withdrawal cannot resume collection or clean the URL.",
+    "privacy_save": "Only enabled=true and an exact policy/consent match clears the conservative block and closes the dialog. Otherwise preserve choices and dialog with retry feedback, including reopen."
+  },
+  "verification": {
+    "chrome": "13 tests passed: all existing six scenarios plus slow confirmation, advertising-only cookie access, gated no-reads, malformed inputs, failed-source ordering, consent-save mismatch and late acknowledgment after withdrawal",
+    "php": "Full Audience and AnalyticsContracts regression: 50 tests / 493 assertions passed",
+    "js_syntax_and_diff": "passed",
+    "backend_compatibility": "Read-only comparison against 05 ClickContext candidate; the local browser API is an explicit synthetic transport, actual combined 05 integration remains for 00/06"
+  },
+  "boundaries": {
+    "real_cookie_values_used": false,
+    "official_payment_or_advertising_requested": false,
+    "real_06_or_callback_or_stable_site_accessed": false,
+    "deployed": false,
+    "new_dependencies_routes_or_shared_source_changes": false,
+    "github_retention": "00 receipt/upload pending"
+  }
+}
