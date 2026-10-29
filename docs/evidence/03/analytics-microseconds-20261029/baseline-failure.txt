@@ -1,0 +1,30 @@
+03 own PostgreSQL _test / local workspace evidence only. No official payment or advertising calls.
+
+   INFO  Configuration cache cleared successfully.
+
+
+   FAIL  Tests\Feature\Billing\BillingAnalyticsTest
+  ⨯ same second refund retains actual confirmation microseconds in payl… 0.35s
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Billing\BillingAnalyticsTest > same second refund r…
+  Failed asserting that two strings are identical.
+  -'2026-10-29T10:00:00.200000Z'
+  +'2026-10-29T10:00:00Z'
+
+
+  at tests/Feature/Billing/BillingAnalyticsTest.php:298
+    294▕         $this->gateway->refunds[$payment->provider_charge_id] = [['id' => 're_microsecond', 'amount_minor' => 100, 'currency' => 'USD', 'status' => 'succeeded']];
+    295▕         app(SettlementService::class)->syncRefunds($payment->provider_charge_id);
+    296▕         $fact = DB::table('billing_behavior_outbox')->where('event_name', 'refund_confirmed')->sole();
+    297▕         $properties = BillingStore::json($fact->properties);
+  ➜ 298▕         self::assertSame('2026-10-29T10:00:00.200000Z', $properties['occurred_at']);
+    299▕         self::assertSame('2026-10-29T10:00:00.200000Z', CarbonImmutable::parse($fact->occurred_at)->utc()->format('Y-m-d\TH:i:s.u\Z'));
+    300▕         $state = DB::table('billing_analytics_states')->where('aggregate_key', 'refund:'.$payment->id)->sole();
+    301▕         self::assertSame('2026-10-29T10:00:00.200000Z', CarbonImmutable::parse($state->observed_at)->utc()->format('Y-m-d\TH:i:s.u\Z'));
+    302▕         self::assertTrue(CarbonImmutable::parse($properties['occurred_at'])->gte($consentedAt));
+
+  1   tests/Feature/Billing/BillingAnalyticsTest.php:298
+
+
+  Tests:    1 failed (1 assertions)
+  Duration: 0.49s

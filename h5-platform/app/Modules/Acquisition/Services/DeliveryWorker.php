@@ -71,9 +71,20 @@ final class DeliveryWorker
             if (! $this->ownsLease(DB::table('acquisition_deliveries')->where('id', $id)->first(), $row->lease_token)) {
                 return false;
             }
-            $result = $mode === 'local_simulation'
-                ? app(LocalSimulator::class)->send($row, $payload)
-                : $adapter->send($row, $payload, $credential['token']);
+            $send = function () use ($row, $payload, $mode, $adapter, $credential) {
+                [$receipt, $source, $pixel, $context] = $this->context($row);
+                $reason = app(DeliveryGate::class)->reason($row, $receipt, $source, $pixel, $context);
+                if ($reason) {
+                    return new DeliveryResult('blocked', $reason);
+                }
+                if (! $this->ownsLease(DB::table('acquisition_deliveries')->where('id', $row->id)->first(), $row->lease_token)) {
+                    return new DeliveryResult('blocked', 'LEASE_LOST');
+                }
+
+                return $mode === 'local_simulation' ? app(LocalSimulator::class)->send($row, $payload) : $adapter->send($row, $payload, $credential['token']);
+            };
+            // Recheck immediately before transport. I/O stays outside transactions; already in-flight requests cannot be recalled.
+            $result = $send();
         } catch (Throwable) {
             // Persist only a safe reason, never a payload, URL, token or exception message.
             $result = new DeliveryResult($reserved ? 'retry' : 'blocked', $reserved ? 'TRANSPORT_UNCERTAIN' : 'DELIVERY_CONTEXT_INVALID');

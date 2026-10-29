@@ -28,5 +28,21 @@
     "assertions": 295,
     "seconds": 12.72,
     "passed": true
+  },
+  "microseconds_and_audience_increment": {
+    "source_candidate": "d0c3180fdbcea5b84fac4c08e1bc79dc7531df97",
+    "tests": 113,
+    "assertions": 2394,
+    "seconds": 107.45,
+    "passed": true
+  },
+  "audience_real_chrome": {
+    "source_candidate": "d0c3180fdbcea5b84fac4c08e1bc79dc7531df97",
+    "tests": 13,
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0,
+    "milliseconds": 49672.513,
+    "boundary": "Actual Chrome and decoding; synthetic route-intercepted API, not actual 05 combined provider"
   }
 }
