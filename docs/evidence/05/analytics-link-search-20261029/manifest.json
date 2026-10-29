@@ -1,0 +1,39 @@
+{
+  "source_commit": "87b97c6cc3a3fa90c529fb1072b5182aedc91074",
+  "previous_05_delivery": "2b11037055d09ba3156ce4df162f122d923fcc23",
+  "accepted_combination_ancestor": "65a2ced135c46075346cb6fa4a2848beacb043c9",
+  "business_contract": "1.0.5",
+  "additive_contract": "analytics-v1",
+  "scope": "analysis_link_search_only",
+  "tests": {
+    "search_and_desk": {
+      "passed": 15,
+      "assertions": 179
+    },
+    "related_analysis_scope": {
+      "passed": 4,
+      "assertions": 27
+    }
+  },
+  "browser": {
+    "passed": 8,
+    "synthetic_links": 61,
+    "external_requests": 0,
+    "javascript_errors": 0,
+    "viewports": [
+      "1440x1040",
+      "390x844",
+      "375x500"
+    ]
+  },
+  "external_advertising": "disabled",
+  "new_migrations": false,
+  "source_sha256": {
+    "h5-platform/app/Modules/Acquisition/Analytics/LinkFilter.php": "1fdd904d2c79f7a3b9ad6a2e76726da913b52cca88910de07e59cfe7f4af77a4",
+    "h5-platform/app/Modules/Acquisition/Filament/Pages/AcquisitionDesk.php": "6e156539cc4ec19fb4e42c1c90bd106208862770dcb7187508ad238bb21bd8f1",
+    "h5-platform/resources/views/acquisition/analytics.blade.php": "db8f38ca4dcbb06977d7b1cf3613f1ebec4cab608f735d64ed942dc99ec6bdbe",
+    "h5-platform/tests/Feature/Acquisition/AnalyticsLinkFilterTest.php": "133d6896c71fb789bea2874dc611e2c2c250ccf86deb1bcfce0de416ad293ee4",
+    "h5-platform/tests/Feature/Acquisition/Support/analytics-link-search-fixture.php": "a85c982a768b291d8e298466d09a96d2f9b18cdfa4366f83657389925f95acc5",
+    "h5-platform/tests/Feature/Acquisition/Support/analytics-link-search-smoke.cjs": "943d5e315dd40efcd3bb9d776d1fb8b9bf848441d43c55890ff25d7628aa8eed"
+  }
+}

@@ -1,0 +1,22 @@
+
+   PASS  Tests\Feature\Acquisition\AnalyticsLinkFilterTest
+  ✓ search finds old link beyond main page and has its own bounded pagi… 0.46s
+  ✓ selected authorized link survives other search and page while draft… 0.09s
+  ✓ own and assigned search scope never leaks same keyword and revoked…  0.06s
+  ✓ search treats sql wildcards as literal name characters               0.02s
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.13s
+  ✓ form save reopen local probe link edit disable and summary           0.19s
+  ✓ link validation is actionable chinese and preserves unsaved input    0.06s
+  ✓ pixel and assignment validation stays strict with chinese messages   0.07s
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.07s
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.04s
+  ✓ workspace tabs are allowlisted and assignment tab is owner only      0.10s
+  ✓ url tab restores only authorized context and invalid input falls ba… 0.07s
+  ✓ asset dialog actions keep context and failed save preserves editor   0.10s
+  ✓ editors are shared dialogs and tab list has only four entries        0.07s
+  ✓ payment display uses shared exact usd format without float conversi… 0.05s
+
+  Tests:    15 passed (179 assertions)
+  Duration: 1.79s
