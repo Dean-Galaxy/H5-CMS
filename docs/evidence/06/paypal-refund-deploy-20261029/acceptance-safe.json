@@ -1,0 +1,240 @@
+{
+  "executed_at": "2026-10-29T07:00:10.263636+00:00",
+  "runtime_candidate": "21f33a45c85d8b8163e67221eb5167511f314441",
+  "previous_runtime": "ca279acad01793203c7976154acca9fd3e71c248",
+  "contract": "1.0.5",
+  "health": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "migration_count": 19,
+  "migration_added": 0,
+  "dependency_files_changed": false,
+  "billing_13_full_rows_and_timestamps_preserved_all_phases": true,
+  "billing_counts": {
+    "billing_accounts": 3,
+    "billing_orders": 3,
+    "billing_subscriptions": 3,
+    "billing_payments": 3,
+    "billing_entitlements": 3,
+    "billing_inbox": 10,
+    "billing_outbox": 3,
+    "billing_operations": 3,
+    "billing_refunds": 1,
+    "billing_resume_quotes": 0,
+    "billing_provider_intents": 5,
+    "billing_provider_resources": 4,
+    "billing_paypal_observations": 7
+  },
+  "protected_business_tables": 45,
+  "protected_business_full_rows_preserved": true,
+  "media_files_preserved": 42,
+  "credentials_workspace_pg_password_bytes_preserved": true,
+  "env_changes_only": [
+    "H5_BILLING_NEW_PURCHASE_PROVIDER",
+    "H5_BILLING_PAYPAL_SANDBOX_ENABLED"
+  ],
+  "api_enabled": false,
+  "new_purchase_provider": "unconfigured",
+  "credential_ui_8407_closed": true,
+  "fresh_database_archive_bytes": 134982,
+  "fresh_archive_list_readable": true,
+  "full_restore_performed": false,
+  "manual_reconcile_http_functions_disabled": true,
+  "actual_scheduler_done_records": [
+    "  2026-10-29 06:58:00 Running ['artisan' billing:reconcile] .... 171.04ms DONE",
+    "  2026-10-29 06:59:00 Running ['artisan' billing:reconcile] .... 173.20ms DONE",
+    "  2026-10-29 07:00:00 Running ['artisan' billing:reconcile] .... 179.06ms DONE"
+  ],
+  "https_checks": [
+    {
+      "check": "GET blocked /",
+      "method": "GET",
+      "path": "/",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /admin",
+      "method": "GET",
+      "path": "/admin",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /.env",
+      "method": "GET",
+      "path": "/.env",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /metrics",
+      "method": "GET",
+      "path": "/metrics",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /credentials",
+      "method": "GET",
+      "path": "/credentials",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /api/admin/v1/staff",
+      "method": "GET",
+      "path": "/api/admin/v1/staff",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /media/test.m3u8",
+      "method": "GET",
+      "path": "/media/test.m3u8",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "GET blocked /webhooks/paypal",
+      "method": "GET",
+      "path": "/webhooks/paypal",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "private POST",
+      "method": "POST",
+      "path": "/admin",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "query denied",
+      "method": "POST",
+      "path": "/webhooks/paypal?extra=1",
+      "status": 404,
+      "expected": 404,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "missing signature headers",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 400,
+      "expected": 400,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "cookie denied",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 403,
+      "expected": 403,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "authorization denied",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 403,
+      "expected": 403,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "content type denied",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 415,
+      "expected": 415,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    },
+    {
+      "check": "synthetic event to real application",
+      "method": "POST",
+      "path": "/webhooks/paypal",
+      "status": 503,
+      "expected": 503,
+      "body_bytes": 0,
+      "no_cookie_or_location": true,
+      "passed": true
+    }
+  ],
+  "transport": {
+    "body_bytes_identical": true,
+    "raw_body_hash_identical": true,
+    "five_paypal_headers_identical": true,
+    "only_allowlisted_outbound_headers": true,
+    "actual_application_response": true
+  },
+  "actual_upstream_status": 503,
+  "same_tunnel_pid_and_starttime": true,
+  "same_origin_bytes": true,
+  "strict_window_guard": true,
+  "default_synthetic_observer_restarted": true,
+  "real_event_observation_enabled": false,
+  "window_processes": {
+    "bridge_pid": 59188,
+    "tunnel_pid": 67403,
+    "process_started_at": {
+      "bridge_pid": "Thu Oct 29 14:57:37 2026",
+      "tunnel_pid": "Thu Oct 29 10:31:42 2026"
+    }
+  },
+  "observer_sha256": "2f16c5b1291b2fe03f2feeb47ba6ceb76f6bdacea70b230bd93f2cdc2300ee2c",
+  "probe_sha256": "d81ac453fd870e2f7f3752405664669c6d87a65c74f3de9a1862f269bcef769f",
+  "official_paypal_calls_by_06": false,
+  "refund_or_cancel_created_by_06": false,
+  "c_resolution_recovery_performed_by_06": false,
+  "official_stability_verified": false,
+  "window_owner": "00 after handover",
+  "snapshot_timing": {
+    "after_scheduler_file_mtime_utc": "2026-10-29T06:59:19.847744+00:00",
+    "after_window_file_mtime_utc": "2026-10-29T06:59:21.386250+00:00",
+    "acceptance_safe_file_mtime_utc": "2026-10-29T07:00:10.264257+00:00",
+    "scheduled_cycles_completed_before_final_snapshot": 2,
+    "third_cycle_done_seen_at_handover": true,
+    "snapshot_after_third_cycle_taken": false
+  }
+}
