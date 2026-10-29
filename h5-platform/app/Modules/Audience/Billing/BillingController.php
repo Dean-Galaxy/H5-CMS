@@ -10,6 +10,7 @@ use App\Data\AttributionSnapshot;
 use App\Data\CheckoutInput;
 use App\Data\ResumeInput;
 use App\Enums\SubscriptionAction;
+use App\Modules\Audience\Analytics\BillingBehavior;
 use App\Modules\Identity\Services\SafeReturn;
 use App\Support\ApiProblem;
 use Carbon\CarbonImmutable;
@@ -107,6 +108,9 @@ final class BillingController
             $checkout = $this->billing->checkout($viewer,
                 new CheckoutInput($attempt['offer_id'], $attempt['price_version'], $attempt['checkout_return_to']),
                 $attempt['key'], $attempt['source'] ? AttributionSnapshot::fromArray($attempt['source']) : null);
+            app(BillingBehavior::class)->checkout($checkout, $viewer, $attempt['state'] !== 'completed' && empty($attempt['analytics_checkout_observed']));
+            // A later consent must not backfill an already observed checkout through an explicit retry.
+            $attempt['analytics_checkout_observed'] = true;
             $attempt['state'] = 'completed';
             $request->session()->put($attemptKey, $attempt);
             $checkoutData = $checkout->toArray();
@@ -125,6 +129,7 @@ final class BillingController
 
             return redirect('/billing/return?order_id='.rawurlencode($checkout->order_id))->header('Cache-Control', 'private, no-store');
         } catch (ApiProblem $e) {
+            app(BillingBehavior::class)->rejected($e, $attempt['key'], $viewer);
             $terminalConflict = in_array($e->errorCode, ['STALE_VERSION', 'SUBSCRIPTION_EXISTS'], true);
             $attempt['state'] = ! $terminalConflict && ($e->errorCode === 'BILLING_PENDING' || $attempt['state'] === 'pending') ? 'pending' : 'failed';
             $request->session()->put($attemptKey, $attempt);
@@ -151,6 +156,7 @@ final class BillingController
         try {
             // Browser return parameters never grant membership; the provider owns every fact.
             $order = $this->billing->order($viewer, $orderId);
+            app(BillingBehavior::class)->order($order, $viewer);
             $membership = $this->memberships->membership($viewer->id, now()->toDateTimeImmutable());
             $saved = $request->session()->get('audience.billing.checkouts.'.$orderId);
             $checkout = $saved && $saved['viewer_id'] === $viewer->id ? $saved['checkout'] : null;
@@ -201,6 +207,7 @@ final class BillingController
             if ($checkout->order_id !== $orderId) {
                 return redirect($returnPath)->with('audience.billing.notice', 'pending')->header('Cache-Control', 'private, no-store');
             }
+            app(BillingBehavior::class)->checkout($checkout, $viewer, false);
             $paypalApprovalUrl = $this->isPaypalSandboxUrl($checkout->checkout_url) ? $checkout->checkout_url : null;
             // Keep the original session identity; only Billing can refresh the Checkout facts.
             $saved['checkout'] = $checkout->toArray();

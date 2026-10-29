@@ -1,6 +1,17 @@
 <?php
 
 return [
+    'privacy_choices' => 'Privacy choices',
+    'privacy_intro' => 'Choose separately. You can use the site without optional tracking and reopen these choices at any time.',
+    'privacy_analytics' => 'Site analytics: understand page visits, playback and purchase journeys.',
+    'privacy_advertising' => 'Advertising measurement: associate eligible promotion visits and conversions with advertising services.',
+    'privacy_retention' => 'Withdrawing stops future collection for that purpose and clears the browser analytics buffer. Necessary billing records are retained. Raw analytics are kept for up to 90 days; the browser buffer for up to 24 hours.',
+    'privacy_save' => 'Save choices',
+    'privacy_reject' => 'Reject optional tracking',
+    'privacy_withdraw' => 'Withdraw both',
+    'privacy_close' => 'Close',
+    'privacy_unavailable' => 'Your choices could not be saved. Optional collection is paused in this browser. Retry when connected.',
+    'privacy_saved' => 'Your choices have been saved.',
     'AUTHENTICATION_REQUIRED' => 'Your sign-in session changed. Log in again and reopen this episode.',
     'CSRF_MISMATCH' => 'This page has expired. Refresh to continue from the current position.',
     'refresh' => 'Refresh and continue',
