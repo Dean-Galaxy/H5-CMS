@@ -1,0 +1,22 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Identity\ViewerBehaviorTest
+  ✓ real registration preserves anonymous source across session regener… 0.26s
+  ✓ real registration validation failure has only safe error enum        0.02s
+  ✓ notification failure after creation still records creation not a fa… 0.02s
+  ✓ login failures do not expose account existence and success uses fin… 0.19s
+  ✓ malformed login and registration rate limit are safe failed outcome… 0.03s
+  ✓ real email verification is separate from registration and replay is… 0.03s
+  ✓ rolled back verification does not record email verified              0.02s
+  ✓ logout records before context clear and invalidation and new accoun… 0.03s
+  ✓ account switch without explicit logout clears context before any ne… 0.02s
+  ✓ throwing context clear on guard account switch rotates session with… 0.02s
+  ✓ staff login failed login verification and mfa are not viewer behavi… 0.26s
+  ✓ false or throwing collector never changes registration verification… 0.40s
+  ✓ unknown or denied consent and default noop do not block business or… 0.03s
+
+  Tests:    13 passed (124 assertions)
+  Duration: 1.46s
+
