@@ -90,7 +90,7 @@ async function run(candidate, fixtureFile) {
   const flags = JSON.parse(cp.execFileSync(process.env.H5_PHP_BIN || '/opt/homebrew/opt/php@8.4/bin/php', [ROOT + '/scripts/ops/analytics_browser_runtime.php'], {cwd: ROOT, encoding: 'utf8', stdio: ['ignore','pipe','pipe'], env: {PATH: process.env.PATH || '/opt/homebrew/bin:/usr/bin:/bin', LANG: 'C'}}));
   assert.equal(flags.runtime_safe, true); assert.equal(flags.external_enabled, false); assert.equal(flags.purchase_enabled, false);
   const { chromium } = require(process.env.H5_PLAYWRIGHT_MODULE || 'playwright');
-  const browser = await chromium.launch({headless: true, executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
+  const browser = await chromium.launch({headless: true, args: ['--no-proxy-server'], executablePath: process.env.H5_CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
   const context = await browser.newContext({viewport: {width: 375, height: 812}, serviceWorkers: 'block'});
   const result = {candidate, contract: 'analytics-v1', scope: 'browser observations only; DB/funnel/money/authority acceptance is separate',
     browser: browser.version(), external_attempts: 0, tracking: [], playback: [], steps: [], media_requests: 0, landing_sequence: [],

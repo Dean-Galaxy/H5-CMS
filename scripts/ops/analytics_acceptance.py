@@ -38,6 +38,9 @@ def validate_workspace(root, config):
 
 def testing_environment(root, config):
     env = os.environ.copy()
+    for key in ('HTTP_PROXY','HTTPS_PROXY','ALL_PROXY','http_proxy','https_proxy','all_proxy'):
+        env.pop(key,None)
+    env.update(NO_PROXY='127.0.0.1,localhost,::1', no_proxy='127.0.0.1,localhost,::1')
     env.update(APP_ENV='testing', DB_CONNECTION='pgsql', DB_HOST='127.0.0.1', DB_PORT=str(config['db_port']),
                DB_DATABASE=config['db']+'_test', DB_USERNAME=config['user'],
                DB_PASSWORD=(root/'.runtime/pg-app-password').read_text(), H5_TEST_DATABASE=config['db']+'_test',
@@ -52,6 +55,21 @@ def testing_environment(root, config):
     for key in ('H5_STRIPE_SECRET_KEY','H5_STRIPE_WEBHOOK_SECRET','STRIPE_SECRET','STRIPE_KEY','STRIPE_WEBHOOK_SECRET'):
         env[key] = ''
     return env
+
+
+def mime_version_guard(root):
+    locked = json.loads((root/'h5-platform/composer.lock').read_text())
+    installed = json.loads((root/'h5-platform/vendor/composer/installed.json').read_text())
+    packages = installed.get('packages',[]) if isinstance(installed,dict) else installed
+    lock_rows = [p for p in locked.get('packages',[]) if p.get('name')=='symfony/mime']
+    installed_rows = [p for p in packages if p.get('name')=='symfony/mime']
+    if len(lock_rows)!=1 or len(installed_rows)!=1:
+        raise ValueError('MIME_INSTALLATION_NOT_READY')
+    expected = lock_rows[0]['version'].lstrip('v')
+    actual = installed_rows[0]['version'].lstrip('v')
+    if expected!='8.1.10' or actual!=expected:
+        raise ValueError('MIME_INSTALLED_LOCK_MISMATCH_INSTALL_OWN_DEPENDENCIES_FIRST')
+    return {'package':'symfony/mime','lock_version':expected,'installed_version':actual,'matched':True}
 
 
 def candidate_guard(root, candidate):
@@ -72,6 +90,7 @@ def main():
     args = parser.parse_args()
     candidate_guard(ROOT,args.candidate)
     config = validate_workspace(ROOT,private_json(ROOT/'.runtime/workspace.json'))
+    dependency = mime_version_guard(ROOT)
     # Refuse a live own web/worker runtime too: test-only evidence must not race browser fixtures.
     if any((ROOT/'.runtime/pids'/f'{name}.json').exists() for name in ('web','queue','scheduler')):
         raise ValueError('STOP_OWN_APPLICATION_BEFORE_TEST_DATABASE_RUN')
@@ -96,7 +115,8 @@ def main():
     target.chmod(0o600)
     report = {'candidate':args.candidate,'contract':'analytics-v1','stage':args.stage,'database':config['db']+'_test',
               'preparation_passed':None,'combined_acceptance':'not_executed','missing':ready['missing'],
-              'official_platform_verified':False,'external_delivery_enabled':False}
+              'official_platform_verified':False,'external_delivery_enabled':False,'mime_dependency':dependency,
+              'loopback_proxy_bypassed':True}
     if args.stage == 'combined' and not ready['combined_ready']:
         report['combined_acceptance'] = 'blocked_missing_consumers'
         (output/'result.json').write_text(json.dumps(report,indent=2)+'\n')
