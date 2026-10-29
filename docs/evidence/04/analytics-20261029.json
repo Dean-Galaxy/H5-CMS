@@ -1,0 +1,44 @@
+{
+  "base": "32e878fff9544c5ff23898ad098022edefa2ff1b",
+  "public_addenda": ["ecf132b0f9afe9c9989fa61b4ab49156346a9b3a", "f629a04988de4c6b1f3b5f22d04502883095ebaf", "c9a1d9ba687d4a8132cf0499728e59bf87410fdb"],
+  "business_contract": "1.0.5",
+  "analytics_contract": "analytics-v1",
+  "implementation": {
+    "ui": "Audience-owned bilingual privacy partial, separate analytics/advertising checkboxes, reject/withdraw/reopen, public layout include supplied by 00",
+    "browser": "Visible-page events, real playing plus advancement, decoded-frame startup, stalls/errors, cumulative watch time excluding seek/pause/hidden time, completion once after at least 90% observed viewing and ended",
+    "server": "Trusted Checkout/Order results via public best-effort recorder; checkout_created contains trusted viewer_id/order_id and is not backfilled after it was already observed; no payment_confirmed producer",
+    "advertising_only": "Dedicated tracking/landing POST only; no generic analytics events without analytics consent"
+  },
+  "buffer": {
+    "storage": "sessionStorage with local-only HMAC scope to discard buffers after server session/account changes",
+    "ttl_hours": 24,
+    "maximum_events": 100,
+    "maximum_bytes": 65536,
+    "batch_maximum_events": 20,
+    "batch_maximum_bytes": 32768,
+    "event_maximum_attempts": 5,
+    "automatic_backoff_ms": [2000, 8000, 30000, 120000],
+    "batch_budget_per_minute": 10,
+    "batch_budget_per_page": 120,
+    "terminal_invalid_batch": "422/413 clears buffer; 503 retries same UUID/content",
+    "withdrawal": "Clear buffer immediately and pause locally, including when network persistence is unavailable; retry the user's unsaved consent choice on a foreground/network interaction"
+  },
+  "verification": {
+    "php": "Full Audience Feature plus AnalyticsContractsTest: 50 tests, 493 assertions passed",
+    "existing_player_state": "16 tests passed",
+    "chrome": "6 tests passed using actual shipped scripts, rendered Blade privacy partial, generated MP4, synthetic API responses and in-process asset routes",
+    "chrome_scenarios": ["hidden and rejected consent", "independent advertising confirmation", "offline withdrawal", "503 and refresh UUID replay", "24-hour and account-scope discard", "actual decoded media advancement", "seek exclusion", "membership denial", "completion once", "buffer caps", "disabled analytics playback", "422 terminal discard", "Chinese 320/390 viewport fit"],
+    "openapi": "Business OpenAPI 1.0.5 structure and 59 examples passed",
+    "format": "Pint, JavaScript syntax, git diff --check passed",
+    "dependencies_and_migrations": "No dependency or migration changes"
+  },
+  "boundaries": {
+    "real_05_api_integration": "Pending 00/05/06 fixed combined candidate; browser API transport here is explicitly synthetic",
+    "real_06_or_stable_site_accessed": false,
+    "official_payment_or_advertising_called": false,
+    "live_advertising_enabled": false,
+    "application_services_started": false,
+    "deployed": false,
+    "github": "00 receipt and upload pending"
+  }
+}
