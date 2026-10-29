@@ -23,12 +23,20 @@ final class MatchingContextTest extends CombinedTestCase
         $click = 'SYNTHETIC06_META_CLICK';
         $this->get('/r/'.basename($this->link['url']).'?fbclid='.$click.'&ttclid=SYNTHETIC06_WRONG_PLATFORM&token=SYNTHETIC06_DO_NOT_FORWARD')
             ->assertRedirect();
-        // Deliberately simulate generic arrival first. The dedicated confirmation must still populate this pending click.
-        $this->browser('landing_view', ['path' => '/dramas/'.$this->drama->id, 'drama_id' => $this->drama->id]);
+        // Deliberately race generic arrival: it must wait, without consuming the event ID or freezing an empty source.
+        $early = ['event_id' => (string) Str::uuid(), 'event_name' => 'landing_view', 'properties' => [
+            'page_instance_id' => (string) Str::uuid(), 'path' => '/dramas/'.$this->drama->id, 'drama_id' => $this->drama->id]];
+        $this->postJson('/api/v1/tracking/events', ['events' => [$early]])->assertStatus(503);
+        $this->assertDatabaseCount('acquisition_sources', 0);
+        $this->assertDatabaseCount('acquisition_behaviors', 0);
+        $this->assertDatabaseCount('acquisition_event_keys', 0);
         $this->travel(1)->seconds();
         $this->postJson('/api/v1/tracking/landing', $this->visible(['fbclid' => $click,
             'fbc' => 'fb.1.1600000000000.SYNTHETIC06_OLD_CLICK', 'fbp' => 'fb.1.1600000000000.1060000001']))
             ->assertOk()->assertJsonPath('confirmed', true);
+        $this->postJson('/api/v1/tracking/events', ['events' => [$early]])->assertOk()->assertJsonPath('accepted', 1);
+        $this->postJson('/api/v1/tracking/events', ['events' => [$early]])->assertOk()->assertJsonPath('accepted', 1);
+        $this->assertDatabaseCount('acquisition_behaviors', 1);
         $source = DB::table('acquisition_sources')->sole();
         $context = json_decode(Crypt::decryptString($source->context_encrypted), true, flags: JSON_THROW_ON_ERROR);
         $this->assertStringContainsString($click, json_encode($context));
