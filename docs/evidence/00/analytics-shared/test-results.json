@@ -14,5 +14,12 @@
     "seconds": 54.11,
     "passed": true,
     "installed_mime": "8.1.10"
+  },
+  "billing_acceptance": {
+    "module_delivery": "d09d5ffacad18f3b7b537c3a6fbf52005f260292",
+    "tests": 121,
+    "assertions": 2418,
+    "seconds": 109.29,
+    "passed": true
   }
 }
