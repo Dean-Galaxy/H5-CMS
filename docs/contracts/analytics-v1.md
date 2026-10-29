@@ -12,6 +12,8 @@
 
 可靠财务事实使用 `recordFact(string $eventName,array $properties,string $deduplicationKey): BehaviorRecordingResult`：`Accepted`（含完全相同重放）、`Skipped`（无/拒绝同意或无效，不再重试）、`Retry`（模块未接收/临时存储故障，保留待发）。默认禁用实现返回 Retry，不能把尚未就绪误当成功；业务不因此阻塞。03 待发重试必须有界退避/诊断，不能每分钟无限轰炸。05 PaymentReceiver 内相同区分，临时失败保留03可靠outbox，拒绝分析仍正常收付款事实。
 
+补充冻结：财务 outbox 无浏览器请求时，只能通过可信 viewer/source 及 **事实发生时**已存在的同意证据关联；不能借用当前无关会话，不能因后来同意补采以前未同意的行为。发送时撤回优先。永久无效也返回 Skipped，但必须记录安全诊断原因（不能伪装 Accepted）。`refund_confirmed` properties 增加 `fact_version` 正整数，表示该 payment 当前成功累计退款的递增快照版本；累计额允许因官方纠正降至0，同一版本固定key和内容，晚到旧版本不覆盖新版，100→300不能相加成400。净收始终按 Reader 当前成功累计额核算。Reader 输入原始数组最多200项、UUID逐项严格校验、重复去重；超过200或非法ID明确校验错误；损坏 snapshot 返回null并安全诊断，不能从未经核定字段补造来源。
+
 浏览器允许的通用上下文为 `page_instance_id`（UUID）、`play_instance_id`（UUID）、`path`（固定同站无query路径）、`drama_id/episode_id`（仅引用，服务端复核目录及对应关系），以及事件自身数值/错误白名单；绝不信浏览器 viewer/source/价格/成功结果。04 和05沿用这些字段，不另起同义命名。
 
 允许受信 properties 按事件白名单含 opaque `viewer_id,drama_id,episode_id,order_id,payment_id,subscription_id,source_id`；这些**绝不接受浏览器指定**身份/来源/金额/成功状态。`position_seconds,duration_seconds,watched_seconds,startup_ms,stall_ms,error_code,transaction_kind,amount_minor,refunded_amount_minor,currency,is_test,occurred_at` 依事件校验范围。事件时间以服务器接收为准；财务事实可使用经 03 核定的 occurred_at。无邮箱/密码/token/原支付 ID/媒体 URL/任意 query/自由错误堆栈进入行为库或报表。合法页面仅固定同站路径，查询参数白名单。05 对 IP/UA 的广告匹配用途加密、限制访问，不进入普通分析明细。
