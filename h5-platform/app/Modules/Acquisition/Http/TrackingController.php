@@ -85,11 +85,14 @@ final class TrackingController
         abort_if(array_diff(array_keys($r->all()), ['page_instance_id', 'drama_id', 'path', 'click_context']), 422);
         $p = $r->validate(['page_instance_id' => ['required', 'uuid'], 'drama_id' => ['required', 'uuid'], 'path' => ['required', 'string', 'max:120'], 'click_context' => ['sometimes', 'array']]);
         abort_unless($p['path'] === '/dramas/'.$p['drama_id'] || preg_match('~^/dramas/'.preg_quote($p['drama_id'], '~').'/episodes/[a-f0-9-]{36}$~D', $p['path']), 422);
+        abort_if(array_key_exists('click_context', $p) && ! $r->isJson(), 422);
         if (! $context->enabled()) {
             return response()->json(['confirmed' => false])->header('Cache-Control', 'no-store');
         }
         try {
-            $click = app(ClickContext::class)->validate($p['click_context'] ?? []);
+            // Match identifiers are opaque, so validate original JSON before TrimStrings normalization.
+            $raw = $r->isJson() ? json_decode($r->getContent(), true) : [];
+            $click = app(ClickContext::class)->validate($raw['click_context'] ?? []);
 
             return response()->json(['confirmed' => $attribution->confirm($p['drama_id'], $p['page_instance_id'], $click)])->header('Cache-Control', 'no-store');
         } catch (ApiProblem $e) {

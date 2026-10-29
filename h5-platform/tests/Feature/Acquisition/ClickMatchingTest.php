@@ -35,19 +35,19 @@ final class ClickMatchingTest extends AcquisitionTestCase
         return ['page_instance_id' => (string) Str::uuid(), 'drama_id' => $link['drama_id'], 'path' => '/dramas/'.$link['drama_id'], 'click_context' => $click];
     }
 
-    public function test_meta_and_tiktok_url_to_encrypted_source_to_fake_http_payload_are_platform_isolated(): void
+    public function test_meta_and_dotted_tiktok_url_to_encrypted_source_to_fake_http_payload_are_platform_isolated(): void
     {
         foreach (['meta', 'tiktok'] as $platform) {
             app(TrackingContext::class)->clear();
             [$pixel, $link] = $this->assets($platform);
             $key = $platform === 'meta' ? 'fbclid' : 'ttclid';
-            $click = 'EXPLICIT_LOCAL_CLICK_'.$platform;
-            $this->get($link['url'].'?'.$key.'='.$click.'&email=hidden%40example.test&fbclid=EXPLICIT_LOCAL_CLICK_meta&ttclid=EXPLICIT_LOCAL_CLICK_tiktok')
+            $click = $platform === 'meta' ? 'EXPLICIT_LOCAL_CLICK_meta' : 'E.C.P.SYNTHETIC_06-CLICK';
+            $this->get($link['url'].'?'.http_build_query(['email' => 'hidden@example.test', 'fbclid' => 'EXPLICIT_LOCAL_CLICK_meta', 'ttclid' => 'E.C.P.SYNTHETIC_06-CLICK']))
                 ->assertRedirect('/dramas/'.$link['drama_id'].'?'.$key.'='.$click);
             $this->assertDatabaseCount('acquisition_sources', $platform === 'meta' ? 0 : 1);
             $this->assertStringNotContainsString($click, json_encode(session('tracking')));
             $this->postJson('/api/v1/tracking/consent', ['analytics' => false, 'advertising' => true, 'policy_version' => 'analytics-v1'])->assertOk();
-            $body = $this->landing($link, ['fbclid' => 'EXPLICIT_LOCAL_CLICK_meta', 'ttclid' => 'EXPLICIT_LOCAL_CLICK_tiktok', 'fbc' => 'fb.1.1700000000000.OLD_CLICK', 'fbp' => 'fb.1.1700000000000.123456', 'ttp' => 'TEST_TTP-123']);
+            $body = $this->landing($link, ['fbclid' => 'EXPLICIT_LOCAL_CLICK_meta', 'ttclid' => 'E.C.P.SYNTHETIC_06-CLICK', 'fbc' => 'fb.1.1700000000000.OLD_CLICK', 'fbp' => 'fb.1.1700000000000.123456', 'ttp' => 'TEST_TTP-123']);
             $this->postJson('/api/v1/tracking/landing', $body)->assertOk()->assertJsonPath('confirmed', true);
             $before = app(AttributionRecorder::class)->snapshot(null);
             $this->travel(2)->seconds();
@@ -133,7 +133,35 @@ final class ClickMatchingTest extends AcquisitionTestCase
         $this->postJson('/api/v1/tracking/events', $events)->assertJsonPath('accepted', 1);
         $this->postJson('/api/v1/tracking/events', $events)->assertJsonPath('accepted', 1);
         $this->assertDatabaseCount('acquisition_sources', 1);
-        $this->assertDatabaseCount('acquisition_behaviors',1);
-        $this->assertDatabaseHas('acquisition_behaviors',['link_id' => $link['id'], 'channel' => 'meta']);
+        $this->assertDatabaseCount('acquisition_behaviors', 1);
+        $this->assertDatabaseHas('acquisition_behaviors', ['link_id' => $link['id'], 'channel' => 'meta']);
+    }
+
+    public function test_dotted_tiktok_boundary_retains_case_and_rejects_urls_scripts_whitespace_and_overlong_values(): void
+    {
+        [$pixel, $link] = $this->assets('tiktok');
+        $badValues = ['https://attacker.invalid/click', '<script>', 'E.C.P. WITH_SPACE', "E.C.P.TRAILING\n", "E.C.P.\tTAB", str_repeat('A', 513)];
+        foreach ($badValues as $bad) {
+            $this->get($link['url'].'?'.http_build_query(['ttclid' => $bad]))->assertRedirect('/dramas/'.$link['drama_id']);
+        }
+        $this->postJson('/api/v1/tracking/consent', ['analytics' => false, 'advertising' => true, 'policy_version' => 'analytics-v1'])->assertOk();
+        foreach ($badValues as $bad) {
+            $this->postJson('/api/v1/tracking/landing', $this->landing($link, ['ttclid' => $bad]))->assertUnprocessable();
+        }
+        $this->assertDatabaseCount('acquisition_sources', 0);
+        $this->post('/api/v1/tracking/landing', $this->landing($link, ['ttclid' => 'E.C.P.SYNTHETIC_06-CLICK']))->assertUnprocessable();
+        $boundary = 'E.C.P.'.str_repeat('aB_7-', 101).'Z';
+        $this->assertSame(512, strlen($boundary));
+        $this->get($link['url'].'?'.http_build_query(['ttclid' => $boundary]))->assertRedirect('/dramas/'.$link['drama_id'].'?ttclid='.$boundary);
+        // Start a separate explicitly consented journey for the valid boundary value.
+        $this->postJson('/api/v1/tracking/consent', ['analytics' => false, 'advertising' => true, 'policy_version' => 'analytics-v1'])->assertOk();
+        $this->postJson('/api/v1/tracking/landing', $this->landing($link, ['ttclid' => $boundary]))->assertJsonPath('confirmed', true);
+        $source = DB::table('acquisition_sources')->sole();
+        $context = json_decode(Crypt::decryptString($source->context_encrypted), true);
+        $this->assertSame($boundary, $context['ttclid']);
+        $this->assertStringNotContainsString($boundary, $source->context_encrypted);
+        $this->assertArrayNotHasKey('fbc', $context);
+        $this->assertDatabaseCount('acquisition_behaviors', 0);
+        Http::assertNothingSent();
     }
 }

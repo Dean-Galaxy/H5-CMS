@@ -15,7 +15,7 @@ final class ClickContext
             $pattern = match ($key) {
                 'fbc' => '/^fb\.[0-9]{1,2}\.[0-9]{13}\.[A-Za-z0-9_-]+$/D',
                 'fbp' => '/^fb\.[0-9]{1,2}\.[0-9]{13}\.[0-9]{1,30}$/D',
-                'ttp' => '/^[A-Za-z0-9_.-]+$/D',
+                'ttclid', 'ttp' => '/^[A-Za-z0-9_.-]+$/D',
                 default => '/^[A-Za-z0-9_-]+$/D',
             };
             if (! is_string($id) || strlen($id) > 512 || ! preg_match($pattern, $id)) {
