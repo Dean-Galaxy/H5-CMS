@@ -1,0 +1,65 @@
+{
+  "source_commit": "ee866fbb7b425a1dff368f6f906c2a26d47ace54",
+  "base_commit": "4c74195",
+  "business_contract": "1.0.5",
+  "additive_contract": "analytics-v1",
+  "module_tests": {
+    "passed": 78,
+    "assertions": 1035
+  },
+  "environment_contracts": {
+    "passed": 19,
+    "assertions": 402
+  },
+  "browser": {
+    "passed": 20,
+    "external_requests": 0,
+    "javascript_errors": 0
+  },
+  "official_ad_platform_confirmation": "not_performed",
+  "source_sha256": {
+    "h5-platform/app/Modules/Acquisition/AcquisitionServiceProvider.php": "2f504dbf1854351f6f8a541fd34134941afd09bfcd894da7092a7c6705ef2409",
+    "h5-platform/app/Modules/Acquisition/Analytics/AnalyticsReport.php": "9d0ee037ea7b7ccac43f84a460f5ec950bb762b81103f48a1edd1edc1235ef21",
+    "h5-platform/app/Modules/Acquisition/Analytics/BehaviorRecorder.php": "66bbcf7493d2246f8ff94aa04df4307935a66984233b3571240da766a54d2040",
+    "h5-platform/app/Modules/Acquisition/Analytics/ClickContext.php": "e35d2cd5bd99df0a8a4319ae0a6bb29df7fd403c5fe380ee4c1f1f8812998ab3",
+    "h5-platform/app/Modules/Acquisition/Analytics/Clock.php": "49733b34ae6366c64291c534703a1f53d192bc7f692aa362ebf9daa7f0639e55",
+    "h5-platform/app/Modules/Acquisition/Analytics/EventProperties.php": "c305bae9268d888165d09442dc4424ca5b86c55777cc0f05d927b137ddc38c59",
+    "h5-platform/app/Modules/Acquisition/Analytics/Labels.php": "5004312004477b680641c1cda8cf2e6b9eb45f0c23bb9f44a94e8d297bd63c82",
+    "h5-platform/app/Modules/Acquisition/Analytics/TrackingContext.php": "ad34726a1a76890cabf98f95288cdd9f7702cbf8c4d15a3390a5af7dfaddad5d",
+    "h5-platform/app/Modules/Acquisition/Console/PruneAnalytics.php": "fafd96bdbf10c0e03b2b9d7fcfce70f7e5182ec06f084eb9dddced2a7e75b358",
+    "h5-platform/app/Modules/Acquisition/Filament/Pages/AcquisitionDesk.php": "b846e40b6f30932d9ca83f364744351d54c0b6bf67371a6ff63a1995b6e4e309",
+    "h5-platform/app/Modules/Acquisition/Http/TrackingController.php": "f5c89f67980834d8b5c3c2bda6ee6ebf337cbc79928485eb4e7642c79874aef8",
+    "h5-platform/app/Modules/Acquisition/Http/TrackingRequest.php": "7ab1e9d788820218de013e7591198e3b35f20ac68c355a0b38f0a723755080a6",
+    "h5-platform/app/Modules/Acquisition/Http/TrackingThrottle.php": "9fe5fbfb0b01874ce17df7cf63c95f5a4ad6e5d8febf2ec798399b548c69d454",
+    "h5-platform/app/Modules/Acquisition/Sending/DeliveryGate.php": "4722dd3dd15ff685f5f4a1795abff989587f3f3694233dcb5d97c95463f7f658",
+    "h5-platform/app/Modules/Acquisition/Services/AssetManager.php": "c8867e043d26455671ae3a8cdda536e5371ec08c8e0eb66ec83ea576d110c921",
+    "h5-platform/app/Modules/Acquisition/Services/AttributionRecorder.php": "9331ecbcd4df08b486d484d45791bb98d05837a401b34beadbdb98afbd5f527a",
+    "h5-platform/app/Modules/Acquisition/Services/DeliveryWorker.php": "b98eef5652d4c9a7f90b12f48034c0b921ea40d739f84f2355520e12c02ddbb5",
+    "h5-platform/app/Modules/Acquisition/Services/PaymentReceiver.php": "d7551c0aa416417892a44d725374561afd9251a16b7de87574bc33cf52ee2465",
+    "h5-platform/app/Modules/Acquisition/config.php": "8b225df3803db4871cf7cb06f9d31245c2ef8ad13e2eb77e816ac6b852781149",
+    "h5-platform/database/migrations/2026_10_29_050004_create_acquisition_analytics.php": "34228a4f073d547c443a98cc5a995bf5d8c188fb74b84f33fc86de0306a5b697",
+    "h5-platform/resources/views/acquisition/analytics.blade.php": "2c7ce4db79eb032d6983180b60c804bf6a67dec62930d2aef136f20e4f925cbe",
+    "h5-platform/resources/views/acquisition/desk.blade.php": "f8c645a7b701873ff32ad25c4266af1be9345ed050525e710db9303eac5b2be6",
+    "h5-platform/routes/modules/acquisition.php": "15dd2badff0bc661cacecf7a640e630557dfe82af25c58644a80c5193f3ebc59",
+    "h5-platform/tests/Feature/Acquisition/AnalyticsProvidersTest.php": "49f2cdac0761e4cfb5b1cc19747ee7d3c5134742343e1fbd66d46c88952c3417",
+    "h5-platform/tests/Feature/Acquisition/AnalyticsTest.php": "abcdffb118eac46506468a05634c2ff0fa477bf7bd6836f4cbc836ef28f8b865",
+    "h5-platform/tests/Feature/Acquisition/ClickMatchingTest.php": "9ccb9a77cc40fe87af2bfdbce0a992a8df60d203e63c993bb1fc4078f6289603",
+    "h5-platform/tests/Feature/Acquisition/Support/analytics-fixture.php": "fef0946fa67401ff241d1cd0af5818b80a75529958a22c5e5a48fbd4d8aec566",
+    "h5-platform/tests/Feature/Acquisition/Support/analytics-smoke.cjs": "4a23308e525b6f629099dbc22891a8f273264a9e01da95b370212a0654a2455c",
+    "h5-platform/tests/Feature/Acquisition/Support/analytics-state.php": "0b45b4d5cb1952b1a727bcc797ec0123d52c6e840122cb599839fd27953bad7b",
+    "h5-platform/tests/Feature/Acquisition/Support/run.py": "3887a7b808707356de653595266ae58983f77667c3d120e1ecf51f27a6885a58",
+    "h5-platform/tests/Feature/Acquisition/TrackingHttpTest.php": "81d0e231699cb8f8c59e075a48e894fee62e10200bc3b58a153ab6a041425630"
+  },
+  "core_commit": "b550b1a0300a8fd26ab522533cf873f56d2a13f3",
+  "openapi": {
+    "version": "1.0.5",
+    "examples": 59,
+    "passed": true
+  },
+  "combined": {
+    "passed": 11,
+    "failed": 3,
+    "assertions": 331,
+    "status": "00_06_followup_required"
+  }
+}
