@@ -1,0 +1,19 @@
+{
+  "candidate": "bb947dcb7a56b04d5ce27433ab4dfdffeef26a31",
+  "contract": "analytics-v1",
+  "stage": "combined",
+  "database": "h5_217e1741db_test",
+  "preparation_passed": null,
+  "combined_acceptance": "blocked_missing_consumers",
+  "missing": [
+    "route:api/v1/tracking/context",
+    "route:api/v1/tracking/consent",
+    "route:api/v1/tracking/events",
+    "route:api/v1/tracking/landing",
+    "05:recorder",
+    "03:financial_reader",
+    "04:tracking_partial"
+  ],
+  "official_platform_verified": false,
+  "external_delivery_enabled": false
+}

@@ -1,0 +1,20 @@
+{
+  "source_candidate": "bb947dcb7a56b04d5ce27433ab4dfdffeef26a31",
+  "contract": "analytics-v1",
+  "business_contract": "1.0.5",
+  "php_tests": 8,
+  "php_assertions": 170,
+  "python_tests": 6,
+  "node_helper_tests": 5,
+  "browser_executed": false,
+  "consumer_combination_executed": false,
+  "official_platform_verified": false,
+  "source_sha256": {
+    "scripts/ops/analytics_acceptance.py": "1d61503807eaf643bb9279c6522ce024a7d8faccc4e657669989ae7c8e6ed2d5",
+    "scripts/ops/analytics_preflight.php": "1e9dc647d381bd1eae227cc3e7cacc8f743289d66db03b8f61198514874da8bc",
+    "scripts/ops/analytics_browser_runtime.php": "f76e555456f797883c33d4da9cacca4a5e080c6f8617ed93ea29636f4646c253",
+    "h5-platform/tests/Integration/Analytics/DisabledConsumerBusinessTest.php": "83d497a82ac6ea77f57163edb12b7bdafec511e3697f7d72b4409487ff0dd884",
+    "h5-platform/tests/Security/Analytics/AuthorityBoundaryTest.php": "43abb5246df165a2df004d8ef0b6042570fd93c7421a01b9757719a49c4b9edb",
+    "h5-platform/tests/Browser/analytics-journey.cjs": "d0b1b41e6e118e92e969adb5fb9268cdccb5fee0765a77bb503aa2e2b9794a62"
+  }
+}

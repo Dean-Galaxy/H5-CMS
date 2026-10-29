@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "contract": "analytics-v1",
+  "routes": {
+    "api/v1/tracking/context": false,
+    "api/v1/tracking/consent": false,
+    "api/v1/tracking/events": false,
+    "api/v1/tracking/landing": false
+  },
+  "bindings": {
+    "recorder": "App\\Support\\DisabledBehaviorEventRecorder",
+    "financial_reader": "App\\Support\\UnavailableBillingAnalyticsReader"
+  },
+  "missing": [
+    "route:api/v1/tracking/context",
+    "route:api/v1/tracking/consent",
+    "route:api/v1/tracking/events",
+    "route:api/v1/tracking/landing",
+    "05:recorder",
+    "03:financial_reader",
+    "04:tracking_partial"
+  ],
+  "combined_ready": false,
+  "scope": "capability preflight, not consumer acceptance",
+  "external_enabled": false,
+  "transport": "disabled"
+}

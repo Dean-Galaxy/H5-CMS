@@ -1,0 +1,18 @@
+{
+  "generated_here": true,
+  "source": "ffmpeg lavfi testsrc2/sine only",
+  "duration_seconds": 8.0,
+  "video_codec": "h264",
+  "hls_segments": 4,
+  "file_sha256": {
+    "segment-000.ts": "8019cf3861b35580e4753efbb3fdc4e61b187ed48153238fe33a8d62cdcf6a57",
+    "segment-001.ts": "6539be343978bbcde0d5aff9b67e00ff6209d17ab59b516bf498091f633f2502",
+    "index.m3u8": "406bb899f087ae5a41ea4bcc8aa68cdc533c9084923ac6a6bf3826d8239b9b5c",
+    "synthetic.mp4": "759b8c720e647f4c1aecdf316ca1481d3e58b3ba8ef0ae836bbf411feadaff92",
+    "segment-002.ts": "944fb25264f65382bfeffc49f6080d8c70b785cc62dffc9c49a828dcda0a925f",
+    "segment-003.ts": "7174763f687982c6892630425a75d4d9c99ca5ba0a457e84a6a9c9440a5e9f56"
+  },
+  "browser_decoding_executed": false,
+  "generated_at_candidate": "b85b09a381e0700c60eb374ad55444e5702c76fc",
+  "validated_for_candidate": "bb947dcb7a56b04d5ce27433ab4dfdffeef26a31"
+}

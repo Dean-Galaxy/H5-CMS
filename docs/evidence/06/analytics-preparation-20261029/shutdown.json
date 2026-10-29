@@ -1,0 +1,10 @@
+{
+  "candidate": "bb947dcb7a56b04d5ce27433ab4dfdffeef26a31",
+  "only_own_runtime_stopped": true,
+  "own_ports_closed": {
+    "8206": true,
+    "5606": true
+  },
+  "data_preserved": true,
+  "protected_runtime_queried_or_modified": false
+}

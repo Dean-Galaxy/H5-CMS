@@ -1,0 +1,14 @@
+Source candidate: bb947dcb7a56b04d5ce27433ab4dfdffeef26a31
+✔ metadata discards actor/price/token/body and hashes event IDs (0.496ms)
+✔ arbitrary malformed event names and oversized batches omitted (0.300541ms)
+✔ fixture navigation never allows external or signed query URLs (5.253334ms)
+✔ browser guard refuses protected ports and foreign workspaces (1.865542ms)
+✔ browser checks the own live web process binding before connecting (0.75825ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.340958

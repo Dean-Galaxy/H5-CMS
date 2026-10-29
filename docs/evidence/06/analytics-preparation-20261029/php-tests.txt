@@ -1,0 +1,19 @@
+Source candidate: bb947dcb7a56b04d5ce27433ab4dfdffeef26a31
+
+   PASS  Tests\Feature\Contracts\AnalyticsContractsTest
+  ✓ disabled recorder is safe for existing business without a consumer   0.11s  
+  ✓ missing financial reader does not fabricate zero revenue             0.02s  
+  ✓ browser allowlist cannot produce authoritative success events        0.01s  
+
+   PASS  Tests\Integration\Analytics\DisabledConsumerBusinessTest
+  ✓ unavailable analytics does not block payment entitlement or refund   0.24s  
+  ✓ missing recorder never claims accepted or skipped reliable facts     0.02s  
+  ✓ disabled collection does not turn an unpaid viewer into a member     0.05s  
+
+   PASS  Tests\Security\Analytics\AuthorityBoundaryTest
+  ✓ financial reader is an internal port and missing facts are not zero  0.02s  
+  ✓ browser catalog never grants identity or money authority             0.01s  
+
+  Tests:    8 passed (170 assertions)
+  Duration: 0.64s
+
