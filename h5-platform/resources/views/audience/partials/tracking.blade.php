@@ -14,7 +14,7 @@
                 <button type="button" class="secondary" data-privacy-withdraw>{{ __('audience::messages.privacy_withdraw') }}</button>
                 <button type="button" class="secondary" data-privacy-close>{{ __('audience::messages.privacy_close') }}</button>
             </div>
-            <p role="status" data-privacy-status data-unavailable="{{ __('audience::messages.privacy_unavailable') }}" data-saved="{{ __('audience::messages.privacy_saved') }}"></p>
+            <p role="status" aria-live="polite" data-privacy-status data-unavailable="{{ __('audience::messages.privacy_unavailable') }}" data-saved="{{ __('audience::messages.privacy_saved') }}" data-reading="{{ __('audience::messages.privacy_reading') }}" data-disabled="{{ __('audience::messages.privacy_disabled') }}" data-read-failed="{{ __('audience::messages.privacy_read_failed') }}" data-saving="{{ __('audience::messages.privacy_saving') }}"></p>
         </form>
     </dialog>
 </div>

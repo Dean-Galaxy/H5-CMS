@@ -1,0 +1,10 @@
+{
+  "base": "102d62a0af63e3421cce4c1376e8ebfebde4a539",
+  "change": "Preserve ASCII dots in opaque ttclid; keep original case/content, 1-512 bytes, whole-value allowlist and explicit whitespace rejection.",
+  "synthetic_value": "E.C.P.SYNTHETIC_06-CLICK",
+  "before": "Existing slow URL-to-landing preservation test failed because the old parser omitted the dotted ttclid.",
+  "after": "Four targeted Chrome tests passed: slow landing fidelity and ordering; advertising consent; malformed/duplicate/513-byte/trailing-newline rejection; unconfirmed landing behavior.",
+  "unchanged": "Advertising consent, visibility and pending gates; ephemeral landing-only transport; no identifiers in generic behavior JSON or browser buffers; privacy draft and request feedback fix from 102d62a preserved.",
+  "validation": "JavaScript syntax and git diff --check passed; no PHP/dependency/route/contract changes.",
+  "boundaries": "All identifiers and APIs are synthetic. No platform matching acceptance, real-site access, deployment or advertising transmission. 00 receipt and GitHub retention pending."
+}

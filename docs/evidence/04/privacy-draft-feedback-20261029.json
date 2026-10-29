@@ -1,0 +1,44 @@
+{
+  "review_base": "d0c3180fdbcea5b84fac4c08e1bc79dc7531df97",
+  "reproduced_source": "fd51aa7df14234e85125216d7060fed80bfa3bb8",
+  "source_identical_at_review_base": true,
+  "before_source_sha256": "d0fd476bfb1f7f2ed92aafd6acd3e4a74378b277d1eb28bdd927023fb12b9c7b",
+  "after_source_sha256": "860192ecb4aabcf4fca812b5d3e3ce971d8107aed8a3c59ef9e946f7bac8081f",
+  "red_before": {
+    "tests": 3,
+    "passed": 0,
+    "failed": 3,
+    "observations": [
+      "700 ms open-dialog GET changed the user's unchecked analytics draft back to checked",
+      "700 ms background event-flush GET changed the user's unchecked analytics draft back to checked",
+      "Loading-state text was empty instead of Loading your privacy choices"
+    ]
+  },
+  "fix": {
+    "draft": "Dirty local edits and a draft revision protect checkboxes from server re-reads; an acknowledgment only clears the submitted revision. A foreground retry cannot save a failed request after the user has made a newer differing draft.",
+    "feedback": "Bilingual reading, disabled, read failure and saving text; save failure retains the draft and conservative pause. Exact enabled/consent acknowledgment is still required for success.",
+    "submission": "Checkboxes and mutation buttons disabled only during the bounded consent POST, aria-busy set, duplicate submissions ignored; close remains enabled. Explicit reject/withdraw is reflected in the draft immediately.",
+    "layout": "Existing dialog design and CSS unchanged; native scrolling verified at 320 by 500"
+  },
+  "green_after": {
+    "same_three_reproduction_cases": "passed",
+    "additional_targeted": "Bilingual disabled/read-failure feedback, short-screen reject/withdraw/close; duplicate submit; failed draft edit plus network foreground retry",
+    "chrome_full": "18 tests passed; generated Blade preview, synthetic APIs and generated media, actual Chrome",
+    "php": "Audience plus AnalyticsContracts: 50 tests / 493 assertions passed",
+    "format": "JavaScript syntax, Pint translations and git diff --check passed"
+  },
+  "private_local_evidence": [
+    ".runtime/audience/privacy-draft-before.txt",
+    ".runtime/audience/privacy-draft-after.txt",
+    ".runtime/audience/privacy-draft-full.txt",
+    ".runtime/audience/privacy-short-en-320x500.png",
+    ".runtime/audience/privacy-short-zh_CN-320x500.png"
+  ],
+  "boundaries": {
+    "real_06_c2_stable_site_or_callback_accessed": false,
+    "official_payment_or_advertising_sent": false,
+    "deployed": false,
+    "contracts_dependencies_routes_changed": false,
+    "github_retention": "00 receipt/upload pending"
+  }
+}
