@@ -1,0 +1,35 @@
+{
+  "implementation": "57029ca0d386a986e976dc928a2dc4120baa0a16",
+  "shared_baseline": "32e878fff9544c5ff23898ad098022edefa2ff1b",
+  "shared_result_increment": "ecf132b0f9afe9c9989fa61b4ab49156346a9b3a",
+  "files": [
+    {
+      "path": "h5-platform/app/Modules/Identity/Actions/CreateViewer.php",
+      "sha256": "8fe29077572a10de8f4c237e1ca9361ddce03398c9add52e9aff52088c96bc1f"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/Http/IdentityController.php",
+      "sha256": "7c89fa6874f8072006680b38ce771c15e40cc2f1954f62845a53995e7c7e5ce5"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/Http/TrackViewerAuthentication.php",
+      "sha256": "417a9c434f3e64b80d9100b3209b66e1daf00cee3df1462ae5b89b3e1810fd56"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/IdentityServiceProvider.php",
+      "sha256": "4eebca51379eb1290e834bad55c95a0a8c5490313bbdf09bcfe2e08ccae7bd04"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/Services/ViewerBehavior.php",
+      "sha256": "3607245e01ba14f55dd3c47a3cef5f9414b4c697aea1d565c782b104fdda1555"
+    },
+    {
+      "path": "h5-platform/routes/modules/identity.php",
+      "sha256": "e9689e81df52cf34c4d507ef55a7b95c7ff481e786d50f2497ccc622c2a8259e"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Identity/ViewerBehaviorTest.php",
+      "sha256": "b515877485744cc0d270fbc66920e0ab12c7b917e56c771e36e7f419fc22236d"
+    }
+  ]
+}

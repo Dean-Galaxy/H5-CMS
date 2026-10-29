@@ -128,6 +128,7 @@ final class PayPalReconciliation
                     'provider_status' => $status, 'renewal_enabled' => ! $stopped && $status === 'ACTIVE',
                     'resolution_required' => $resolution, 'period_start' => $latest?->period_start, 'period_end' => $latest?->period_end, 'updated_at' => now(),
                 ]);
+                app(BillingBehaviorFacts::class)->subscription($sub->id);
                 if ($expiredApproval && ! $known->count() && ! $resolution) {
                     DB::table('billing_orders')->where('id', $order->id)->update(['state' => 'expired', 'checkout_url' => null, 'last_error' => null, 'updated_at' => now()]);
                 }
@@ -273,6 +274,7 @@ final class PayPalReconciliation
             // No synthetic refund ID is created when an individual refund notification is missing.
             $total = $state === 'refunded' ? $payment->amount_minor : $known;
             DB::table('billing_payments')->where('id', $payment->id)->update(['refunded_amount_minor' => $total]);
+            app(BillingBehaviorFacts::class)->refund($payment->id);
             DB::table('billing_entitlements')->where('payment_id', $payment->id)->update(['revoked_at' => $total === $payment->amount_minor ? now() : null]);
             DB::table('billing_orders')->where('id', $payment->order_id)->update(['payment_state' => $state === 'refunded' ? 'refunded' : ($state === 'partially_refunded' ? 'partially_refunded' : 'succeeded'), 'updated_at' => now()]);
             if ($state !== 'completed') {

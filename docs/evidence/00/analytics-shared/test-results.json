@@ -1,0 +1,18 @@
+{
+  "evidence_source": "Observed execution tool stdout; counts are not an invented raw log",
+  "public_contracts": {
+    "tests": 54,
+    "assertions": 779,
+    "seconds": 25.59,
+    "passed": true,
+    "before_mime_patch": true
+  },
+  "identity_acceptance": {
+    "module_delivery": "8a2f1081d832a6315ea979347f1cfd8e69ddcfa3",
+    "tests": 107,
+    "assertions": 854,
+    "seconds": 54.11,
+    "passed": true,
+    "installed_mime": "8.1.10"
+  }
+}

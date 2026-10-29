@@ -6,6 +6,7 @@ use App\Contracts\AuditRecorder;
 use App\Contracts\IdentityContext;
 use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\Verification;
+use App\Modules\Identity\Services\ViewerBehavior;
 use App\Support\ApiProblem;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ final class IdentityController
     public function logout(Request $request)
     {
         app(AuditRecorder::class)->record('logout', 'viewer', Auth::guard('web')->id(), 'success');
+        app(ViewerBehavior::class)->logout($request->user('web'));
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

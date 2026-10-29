@@ -1,0 +1,23 @@
+03 isolated workspace only. Local HTTP/consumer fixtures are not official provider or advertisement evidence.
+
+  Migration name .............................................. Batch / Status
+  0001_01_01_000001_create_cache_table ............................... [1] Ran
+  0001_01_01_000002_create_jobs_table ................................ [1] Ran
+  2026_10_06_000001_identity_foundation .............................. [1] Ran
+  2026_10_07_020001_create_content_tables ............................ [1] Ran
+  2026_10_07_040001_create_audience_progress_tables .................. [2] Ran
+  2026_10_07_050001_create_acquisition_tables ........................ [2] Ran
+  2026_10_07_050002_freeze_acquisition_delivery_payload .............. [2] Ran
+  2026_10_07_050003_bound_acquisition_retry_window ................... [2] Ran
+  2026_10_07_200000_create_billing_tables ............................ [1] Ran
+  2026_10_07_200100_add_billing_reconciliation_cursor ................ [1] Ran
+  2026_10_07_200200_add_billing_retry_rotation ....................... [1] Ran
+  2026_10_07_200300_add_billing_checkout_intents ..................... [1] Ran
+  2026_10_21_020001_create_content_operations ........................ [3] Ran
+  2026_10_21_020002_add_content_plan_draft_timing .................... [4] Ran
+  2026_10_21_020003_add_content_operation_actor ...................... [4] Ran
+  2026_10_26_200400_add_billing_provider_scopes ...................... [4] Ran
+  2026_10_26_200500_scope_billing_external_identifiers ............... [4] Ran
+  2026_10_27_200600_add_paypal_observations .......................... [4] Ran
+  2026_10_28_200700_add_paypal_merchant_bindings ..................... [5] Ran
+  2026_10_29_200800_create_billing_behavior_outbox ................... [6] Ran

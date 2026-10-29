@@ -1,0 +1,10 @@
+03 isolated workspace only. Local HTTP/consumer fixtures are not official provider or advertisement evidence.
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ paypal behavior facts use confirmed reads and refund correction ver… 0.42s
+
+  Tests:    1 passed (86 assertions)
+  Duration: 0.57s

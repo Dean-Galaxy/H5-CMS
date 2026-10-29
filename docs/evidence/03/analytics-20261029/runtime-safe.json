@@ -1,0 +1,18 @@
+{
+  "workspace": "03-billing",
+  "web_port": 8203,
+  "db_port": 5603,
+  "checks": {
+    "web": true,
+    "queue": true,
+    "scheduler": true,
+    "database": true,
+    "http": true
+  },
+  "migrations_ran": 20,
+  "new_migrations": 1,
+  "shared_payment_site_modified": false,
+  "thursday_site_modified": false,
+  "new_official_payment_calls": false,
+  "advertising_external_calls": false
+}

@@ -9,6 +9,9 @@
   const progressStatus = root.querySelector('[data-progress-status]');
   const storageKey = 'audience.progress.' + root.dataset.drama;
   const clamp = value => Math.max(0, Math.min(duration, Number.isFinite(Number(value)) ? Number(value) : 0));
+  const observe = detail => {
+    try { root.dispatchEvent(new CustomEvent('audience:playback', {detail})); } catch (_) { /* Optional analytics never changes playback. */ }
+  };
   let session = null, timer = null, hls = null, busy = false, stopped = false, mediaPending = false;
   let requestEpoch = 0, requestController = null, requestTimeout = null, disposed = false, needsRefresh = false, metadataListener = null;
   let position = clamp(new URL(location.href).searchParams.get('position'));
@@ -118,6 +121,7 @@
     });
   }
   function halt(code) {
+    if (code) observe({type: 'error', code});
     position = currentPosition();
     requestEpoch++; requestController?.abort(); requestController = null; clearTimeout(requestTimeout);
     busy = false; button.disabled = false;
@@ -130,6 +134,7 @@
   }
   async function authorize(renew = false) {
     if (busy || disposed) return;
+    if (!renew) observe({type: 'request'});
     const attempt = ++requestEpoch;
     const active = () => attempt === requestEpoch && !disposed;
     const abort = new AbortController(); requestController = abort;

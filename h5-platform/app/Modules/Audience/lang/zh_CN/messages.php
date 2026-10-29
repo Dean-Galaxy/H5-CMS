@@ -1,6 +1,17 @@
 <?php
 
 return [
+    'privacy_choices' => '隐私选择',
+    'privacy_intro' => '两种用途分别选择。不接受可选跟踪也可正常使用网站，随时可重开修改。',
+    'privacy_analytics' => '网站分析：了解页面访问、播放及购买流程。',
+    'privacy_advertising' => '广告衡量：将符合条件的推广访问和转化关联到广告服务。',
+    'privacy_retention' => '撤回后停止该用途的后续采集，并清空浏览器分析缓冲。必要账务记录仍保留。原始分析数据最多保留90天，浏览器缓冲最多24小时。',
+    'privacy_save' => '保存选择',
+    'privacy_reject' => '拒绝可选跟踪',
+    'privacy_withdraw' => '撤回两项同意',
+    'privacy_close' => '关闭',
+    'privacy_unavailable' => '选择未能保存，本浏览器已暂停可选采集。联网后请重试。',
+    'privacy_saved' => '隐私选择已保存。',
     'AUTHENTICATION_REQUIRED' => '登录会话已改变，请重新登录并打开本集。',
     'CSRF_MISMATCH' => '页面已过期，请刷新后从当前位置继续。',
     'refresh' => '刷新并继续',
