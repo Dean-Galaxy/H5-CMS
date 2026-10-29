@@ -1,11 +1,10 @@
 03 isolated workspace only. Local HTTP/consumer fixtures are not official provider or advertisement evidence.
 
-   INFO  Configuration cache cleared successfully.  
+   INFO  Configuration cache cleared successfully.
 
 
    PASS  Tests\Feature\Billing\BillingConcurrencyTest
-  ✓ concurrent lifecycle observations commit one refund version and one… 0.42s  
+  ✓ concurrent lifecycle observations commit one refund version and one… 0.42s
 
   Tests:    1 passed (13 assertions)
   Duration: 0.54s
-
