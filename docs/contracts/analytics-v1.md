@@ -18,6 +18,8 @@
 
 05-002 浏览器补充由00接收，`play_session_id` 改为公共的 `play_instance_id`（不收 Content 播放许可 ID）。同内容重复 accepted、不重复计数；跨主体/同ID不同内容 rejected。未同意不建分析主体；存储暂时失败503允许同ID有界重试；整包422/413、单条拒绝计rejected。`watched_seconds`为每play_instance_id累计实际观看增量，seek不计；服务端进行单调/合理上限校验。
 
+接收纠偏：退出/换号**不等于撤回隐私同意**。`clearBrowserContext`解绑当前session中的subject/source/候选并使下次选择unknown，不可把已建订单的原privacy/source一律改拒绝/撤销，否则正常“付款后退出、可靠outbox迟到”会漏转化。原事件仍按事实时原授权、原对象及真实撤回判断；下一个账号绝不继承。真正拒绝/撤回仍停止旧待发：已认证观众可按自己可信viewer的既有privacy撤回，员工或别的账号不具此权；未登录只处理当前可识别浏览器的同意证据，不冒称完成全账号撤回。05-002中若将logout一律视为旧来源撤回，以本段为准。需分别验证立即退出后的旧付款、明确撤回后的旧付款、新账号不继承三类场景。
+
 允许受信 properties 按事件白名单含 opaque `viewer_id,drama_id,episode_id,order_id,payment_id,subscription_id,source_id`；这些**绝不接受浏览器指定**身份/来源/金额/成功状态。`position_seconds,duration_seconds,watched_seconds,startup_ms,stall_ms,error_code,transaction_kind,amount_minor,refunded_amount_minor,currency,is_test,occurred_at` 依事件校验范围。事件时间以服务器接收为准；财务事实可使用经 03 核定的 occurred_at。无邮箱/密码/token/原支付 ID/媒体 URL/任意 query/自由错误堆栈进入行为库或报表。合法页面仅固定同站路径，查询参数白名单。05 对 IP/UA 的广告匹配用途加密、限制访问，不进入普通分析明细。
 
 `BillingAnalyticsReader::payments(array $paymentIds):array`，最多 200 个唯一 UUID。结果按 payment_id 索引，缺失省略；每项仅 `payment_id,viewer_id,order_id,subscription_id,transaction_kind,amount_minor,refunded_amount_minor,currency,is_test,paid_at,attribution_snapshot`。时间 UTC ISO8601，金额整数 cents；退款只统计已确认成功累计额；snapshot 为既有 DTO array 或 null。禁止消费者读 Billing 表，05 先按员工可见 link/payment 范围选 ID；财务接口仅进程内，禁止公开或让前端枚举。
