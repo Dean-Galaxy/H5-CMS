@@ -2,6 +2,8 @@
 
 ## 基线与范围
 
+- 2026-10-29 埋点补齐已获本人授权，D05已确认7天同意后最后有效推广点击/建单固定/普通不覆盖/撤回停外发；附加契约docs/contracts/analytics-v1.md。01/03/04/05/06按所属模块开发，00公共层及接收；新增功能隔离验证，不能改当前21f33的C2支付站/周四站或启用广告外发。本站分析与Meta/TikTok真实外联分开验收。
+
 - 2026-10-29 C1修复后实际通过：真实06固定21f33（GitHub修复标签已回读），06保数据接入c880ee1已接收，APIoff13账务/45表保持及15+5正常TLS通过。00 API-only官方准入、原C正常sync(false)+两次syncRefunds、两轮完整真实对账及恢复后两轮API-on实际调度后核验均稳定：Refund completed100/Sale partial、保原期权益/首惠、官方SUSPENDED、renewal/desired=false/refund_stopped=true/resolution=false/pending0，旧2条成功取消保留不增，A/B核心保持。04等待提示已部署，无自动刷新；新购unconfigured、Live关闭，00持callback-only窗口供C2。已交07指导同一C原3USD退剩余2，C2尚待本人/官方结果，不先宣称通过；00-41为准。
 
 - 2026-10-29 C1阻塞工程接收：真实06仍ca279ac；本人已退C100美分，00核官方Refund/Sale、本地100/原权益和实际退款/暂停签名收件均正确、官方SUSPENDED，但resolution被完整对账反复置true、历史C取消2条succeeded。00仅停queue/scheduler保web/DB/callback、另存最新私密数据及13账务基线；A/B仅正常诊断时间变，核心事实保持。03 b1da054/daa901c已接收，00独立200项3486断言通过；修复不手写false、不删历史操作，部署后须原C正常sync(false)及重复对账实际验证。当前待固定GitHub版本与06保数据接入，C2不放行，不让本人重退/取消；00-40为准。
