@@ -1,0 +1,52 @@
+{
+  "baseline_before_merge": "d659a85e9a288fd6078f6f3b94c17a06b67dd476",
+  "00_candidate": "f9d21fbccc54e7c3796e83b9824c8d0edc91174f",
+  "normal_merge": "c5e32d2dd0a400f12e4afe2bb14a9ed343c9aa05",
+  "source_commit": "9dec77f0f766077c69cd62007ca94cce1989f7a5",
+  "contract": "business 1.0.5 / c-reg-r1-http / c-reg-r1-php-1; unchanged",
+  "red_run": "before merge on d659a85, with this identical new test; 3 old product files byte-identical to f9d21fb",
+  "new_subset_run": "10/196 before merge; identical patched product/test bytes",
+  "current_combined_run": "after merge c5e32d2 with same patch; 182/3493, includes the new 10 cases",
+  "red_green_test_sha256": "41b33ff7b8372cbf1b83c0f5ea42c15e2fd27a1963f105e0fa737bd8d361ce65",
+  "old_product_sha256": {
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeProof.php": "b806262e0afcec343f37259d43bc8d22a6aa9d6d2d62bcad66772918b285d4f4",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeStore.php": "d1d1901ec691dfe1d696d7619498c89c04e9bbd683d9ea9a5c6879befa46dfce",
+    "h5-platform/app/Modules/Acquisition/Console/PruneRegistrationPurposes.php": "44f7c658255823b9455429de1ac9936ecd6e8f12de6d463369a9d7f7aaf7fe0a"
+  },
+  "source_files": {
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeProof.php": "30b1bfaef728556dd7f4b1105cfb7313bce40b37f6b8505bd6a2e0b5b59e3da3",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeStore.php": "5c00988777ba768c6632421531060868cc7109a0d6d90612954cc5aa4f9e1285",
+    "h5-platform/app/Modules/Acquisition/Console/PruneRegistrationPurposes.php": "9153b4ccd20091dc0965074e76da2f019ca9632d16d604571bc23fdcbcc5eb9a",
+    "h5-platform/tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php": "41b33ff7b8372cbf1b83c0f5ea42c15e2fd27a1963f105e0fa737bd8d361ce65"
+  },
+  "checks": {
+    "old_failed": 7,
+    "old_passed": 3,
+    "old_assertions": 97,
+    "new_passed": 10,
+    "new_assertions": 196,
+    "combined_passed": 182,
+    "combined_assertions": 3493,
+    "openapi_examples": 59,
+    "pint": "passed",
+    "php_lint": "passed"
+  },
+  "evidence_files": {
+    "audit.json": "c9e82e7f7167faa8a8a1fe33078d0db5592dd5684a0f6f123f9fa0cca8e4e4a6",
+    "contracts.txt": "aea6b6c9fdfa0feb860540ce88c4aeca0c1ab1782369759aaa0ffd7394020f66",
+    "current-regression.txt": "1cc8ff7705d8af2214f78fd79bd29a8df16bd9c21d68936d633fb464befdea4a",
+    "new-tests.txt": "1c35136ad9855a584f669f9215256346ddf889949c4080189f5f9228d073be9d",
+    "old-final.txt": "927d7934d133e37716e867572df866317d004396425d040057a5e5f0dedbf9d5",
+    "php-lint.txt": "7b869f03c0c9254fa71d00d0ac7dd07772ba22bb257fda1012ca251a10692a47",
+    "pint.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a"
+  },
+  "not_claimed": [
+    "06 original lifecycle first assertion identified",
+    "06 failed fixture or manual/upgrade/regression DB repaired",
+    "06 lifecycle suite passed",
+    "new policy cutoff extended",
+    "browser/manual acceptance",
+    "production or advertising release",
+    "GitHub remote backup"
+  ]
+}

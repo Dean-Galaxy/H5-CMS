@@ -1,0 +1,55 @@
+{
+  "scope": "R1 Registration/*.php and Console/PruneRegistrationPurposes.php only",
+  "scanned_files": [
+    "h5-platform/app/Modules/Acquisition/Registration/LegacyAdvertisingBridge.php",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeConflict.php",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeController.php",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposePolicy.php",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeProof.php",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeStore.php",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposeThrottle.php",
+    "h5-platform/app/Modules/Acquisition/Registration/RegistrationMeasurementAdapter.php",
+    "h5-platform/app/Modules/Acquisition/Registration/RegistrationObservations.php",
+    "h5-platform/app/Modules/Acquisition/Registration/RequestObservation.php",
+    "h5-platform/app/Modules/Acquisition/Console/PruneRegistrationPurposes.php"
+  ],
+  "sql_expiry_comparisons": [
+    {
+      "file": "h5-platform/app/Modules/Acquisition/Registration/PurposeProof.php",
+      "line": 30,
+      "comparison": "return $id ? DB::table('acquisition_r1_proofs')->where('id', $id)->where('expires_at', '>', Clock::stamp())->first() : null;"
+    },
+    {
+      "file": "h5-platform/app/Modules/Acquisition/Registration/PurposeStore.php",
+      "line": 73,
+      "comparison": "DB::table('acquisition_r1_operations')->where('id', $operation)->where('expires_at', '<=', Clock::stamp())->delete();"
+    },
+    {
+      "file": "h5-platform/app/Modules/Acquisition/Console/PruneRegistrationPurposes.php",
+      "line": 22,
+      "comparison": "$ops = DB::table('acquisition_r1_operations')->where('expires_at', '<=', Clock::stamp())->limit($limit)->pluck('id');"
+    },
+    {
+      "file": "h5-platform/app/Modules/Acquisition/Console/PruneRegistrationPurposes.php",
+      "line": 24,
+      "comparison": "$proofs = DB::table('acquisition_r1_proofs')->where('expires_at', '<=', Clock::stamp())->limit($limit)->pluck('id');"
+    }
+  ],
+  "other_SQL_DateTime_boundary_found": false,
+  "php_carbon_comparisons_unchanged": [
+    "PurposePolicy::resolve",
+    "LegacyAdvertisingBridge::markerDenied/denial",
+    "PurposeProof::remember",
+    "PurposeStore 24h receipt upper bound"
+  ],
+  "legacy_v1_c_algorithms_unchanged": true,
+  "migrations_and_dependencies_unchanged": true,
+  "shared_contract_unchanged": true,
+  "only_database_used": "05 owned marked _r1a_clean_test on own PostgreSQL 5605",
+  "read_06_database": false,
+  "modified_06_database": false,
+  "read_or_wrote_other_runtime_databases": false,
+  "started_web_queue_or_scheduler": false,
+  "changed_policy_or_env": false,
+  "external_sending": false
+}

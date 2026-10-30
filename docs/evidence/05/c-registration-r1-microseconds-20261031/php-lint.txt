@@ -1,0 +1,4 @@
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Registration/PurposeProof.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Registration/PurposeStore.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Console/PruneRegistrationPurposes.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php

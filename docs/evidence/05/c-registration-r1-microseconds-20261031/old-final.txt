@@ -1,0 +1,135 @@
+
+  ⨯⨯.⨯⨯.⨯.⨯⨯
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\RegistrationMicrosecondExpiryTest > pro…
+  Failed asserting that stdClass Object #266 (
+    'id' => '<synthetic-id>',
+    'is_test' => true,
+    'created_at' => '2026-11-01 01:02:03.123456+00',
+    'expires_at' => '2028-11-01 01:02:03.123456+00',
+) is null.
+
+  at tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:86
+     82▕         $this->assertSame($proof->id, app(PurposeProof::class)->current()?->id);
+     83▕         $this->assertSame('deny', app(PurposeStore::class)->state('account_link')['choice']);
+     84▕         foreach ([$expiry, $expiry->addMicrosecond()] as $time) {
+     85▕             $this->travelTo($time);
+  ➜  86▕             $this->assertNull(app(PurposeProof::class)->current());
+     87▕             $this->assertSame('unknown', app(PurposeStore::class)->state('account_link')['choice']);
+     88▕         }
+     89▕         $this->assertEquals($proof, DB::table('acquisition_r1_proofs')->first());
+     90▕         $this->assertDatabaseCount('acquisition_r1_choices', 1);
+
+  1   tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:86
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\RegistrationMicrosecondExpiryTest > pro…
+  Failed asserting that stdClass Object #1224 (
+    'id' => '<synthetic-id>',
+    'is_test' => true,
+    'created_at' => '2026-11-01 01:02:03.999999+00',
+    'expires_at' => '2028-11-01 01:02:03.999999+00',
+) is null.
+
+  at tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:86
+     82▕         $this->assertSame($proof->id, app(PurposeProof::class)->current()?->id);
+     83▕         $this->assertSame('deny', app(PurposeStore::class)->state('account_link')['choice']);
+     84▕         foreach ([$expiry, $expiry->addMicrosecond()] as $time) {
+     85▕             $this->travelTo($time);
+  ➜  86▕             $this->assertNull(app(PurposeProof::class)->current());
+     87▕             $this->assertSame('unknown', app(PurposeStore::class)->state('account_link')['choice']);
+     88▕         }
+     89▕         $this->assertEquals($proof, DB::table('acquisition_r1_proofs')->first());
+     90▕         $this->assertDatabaseCount('acquisition_r1_choices', 1);
+
+  1   tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:86
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\RegistrationMicro…  AssertionFailedError
+  Expired or conflicting operation must not confirm an old allow
+
+  at tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:63
+     59▕     private function conflict(string $code, callable $operation): void
+     60▕     {
+     61▕         try {
+     62▕             $operation();
+  ➜  63▕             $this->fail('Expired or conflicting operation must not confirm an old allow');
+     64▕         } catch (PurposeConflict $e) {
+     65▕             $this->assertSame($code, $e->problemCode);
+     66▕             $this->assertSame('deny', $e->state['choice']);
+     67▕             $this->assertSame(2, $e->state['revision']);
+
+  1   tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:63
+  2   tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:128
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\RegistrationMicro…  AssertionFailedError
+  Expired or conflicting operation must not confirm an old allow
+
+  at tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:63
+     59▕     private function conflict(string $code, callable $operation): void
+     60▕     {
+     61▕         try {
+     62▕             $operation();
+  ➜  63▕             $this->fail('Expired or conflicting operation must not confirm an old allow');
+     64▕         } catch (PurposeConflict $e) {
+     65▕             $this->assertSame($code, $e->problemCode);
+     66▕             $this->assertSame('deny', $e->state['choice']);
+     67▕             $this->assertSame(2, $e->state['revision']);
+
+  1   tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:63
+  2   tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:128
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\RegistrationMicro…  AssertionFailedError
+  Expired or conflicting operation must not confirm an old allow
+
+  at tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:63
+     59▕     private function conflict(string $code, callable $operation): void
+     60▕     {
+     61▕         try {
+     62▕             $operation();
+  ➜  63▕             $this->fail('Expired or conflicting operation must not confirm an old allow');
+     64▕         } catch (PurposeConflict $e) {
+     65▕             $this->assertSame($code, $e->problemCode);
+     66▕             $this->assertSame('deny', $e->state['choice']);
+     67▕             $this->assertSame(2, $e->state['revision']);
+
+  1   tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:63
+  2   tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:128
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\RegistrationMicrosecondExpiryTest > bou…
+  Failed asserting that table [acquisition_r1_proofs] matches expected entries count of 3. Entries found: 4.
+.
+
+  at tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:194
+    190▕         $this->travelTo($expiry);
+    191▕         foreach ([3, 2, 1] as $remaining) {
+    192▕             $this->artisan('acquisition:r1-prune', ['--limit' => 1])->assertExitCode(0);
+    193▕             foreach (['proofs', 'choices', 'operations'] as $table) {
+  ➜ 194▕                 $this->assertDatabaseCount('acquisition_r1_'.$table, $remaining);
+    195▕             }
+    196▕             $this->assertDatabaseHas('acquisition_r1_proofs', ['id' => $proofIds[3]]);
+    197▕             $this->assertSame($protected, $this->nonR1Snapshot());
+    198▕         }
+
+  ────────────────────────────────────────────────────────────────────────────
+   FAILED  Tests\Feature\Acquisition\RegistrationMicrosecondExpiryTest > bou…
+  Failed asserting that table [acquisition_r1_proofs] matches expected entries count of 3. Entries found: 4.
+.
+
+  at tests/Feature/Acquisition/RegistrationMicrosecondExpiryTest.php:194
+    190▕         $this->travelTo($expiry);
+    191▕         foreach ([3, 2, 1] as $remaining) {
+    192▕             $this->artisan('acquisition:r1-prune', ['--limit' => 1])->assertExitCode(0);
+    193▕             foreach (['proofs', 'choices', 'operations'] as $table) {
+  ➜ 194▕                 $this->assertDatabaseCount('acquisition_r1_'.$table, $remaining);
+    195▕             }
+    196▕             $this->assertDatabaseHas('acquisition_r1_proofs', ['id' => $proofIds[3]]);
+    197▕             $this->assertSame($protected, $this->nonR1Snapshot());
+    198▕         }
+
+
+  Tests:    7 failed, 3 passed (97 assertions)
+  Duration: 0.62s
