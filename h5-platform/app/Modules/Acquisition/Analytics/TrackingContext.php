@@ -3,6 +3,7 @@
 namespace App\Modules\Acquisition\Analytics;
 
 use App\Contracts\IdentityContext;
+use App\Modules\Acquisition\Measurement\SiteAnalysisBridge;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\Cookie;
@@ -104,21 +105,35 @@ final class TrackingContext
         }
         $this->syncViewer();
         DB::transaction(function () use ($s, $analytics, $advertising) {
-            $this->withdrawKnown($analytics, $advertising);
+            $bridge = app(SiteAnalysisBridge::class);
             $old = $this->privacy();
+            $old = $old ? DB::table('acquisition_privacy')->where('id', $old->id)->lockForUpdate()->first() : null;
+            $denied = $bridge->browserDenied() || $bridge->proofDenied($old);
+            // C mode cannot grant legacy analysis. An existing grant remains historical until an explicit denial.
+            $preserve = SiteAnalysisBridge::experience() && $analytics && ! $denied;
+            $choice = $preserve ? ($old?->analytics ?? $s->get('tracking.consent.analytics', 'unknown')) : ($analytics && ! $denied ? 'granted' : 'denied');
+            $this->withdrawKnown($preserve || $choice === 'granted', $advertising);
             $id = $old?->id ?? (string) Str::uuid();
-            $s->put('tracking.consent', ['analytics' => $analytics ? 'granted' : 'denied', 'advertising' => $advertising ? 'granted' : 'denied']);
-            // Rejections alone create no analytics subject or persistent tracking identity.
-            if (! $old && ! $analytics && ! $advertising) {
+            $s->put('tracking.consent', ['analytics' => $choice, 'advertising' => $advertising ? 'granted' : 'denied']);
+            // A rejection alone creates no legacy tracking identity.
+            if (! $old && $choice !== 'granted' && ! $advertising) {
                 return;
             }
-            DB::table('acquisition_privacy')->updateOrInsert(['id' => $id], [
-                'analytics' => $analytics ? 'granted' : 'denied', 'advertising' => $advertising ? 'granted' : 'denied',
-                'policy_version' => 'analytics-v1', 'analytics_granted_at' => $analytics ? ($old?->analytics === 'granted' ? $old->analytics_granted_at : Clock::stamp()) : null,
+            $values = [
+                'advertising' => $advertising ? 'granted' : 'denied', 'policy_version' => 'analytics-v1',
                 'created_at' => $old?->created_at ?? Clock::stamp(), 'updated_at' => Clock::stamp(),
-            ]);
+            ];
+            if (! $preserve || ! $old) {
+                $values += ['analytics' => $choice, 'analytics_granted_at' => $choice === 'granted'
+                    ? ($old?->analytics === 'granted' ? $old->analytics_granted_at : Clock::stamp()) : null];
+            }
+            if ($denied) {
+                // Preserve an existing deadline; repeated legacy requests cannot extend a C preference's life.
+                $values += $bridge->proofDenied($old) ? [] : $bridge->denialValues();
+            }
+            DB::table('acquisition_privacy')->updateOrInsert(['id' => $id], $values);
             $s->put('tracking.privacy', $id);
-            if ($analytics || $advertising) {
+            if ($choice === 'granted' || $advertising) {
                 $this->rememberConsent($id);
             } else {
                 Cookie::queue(Cookie::forget($this->cookieName()));
@@ -128,7 +143,7 @@ final class TrackingContext
                 $s->forget('tracking.source');
                 DB::table('acquisition_privacy')->where('id', $id)->update(['active_source' => null]);
             }
-            if (! $analytics) {
+            if ($choice !== 'granted') {
                 $s->forget('tracking.subject');
                 DB::table('acquisition_privacy')->where('id', $id)->update(['current_subject' => null]);
             }
@@ -148,12 +163,21 @@ final class TrackingContext
             // Do not stitch two accounts or an authenticated and a newly anonymous chain.
             $this->clear();
         }
+        if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
+            return;
+        }
         if ($viewer) {
-            $s->put('tracking.viewer', $viewer);
-            $p = $this->privacy();
-            if ($p) {
-                DB::table('acquisition_privacy')->where('id', $p->id)->update(['viewer_id' => $viewer]);
-            }
+            DB::transaction(function () use ($viewer, $s) {
+                $p = $this->privacy();
+                $p = $p ? DB::table('acquisition_privacy')->where('id', $p->id)->lockForUpdate()->first() : null;
+                if (app(SiteAnalysisBridge::class)->proofDenied($p)) {
+                    return;
+                }
+                $s->put('tracking.viewer', $viewer);
+                if ($p) {
+                    DB::table('acquisition_privacy')->where('id', $p->id)->update(['viewer_id' => $viewer]);
+                }
+            });
         }
     }
 
@@ -163,27 +187,34 @@ final class TrackingContext
         if (! $s || ! $this->enabled()) {
             return null;
         }
-        $this->syncViewer($viewer);
-        $privacy = $this->privacy();
-        if (! $privacy || $privacy->analytics !== 'granted') {
+        if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
             return null;
         }
-        $viewer ??= app(IdentityContext::class)->viewer()?->id;
-        $subjectId = $s->get('tracking.subject');
-        $row = is_string($subjectId) && Str::isUuid($subjectId) ? DB::table('acquisition_subjects')->where('id', $subjectId)->first() : null;
-        if (! $row || $row->privacy_id !== $privacy->id || ($row->viewer_id && $row->viewer_id !== $viewer)) {
-            $id = (string) Str::uuid();
-            DB::table('acquisition_subjects')->insert(['id' => $id, 'privacy_id' => $privacy->id, 'viewer_id' => $viewer,
-                'session_key' => (string) Str::uuid(), 'created_at' => Clock::stamp(), 'updated_at' => Clock::stamp()]);
-            $s->put('tracking.subject', $id);
-            DB::table('acquisition_privacy')->where('id', $privacy->id)->update(['current_subject' => $id]);
-            $row = DB::table('acquisition_subjects')->where('id', $id)->first();
-        } elseif ($viewer && ! $row->viewer_id) {
-            DB::table('acquisition_subjects')->where('id', $row->id)->update(['viewer_id' => $viewer, 'updated_at' => Clock::stamp()]);
-            $row->viewer_id = $viewer;
-        }
+        $this->syncViewer($viewer);
 
-        return $row;
+        return DB::transaction(function () use ($viewer, $s) {
+            $privacy = $this->privacy();
+            $privacy = $privacy ? DB::table('acquisition_privacy')->where('id', $privacy->id)->lockForUpdate()->first() : null;
+            if (! $privacy || $privacy->analytics !== 'granted' || app(SiteAnalysisBridge::class)->proofDenied($privacy)) {
+                return null;
+            }
+            $viewer ??= app(IdentityContext::class)->viewer()?->id;
+            $subjectId = $s->get('tracking.subject');
+            $row = is_string($subjectId) && Str::isUuid($subjectId) ? DB::table('acquisition_subjects')->where('id', $subjectId)->first() : null;
+            if (! $row || $row->privacy_id !== $privacy->id || ($row->viewer_id && $row->viewer_id !== $viewer)) {
+                $id = (string) Str::uuid();
+                DB::table('acquisition_subjects')->insert(['id' => $id, 'privacy_id' => $privacy->id, 'viewer_id' => $viewer,
+                    'session_key' => (string) Str::uuid(), 'created_at' => Clock::stamp(), 'updated_at' => Clock::stamp()]);
+                $s->put('tracking.subject', $id);
+                DB::table('acquisition_privacy')->where('id', $privacy->id)->update(['current_subject' => $id]);
+                $row = DB::table('acquisition_subjects')->where('id', $id)->first();
+            } elseif ($viewer && ! $row->viewer_id) {
+                DB::table('acquisition_subjects')->where('id', $row->id)->update(['viewer_id' => $viewer, 'updated_at' => Clock::stamp()]);
+                $row->viewer_id = $viewer;
+            }
+
+            return $row;
+        });
     }
 
     public function clear(): void

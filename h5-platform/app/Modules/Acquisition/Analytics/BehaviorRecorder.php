@@ -7,6 +7,8 @@ use App\Contracts\BillingAnalyticsReader;
 use App\Contracts\CatalogReader;
 use App\Contracts\RegionResolver;
 use App\Enums\BehaviorRecordingResult as Result;
+use App\Modules\Acquisition\Measurement\CoreContext;
+use App\Modules\Acquisition\Measurement\SiteAnalysisBridge;
 use App\Modules\Acquisition\Services\AttributionRecorder;
 use App\Support\ApiProblem;
 use Carbon\CarbonImmutable;
@@ -27,6 +29,9 @@ final class BehaviorRecorder implements BehaviorEventRecorder
 
     public function recordFact(string $eventName, array $properties, string $deduplicationKey): Result
     {
+        if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
+            return Result::Skipped;
+        }
         if (! app(TrackingContext::class)->enabled()) {
             return Result::Retry;
         }
@@ -58,10 +63,10 @@ final class BehaviorRecorder implements BehaviorEventRecorder
                 if (! $subject) {
                     return Result::Skipped;
                 }
-                $privacy = DB::table('acquisition_privacy')->where('id', $subject->privacy_id)->first();
+                $privacy = DB::table('acquisition_privacy')->where('id', $subject->privacy_id)->lockForUpdate()->first();
                 $consentTime = $this->orderingTime($eventName, $p, $subject, $time);
                 // Late consent does not authorize retrospective capture. Withdrawal wins over snapshots.
-                if (! $privacy || $privacy->analytics !== 'granted' || ! $privacy->analytics_granted_at
+                if (! $privacy || $privacy->analytics !== 'granted' || app(SiteAnalysisBridge::class)->proofDenied($privacy) || ! $privacy->analytics_granted_at
                     || CarbonImmutable::parse($privacy->analytics_granted_at)->greaterThan($consentTime)
                     || CarbonImmutable::parse($subject->created_at)->lessThan(CarbonImmutable::parse($privacy->analytics_granted_at))) {
                     return Result::Skipped;
@@ -101,6 +106,9 @@ final class BehaviorRecorder implements BehaviorEventRecorder
     /** Returns Accepted for an identical retry, Skipped for invalid or unconsented input. */
     public function browser(string $id, string $name, array $properties): Result
     {
+        if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
+            return Result::Skipped;
+        }
         if (! app(TrackingContext::class)->enabled()) {
             return Result::Skipped;
         }
@@ -179,6 +187,12 @@ final class BehaviorRecorder implements BehaviorEventRecorder
         $subject = $subjectId ? DB::table('acquisition_subjects')->where('id', $subjectId)->first() : null;
         if ($subject && isset($p['viewer_id']) && $subject->viewer_id !== $p['viewer_id']) {
             return [null, $p, null];
+        }
+        if ($subject) {
+            $privacy = DB::table('acquisition_privacy')->where('id', $subject->privacy_id)->lockForUpdate()->first();
+            if (! $privacy || $privacy->analytics !== 'granted' || app(SiteAnalysisBridge::class)->proofDenied($privacy)) {
+                return [null, $p, null];
+            }
         }
         if ($subject && isset($p['order_id'], $p['subscription_id'])) {
             DB::table('acquisition_analytics_orders')->insertOrIgnore(['order_id' => $p['order_id'], 'subject_id' => $subject->id,
@@ -320,7 +334,7 @@ final class BehaviorRecorder implements BehaviorEventRecorder
     public function clearBrowserContext(): void
     {
         try {
-            app(\App\Modules\Acquisition\Measurement\CoreContext::class)->end();
+            app(CoreContext::class)->end();
         } catch (Throwable) {
             // C is independent: its storage failure must not prevent legacy logout/context clearing.
             if (request()->hasSession()) {

@@ -154,7 +154,7 @@ final class MeasurementCoreTest extends AcquisitionTestCase
         $this->assertNotNull(DB::table('acquisition_c_subjects')->value('ended_at'));
     }
 
-    public function test_legacy_denial_and_revoked_proof_block_c_without_rewriting_the_old_pipeline(): void
+    public function test_legacy_denial_blocks_c_and_c_denial_bridges_only_site_analysis(): void
     {
         config(['acquisition.analytics_enabled' => true]);
         $this->postJson('/api/v1/tracking/consent', ['analytics' => false, 'advertising' => false, 'policy_version' => 'analytics-v1'])->assertOk();
@@ -163,12 +163,15 @@ final class MeasurementCoreTest extends AcquisitionTestCase
         $this->assertNoSubjects();
         $this->assertSame('denied', session('tracking.consent.analytics'));
         $this->postJson('/api/v1/tracking/consent', ['analytics' => true, 'advertising' => true, 'policy_version' => 'analytics-v1'])->assertOk();
-        $before = DB::table('acquisition_privacy')->get()->toJson();
+        $before = DB::table('acquisition_privacy')->first();
         $this->startCore()->assertJsonPath('site_effective', 'on');
         $this->withHeader('Sec-GPC', '1')->getJson('/api/v2/measurement/context')->assertJsonPath('advertising.choice', 'granted')
             ->assertJsonPath('advertising.effective', false)->assertJsonPath('advertising.opt_out_signal', true)->assertJsonPath('site_effective', 'on');
         $this->preference('deny', 1)->assertOk();
-        $this->assertSame($before, DB::table('acquisition_privacy')->get()->toJson());
+        $after = DB::table('acquisition_privacy')->first();
+        $this->assertSame('denied', $after->analytics);
+        $this->assertSame($before->advertising, $after->advertising);
+        $this->assertNotNull($after->site_analysis_denied_at);
         $this->assertDatabaseCount('acquisition_sources', 0);
     }
 
@@ -364,10 +367,10 @@ final class MeasurementCoreTest extends AcquisitionTestCase
     {
         config(['acquisition.analytics_enabled' => true]);
         app(TrackingContext::class)->consent(true, false);
-        $old = DB::table('acquisition_privacy')->get()->toJson();
         $this->startCore()->assertOk();
         $this->send($this->cEvent())->assertJsonPath('accepted', 1);
         $this->preference('deny')->assertOk();
+        $old = DB::table('acquisition_privacy')->get()->toJson();
         $this->travel(30)->days();
         $this->artisan('acquisition:c-prune')->assertExitCode(0);
         $this->assertNoSubjects();

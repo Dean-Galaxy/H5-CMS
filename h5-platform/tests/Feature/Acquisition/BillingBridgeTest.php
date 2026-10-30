@@ -8,6 +8,7 @@ use App\Modules\Acquisition\AcquisitionServiceProvider;
 use App\Modules\Acquisition\Services\DeliveryWorker;
 use App\Modules\Billing\Services\OutboxService;
 use App\Modules\Billing\Services\SettlementService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Tests\Feature\Billing\BillingTestCase;
@@ -27,6 +28,27 @@ final class BillingBridgeTest extends BillingTestCase
         $this->assertDatabaseCount('billing_entitlements', 1);
         $this->assertDatabaseCount('acquisition_receipts', 0);
         $this->assertTrue($this->engine->membership($viewer->id, now()->toDateTimeImmutable())->access_active);
+        Http::assertNothingSent();
+    }
+
+    public function test_c_mode_storage_failure_does_not_hold_verified_payment_membership_or_reliable_outbox(): void
+    {
+        $this->app->register(AcquisitionServiceProvider::class);
+        config(['h5.modules.acquisition.ready' => true, 'h5.measurement_c_experience' => true,
+            'acquisition.analytics_enabled' => true, 'acquisition.measurement.enabled' => false]);
+        Http::preventStrayRequests();
+        [$viewer] = $this->paidFixture();
+        DB::statement('ALTER TABLE acquisition_c_preferences RENAME TO acquisition_c_preferences_unavailable');
+        $this->assertSame(1, app(OutboxService::class)->dispatchPending());
+        $this->assertSame(0, app(OutboxService::class)->dispatchPending());
+        $this->assertDatabaseCount('billing_payments', 1);
+        $this->assertDatabaseCount('billing_entitlements', 1);
+        $this->assertDatabaseCount('acquisition_receipts', 1);
+        $this->assertDatabaseCount('acquisition_behaviors', 0);
+        $this->assertDatabaseCount('acquisition_subjects', 0);
+        $this->assertDatabaseCount('acquisition_analytics_orders', 0);
+        $this->assertTrue($this->engine->membership($viewer->id, now()->toDateTimeImmutable())->access_active);
+        DB::statement('ALTER TABLE acquisition_c_preferences_unavailable RENAME TO acquisition_c_preferences');
         Http::assertNothingSent();
     }
 

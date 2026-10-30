@@ -64,11 +64,11 @@ final class CoreContext
         $pref = $this->preference();
         $legacy = $this->legacy();
         $reason = $p['reason'];
-        if ($reason === null && $legacy['denied']) {
-            $reason = 'LEGACY_DENIED';
-        }
         if ($reason === null && $pref?->choice === 'deny') {
             $reason = 'SITE_OPTOUT';
+        }
+        if ($reason === null && $legacy['denied']) {
+            $reason = 'LEGACY_DENIED';
         }
 
         return [$p, $pref, $legacy, $reason];
@@ -188,7 +188,12 @@ final class CoreContext
                 return null;
             }
             if (! $p) {
-                return $this->createPreference($choice, 1);
+                $p = $this->createPreference($choice, 1);
+                if ($choice === 'deny') {
+                    app(SiteAnalysisBridge::class)->denyKnown($p);
+                }
+
+                return $p;
             }
             DB::table('acquisition_c_subjects')->where('preference_id', $p->id)->whereNull('ended_at')->update(['ended_at' => now()]);
             DB::table('acquisition_c_sessions')->whereIn('subject_id', DB::table('acquisition_c_subjects')->where('preference_id', $p->id)->select('id'))
@@ -196,7 +201,12 @@ final class CoreContext
             DB::table('acquisition_c_preferences')->where('id', $p->id)->update(['choice' => $choice, 'revision' => $revision + 1,
                 'updated_at' => now(), 'expires_at' => now()->addMonthsNoOverflow(24)]);
 
-            return DB::table('acquisition_c_preferences')->where('id', $p->id)->first();
+            $p = DB::table('acquisition_c_preferences')->where('id', $p->id)->first();
+            if ($choice === 'deny') {
+                app(SiteAnalysisBridge::class)->denyKnown($p);
+            }
+
+            return $p;
         });
         if (! $pref) {
             return false;
