@@ -47,7 +47,9 @@ document.querySelectorAll('[data-identity-form]').forEach(form => {
       if (r1 && response.status >= 500) { await unconfirmed(); return; }
       if (!response.ok) {
         const error = body.error || {};
-        result.textContent = [error.message, ...Object.values(error.fields || {}).flat(), error.request_id ? 'Request ID: '+error.request_id : ''].filter(Boolean).join('\n');
+        result.textContent = [error.message, ...Object.values(error.fields || {}).flat(), !r1 && error.request_id ? 'Request ID: '+error.request_id : ''].filter(Boolean).join('\n');
+        const detail = form.querySelector('[data-registration-error-detail]');
+        if (detail) detail.textContent = `HTTP ${response.status}` + (typeof error.request_id === 'string' && /^[0-9a-f-]{36}$/i.test(error.request_id) ? ` · ${error.request_id}` : '');
         const retry = Number(response.headers.get('Retry-After'));
         if (response.status === 429 && retry) cooldown(button, retry); else button.disabled = false;
         return;
@@ -90,11 +92,14 @@ function registrationPurposes(form) {
     } finally { clearTimeout(timeout); }
   }
   function render(item) {
-    const label = item.state ? `${text[item.state.choice]} · ${text.off} (${item.state.reason || ''})` : text.unavailable;
-    item.output.textContent = `${item.title}: ${label} — ${text[item.status] || text.unconfirmed}`;
+    const label = item.state ? `${text[item.state.choice]}\n${text.off}` : text.unavailable;
+    item.output.textContent = `${item.title}: ${label} — ${text[item.problem || item.status] || text.unconfirmed}` + (item.dirty ? ` · ${text.draft}: ${text[item.desired]}` : '');
     item.output.dataset.status = item.status;
     item.retry.hidden = !complete || stopped || !['unconfirmed','conflict'].includes(item.status);
-    item.retry.disabled = item.busy;
+    item.retry.disabled = item.busy || Date.now() < item.retryAfter;
+    item.latest.hidden = stopped || item.status !== 'conflict';
+    item.latest.disabled = item.busy;
+    item.detail.textContent = [item.state?.reason, item.http ? `HTTP ${item.http}` : ''].filter(Boolean).join(' · ');
     item.input.disabled = complete || stopped || item.state?.capability !== 'choice_only';
     if (!item.dirty) item.input.checked = item.state?.choice === 'allow';
   }
@@ -105,13 +110,14 @@ function registrationPurposes(form) {
   }
   for (const input of form.querySelectorAll('[data-registration-purpose]')) {
     const purpose = input.dataset.registrationPurpose;
-    const item = {purpose,input,title:input.closest('label').textContent.trim(),output:form.querySelector(`[data-purpose-state="${purpose}"]`),retry:form.querySelector(`[data-purpose-retry="${purpose}"]`),
-      state:null,desired:null,dirty:false,status:'not_requested',command:null,busy:false};
+    const item = {purpose,input,title:text[purpose + '_name'] || input.closest('label').textContent.trim(),output:form.querySelector(`[data-purpose-state="${purpose}"]`),retry:form.querySelector(`[data-purpose-retry="${purpose}"]`),latest:form.querySelector(`[data-purpose-latest="${purpose}"]`),detail:form.querySelector(`[data-purpose-detail="${purpose}"]`),
+      state:null,desired:null,dirty:false,status:'not_requested',command:null,busy:false,retryAfter:0,problem:null,http:null};
     item.retry.setAttribute('aria-label', `${text.retry}: ${item.title}`);
     items.set(purpose,item);
-    input.addEventListener('change', () => { item.desired = input.checked ? 'allow' : 'deny'; item.dirty = item.desired !== item.state?.choice; });
+    input.addEventListener('change', () => { item.desired = input.checked ? 'allow' : 'deny'; item.dirty = item.desired !== item.state?.choice; render(item); });
+    item.latest.addEventListener('click', () => { if (!stopped && !item.busy) { item.dirty = false; item.desired = null; item.command = null; item.problem = null; item.status = 'not_requested'; render(item); } });
     item.retry.addEventListener('click', async () => {
-      if (item.busy || stopped || !complete) return;
+      if (item.busy || stopped || !complete || Date.now() < item.retryAfter) return;
       // Conflict rebasing is an explicit user action, never a response to a slow GET/409.
       if (item.status === 'conflict') item.command = null;
       await submit(item);
@@ -125,7 +131,8 @@ function registrationPurposes(form) {
     context = body;
     for (const item of items.values()) { item.state = body.purposes[item.purpose]; render(item); }
     const site = body.site_session;
-    form.querySelector('[data-purpose-site]').textContent = `${text.site}: ${site?.effective === 'on' ? 'on' : 'off'} (${site?.reason || site?.choice || 'unknown'})`;
+    // When present, the existing C controller owns the live status and independent off control.
+    if (!document.querySelector('[data-measurement-c]')) form.querySelector('[data-purpose-site]').textContent = site?.effective === 'on' ? text.site_on : site?.effective === 'off' ? text.site_off : text.site_unknown;
     const legacy = body.legacy_advertising?.choice;
     form.querySelector('[data-purpose-legacy]').textContent = `${text.legacy}: ${text[legacy] || text.unknown}`;
   }
@@ -144,7 +151,7 @@ function registrationPurposes(form) {
   }
   async function submit(item) {
     if (stopped || !item.dirty || item.busy) return;
-    item.busy = true; render(item);
+    item.busy = true; item.problem = null; render(item);
     try {
       if (!await sameAccount()) { if (!stopped) item.status = 'unconfirmed'; return; }
       const {response:csrfResponse,body:csrf} = await http('/api/v1/auth/csrf');
@@ -154,6 +161,11 @@ function registrationPurposes(form) {
         item.command = {purpose:item.purpose,choice:item.desired,notice_version:context.notice_version,expected_revision:item.state.revision,operation_id:crypto.randomUUID()};
       }
       const {response,body} = await http('/api/v3/measurement/purposes/preferences', {method:'PATCH',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf.csrf_token},body:JSON.stringify(item.command)});
+      item.http = response.status;
+      if (response.status === 429) {
+        const seconds = Number(response.headers.get('Retry-After'));
+        if (Number.isFinite(seconds) && seconds > 0) { const delay = Math.min(2147483000, seconds * 1000); item.retryAfter = Date.now() + delay; setTimeout(() => render(item), delay + 1); }
+      }
       if (response.status === 409) {
         let current = body.schema_version === 3 && body.purpose === item.purpose && validState(body.state);
         if (current) item.state = body.state;
@@ -164,13 +176,14 @@ function registrationPurposes(form) {
         item.state = body.state; item.status = body.status; item.dirty = false; item.command = null;
       } else if ([401,403].includes(response.status)) {
         discard(text.account_unknown);
-      } else item.status = 'unconfirmed';
+      } else { item.status = 'unconfirmed'; item.problem = ({419:'expired',422:'invalid',429:'rate_limited'})[response.status] || null; }
     } catch (_) { item.status = 'unconfirmed'; }
     finally { item.busy = false; render(item); }
   }
   return {async complete(viewer) {
     if (complete) return;
     complete = true;
+    form.querySelector('button[type=submit]').hidden = true;
     const email = form.querySelector('[name="email"]').value.trim().toLowerCase();
     expectedViewer = viewer && typeof viewer.id === 'string' && viewer.email === email ? {id:viewer.id,email:viewer.email} : null;
     proceed.hidden = false;

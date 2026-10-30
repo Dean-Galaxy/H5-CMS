@@ -2,3 +2,5 @@
 
 .identity-registration-r1 .identity-check{display:flex;align-items:flex-start;gap:10px;min-height:44px}.identity-registration-r1 .identity-check input{width:20px;height:20px;flex:none;margin:3px 0 0}.identity-registration-r1 fieldset{min-width:0}.identity-registration-r1 fieldset:disabled{opacity:.7}.identity-registration-r1 a{overflow-wrap:anywhere}
 [data-registration-r1] [hidden]{display:none!important}
+
+.identity-registration-r1 button,.identity-registration-r1 .button,.identity-registration-r1 summary{min-height:44px;white-space:normal;overflow-wrap:anywhere}.identity-registration-r1 p{overflow-wrap:anywhere}.identity-registration-r1 [data-purpose-state]{white-space:pre-line}

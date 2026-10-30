@@ -191,6 +191,8 @@ class RegistrationTermsTest extends TestCase
         foreach (['zh_CN', 'en'] as $locale) {
             $response = $this->get('/identity/register?lang='.$locale)->assertOk()->assertSee('data-registration-purposes', false)->assertSee('terms_accepted', false);
             $this->assertStringNotContainsString(' checked', $response->getContent());
+            $response->assertSee('target="_blank" rel="noopener"', false)->assertSee('data-purpose-detail', false)->assertSee('data-purpose-latest', false);
+            $response->assertSee($locale === 'en' ? 'Local Registration Test Terms' : '本机注册测试条款');
             $this->get('/identity/test-terms?lang='.$locale)->assertOk()->assertSee(RegistrationTerms::TERMS);
             $this->get('/identity/test-privacy?lang='.$locale)->assertOk()->assertSee(RegistrationTerms::PRIVACY);
         }
