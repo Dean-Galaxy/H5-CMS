@@ -1,0 +1,172 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Identity\AuthorizationTest
+  ✓ fixed roles and resource scopes match business rules                 0.27s
+  ✓ staff api rejects non owner direct requests and audits denial        0.05s
+  ✓ owner can create change and disable staff with version control       0.03s
+  ✓ missing mfa proof does not unlock staff api                          0.01s
+  ✓ disabled account and old version session are revoked                 0.02s
+  ✓ audit uses allowlisted changes and request ids                       0.01s
+
+   PASS  Tests\Feature\Identity\ContractsTest
+  ✓ business samples roundtrip through typed php consumers               0.02s
+  ✓ missing provider never fabricates business success                   0.01s
+  ✓ controlled return rejects open redirect encodings                    0.01s
+  ✓ openapi routes and enums match runtime                               0.01s
+
+   PASS  Tests\Feature\Identity\MfaTest
+  ✓ password alone and empty recovery code cannot bypass mfa             0.50s
+  ✓ real totp challenge authenticates and sets session proof             0.51s
+  ✓ totp and recovery codes cannot be replayed                           0.05s
+  ✓ mfa secrets are encrypted and hidden                                 0.02s
+  ✓ disabled employee cannot reach challenge or login                    0.23s
+  ✓ first staff login requires enrollment before dashboard               0.03s
+  ✓ configured staff without challenge proof cannot open any panel page  0.02s
+  ✓ generic staff login event does not grant mfa proof                   0.02s
+  ✓ staff password change invalidates old session version                0.02s
+
+   PASS  Tests\Feature\Identity\RegistrationObservationTest
+  ✓ hidden notice post without server page delivery cannot capture       0.03s
+  ✓ real notice then registration records after receipt commit and befo… 0.02s
+  ✓ creation validation failure is minimal and mail failure stays succe… 0.02s
+  ✓ storage creation failure records only unknown and rolls back requir… 0.02s
+  ✓ port unavailable throwing declined or retry never changes account r… 0.07s
+  ✓ database failures use only short enums and each capture finishes on… 0.02s
+  ✓ old or unshown notice and ordinary mode do not trigger new port      0.02s
+
+   PASS  Tests\Feature\Identity\RegistrationTermsTest
+  ✓ required versions and strict json acceptance are enforced before an… 0.03s
+  ✓ account and minimal test receipt commit together without optional c… 0.03s
+  ✓ receipt storage failure rolls back the account too                   0.02s
+  ✓ html non javascript registration uses explicit checkbox value and c… 0.02s
+  ✓ observer or mail failure keeps the account and shows separate notic… 0.02s
+  ✓ r1 never sends through a real transport and normal mode remains unc… 0.02s
+  ✓ real private preview verifies without upgrading optional purposes    0.07s
+  ✓ csrf rejection cannot create an account or receipt                   0.01s
+  ✓ viewer password rules and staff isolation are not relaxed            0.02s
+  ✓ false flag does not require new fields or backfill existing account… 0.02s
+  ✓ receipt migration upgrade and rollback preserve existing accounts w… 0.02s
+  ✓ test documents are readable in both languages and choices are not p… 0.02s
+
+   PASS  Tests\Feature\Identity\StaffAccountsTest
+  ✓ tabs restore from url and only render selected business table        0.03s
+  ✓ create dialog keeps invalid input and clears secrets only after sav… 0.04s
+  ✓ edit dialog revokes target sessions and detects concurrent updates   0.04s
+  ✓ non owner direct page access is denied for each other role           0.02s
+  ✓ missing mfa cannot load staff page                                   0.01s
+  ✓ each public mutation rechecks owner permission                       0.01s
+  ✓ editor target cannot be changed by a forged property update          0.02s
+  ✓ current owner cannot disable or demote self through editor           0.02s
+  ✓ audit renders beijing time and masked real staff without changing u… 0.02s
+  ✓ audit does not invent or cross resolve missing viewer and unknown a… 0.02s
+  ✓ audit distinguishes mail preview accepted request and simulation fr… 0.02s
+  ✓ real verification preview is recorded and displayed without claimin… 0.02s
+  ✓ audit missing unknown and aggregate mail modes remain uncertain      0.02s
+  ✓ audit keeps latest thirty and rechecks owner and mfa before reading  0.03s
+
+   PASS  Tests\Feature\Identity\StaffAppAuthenticationTest
+  ✓ current real renderer without imagick produces one layer of valid s… 0.03s
+  ✓ raw svg is wrapped once and preserves provider and qr configuration  0.01s
+  ✓ existing svg data uri is returned unchanged                          0.01s
+  ✓ existing png data uri is not relabelled as svg                       0.01s
+
+   PASS  Tests\Feature\Identity\StaffDirectoryTest
+  ✓ real provider returns only active acquisition staff and minimal fie… 0.02s
+  ✓ real empty directory does not offer the owner as an assignment       0.02s
+  ✓ guest and viewer are denied before input or candidate information    0.02s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s
+  ✓ other roles with mfa cannot read or probe the directory with data s… 0.02s
+  ✓ owner needs configured mfa and the current staff proof on both meth… 0.02s
+  ✓ disabled revoked and demoted actors lose read access                 0.03s
+  ✓ saved cursor does not replace permission or mfa checks               0.02s
+  ✓ unknown inactive and wrong role candidates share the same not found… 0.02s
+  ✓ selected staff outside the current page can be read and is rechecke… 0.02s
+  ✓ default limit and keyset pagination are stable for duplicate names   0.08s
+  ✓ renames and ineligible boundary rows do not break cursor continuati… 0.02s
+  ✓ invalid limits and staff id formats are validation errors for an au… 0.02s
+  ✓ tampered malformed and cross purpose cursors are rejected            0.03s
+  ✓ internal empty cursor is not silently treated as the first page      0.02s
+
+   PASS  Tests\Feature\Identity\StaffPasswordTest
+  ✓ staff creation api enforces staff password policy with data set "ei… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "se… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "le… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "nu… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "ma… 0.02s
+  ✓ staff creation api enforces staff password policy with data set "to… 0.02s
+  ✓ first owner command enforces the same policy with data set "eight"   0.02s
+  ✓ first owner command enforces the same policy with data set "seven"   0.01s
+  ✓ first owner command enforces the same policy with data set "letters… 0.01s
+  ✓ first owner command enforces the same policy with data set "numbers… 0.02s
+  ✓ first owner command enforces the same policy with data set "maximum… 0.02s
+  ✓ first owner command enforces the same policy with data set "too lon… 0.02s
+  ✓ staff self password change enforces same policy with data set "eigh… 0.05s
+  ✓ staff self password change enforces same policy with data set "seve… 0.03s
+  ✓ staff self password change enforces same policy with data set "lett… 0.04s
+  ✓ staff self password change enforces same policy with data set "numb… 0.04s
+  ✓ staff self password change enforces same policy with data set "maxi… 0.04s
+  ✓ staff self password change enforces same policy with data set "too…  0.04s
+  ✓ admin profile route uses staff policy and keeps mfa gate             0.03s
+  ✓ staff password change still requires current password and confirmat… 0.05s
+  ✓ viewer registration and reset keep twelve character minimum          0.02s
+
+   PASS  Tests\Feature\Identity\ViewerBehaviorTest
+  ✓ real registration preserves anonymous source across session regener… 0.02s
+  ✓ real registration validation failure has only safe error enum        0.02s
+  ✓ notification failure after creation still records creation not a fa… 0.02s
+  ✓ login failures do not expose account existence and success uses fin… 0.19s
+  ✓ malformed login and registration rate limit are safe failed outcome… 0.03s
+  ✓ real email verification is separate from registration and replay is… 0.03s
+  ✓ rolled back verification does not record email verified              0.02s
+  ✓ logout records before context clear and invalidation and new accoun… 0.03s
+  ✓ account switch without explicit logout clears context before any ne… 0.02s
+  ✓ throwing context clear on guard account switch rotates session with… 0.02s
+  ✓ staff login failed login verification and mfa are not viewer behavi… 0.23s
+  ✓ false or throwing collector never changes registration verification… 0.42s
+  ✓ unknown or denied consent and default noop do not block business or… 0.03s
+
+   PASS  Tests\Feature\Identity\ViewerTest
+  ✓ password reset email origin does not trust request host              0.23s
+  ✓ guest identity entry is public and business boundaries are enforced  0.04s
+  ✓ registration uses fortify and cannot create staff                    0.03s
+  ✓ verification checkout gate and link replay                           0.03s
+  ✓ expired and tampered verification are rejected                       0.02s
+  ✓ correct email invalidates old link and cannot alter verified accoun… 0.03s
+  ✓ email resend is limited with retry after                             0.02s
+  ✓ reset link is single use and revokes old session                     0.03s
+  ✓ expired reset does not change password                               0.23s
+  ✓ password recovery does not enumerate accounts                        0.45s
+  ✓ login rate limit and controlled return                               0.90s
+  ✓ guest verification continues after login                             0.03s
+
+   PASS  Tests\Feature\Contracts\RegistrationMeasurementTest
+  ✓ missing provider is explicit and cannot claim a recorded result      0.01s
+  ✓ result roundtrip only accepts the two events and failure enums       0.01s
+  ✓ result cannot smuggle identity or free text fields                   0.01s
+
+   PASS  Tests\Feature\Contracts\AdminPanelIntegrationTest
+  ✓ registered staff mfa provider generates one decodable qr data uri    0.03s
+  ✓ actual staff profile route uses staff policy and same origin avatar  0.07s
+  ✓ design navigation keeps role permissions and optional module gate    0.02s
+  ✓ guest cannot open staff profile and fixture is not a production rou… 0.01s
+  ✓ staff contract is relaxed without changing viewer passwords          0.01s
+
+   PASS  Tests\Feature\Contracts\RuntimeEnvironmentGuardTest
+  ✓ default off does not release an origin and every call rechecks       0.01s
+  ✓ boolean environment and nonlocal overrides fail closed               0.01s
+  ✓ opt in never enables production or local and local mail remains ava… 0.01s
+  ✓ c experience only selects an isolated local page and never releases… 0.01s
+  ✓ registration opt in requires local c experience and never opens a p… 0.01s
+  ✓ origin cannot contain unsafe components or non domain hosts          0.01s
+  ✓ mail checks follow real nested paths and refuse downgrade or url ov… 0.01s
+  ✓ approved smtp configuration builds real tls transport without conne… 0.01s
+  ✓ direct connection discards previous proxy trust and hosting auto de… 0.01s
+  ✓ nonlocal http requires direct tls canonical host and default port    0.01s
+  ✓ real staging boot and cached configuration are checked without netw… 0.82s
+  ✓ real uncached environment loading preserves invalid booleans         1.18s
+
+  Tests:    138 passed (1406 assertions)
+  Duration: 9.19s

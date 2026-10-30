@@ -1,0 +1,132 @@
+{
+  "status": "passed",
+  "boundary": "actual identity.js with intercepted HTTP, synthetic identity and 320x500 DOM; no real provider or running site",
+  "outcomes": [
+    {
+      "scenario": "untouched",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 0
+    },
+    {
+      "scenario": "both-saved",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    },
+    {
+      "scenario": "partial-retry",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 3
+    },
+    {
+      "scenario": "conflict-rebase",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    },
+    {
+      "scenario": "lost-patch",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    },
+    {
+      "scenario": "lost-registration",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 1
+    },
+    {
+      "scenario": "identity-unknown",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 0
+    },
+    {
+      "scenario": "identity-read-fault",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 1
+    },
+    {
+      "scenario": "identity-changed",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 0
+    },
+    {
+      "scenario": "changed-before-retry",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    },
+    {
+      "scenario": "existing-allow",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 0
+    },
+    {
+      "scenario": "legacy-not-new-grant",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 0
+    },
+    {
+      "scenario": "context-failure",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 0
+    },
+    {
+      "scenario": "csrf-failure",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 0
+    },
+    {
+      "scenario": "toggle-back",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 0
+    },
+    {
+      "scenario": "short-english",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    },
+    {
+      "scenario": "short-chinese",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    },
+    {
+      "scenario": "large-english",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    },
+    {
+      "scenario": "large-chinese",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    },
+    {
+      "scenario": "conflict-use-latest",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 1
+    },
+    {
+      "scenario": "rate-limited",
+      "status": "passed",
+      "registrationPosts": 1,
+      "purposeCommands": 2
+    }
+  ]
+}
