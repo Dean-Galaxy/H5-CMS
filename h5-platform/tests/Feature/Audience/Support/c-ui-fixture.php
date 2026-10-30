@@ -5,6 +5,7 @@ use App\Modules\Content\Models\Asset;
 use App\Modules\Content\Models\DramaRecord;
 use App\Modules\Content\Models\EpisodeRecord;
 use App\Modules\Content\Models\Plan;
+use App\Modules\Identity\Models\Viewer;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -13,12 +14,14 @@ require __DIR__.'/../../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 $root = realpath(base_path('..'));
-$owned = json_decode(file_get_contents($root.'/.runtime/c-ui-1-audience-owned.json'), true, flags: JSON_THROW_ON_ERROR);
+$r1 = getenv('H5_C_UI_R1') === '1';
+$scope = $r1 ? 'r1-audience' : 'c-ui-1-audience';
+$owned = json_decode(file_get_contents($root.'/.runtime/'.$scope.'-owned.json'), true, flags: JSON_THROW_ON_ERROR);
 if (! app()->environment('testing') || $owned['root'] !== $root || $owned['database'] !== DB::connection()->getDatabaseName()
-    || ! str_ends_with($owned['database'], '_cui1_audience_http_test') || ! str_starts_with(config('h5.media_root'), $root.'/.runtime/c-ui-1-audience/')) {
+    || ! str_ends_with($owned['database'], $r1 ? '_r1_audience_http_test' : '_cui1_audience_http_test') || ! str_starts_with(config('h5.media_root'), $root.'/.runtime/'.$scope.'/')) {
     throw new LogicException('Refuse non-owned synthetic C UI database or media.');
 }
-$target = $root.'/.runtime/c-ui-1-audience/fixture.json';
+$target = $root.'/.runtime/'.$scope.'/fixture.json';
 if (is_file($target)) {
     $fixture = json_decode(file_get_contents($target), true);
     if (DramaRecord::find($fixture['drama'])) {
@@ -28,7 +31,7 @@ if (is_file($target)) {
 if (DramaRecord::count() !== 0) {
     throw new LogicException('Unexpected content in synthetic DB; refusing to replace.');
 }
-DB::transaction(function () use ($target) {
+DB::transaction(function () use ($target, $r1) {
     $owner = (string) Str::uuid(); // Synthetic author reference only; no usable staff login.
     $coverBytes = filesize(config('h5.media_root').'/cover/image.png');
     $cover = Asset::create(['created_by' => $owner, 'kind' => 'cover', 'state' => 'ready', 'extension' => 'png',
@@ -47,6 +50,15 @@ DB::transaction(function () use ($target) {
         $episodes[] = EpisodeRecord::create(['drama_id' => $drama->id, 'number' => $number, 'video_asset_id' => $video->id, 'published_at' => now()])->id;
     }
     Plan::create(['drama_id' => $drama->id, 'mode' => 'completed', 'launch_at' => now(), 'state' => 'active']);
-    file_put_contents($target, json_encode(['drama' => $drama->id, 'episodes' => $episodes]));
+    $accounts = [];
+    if ($r1) {
+        foreach (range(1, 2) as $number) {
+            $email = Str::uuid().'@example.test';
+            $password = Str::random(24).'T1!';
+            Viewer::create(['name' => 'Synthetic R1 '.$number, 'email' => $email, 'password' => $password, 'email_verified_at' => now()]);
+            $accounts[] = ['email' => $email, 'password' => $password];
+        }
+    }
+    file_put_contents($target, json_encode(['drama' => $drama->id, 'episodes' => $episodes, ...($r1 ? ['accounts' => $accounts] : [])]));
     chmod($target, 0600);
 });

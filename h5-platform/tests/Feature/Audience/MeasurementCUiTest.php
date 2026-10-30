@@ -62,4 +62,16 @@ final class MeasurementCUiTest extends ContentTestCase
         $this->assertDatabaseCount('acquisition_c_events', 1);
         $this->assertDatabaseCount('billing_orders', 0);
     }
+
+    public function test_r1_management_is_flagged_bilingual_and_false_keeps_existing_c_controls(): void
+    {
+        foreach (['en', 'zh_CN'] as $locale) {
+            config(['h5.measurement_c_registration' => false]);
+            $this->get('/?lang='.$locale)->assertOk()->assertDontSee('/audience/purposes-r1.js', false)->assertDontSee('data-c-purpose-manager', false);
+            config(['h5.measurement_c_registration' => true]);
+            $this->get('/?lang='.$locale)->assertOk()->assertSee('data-c-registration', false)->assertSee('data-c-purpose-manager', false)
+                ->assertSee('/audience/purposes-r1.js', false)->assertSee('purpose-account_link', false)->assertSee('purpose-advertising', false)
+                ->assertDontSee('checked', false)->assertDontSee('data-privacy-form', false);
+        }
+    }
 }

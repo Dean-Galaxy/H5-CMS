@@ -141,13 +141,14 @@
     if (!dialog.open) {
       dialog.showModal(); // Only explicit user handlers call this function.
       mount.querySelector('.measurement-c-body').scrollTop = 0;
+      if (mount.hasAttribute('data-c-registration')) read(false).then(paint);
     }
     if (details) { const use = mount.querySelector('[data-c-use]'); use.open = true; use.scrollIntoView({block: 'start'}); }
   }
   document.querySelectorAll('[data-c-open]').forEach(node => node.addEventListener('click', () => open()));
   mount.querySelector('[data-c-details]').addEventListener('click', () => open(true));
   mount.querySelector('[data-c-close]').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('close', startIfVisible);
+  if (!mount.hasAttribute('data-c-registration')) dialog.addEventListener('close', startIfVisible);
   document.querySelectorAll('[data-c-off]').forEach(node => node.addEventListener('click', turnOff));
   mount.querySelector('[data-c-retry]').addEventListener('click', async () => {
     if (saving) return;
