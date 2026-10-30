@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Explicit synthetic R1 choice-only HTTP acceptance on this checkout's dedicated test DB. No shared runtime."""
+import argparse
 import datetime
+from html.parser import HTMLParser
 import http.cookiejar
 import importlib.util
 import json
@@ -19,9 +21,13 @@ ROOT = Path(__file__).resolve().parents[5]
 spec = importlib.util.spec_from_file_location('h5dev', ROOT / 'scripts/dev.py')
 dev = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dev)
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--fresh', action='store_true', help="Explicitly rebuild ONLY this checkout's marked synthetic HTTP DB")
+args = parser.parse_args()
 config = dev.config()  # Rejects a runtime copied from a different checkout.
 if (dev.APP / 'bootstrap/cache/config.php').exists():
     raise SystemExit('Refuse cached Laravel config: it could override the selected synthetic DB.')
+subprocess.run([os.sys.executable, str(Path(__file__).with_name('r1a_test.py')), 'http', 'prepare'], check=True, capture_output=True)
 DB = config['db'] + '_r1a_http_test'
 owned = json.loads((dev.RUN / 'r1-a-owned.json').read_text())
 assert owned['root'] == str(ROOT) and DB in owned['databases'], 'HTTP requires this checkout’s marked synthetic DB'
@@ -176,8 +182,17 @@ def race(inputs):
         for path in paths: path.unlink(missing_ok=True)
 
 try:
-    assert sql('SELECT count(*) FROM migrations') == '26'
-    assert sql('SELECT count(*) FROM acquisition_r1_proofs') == '0', 'Use a fresh marked R1 HTTP DB'
+    expected_migrations = sorted(p.stem for p in (dev.APP / 'database/migrations').glob('*.php'))
+    if args.fresh:
+        subprocess.run([os.sys.executable, str(Path(__file__).with_name('r1a_test.py')), 'http', 'migrate:fresh', '--force'], check=True, capture_output=True)
+    assert sql("SELECT to_regclass('public.migrations')") == 'migrations', 'Install current migrations on the marked synthetic DB, or explicitly use --fresh'
+    installed_migrations = sql('SELECT migration FROM migrations ORDER BY migration').splitlines()
+    assert installed_migrations == expected_migrations, 'Installed migration set differs from source; use --fresh ONLY for this marked synthetic DB'
+    assert any(n.endswith('_create_identity_registration_receipts') for n in expected_migrations), 'This combined probe requires accepted 01-A'
+    for table in ['acquisition_r1_proofs', 'identity_viewers', 'identity_registration_receipts', 'sessions', 'cache', 'cache_locks']:
+        assert sql('SELECT count(*) FROM ' + table) == '0', 'Synthetic HTTP DB has previous data; refuse implicit clearing, use explicit --fresh'
+    assert sum(counts().values()) == 0, 'Synthetic C data already present; use explicit --fresh'
+
     start(True)
     opener, jar = client(); csrf = token(opener)
     status, body, headers = request(opener, 'GET', V3 + '/context')
@@ -199,10 +214,29 @@ try:
     proof_until = sql('SELECT expires_at FROM acquisition_r1_proofs')
     status, body, headers = request(opener, 'GET', V3 + '/context')
     check('GET neither queues R1 proof cookie nor extends proof', status == 200 and not any('_r1_purpose=' in h for h in headers.get_all('Set-Cookie', [])) and sql('SELECT expires_at FROM acquisition_r1_proofs') == proof_until, status)
-    # Existing real 01 register supplies a web identity; not the pending 01-A terms/01-B integration.
+    # Read accepted 01-A versions from its actually rendered form; keep R1 true throughout.
+    class PublishedInputs(HTMLParser):
+        def __init__(self):
+            super().__init__(); self.values = {}
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if tag == 'input' and attrs.get('type') == 'hidden' and attrs.get('name') in ('terms_version', 'privacy_notice_version'):
+                self.values[attrs['name']] = attrs.get('value', '')
+    status, form, _ = request(opener, 'GET', '/identity/register')
+    inputs = PublishedInputs(); inputs.feed(form)
+    versions = inputs.values
+    assert status == 200 and set(versions) == {'terms_version', 'privacy_notice_version'} and all(versions.values()), 'No published R1 test versions; never fall back to old registration'
+    for route, key in [('test-terms', 'terms_version'), ('test-privacy', 'privacy_notice_version')]:
+        doc_status, document, _ = request(opener, 'GET', '/identity/' + route)
+        assert doc_status == 200 and versions[key] in document
+    check('01-A form and both readable test documents publish real current versions', True)
     registration = {'name': 'Synthetic R1 HTTP', 'email': str(uuid.uuid4()) + '@example.test', 'password': 'SyntheticPass1234', 'password_confirmation': 'SyntheticPass1234'}
     status, body, _ = request(opener, 'POST', '/api/v1/auth/register', registration, csrf, base)
-    check('real existing Identity registration creates one necessary account', status in (200, 201) and sql('SELECT count(*) FROM identity_viewers') == '1', status)
+    check('R1 remains enabled and missing necessary acceptance really rejects creation', status == 422 and sql('SELECT count(*) FROM identity_viewers') == '0' and sql('SELECT count(*) FROM identity_registration_receipts') == '0', status)
+    registration.update(versions, terms_accepted=True)
+    status, body, _ = request(opener, 'POST', '/api/v1/auth/register', registration, csrf, base)
+    receipt = json.loads(sql("SELECT to_jsonb(r) - 'viewer_id' - 'accepted_at' FROM identity_registration_receipts r")) if status in (200, 201) else {}
+    check('01-A explicit acceptance creates account and correct necessary test receipt', status in (200, 201) and sql('SELECT count(*) FROM identity_viewers') == '1' and receipt.get('terms_version') == versions['terms_version'] and receipt.get('privacy_notice_version') == versions['privacy_notice_version'] and receipt.get('is_test') is True, status)
     csrf = token(opener)
     first_allow = command(choice='allow', revision=1)
     status, body, _ = patch(opener, csrf, first_allow)
@@ -225,7 +259,7 @@ try:
         status, body, _ = patch(opener, csrf, command(revision=2))
         check('storage fault returns 503 without false saved result', status == 503 and body['error']['code'] == 'PURPOSE_UNAVAILABLE' and snapshot() == before, status)
         status, body, _ = request(opener, 'GET', '/api/v1/auth/me')
-        check('preference failure preserves real current account', status == 200 and sql('SELECT count(*) FROM identity_viewers') == '1', status)
+        check('preference failure preserves real current account', status == 200 and sql('SELECT count(*) FROM identity_viewers') == '1' and sql('SELECT count(*) FROM identity_registration_receipts') == '1', status)
     finally:
         sql('ALTER TABLE acquisition_r1_operations_http_fault RENAME TO acquisition_r1_operations')
     for _ in range(125):
@@ -266,8 +300,8 @@ try:
 finally:
     stop()
 
-out = ROOT / 'docs/evidence/05/c-registration-r1-a-20261031'; out.mkdir(parents=True, exist_ok=True)
-result = {'scope': '05 own marked synthetic HTTP/service processes; not 01-A terms or 01-B facade integration', 'checks': results, 'passed': len(results),
+out = ROOT / 'docs/evidence/05/c-registration-r1-a-combined-20261031'; out.mkdir(parents=True, exist_ok=True)
+result = {'scope': '05 + accepted 01-A combined synthetic HTTP/service checks; not 01-B facade or manual acceptance', 'checks': results, 'passed': len(results), 'source_migrations': expected_migrations, 'installed_migrations': installed_migrations, 'migration_count': len(installed_migrations), 'published_test_versions': versions, 'explicit_fresh': args.fresh,
           'owned_http_starts': len(stopped), 'owned_http_stopped': all(stopped), 'concurrent_worker_processes': 4,
           'queue_scheduler_started': False, 'external_sending_enabled': False, 'other_runtime_touched': False}
 (out / 'http.json').write_text(json.dumps(result, indent=2) + '\n'); print(json.dumps(result))

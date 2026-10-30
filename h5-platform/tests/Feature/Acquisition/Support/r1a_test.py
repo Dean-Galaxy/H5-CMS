@@ -30,6 +30,10 @@ if not exists:
     dev.write_private(marker, json.dumps(owned))
 if database not in owned['databases']:
     raise SystemExit('Existing database has no R1-A synthetic ownership marker; refusing to run tests or clear it.')
+if sys.argv[2:] == ['prepare']:
+    print(json.dumps({'owned_synthetic_database_ready': True, 'created_now': not bool(exists)}))
+    raise SystemExit(0)
+
 env = os.environ.copy()
 env.update(APP_ENV='testing', APP_DEBUG='false', H5_LOCAL_MODULES='acquisition',
            H5_WORKSPACE=cfg['workspace'] + '_r1a_' + sys.argv[1], DB_CONNECTION='pgsql',

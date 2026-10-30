@@ -11,6 +11,7 @@ use App\Modules\Acquisition\Registration\PurposeProof;
 use App\Modules\Acquisition\Services\DeliveryWorker;
 use App\Modules\Acquisition\Services\PaymentReceiver;
 use App\Modules\Identity\Models\Viewer;
+use App\Modules\Identity\Services\RegistrationTerms;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -262,12 +263,16 @@ final class RegistrationPurposesTest extends AcquisitionTestCase
     public function test_storage_failure_never_rolls_back_a_real_necessary_created_account(): void
     {
         $v = app(CreatesNewUsers::class)->create(['name' => 'R1 isolated', 'email' => Str::uuid().'@example.test',
-            'password' => 'SyntheticPass1234', 'password_confirmation' => 'SyntheticPass1234']);
+            'password' => 'SyntheticPass1234', 'password_confirmation' => 'SyntheticPass1234',
+            'terms_accepted' => request()->isJson() ? true : '1', 'terms_version' => RegistrationTerms::TERMS,
+            'privacy_notice_version' => RegistrationTerms::PRIVACY]);
         DB::statement('ALTER TABLE acquisition_r1_operations RENAME TO acquisition_r1_operations_fault');
         $this->send($this->body())->assertStatus(503);
         $this->assertSame(1, (int) DB::selectOne('SELECT 1 AS n')->n);
         DB::statement('ALTER TABLE acquisition_r1_operations_fault RENAME TO acquisition_r1_operations');
         $this->assertDatabaseHas('identity_viewers', ['id' => $v->id]);
+        $this->assertDatabaseHas('identity_registration_receipts', ['viewer_id' => $v->id,
+            'terms_version' => RegistrationTerms::TERMS, 'privacy_notice_version' => RegistrationTerms::PRIVACY, 'is_test' => true]);
         $this->assertDatabaseCount('acquisition_r1_choices', 0);
         $this->assertDatabaseCount('acquisition_r1_proofs', 0);
     }
