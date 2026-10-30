@@ -5,6 +5,31 @@ namespace Tests\Browser\Support;
 /** Additional test-window boundary; application CSRF/permissions/media guards remain active. */
 final class CWindowBoundary
 {
+    public static function normalizeServer(array $server, string $public): array
+    {
+        $directory = realpath($public);
+        if (! $directory || ! is_file($directory.'/index.php')) { throw new \LogicException('PUBLIC INDEX REQUIRED'); }
+        // Preserve URI/query, cookies, headers, method and body; only identify the actual front controller.
+        $server['SCRIPT_NAME'] = '/index.php';
+        $server['PHP_SELF'] = '/index.php';
+        $server['SCRIPT_FILENAME'] = $directory.'/index.php';
+        return $server;
+    }
+
+    public static function staticTarget(string $public, string $requestUri): ?string
+    {
+        // cli-server may set SCRIPT_NAME to an existing asset; Symfony then reports pathInfo "/".
+        $directory = realpath($public);
+        $path = parse_url($requestUri, PHP_URL_PATH);
+        if (! $directory || ! is_string($path) || ! str_starts_with($path, '/')) { return null; }
+        $target = realpath($directory.$path);
+        if (! $target || ! str_starts_with($target, $directory.'/') || ! is_file($target)
+            || ! in_array(strtolower(pathinfo($target, PATHINFO_EXTENSION)), ['js','css','png','jpg','jpeg','svg','ico','woff','woff2','ttf'], true)) {
+            return null;
+        }
+        return $target;
+    }
+
     public static function allows(string $method, string $path): bool
     {
         if (preg_match('#^/(admin|webhooks|billing|membership|api/v1/(auth|billing|admin))(/|$)#D', $path)) {

@@ -130,6 +130,35 @@ class Lifecycle(unittest.TestCase):
                     self.assertFalse((out/'stopped.json').exists())
         self.stop_fixture(check)
 
+    def test_static_asset_target_uses_uri_and_keeps_public_boundary(self):
+        with tempfile.TemporaryDirectory() as temp:
+            public=Path(temp).resolve()/'public';public.mkdir()
+            (public/'identity.css').write_text('body { color: teal; }')
+            (public/'app.js').write_text('void 0;')
+            (public/'secret.php').write_text('not served')
+            outside=Path(temp)/'outside.css';outside.write_text('outside')
+            (public/'link.css').symlink_to(outside)
+            boundary=OPS.parents[1]/'h5-platform/tests/Browser/Support/CWindowBoundary.php'
+            code='require $argv[1]; $root=$argv[2]; foreach([["/identity.css","identity.css"],["/identity.css?v=1","identity.css"],["/app.js","app.js"],["/",null],["/secret.php",null],["/../outside.css",null],["/link.css",null]] as $case){$actual=Tests\\Browser\\Support\\CWindowBoundary::staticTarget($root,$case[0]); $expected=$case[1]===null?null:$root."/".$case[1];if($actual!==$expected){exit(1);}} echo "7 asset boundaries";'
+            run=subprocess.run(['/opt/homebrew/opt/php@8.4/bin/php','-r',code,str(boundary),str(public)],capture_output=True,text=True)
+            self.assertEqual(run.returncode,0,run.stderr);self.assertEqual(run.stdout,'7 asset boundaries')
+
+    def test_server_normalization_preserves_real_uri_query_csrf_cookies_and_body(self):
+        with tempfile.TemporaryDirectory() as temp:
+            public=Path(temp).resolve()/'public';public.mkdir();(public/'index.php').write_text('synthetic index')
+            root=OPS.parents[1]
+            php=r"""require $argv[1].'/h5-platform/vendor/autoload.php'; require $argv[1].'/h5-platform/tests/Browser/Support/CWindowBoundary.php';
+            $public=$argv[2];
+            foreach([['GET','/identity.css?v=1','/identity.css',true],['GET','/api/v2/measurement/context','/api/v2/measurement/context',true],['PATCH','/api/v2/measurement/preferences','/api/v2/measurement/preferences',true],['POST','/api/v1/auth/register','/api/v1/auth/register',false],['POST','/membership/checkout','/membership/checkout',false],['POST','/api/v1/billing/refunds','/api/v1/billing/refunds',false]] as $case){
+                $server=['REQUEST_METHOD'=>$case[0],'REQUEST_URI'=>$case[1],'QUERY_STRING'=>'v=1','SCRIPT_NAME'=>$case[2],'PHP_SELF'=>$case[2],'SCRIPT_FILENAME'=>$public.$case[2],'SERVER_NAME'=>'127.0.0.1','SERVER_PORT'=>'8411','HTTP_HOST'=>'127.0.0.1:8411','HTTP_ORIGIN'=>'http://127.0.0.1:8411','HTTP_X_CSRF_TOKEN'=>'synthetic-csrf'];
+                $normalized=Tests\Browser\Support\CWindowBoundary::normalizeServer($server,$public);
+                foreach($server as $key=>$value){if(!in_array($key,['SCRIPT_NAME','PHP_SELF','SCRIPT_FILENAME'],true)&&$normalized[$key]!==$value){exit(1);}}
+                $request=new Symfony\Component\HttpFoundation\Request(['v'=>'1'],[],[],['synthetic-cookie'=>'retained'],[],$normalized,'{"site_session":"deny"}');
+                if($request->getPathInfo()!==$case[2]||$request->getMethod()!==$case[0]||$request->getContent()!=='{"site_session":"deny"}'||$request->cookies->get('synthetic-cookie')!=='retained'||$request->headers->get('X-CSRF-TOKEN')!=='synthetic-csrf'||$request->query->get('v')!=='1'||Tests\Browser\Support\CWindowBoundary::allows($request->getMethod(),$request->getPathInfo())!==$case[3]){exit(2);}
+            } echo '6 normalized request boundaries';"""
+            run=subprocess.run(['/opt/homebrew/opt/php@8.4/bin/php','-r',php,str(root),str(public)],capture_output=True,text=True)
+            self.assertEqual(run.returncode,0,run.stderr);self.assertEqual(run.stdout,'6 normalized request boundaries')
+
     def test_http_boundary_without_application_boot(self):
         root = OPS.parents[1]
         boundary = root / 'h5-platform/tests/Browser/Support/CWindowBoundary.php'

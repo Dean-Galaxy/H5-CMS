@@ -61,7 +61,7 @@ async function run(candidate,selected=CASES){
     result.browser_version=browser.version();
     async function session(name,{fault=null,locale='en',width=390,height=844,holdStart=false,headers={}}={}){
       const context=await browser.newContext({viewport:{width,height},serviceWorkers:'block',locale,extraHTTPHeaders:headers});
-      const raw={name,requests:[],responses:[],batches:[],scriptErrors:[],media:[]};privateRaw.push(raw);
+      const raw={name,requests:[],responses:[],batches:[],scriptErrors:[],media:[],requestFailures:[],console:[],initialDom:[]};privateRaw.push(raw);
       let release;const gate=new Promise(resolve=>release=resolve);
       await context.route('**/*',async route=>{
         const request=route.request(),url=new URL(request.url());
@@ -76,7 +76,7 @@ async function run(candidate,selected=CASES){
       await context.addInitScript(()=>{
         const original=HTMLMediaElement.prototype.canPlayType;
         HTMLMediaElement.prototype.canPlayType=function(type){return /mpegurl/i.test(type)?'':original.call(this,type);};
-        const probe=window.__cProbe={modalCalls:[],starts:[],noticeAt:null};
+        const probe=window.__cProbe={modalCalls:[],starts:[],noticeAt:null,contexts:[]};
         const modal=HTMLDialogElement.prototype.showModal;
         HTMLDialogElement.prototype.showModal=function(){probe.modalCalls.push(performance.now());return modal.call(this);};
         const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting&&e.intersectionRatio>=.98)&&probe.noticeAt===null)probe.noticeAt=performance.now();},{threshold:[0,.98,1]});
@@ -87,21 +87,32 @@ async function run(candidate,selected=CASES){
           if(new URL(typeof input==='string'?input:input.url,location.href).pathname==='/api/v2/measurement/start'){
             const n=document.querySelector('[data-c-delivery]'),r=n?.getBoundingClientRect();
             probe.starts.push({at:performance.now(),noticeAt:probe.noticeAt,visible:!!r&&r.top>=0&&r.left>=0&&r.bottom<=innerHeight&&r.right<=innerWidth&&getComputedStyle(n).visibility!=='hidden'&&document.visibilityState==='visible'});
-          }return originalFetch.call(this,input,options);
+          }
+          const pending=originalFetch.call(this,input,options);
+          if(new URL(typeof input==='string'?input:input.url,location.href).pathname==='/api/v2/measurement/context')pending.then(response=>response.clone().json().then(value=>probe.contexts.push({status:response.status,reason:value.reason,site_choice:value.site_choice,site_effective:value.site_effective}))).catch(()=>{});
+          return pending;
         };
       });
       const page=await context.newPage();page.setDefaultTimeout(15000);
       page.on('pageerror',error=>raw.scriptErrors.push(error.name));
+      page.on('requestfailed',request=>raw.requestFailures.push({path:new URL(request.url()).pathname,error:request.failure()?.errorText}));
+      page.on('console',message=>{if(message.type()==='error'&&raw.console.length<20)raw.console.push(message.text());});
       page.on('request',request=>{
         const url=new URL(request.url());raw.requests.push({path:url.pathname,method:request.method()});
         if(url.pathname==='/api/v2/measurement/events')try{raw.batches.push(JSON.parse(request.postData()));}catch{}
       });
       page.on('response',response=>{const url=new URL(response.url());raw.responses.push({path:url.pathname,status:response.status()});if(url.pathname.startsWith('/api/v1/content/playback/'))raw.media.push({path:url.pathname,status:response.status()});});
-      const goto=async (target='/')=>{const response=await page.goto(base+target,{waitUntil:'domcontentloaded'});assert.equal(response.status(),200);await page.locator('[data-measurement-c]').waitFor();};
+      const goto=async (target='/')=>{
+        const response=await page.goto(base+target,{waitUntil:'domcontentloaded'});assert.equal(response.status(),200);await page.locator('[data-measurement-c]').waitFor();
+        raw.initialDom.push(await page.evaluate(()=>{const n=document.querySelector('[data-c-delivery]'),r=n?.getBoundingClientRect();return {viewport:{width:innerWidth,height:innerHeight},scrollY,visibility:document.visibilityState,notice:r?{top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height}:null,state:document.querySelector('[data-measurement-c]')?.dataset.state};}));
+        if(name==='visit')await page.screenshot({path:directory+'/visit-natural-viewport.png',fullPage:false});
+        // Explicitly model the user reaching the notice, preserving the product's unchanged 98% gate.
+        await page.locator('[data-c-delivery]').scrollIntoViewIfNeeded();
+      };
       const waitStatus=async value=>page.waitForFunction(value=>document.querySelector('[data-measurement-c]')?.dataset.state===value,value);
       const off=async()=>{const response=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v2/measurement/preferences'&&r.request().method()==='PATCH');await page.locator('[data-c-off]').first().click();return response;};
       const screenshot=async label=>page.screenshot({path:directory+'/'+name+'-'+label+'.png',fullPage:true});
-      const close=async()=>{release();try{check(name+' no script errors',raw.scriptErrors.length===0);}finally{await context.close();}};
+      const close=async()=>{release();try{raw.finalDom=await page.evaluate(()=>({probe:window.__cProbe,state:document.querySelector('[data-measurement-c]')?.dataset.state,scrollY,viewport:{width:innerWidth,height:innerHeight}}));await page.screenshot({path:directory+'/'+name+'-final.png',fullPage:false,timeout:5000});}catch{}try{check(name+' no script errors',raw.scriptErrors.length===0);}finally{await context.close();}};
       return {context,page,raw,goto,waitStatus,off,screenshot,close,release};
     }
     async function play(s,seek=false){
