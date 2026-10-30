@@ -24,7 +24,7 @@ BASE = '2511ca30d13be4098ea02dcafbe16671dd2bd618'
 OUT = ROOT / '.runtime/06/r1'
 PHP = '/opt/homebrew/opt/php@8.4/bin/php'
 PG = Path('/opt/homebrew/opt/postgresql@17/bin')
-ROLES = ('manual', 'regression', 'upgrade', 'lifecycle', 'restore')
+ROLES = ('manual', 'regression', 'upgrade', 'lifecycle', 'lifecycle_retry1', 'restore')
 PRODUCT = ['h5-platform/'+name for name in ('app','bootstrap','config','database','public','resources','routes','composer.json','composer.lock')]+['scripts/dev.py','scripts/browser-assets.lock.json','scripts/install_browser_assets.py']
 ROUTER = ROOT / 'scripts/ops/r1_window_router.php'
 
@@ -195,7 +195,7 @@ def environment(cfg,doc,role):
         H5_MEDIA_ROOT=str(OUT/('restore-media' if role=='restore' else 'media')),ACQUISITION_C_ENABLED='true',ACQUISITION_C_SYNTHETIC_POLICY='true',ACQUISITION_C_SYNTHETIC_UNTIL=doc['policy_until'],
         ACQUISITION_R1_SYNTHETIC_POLICY='true',ACQUISITION_R1_SYNTHETIC_FROM=doc['policy_from'],ACQUISITION_R1_SYNTHETIC_UNTIL=doc['policy_until'],ACQUISITION_R1_OBSERVATIONS_ENABLED='true')
     if role=='regression':
-        env.update(H5_C_EXPERIENCE_ENABLED='false',H5_C_REGISTRATION_ENABLED='false',ACQUISITION_C_ENABLED='false',ACQUISITION_C_SYNTHETIC_POLICY='false',ACQUISITION_R1_SYNTHETIC_POLICY='false',ACQUISITION_R1_OBSERVATIONS_ENABLED='false',ACQUISITION_ANALYTICS_ENABLED='false',SESSION_DRIVER='array')
+        env.update(H5_LOCAL_MODULES='',H5_C_EXPERIENCE_ENABLED='false',H5_C_REGISTRATION_ENABLED='false',ACQUISITION_C_ENABLED='false',ACQUISITION_C_SYNTHETIC_POLICY='false',ACQUISITION_R1_SYNTHETIC_POLICY='false',ACQUISITION_R1_OBSERVATIONS_ENABLED='false',ACQUISITION_ANALYTICS_ENABLED='false',SESSION_DRIVER='array')
     return env
 
 
@@ -236,6 +236,14 @@ def control(cfg,doc,role,action,*args):
     if result.returncode or not isinstance(data,dict):
         private_write(OUT/'control-error-private.txt',result.stdout+result.stderr);raise ValueError('PRIVATE_CONTROL_FAILURE')
     return data
+
+
+def safe_suite(value):
+    if not isinstance(value,str) or not re.fullmatch(r'tests/(Feature|Integration|Security)(?:/[A-Za-z0-9_]+)*(?:\.php)?',value):return False
+    if len(value.split('/'))==2 and value.endswith('.php'):return False
+    target=ROOT/'h5-platform'/value
+    if target.resolve()!=target or target.is_symlink():return False
+    return target.is_file() if value.endswith('.php') else target.is_dir()
 
 
 def main():
@@ -289,10 +297,10 @@ def main():
     if args.action=='regression':
         if args.role!='regression':raise ValueError('REGRESSION_DB_ONLY')
         suites=extra or ['tests/Feature/Acquisition','tests/Feature/Identity','tests/Feature/Audience','tests/Feature/Contracts/RegistrationMeasurementTest.php','tests/Feature/Contracts/AcceptedRegistrationMeasurementTest.php','tests/Feature/Contracts/RuntimeEnvironmentGuardTest.php','tests/Feature/Contracts/AdminPanelIntegrationTest.php']
-        if any(not re.fullmatch(r'tests/(Feature|Integration|Security)/[A-Za-z0-9_/]+(?:\.php)?',s) for s in suites):raise ValueError('SAFE_SUITE_PATH_REQUIRED')
-        target=OUT/'regression-private.txt'
+        if any(not safe_suite(s) for s in suites):raise ValueError('SAFE_SUITE_PATH_REQUIRED')
+        stamp=str(time.time_ns());target=OUT/('regression-'+args.candidate+'-'+stamp+'-private.txt')
         with target.open('w') as stream:result=subprocess.run([PHP,'-d','memory_limit=768M','artisan','test','--compact',*suites],cwd=ROOT/'h5-platform',env=env,stdout=stream,stderr=subprocess.STDOUT)
-        target.chmod(0o600);print(json.dumps({'candidate':args.candidate,'regression_exit_code':result.returncode,'private_log':str(target)}));raise SystemExit(result.returncode)
+        target.chmod(0o600);private_write(OUT/('regression-receipt-'+stamp+'.json'),{'candidate':args.candidate,'role':args.role,'suites':suites,'exit_code':result.returncode,'private_log':str(target),'prior_logs_preserved':True});print(json.dumps({'candidate':args.candidate,'regression_exit_code':result.returncode,'private_log':str(target)}));raise SystemExit(result.returncode)
     if args.action=='seed':
         if args.role!='manual':raise ValueError('MANUAL_SEED_ONLY')
         no_web()

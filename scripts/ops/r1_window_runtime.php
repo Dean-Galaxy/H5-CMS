@@ -46,7 +46,7 @@ final class H5R1Runtime
         $candidate = (string) getenv('H5_R1_CANDIDATE');
         $role = (string) getenv('H5_R1_DB_ROLE');
         if ($actual !== $expected || $declared !== $actual || ($registry['root'] ?? null) !== $root || ($registry['pg_port'] ?? null) !== 5912
-            || ! in_array($role, ['manual','regression','upgrade','lifecycle','restore'], true)
+            || ! in_array($role, ['manual','regression','upgrade','lifecycle','lifecycle_retry1','restore'], true)
             || ($http && ! in_array($role, ['manual','restore'], true))
             || ! preg_match('/^[a-f0-9]{40}$/D', $candidate) || $manifest['candidate'] !== $candidate
             || ($manifest['approved'] ?? null) !== true || empty($manifest['00_reference'])

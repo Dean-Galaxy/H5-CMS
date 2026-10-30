@@ -12,6 +12,7 @@ import unittest
 from unittest.mock import patch
 OPS=Path(__file__).resolve().parents[1];sys.path.insert(0,str(OPS))
 import r1_window as r
+import r1_rehearsal as rehearsal
 
 
 class R1Boundary(unittest.TestCase):
@@ -111,6 +112,49 @@ class R1Boundary(unittest.TestCase):
         with self.assertRaises(ValueError):r.compare_restore_tree(src,dst,index,'media')
         extra.unlink();file.unlink();file.symlink_to(src/'foreign')
         with self.assertRaises(ValueError):r.compare_restore_tree(src,dst,index,'media')
+
+    def test_suite_roots_nested_files_and_escape_or_links(self):
+        app=self.root/'h5-platform'
+        for name in ['Feature','Integration','Security']:(app/'tests'/name).mkdir(parents=True)
+        nested=app/'tests/Feature/Acquisition';nested.mkdir();(nested/'PurposeTest.php').write_text('<?php')
+        (app/'tests/Feature/Linked.php').symlink_to(nested/'PurposeTest.php')
+        with patch.object(r,'ROOT',self.root):
+            for path in ['tests/Feature','tests/Integration','tests/Security','tests/Feature/Acquisition','tests/Feature/Acquisition/PurposeTest.php']:self.assertTrue(r.safe_suite(path),path)
+            for path in ['tests/Feature.php','tests/Feature/Missing.php','tests/Feature/Linked.php','tests/../Feature','tests/Feature/../../private','tests/Feature/%2e%2e','tests/Feature;echo','/tests/Feature','tests/Other','tests/Feature/Acquisition/']:self.assertFalse(r.safe_suite(path),path)
+
+    def test_regression_uses_default_provider_scope_retry1_is_explicit_only(self):
+        out=self.root/'isolated';out.mkdir();(out/'manifest.json').write_text('synthetic')
+        registry={'root':str(r.ROOT),'pg_port':5912,'databases':{role:r.db_name(self.cfg,role) for role in ['manual','regression','lifecycle_retry1']}}
+        doc={'candidate':'a'*40,'policy_from':'2026-10-31T00:00:00Z','policy_until':'2026-10-31T23:00:00Z'}
+        with patch.object(r,'OUT',out),patch.object(r,'private_json',return_value=registry),patch.object(r,'testing_environment',side_effect=lambda *args:{'H5_LOCAL_MODULES':'acquisition','ACQUISITION_ANALYTICS_ENABLED':'true'}):
+            regression=r.environment(self.cfg,doc,'regression');manual=r.environment(self.cfg,doc,'manual');retry=r.environment(self.cfg,doc,'lifecycle_retry1')
+            self.assertEqual(regression['H5_LOCAL_MODULES'],'');self.assertEqual(regression['ACQUISITION_ANALYTICS_ENABLED'],'false')
+            self.assertEqual(manual['H5_LOCAL_MODULES'],'acquisition');self.assertEqual(retry['H5_LOCAL_MODULES'],'acquisition')
+            self.assertEqual(retry['DB_DATABASE'],r.db_name(self.cfg,'lifecycle_retry1'))
+        with self.assertRaises(ValueError):r.db_name(self.cfg,'lifecycle_retry2')
+
+    def test_probe_stdout_stderr_exit_preserved_before_json_and_failures_unique(self):
+        out=self.root/'.runtime/06/r1';out.mkdir(mode=0o700,parents=True)
+        # Ensure the complete private hierarchy expected by the actual writer.
+        for parent in [self.root/'.runtime',self.root/'.runtime/06',out]:parent.chmod(0o700)
+        doc={'candidate':'a'*40}
+        with patch.object(r,'ROOT',self.root),patch.object(r,'OUT',out):
+            with self.assertRaisesRegex(ValueError,'JSON_FAILED'):rehearsal.capture_result(doc,'lifecycle_retry1','lifecycle',subprocess.CompletedProcess([],0,'bad JSON original','original stderr'))
+            with self.assertRaisesRegex(ValueError,'PROBE_FAILED'):rehearsal.capture_result(doc,'lifecycle_retry1','lifecycle',subprocess.CompletedProcess([],7,'partial output','private stack'))
+            result=rehearsal.capture_result(doc,'lifecycle_retry1','lifecycle',subprocess.CompletedProcess([],0,'{"passed":true}',''))
+            self.assertTrue(result['passed'])
+        directories=list((out/'probe-output').iterdir());self.assertEqual(len(directories),3)
+        self.assertCountEqual([json.loads((p/'process.json').read_text())['exit_code'] for p in directories],[0,7,0])
+        self.assertIn('bad JSON original',[(p/'stdout-private.txt').read_text() for p in directories]);self.assertIn('private stack',[(p/'stderr-private.txt').read_text() for p in directories])
+        for directory in directories:
+            for file in directory.iterdir():self.assertEqual(file.stat().st_mode&0o077,0)
+
+    def test_php_probe_closed_bootstrap_is_safe_json_nonzero_no_database(self):
+        env=os.environ.copy();env['H5_R1_WINDOW_ONLY']='0'
+        run=subprocess.run([r.PHP,str(OPS/'r1_probe.php'),'lifecycle'],env=env,capture_output=True,text=True)
+        self.assertEqual(run.returncode,1,run.stderr);value=json.loads(run.stdout)
+        self.assertEqual(value['phase'],'bootstrap');self.assertFalse(value['passed']);self.assertEqual(value['exception_type'],'LogicException')
+        self.assertNotIn('stack_private',value)
 
     def test_php_exact_allowed_http_and_static_and_front_controller(self):
         public=self.root/'public';public.mkdir();(public/'index.php').write_text('synthetic index');(public/'app.css').write_text('body{}')
