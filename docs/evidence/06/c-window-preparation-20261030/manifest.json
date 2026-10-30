@@ -1,0 +1,85 @@
+{
+  "schema": "06-c-preparation-evidence-1",
+  "recorded_utc": "2026-10-30T09:50:55.178884+00:00",
+  "tool_source_sha": "83ca6b5be331ca84e3d543db8318d770ef6113b8",
+  "received_code_base": "841bed779a8a7157c92f0e8fc6940de4ff83e142",
+  "development_merge_sha": "ee87b28a2b6925607efe7124ac4e6fd1e10819c9",
+  "contracts": [
+    "c-core-1",
+    "c-ui-1"
+  ],
+  "unit": {
+    "tests": 23,
+    "exit_code": 0,
+    "passed": true,
+    "http_boundary_cases": 21,
+    "http_boundary_is_classification_only": true,
+    "raw_log_sha256": "91463c256cea9c34c114cb19971fd79dafe17047d19f62c0ed455f89d3022c7d"
+  },
+  "php_syntax": [
+    {
+      "file": "h5-platform/tests/Browser/Support/CWindowRuntime.php",
+      "exit_code": 0
+    },
+    {
+      "file": "h5-platform/tests/Browser/Support/CWindowBoundary.php",
+      "exit_code": 0
+    },
+    {
+      "file": "h5-platform/tests/Browser/Support/c-window-router.php",
+      "exit_code": 0
+    },
+    {
+      "file": "scripts/ops/c_window_control.php",
+      "exit_code": 0
+    }
+  ],
+  "python_syntax_passed": true,
+  "assigned_workspace_inspection": {
+    "exit_code": 77,
+    "candidate": "cfe57f4b4290b60951f40cb4dec4374484754675",
+    "missing": [
+      "h5-platform/resources/views/audience/partials/measurement-c-notice.blade.php",
+      "h5-platform/resources/views/audience/partials/measurement-c.blade.php"
+    ],
+    "required_sha256": {
+      "docs/contracts/first-party-measurement-c-v1.md": "540330dd56c3a4c86ec24163835581e1f6094af1168e28124853edab56572348",
+      "docs/contracts/measurement-c-ui-1.md": "21420417fa3ded81f6854ec0bf6ddd91b107b590fc1d04ab66b254757ba7ac58"
+    },
+    "status": "not_ready",
+    "runtime_started": false,
+    "database_accessed": false,
+    "browser_executed": false,
+    "note": "Source presence does not prove v1/C compatibility or runtime acceptance."
+  },
+  "runtime_execution": {
+    "setup": false,
+    "migration": false,
+    "seed": false,
+    "web": false,
+    "browser": false,
+    "backup": false,
+    "restore": false,
+    "stop": false
+  },
+  "human_new_c": {
+    "passed": 0,
+    "total": 3
+  },
+  "github_upload_verified_by_06": false,
+  "notes": [
+    "Offline tool tests only, not application acceptance.",
+    "Lifecycle source prepared; runtime behavior awaits final combined candidate and 00 window.",
+    "No old M01/C2/Thursday runtime or data operations performed."
+  ],
+  "tool_files_sha256": {
+    "h5-platform/tests/Browser/Support/CWindowRuntime.php": "894ea4dd6e0a4cda9fa14c670427236a0e751ab9863fc2c8305fc65fdb0bd827",
+    "h5-platform/tests/Browser/Support/CWindowBoundary.php": "aceee49244132b72b1a3fa695299bdd467a62afd8b63016572cc8c85d7ba4089",
+    "h5-platform/tests/Browser/Support/c-window-router.php": "2cc4c53d4987ee609b9ce7d55ddcf6e140b28ea3ae46dcc19d664cafe3fb5c44",
+    "scripts/ops/c_window_control.php": "9748df38cf0e7517b56a58b682c777dacd927125f50139cf5d99d1f41e44a9ae",
+    "scripts/ops/c_window.py": "3fe901215da04ef822a98914829a926bb944a12ab1f67ab2dc8b51da2f677a9f",
+    "scripts/ops/c_window_preflight.py": "3492ace08dd3a97307e660bf2b71806368ac168aefed6b125f70c00873b91e83",
+    "scripts/ops/tests/test_c_window_preflight.py": "e4f95f06d8279b5433efbcb876a934983f5a97e99fe954dc7886ac35fb67103c",
+    "scripts/ops/tests/test_c_window_lifecycle.py": "14688724f5fc73813b4c4739198f252c643dccc68b831eaba476f29d27663d41"
+  }
+}
