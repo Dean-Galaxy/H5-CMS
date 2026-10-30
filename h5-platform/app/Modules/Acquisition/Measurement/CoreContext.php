@@ -115,7 +115,7 @@ final class CoreContext
     private function lockPreference(): ?object
     {
         // Used solely for serialization, never as a measurement identifier or stored fingerprint.
-        DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', ['acquisition.c:'.($this->pointer('preference') ?? request()->session()->getId())]);
+        DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', ['acquisition.c:'.hash('sha256', $this->pointer('preference') ?? request()->session()->getId())]);
         $p = $this->preference();
 
         return $p ? DB::table('acquisition_c_preferences')->where('id', $p->id)->lockForUpdate()->first() : null;
