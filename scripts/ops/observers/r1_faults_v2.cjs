@@ -17,7 +17,7 @@ function parse(argv){assert.equal(argv.length,3,'Usage: CASE en|zh_CN OBSERVER_F
 function preflight(input){
  assert.equal(fs.realpathSync(core.ROOT),core.ROOT);assert.equal(fs.realpathSync(SOURCE),SOURCE);assert.notEqual(SOURCE,core.ROOT);assert(!fs.existsSync(path.join(SOURCE,'.runtime/workspace.json')),'Source-only observer checkout required');
  assert.equal(cp.execFileSync('git',['rev-parse','HEAD'],{cwd:SOURCE,encoding:'utf8'}).trim(),input.observer);
- const files=['scripts/ops/observers/r1_faults_v2.cjs','scripts/ops/observers/r1_faults_core.cjs'],hashes={};
+ const files=['scripts/ops/observers/r1_faults_v2.cjs','scripts/ops/observers/r1_faults_core.cjs','scripts/ops/observers/r1_capture_viewports.cjs'],hashes={};
  for(const file of files){const bytes=fs.readFileSync(path.join(SOURCE,file));assert.deepEqual(cp.execFileSync('git',['show',input.observer+':'+file],{cwd:SOURCE}),bytes);hashes[file]=digest(bytes);}
  const manifest=privateJSON(path.join(OUT,'manifest.json')),processRecord=privateJSON(path.join(OUT,'process.json'));core.validateTarget(core.ROOT,manifest,processRecord);
  cp.execFileSync('python3',['-B','-c','import sys,hashlib;sys.path.insert(0,"scripts/ops");import r1_window as r;c,d=r.manifest(sys.argv[1],future=True);p=r.private_json(r.OUT/"process.json");assert p["role"]=="manual" and r.matching(p,c);assert p["manifest_sha256"]==hashlib.sha256((r.OUT/"manifest.json").read_bytes()).hexdigest()',core.RUNTIME],{cwd:core.ROOT,stdio:'pipe'});
@@ -84,4 +84,4 @@ async function main(){
  }finally{if(fs.existsSync(lock)&&privateJSON(lock).token===token)fs.unlinkSync(lock);}
 }
 if(require.main===module)main().catch(error=>{console.error('External observer preflight refused: '+String(error.message));process.exitCode=1;});
-module.exports={parse,digest};
+module.exports={parse,digest,preflight};

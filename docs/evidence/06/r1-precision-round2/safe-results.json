@@ -47,8 +47,7 @@
     "billing_prices_or_payments": 0
   },
   "actual_ui_first_failure": {
-    "case": "forms-en / 320x500 computed font 200 percent",
-    "normal_320_passed_before_font": true,
+    "case": "forms-en / 320x500 specified selectors computed font x2",
     "body_font_ratio": 2,
     "viewport_width": 320,
     "document_width": 363,
@@ -56,7 +55,23 @@
     "nav_right": 363.046875,
     "registration_posts": 0,
     "font_observer_sha256": "b5ae7599710ae3e593fab860575fd93151afb97df0f5ddb5e9d70a8e3290b3f7",
-    "whole_forms_group_passed": false
+    "whole_forms_group_passed": false,
+    "normal_320_dom_width_assertion_no_horizontal_overflow": true,
+    "normal_320_complete_form_capture_passed": false,
+    "font_method": "precomputed font px times 2 on body/button/input/legend/p/dd/dt/summary/a only",
+    "label_span_font_ratio_verified": false,
+    "browser_zoom_200_tested": false,
+    "R1_E01": {
+      "status": "pending fresh native viewport evidence",
+      "review_source": "08 73dfaaa via 00; limited initial three-image review",
+      "old_image": "registration-en-320x500.png",
+      "png_width": 320,
+      "png_height": 4187,
+      "png_sha256": "e4d73bea1381280b43b6ac4fd1bb42f814dc9b9a9b5238ced5928c3fe300161e",
+      "pixel_repetition_observed_by_08": true,
+      "duplicate_application_render_inferred": false,
+      "magenta_is_input_redaction": true
+    }
   },
   "backup_and_shutdown": {
     "manual_backup_manifest_files_verified": 19,
@@ -77,7 +92,8 @@
     "limited security HTTP",
     "restart evidence and independent restore",
     "real phone",
-    "human new registration 0/3"
+    "human new registration 0/3",
+    "R1-E01 normal 320 complete form native-scroll evidence and 00/08 review"
   ],
   "old_f9_failures_preserved": {
     "passed": 878,
