@@ -15,13 +15,23 @@ const sql = query => execFileSync('/opt/homebrew/opt/postgresql@17/bin/psql', ['
 const count = () => Number(sql('SELECT count(*) FROM acquisition_c_events'));
 const results = [], errors = [], eventRequests = [], external = [], legacy = [], responses = [], referrers = [];
 let browser, lastPage;
+const noticeOnly = process.env.H5_C_UI_NOTICE_ONLY === '1';
+const noticeChecks = new Set([
+  'Actual C start waits for context and visible notice; no automatic modal or pre-start events',
+  'en 320×500: notice, manually opened scroll panel, readable details and reachable close/off',
+  'zh-CN 320×500: notice, manually opened scroll panel, readable details and reachable close/off',
+  'Actual deny survives refresh; free preview still plays and creates no new C events',
+]);
 function resetOwnedCache() {
   assert(process.env.DB_DATABASE.endsWith('_cui1_audience_http_test'));
   const owned = JSON.parse(fs.readFileSync(path.join(out,'../c-ui-1-audience-owned.json')));
   assert.equal(owned.database,process.env.DB_DATABASE);
   execFileSync('/opt/homebrew/opt/php@8.4/bin/php',['artisan','cache:clear'],{cwd:path.join(owned.root,'h5-platform'),env:process.env});
 }
-const check = async (name, run) => { resetOwnedCache(); await run(); results.push({name, passed:true}); console.log('PASS '+name); };
+const check = async (name, run) => {
+  if (noticeOnly && !noticeChecks.has(name)) return;
+  resetOwnedCache(); await run(); results.push({name, passed:true}); console.log('PASS '+name);
+};
 async function session(locale = 'en', viewport = {width:1280,height:850}) {
   const context = await browser.newContext({viewport, locale});
   await context.route('**/*', route => {
@@ -60,11 +70,13 @@ async function untilState(page, value) { await page.waitForFunction(value => doc
     await page.route('**/api/v2/measurement/context', async route => { await gate; await route.continue(); });
     page.on('request', request => { if (request.url().endsWith('/measurement/start')) starts++; });
     const before = count();
-    await page.goto(base+'/?fbclid=forbidden-c-test&utm_source=not-c-data', {waitUntil:'domcontentloaded'});
+    await page.goto(base+'/?fbclid=forbidden-c-test&utm_source=not-c-data#main', {waitUntil:'domcontentloaded'});
     await page.waitForTimeout(900);
     assert.equal(starts,0); assert.equal(count(),before);
     assert.equal(await page.locator('dialog[open]').count(),0);
     release();
+    await page.waitForTimeout(400); assert.equal(starts,0); assert.equal(count(),before);
+    await page.locator('[data-c-delivery]').scrollIntoViewIfNeeded();
     await untilState(page,'active');
     await page.waitForTimeout(1200); assert(count() > before);
     await page.screenshot({path:path.join(out,'en-desktop.png'),fullPage:true});
@@ -75,7 +87,28 @@ async function untilState(page, value) { await page.waitForFunction(value => doc
     await active(page,'/?lang='+(locale === 'en'?'en':'zh_CN'));
     assert.equal(await page.locator('dialog[open]').count(),0);
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+    assert.equal(await page.evaluate(()=>scrollY),0);
+    const notice=page.locator('[data-c-notice]'); const noticeBox=await notice.boundingBox();
+    const mainHeading=await page.locator('#main h1').boundingBox();
+    assert(mainHeading.y+Math.min(40,mainHeading.height)<=500,'Main title begins within the first viewport');
+    const buttons=notice.locator('button'); const buttonBoxes=await buttons.evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};}));
+    assert(buttonBoxes.every(box=>box.height>=44 && box.x>=0 && box.x+box.width<=320));
+    assert.equal(buttonBoxes[0].y,buttonBoxes[1].y,'Notice actions share a row when space is available');
+    assert.equal(await page.evaluate(()=>document.activeElement.tagName),'BODY');
+    await page.screenshot({path:path.join(out,locale+'-320-notice-viewport.png')});
     await page.screenshot({path:path.join(out,locale+'-320-notice.png'),fullPage:true});
+    const zoom=await page.addStyleTag({content:'[data-c-notice]{font-size:32px!important}[data-c-notice] p,[data-c-notice] button{font-size:28px!important}'});
+    const enlarged=await buttons.evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};}));
+    assert(enlarged[1].y>enlarged[0].y,'Larger text wraps actions naturally');
+    assert(enlarged.every(box=>box.height>=44 && box.x>=0 && box.x+box.width<=320));
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    for(const button of await buttons.all()) {
+      await button.scrollIntoViewIfNeeded();
+      assert(await button.evaluate(node=>{const r=node.getBoundingClientRect();return node.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}));
+    }
+    await page.screenshot({path:path.join(out,locale+'-320-notice-large-text.png'),fullPage:true});
+    await zoom.evaluate(node=>node.remove()); await page.evaluate(()=>scrollTo(0,0));
+    fs.writeFileSync(path.join(out,locale+'-notice-layout.json'),JSON.stringify({viewport:{width:320,height:500},notice:noticeBox,main_title:mainHeading,buttons:buttonBoxes,large_text_buttons:enlarged,no_horizontal_overflow:true,no_automatic_modal:true,no_focus_grab:true},null,2));
     await page.locator('[data-c-open]').first().click();
     const dialog = page.locator('[data-c-dialog]');
     assert(await dialog.isVisible());
@@ -117,8 +150,7 @@ async function untilState(page, value) { await page.waitForFunction(value => doc
   await check('Actual deny survives refresh; free preview still plays and creates no new C events', async () => {
     const {context,page} = await session('zh-CN',{width:320,height:500});
     await active(page,'/?lang=zh_CN');
-    await page.locator('[data-c-open]').first().click();
-    await page.locator('[data-c-dialog] [data-c-off]').click(); await untilState(page,'off');
+    await page.locator('[data-c-notice] [data-c-off]').click(); await untilState(page,'off');
     const before = count();
     await page.reload({waitUntil:'domcontentloaded'}); await untilState(page,'off');
     await page.goto(base+'/dramas/'+fixture.drama+'/episodes/'+fixture.episodes[1],{waitUntil:'domcontentloaded'});
@@ -342,7 +374,8 @@ async function untilState(page, value) { await page.waitForFunction(value => doc
       fs.writeFileSync(path.join(out,'native-visibility.json'),JSON.stringify({real_hidden_visible:true,page_views:1,play_started:1,start_requests:startRequests,progress:progress.map(row=>row.p.watched_seconds)},null,2));
     } finally { await native?.close(); process.kill(); }
   });
-  fs.writeFileSync(path.join(out,'browser.json'),JSON.stringify({results,passed:results.length,errors,external,legacy_requests:legacy.length,
+  if(noticeOnly) {assert.equal(results.length,4);assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.equal(legacy.length,0);}
+  fs.writeFileSync(path.join(out,'browser.json'),JSON.stringify({results,passed:results.length,selection:noticeOnly?'C-V01':'all',errors,external,legacy_requests:legacy.length,
     event_batches:eventRequests.length,scope:'04 isolated synthetic HTTP; fault responses labelled; not official payment, policy eligibility or manual acceptance'},null,2));
 })().catch(async error=>{
   console.error(error); process.exitCode=1;

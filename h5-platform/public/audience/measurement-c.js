@@ -32,7 +32,8 @@
     && value.basis_kind === 'policy_permitted' && value.site_choice !== 'deny'
     && [null, 'NOTICE_NOT_READY'].includes(value.reason);
   function paint() {
-    document.querySelectorAll('[data-c-status]').forEach(node => { node.textContent = text[state === 'active' && context?.site_choice === 'allow' ? 'active_allowed' : state]; });
+    const key = state === 'active' && context?.site_choice === 'allow' ? 'active_allowed' : state;
+    document.querySelectorAll('[data-c-status]').forEach(node => { node.textContent = text[node.hasAttribute('data-c-notice-status') ? 'notice_' + key : key] || text[key]; });
     mount.querySelector('[data-c-choice]').textContent = known ? text[context.site_choice] : text.unknown;
     mount.querySelector('[data-c-processing]').textContent = known ? text[context.site_effective === 'on' ? 'on' : 'disabled'] : text.unknown;
     mount.querySelector('[data-c-local]').textContent = active && !suspended ? text.collecting : text.waiting;
