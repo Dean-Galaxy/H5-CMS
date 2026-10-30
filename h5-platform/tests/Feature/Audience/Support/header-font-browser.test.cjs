@@ -5,6 +5,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const baseline='05d2db9cd77b304193b770da514b4a5f6a51607e';
 const base=process.env.H5_C_UI_BASE,out=process.env.H5_C_UI_OUT;
 assert(process.env.H5_C_UI_HEADER_ONLY==='1'&&process.env.DB_DATABASE.endsWith('_header_audience_http_test'));
+const actualA='1263bdcb3576986a74a0cf59a7c7ea61072b9062';
+const actualACSS=execFileSync('git',['show',actualA+':h5-platform/public/audience/site.css'],{encoding:'utf8'});
+assert.equal(fs.readFileSync('h5-platform/public/identity.css','utf8'),execFileSync('git',['show',actualA+':h5-platform/public/identity.css'],{encoding:'utf8'}),'Identity stylesheet must remain byte-identical to actual A');
 const oldCSS=execFileSync('git',['show',baseline+':h5-platform/public/audience/site.css'],{encoding:'utf8'});
 const results=[],errors=[],external=[],mutations=[];let browser,last;
 async function fixture(locale,width,old=false) {
@@ -14,7 +17,7 @@ async function fixture(locale,width,old=false) {
     if(!url.startsWith(base+'/')) {external.push(new URL(url).origin);return route.abort();}
     if(request.method()!=='GET'){mutations.push({method:request.method(),path:new URL(url).pathname});return route.abort();}
     if(request.resourceType()==='script')return route.fulfill({status:200,contentType:'application/javascript',body:'/* Isolated header CSS fixture: application scripts intentionally inert. */'});
-    if(old&&url===base+'/audience/site.css')return route.fulfill({status:200,contentType:'text/css',body:oldCSS});
+    if(old&&url===base+'/audience/site.css')return route.fulfill({status:200,contentType:'text/css',body:old==='actualA'?actualACSS:oldCSS});
     return route.continue();
   });
   const page=await context.newPage();last=page;page.on('pageerror',error=>errors.push(error.message));
@@ -92,6 +95,35 @@ async function reachable(page,locale) {
     await page.locator('.site-header summary').click();await page.locator('.language a[lang="'+(locale==='en'?'zh-Hans':'en')+'"]').click();
     assert.equal(await page.locator('html').getAttribute('lang'),locale==='en'?'zh-CN':'en');
     results.push({name:locale+' real native catalog/home/login/language GET navigation',passed:true});await context.close();
+  }
+  // UI TEXT FIXTURE ONLY: take the actual server-localized created string; never submit registration or run app JS.
+  const colorChecks=[];
+  for(const locale of ['en','zh-CN'])for(const cssSource of ['actualA','candidate']) {
+    const {context,page}=await fixture(locale,320,cssSource==='actualA'?'actualA':false);
+    const measured=await page.evaluate(()=>{
+      const messages=JSON.parse(document.querySelector('[data-purpose-messages]').textContent);
+      if(typeof messages.created!=='string'||!messages.created)throw Error('Missing server-localized created message');
+      const node=document.querySelector('[data-result]');node.textContent=messages.created;
+      let background=node;
+      while(background&&getComputedStyle(background).backgroundColor==='rgba(0, 0, 0, 0)')background=background.parentElement;
+      if(!background)throw Error('Missing opaque background');
+      const style=getComputedStyle(node),bg=getComputedStyle(background).backgroundColor;
+      const luminance=color=>{const rgb=color.match(/^rgb\((\d+), (\d+), (\d+)\)$/);if(!rgb)throw Error('Expected opaque computed color: '+color);
+        const c=rgb.slice(1).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;});return .2126*c[0]+.7152*c[1]+.0722*c[2];};
+      const fg=luminance(style.color),back=luminance(bg);
+      return {foreground:style.color,background:bg,backgroundTag:background.tagName,backgroundClass:background.className,fontSize:style.fontSize,role:node.getAttribute('role'),text:node.textContent,
+        contrast:(Math.max(fg,back)+.05)/(Math.min(fg,back)+.05),viewport:[innerWidth,innerHeight],dpr:devicePixelRatio,messageSource:'server-rendered [data-purpose-messages].created; UI text fixture only'};
+    });
+    const node=page.locator('[data-result]');await node.scrollIntoViewIfNeeded();
+    assert(await node.isVisible());assert.equal(measured.fontSize,'14px');assert.equal(measured.role,'status');
+    await page.screenshot({path:path.join(out,'ui-text-fixture-created-'+locale+'-'+cssSource+'-320.png')});
+    const nonAudienceForeground=await page.evaluate(()=>{document.body.classList.remove('audience-site');return getComputedStyle(document.querySelector('[data-result]')).color;});
+    assert.equal(nonAudienceForeground,'rgb(145, 61, 32)');
+    colorChecks.push({locale,cssSource,actualA,measured,nonAudienceForeground,passesBodyText45:measured.contrast>=4.5});
+    fs.writeFileSync(path.join(out,'status-color.json'),JSON.stringify({actualA,uiTextFixture:true,appScriptsInert:true,registrationSubmissions:0,checks:colorChecks},null,2));
+    if(cssSource==='actualA'){assert(Math.abs(measured.contrast-2.289894)<.00001);assert(measured.contrast<4.5);}
+    else assert(measured.contrast>=4.5,'Audience status body text contrast must be >=4.5; actual '+measured.contrast);
+    results.push({name:locale+' created UI text fixture '+cssSource,passed:true,measured});console.log('PASS status color '+locale+' '+cssSource+' '+measured.contrast);await context.close();
   }
   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.deepEqual(mutations,[]);
   const counts=JSON.parse(execFileSync('/opt/homebrew/opt/postgresql@17/bin/psql',['-Atc',"SELECT json_build_object('viewers',(SELECT count(*) FROM identity_viewers),'registration_receipts',(SELECT count(*) FROM identity_registration_receipts),'orders',(SELECT count(*) FROM billing_orders),'subjects',(SELECT count(*) FROM acquisition_c_subjects),'purpose_proofs',(SELECT count(*) FROM acquisition_r1_proofs))"],{encoding:'utf8',env:{...process.env,PGHOST:'127.0.0.1',PGPORT:process.env.DB_PORT,PGDATABASE:process.env.DB_DATABASE,PGUSER:process.env.DB_USERNAME,PGPASSWORD:process.env.DB_PASSWORD}}));
