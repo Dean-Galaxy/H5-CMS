@@ -93,7 +93,7 @@ class R1Boundary(unittest.TestCase):
             self.assertEqual(len(r.committed_files('a'*40,['tool.py'])),1)
             file.write_text('uncommitted')
             with self.assertRaises(ValueError):r.committed_files('a'*40,['tool.py'])
-        with patch.object(r,'git',side_effect=['\n'.join(['scripts/ops/'+p for p in ['r1_window.py','r1_window_runtime.php','r1_window_boundary.php','r1_window_router.php','r1_window_control.php','r1_browser.cjs','r1_rehearsal.py','r1_probe.php','tests/test_r1_window.py']]),'?? scripts/ops/r1_extra.py']):
+        with patch.object(r,'git',side_effect=['\n'.join(['scripts/ops/'+p for p in ['analytics_acceptance.py','r1_window.py','r1_window_runtime.php','r1_window_boundary.php','r1_window_router.php','r1_window_control.php','r1_browser.cjs','r1_rehearsal.py','r1_probe.php','tests/test_r1_window.py']]),'?? scripts/ops/r1_extra.py']):
             with self.assertRaises(ValueError):r.runtime_tools('a'*40)
         with patch.object(r,'git',return_value='scripts/ops/r1_window.py'):
             with self.assertRaises(ValueError):r.runtime_tools('a'*40)

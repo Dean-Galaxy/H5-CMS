@@ -98,8 +98,8 @@ def committed_files(candidate, names):
 
 def runtime_tools(candidate=None):
     candidate=candidate or git('rev-parse','HEAD')
-    names=git('ls-tree','-r','--name-only',candidate,'--','scripts/ops/r1_window.py','scripts/ops/r1_window_runtime.php','scripts/ops/r1_window_boundary.php','scripts/ops/r1_window_router.php','scripts/ops/r1_window_control.php','scripts/ops/r1_browser.cjs','scripts/ops/r1_rehearsal.py','scripts/ops/r1_probe.php','scripts/ops/tests/test_r1_window.py').splitlines()
-    expected={'scripts/ops/'+name for name in ['r1_window.py','r1_window_runtime.php','r1_window_boundary.php','r1_window_router.php','r1_window_control.php','r1_browser.cjs','r1_rehearsal.py','r1_probe.php','tests/test_r1_window.py']}
+    names=git('ls-tree','-r','--name-only',candidate,'--','scripts/ops/analytics_acceptance.py','scripts/ops/r1_window.py','scripts/ops/r1_window_runtime.php','scripts/ops/r1_window_boundary.php','scripts/ops/r1_window_router.php','scripts/ops/r1_window_control.php','scripts/ops/r1_browser.cjs','scripts/ops/r1_rehearsal.py','scripts/ops/r1_probe.php','scripts/ops/tests/test_r1_window.py').splitlines()
+    expected={'scripts/ops/'+name for name in ['analytics_acceptance.py','r1_window.py','r1_window_runtime.php','r1_window_boundary.php','r1_window_router.php','r1_window_control.php','r1_browser.cjs','r1_rehearsal.py','r1_probe.php','tests/test_r1_window.py']}
     if set(names)!=expected:raise ValueError('COMPLETE_COMMITTED_TOOL_SET_REQUIRED')
     if git('status','--porcelain','--untracked-files=all','--','scripts/ops/r1*','scripts/ops/tests/test_r1*'):raise ValueError('DIRTY_OR_NEW_R1_TOOL_REFUSED')
     return committed_files(candidate,names)

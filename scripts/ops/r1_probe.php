@@ -25,7 +25,7 @@ if($role==='upgrade'&&str_starts_with($action,'upgrade-')){
     $file=H5R1Runtime::directory().'/upgrade-before.json';
     if($action==='upgrade-seed'){
         requireTrue(!is_file($file),'NO RESEED');
-        $viewer=app(Laravel\Fortify\Contracts\CreatesNewUsers::class)->create(['name'=>'06 upgrade synthetic','email'=>'06-upgrade-'.Str::uuid().'@example.test','password'=>'SyntheticUpgradePass123!','password_confirmation'=>'SyntheticUpgradePass123!','terms_accepted'=>true,'terms_version'=>'local-c-terms-r1-v1','privacy_notice_version'=>'local-c-privacy-r1-v1']);
+        $viewer=app(Laravel\Fortify\Contracts\CreatesNewUsers::class)->create(['name'=>'06 upgrade synthetic','email'=>'06-upgrade-'.Str::uuid().'@example.test','password'=>'SyntheticUpgradePass123!','password_confirmation'=>'SyntheticUpgradePass123!','terms_accepted'=>'1','terms_version'=>'local-c-terms-r1-v1','privacy_notice_version'=>'local-c-privacy-r1-v1']);
         DB::table('acquisition_privacy')->insert(['id'=>(string)Str::uuid(),'analytics'=>'denied','advertising'=>'denied','policy_version'=>'analytics-v1','created_at'=>now(),'updated_at'=>now(),'site_analysis_denied_at'=>now(),'site_analysis_denial_until'=>now()->addMonthsNoOverflow(24)]);
         $before=snapshot();H5R1Runtime::write('upgrade-before.json',$before);
         echo json_encode(['old_tables'=>count($before),'synthetic_viewers'=>1,'necessary_receipts'=>1,'legacy_denial_rows'=>1,'other_tables_may_be_empty'=>true]);

@@ -53,7 +53,7 @@ final class H5R1Runtime
             || ! hash_equals(hash_file('sha256', self::directory().'/manifest.json'), (string) getenv('H5_R1_MANIFEST_SHA256'))) {
             throw new LogicException('EXACT MANIFEST ROLE BINDING REQUIRED');
         }
-        $required = ['scripts/ops/r1_window.py','scripts/ops/r1_window_runtime.php','scripts/ops/r1_window_boundary.php','scripts/ops/r1_window_router.php','scripts/ops/r1_window_control.php','scripts/ops/r1_browser.cjs','scripts/ops/r1_rehearsal.py','scripts/ops/r1_probe.php','scripts/ops/tests/test_r1_window.py'];
+        $required = ['scripts/ops/analytics_acceptance.py','scripts/ops/r1_window.py','scripts/ops/r1_window_runtime.php','scripts/ops/r1_window_boundary.php','scripts/ops/r1_window_router.php','scripts/ops/r1_window_control.php','scripts/ops/r1_browser.cjs','scripts/ops/r1_rehearsal.py','scripts/ops/r1_probe.php','scripts/ops/tests/test_r1_window.py'];
         if (count($manifest['tools_sha256'] ?? []) !== count($required)) { throw new LogicException('EXACT TOOL FILE SET REQUIRED'); }
         foreach ($required as $relative) {
             if (! isset($manifest['tools_sha256'][$relative]) || is_link($root.'/'.$relative)
