@@ -6,6 +6,8 @@ use App\Modules\Acquisition\Http\TrackingThrottle;
 use App\Modules\Acquisition\Measurement\CoreController;
 use App\Modules\Acquisition\Measurement\CoreRequest;
 use App\Modules\Acquisition\Measurement\CoreThrottle;
+use App\Modules\Acquisition\Registration\PurposeController;
+use App\Modules\Acquisition\Registration\PurposeThrottle;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/r/{code}', [TrackingController::class, 'landing'])->middleware('throttle:60,1');
@@ -23,4 +25,11 @@ Route::prefix('/api/v2/measurement')->middleware(CoreRequest::class)->group(func
     Route::post('start', [$controller, 'start'])->middleware(CoreThrottle::class.':start')->block(10, 10);
     Route::patch('preferences', [$controller, 'preferences'])->middleware(CoreThrottle::class.':preferences')->block(10, 10);
     Route::post('events', [$controller, 'events'])->middleware(CoreThrottle::class.':events')->block(10, 10);
+});
+
+Route::prefix('/api/v3/measurement/purposes')->middleware(CoreRequest::class)->group(function () {
+    $controller = PurposeController::class;
+    $throttle = PurposeThrottle::class;
+    Route::get('context', [$controller, 'context'])->middleware($throttle.':context');
+    Route::patch('preferences', [$controller, 'preferences'])->middleware($throttle.':preferences')->block(10, 10);
 });

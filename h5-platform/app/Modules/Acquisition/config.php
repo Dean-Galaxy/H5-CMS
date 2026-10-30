@@ -7,6 +7,12 @@ return [
         'synthetic_policy' => (bool) env('ACQUISITION_C_SYNTHETIC_POLICY', false),
         'synthetic_until' => env('ACQUISITION_C_SYNTHETIC_UNTIL'),
     ],
+    'registration' => [
+        'observations_enabled' => (bool) env('ACQUISITION_R1_OBSERVATIONS_ENABLED', false),
+        'synthetic_policy' => (bool) env('ACQUISITION_R1_SYNTHETIC_POLICY', false),
+        'synthetic_from' => env('ACQUISITION_R1_SYNTHETIC_FROM'),
+        'synthetic_until' => env('ACQUISITION_R1_SYNTHETIC_UNTIL'),
+    ],
     'analytics_enabled' => (bool) env('ACQUISITION_ANALYTICS_ENABLED', false),
     'behavior_retention_days' => 90,
     // Asset registration never turns external delivery on.

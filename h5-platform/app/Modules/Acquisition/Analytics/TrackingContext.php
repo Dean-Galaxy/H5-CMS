@@ -4,6 +4,8 @@ namespace App\Modules\Acquisition\Analytics;
 
 use App\Contracts\IdentityContext;
 use App\Modules\Acquisition\Measurement\SiteAnalysisBridge;
+use App\Modules\Acquisition\Registration\LegacyAdvertisingBridge;
+use App\Modules\Acquisition\Registration\PurposeProof;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\Cookie;
@@ -104,10 +106,16 @@ final class TrackingContext
             return;
         }
         $this->syncViewer();
-        DB::transaction(function () use ($s, $analytics, $advertising) {
+        app(PurposeProof::class)->serialized(function () use ($s, $analytics, $advertising) {
             $bridge = app(SiteAnalysisBridge::class);
             $old = $this->privacy();
             $old = $old ? DB::table('acquisition_privacy')->where('id', $old->id)->lockForUpdate()->first() : null;
+            $r1 = app(LegacyAdvertisingBridge::class);
+            if (! $advertising) {
+                $r1->legacyWithdrawal();
+            }
+            $r1Denied = $r1->denied($old);
+            $advertising = $advertising && ! $r1Denied;
             $denied = $bridge->browserDenied() || $bridge->proofDenied($old);
             // C mode cannot grant legacy analysis. An existing grant remains historical until an explicit denial.
             $preserve = SiteAnalysisBridge::experience() && $analytics && ! $denied;
@@ -130,6 +138,9 @@ final class TrackingContext
             if ($denied) {
                 // Preserve an existing deadline; repeated legacy requests cannot extend a C preference's life.
                 $values += $bridge->proofDenied($old) ? [] : $bridge->denialValues();
+            }
+            if ($r1Denied && ! $r1->markerDenied($old) && ($r1Denial = $r1->denial())) {
+                $values += $r1->markers($r1Denial);
             }
             DB::table('acquisition_privacy')->updateOrInsert(['id' => $id], $values);
             $s->put('tracking.privacy', $id);

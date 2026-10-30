@@ -2,6 +2,7 @@
 
 namespace App\Modules\Acquisition\Sending;
 
+use App\Modules\Acquisition\Registration\LegacyAdvertisingBridge;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,7 @@ final class DeliveryGate
         }
         if ($source->privacy_id ?? null) {
             $privacy = DB::table('acquisition_privacy')->where('id', $source->privacy_id)->first();
-            if (! $privacy || $privacy->advertising !== 'granted') {
+            if (! $privacy || $privacy->advertising !== 'granted' || app(LegacyAdvertisingBridge::class)->markerDenied($privacy)) {
                 return 'CONSENT_REQUIRED_OR_REVOKED';
             }
         }
