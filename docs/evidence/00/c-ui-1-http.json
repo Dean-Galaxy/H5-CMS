@@ -1,0 +1,130 @@
+{
+  "scope": "00 independent check on its own marked synthetic database",
+  "checks": [
+    {
+      "check": "necessary guest page and genuine session available",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "normal mode old explicit grant works",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "grant alone creates no analysis graph",
+      "passed": true
+    },
+    {
+      "check": "C experience suppresses stale granted v1 HTTP event",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "C context remains off before visible notice start",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "actual web CSRF rejects missing token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "check": "explicit synthetic C starts without granting old analysis",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "C cookies remain HttpOnly SameSite Lax",
+      "passed": true
+    },
+    {
+      "check": "C event accepted",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "C identical replay accepted",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "C replay and v1 attempt give exactly one C and zero v1 events",
+      "passed": true
+    },
+    {
+      "check": "C denial confirmed server side",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "bridge denies analysis only on existing privacy proof",
+      "passed": true
+    },
+    {
+      "check": "refresh preserves denial",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "cross origin cannot alter refusal",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "check": "C read failure reports unavailable and off",
+      "passed": true,
+      "status": 503
+    },
+    {
+      "check": "C storage failure does not fall back to v1 HTTP",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "disabled C with experience selected stays off",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "C total feature off still suppresses old event",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "fallback old positive API cannot override C denial",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "normal mode after refusal records no old behavior",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "separate advertising withdrawal requires old consent endpoint",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "no analysis account or order graph created",
+      "passed": true
+    },
+    {
+      "check": "no source payment or delivery writes from compatibility HTTP",
+      "passed": true
+    },
+    {
+      "check": "all C events explicitly synthetic",
+      "passed": true
+    }
+  ],
+  "passed": 25,
+  "owned_http_starts": 4,
+  "owned_http_stopped": true,
+  "queue_scheduler_started": false,
+  "external_sending_enabled": false,
+  "other_runtime_touched": false,
+  "candidate": "5b44182a284665dd705037d8b5cfec6ac77f0a34"
+}
