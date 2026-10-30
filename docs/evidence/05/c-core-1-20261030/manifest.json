@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-30",
+  "baseline": "09273e671da98422fd93d9e18b92b58a72bd52da",
+  "integration_merge": "b73f93afbb22bc6acb9d6330def98f519cd958b1",
+  "source_commit": "78bb9ade15804c78d7e151f0c436f6c391c8dce5",
+  "contract": "first-party-measurement-c-v1 / c-core-1",
+  "synthetic_only": true,
+  "source_sha256": {
+    "h5-platform/app/Modules/Acquisition/AcquisitionServiceProvider.php": "6c8ac67102c1f66da4a3267771e47b7a885390c3ad8c93f8daba2d7f4d4720fa",
+    "h5-platform/app/Modules/Acquisition/Analytics/BehaviorRecorder.php": "33a337665532bf11722e23cc15e8ebdcd3d9e02bf7ac7c1047b694d7d4a46160",
+    "h5-platform/app/Modules/Acquisition/Console/PruneMeasurement.php": "090d09ee2487e5b15beeef268cc47148d701ff93d2fda1f112873a9c6ff56672",
+    "h5-platform/app/Modules/Acquisition/Measurement/CoreContext.php": "dadef5c2203c06c6a5b0c3fb4b009834edaf22e29df8f9dbdedb038bc1ed1dd8",
+    "h5-platform/app/Modules/Acquisition/Measurement/CoreController.php": "e36afa4e56e35ea365acd6016df8fcd8b24dc32240541536844c8ed17a78c594",
+    "h5-platform/app/Modules/Acquisition/Measurement/CoreEvents.php": "5f91dbc506891fd4121f432639ce99106465fe8452e954cb3ce9ed699de903f8",
+    "h5-platform/app/Modules/Acquisition/Measurement/CorePolicy.php": "2c9c2c48cfea96761da808f16db1d1cda6aa5f78a72a146ce79de2f6e3b18b05",
+    "h5-platform/app/Modules/Acquisition/Measurement/CoreRequest.php": "4029f87b96016e29195be31deed5b58df4ef6bd08ff9a4ed7369040fe0b0b141",
+    "h5-platform/app/Modules/Acquisition/config.php": "429badb320316fb8200231d3ca89ad650ae3336d0931900e84d37769a314c5e7",
+    "h5-platform/database/migrations/2026_10_30_050006_create_acquisition_c_core.php": "e922f579b68552b0d09d68107430afce97bc8b562c88af1770c8d12598a0a599",
+    "h5-platform/routes/modules/acquisition.php": "bfaab3473cd995a25df5e94d6df721881a0a00f59b54854ec157246e5837ca66",
+    "h5-platform/tests/Feature/Acquisition/MeasurementCoreTest.php": "cfe5fbfb9eb157495f7e358ef9a45ba7023c64c39280dc7d98e6b8feb9eb879a",
+    "h5-platform/tests/Feature/Acquisition/Support/ccore_http_probe.py": "67741b96246a7bc573ab4d1123bea932a40f78633d6d8277a8c085e8eb320fa6",
+    "h5-platform/tests/Feature/Acquisition/Support/ccore_test.py": "5012dccd4e8e4f3109b19e2e1f375625f5c9a17401de7c8354541047694d31b5"
+  },
+  "checks": {
+    "core": [
+      24,
+      300
+    ],
+    "module": [
+      107,
+      1437
+    ],
+    "http": 20,
+    "contract_examples": 59
+  },
+  "not_claimed": [
+    "real eligibility",
+    "C webpage or identity consumers",
+    "conversion mapping",
+    "UTM",
+    "production",
+    "external Meta/TikTok"
+  ],
+  "core_commit": "cd0f3a4fb4c4e15969d21a5fbdaebb7b433b492f",
+  "core_log_source_commit": "cd0f3a4fb4c4e15969d21a5fbdaebb7b433b492f",
+  "regression_source_commit": "78bb9ade15804c78d7e151f0c436f6c391c8dce5",
+  "http_source_commit": "78bb9ade15804c78d7e151f0c436f6c391c8dce5"
+}

@@ -1,0 +1,28 @@
+PASS  Tests\Feature\Acquisition\MeasurementCoreTest
+  ✓ context matches frozen disabled and before start without measuremen… 0.30s
+  ✓ secure request sets secure http only measurement cookies             0.02s
+  ✓ missing module never saves preferences or creates measurement data   0.02s
+  ✓ synthetic profile is explicit expiring and not derived from country… 0.02s
+  ✓ notice version and start shape are strict and start does not grant…  0.03s
+  ✓ deny is necessary even while disabled and allow requires another st… 0.03s
+  ✓ revision conflict cannot overwrite newer deny                        0.03s
+  ✓ legacy denial and revoked proof block c without rewriting the old p… 0.04s
+  ✓ unsupported purposes never save and context exposes no internal ide… 0.03s
+  ✓ forbidden identity url and financial properties or success events a… 0.08s
+  ✓ event replays changed payload and cross subject reuse are distinct   0.06s
+  ✓ catalog relation and unavailability do not accept fake content       0.03s
+  ✓ play progress limits seek and uses catalog duration for completion   0.04s
+  ✓ expiry is absolute context does not keep session alive and no late…  0.03s
+  ✓ session absolute cap and policy loss revalidate each event           0.20s
+  ✓ schema size origin and safe errors                                   0.02s
+  ✓ storage failure is retryable without partial batch and legacy still… 0.03s
+  ✓ late batch failure rolls back prior events and does not poison othe… 0.03s
+  ✓ logout c storage failure still clears browser capabilities and old…  0.02s
+  ✓ preference storage failure does not claim saved or change old choic… 0.02s
+  ✓ logout ends c but keeps denial and legacy proofs                     0.03s
+  ✓ retention removes c data at boundaries without touching v1           0.03s
+  ✓ subject metadata has a hard 37 day cap and contains no forbidden co… 0.02s
+  ✓ c core cannot be enabled outside local testing even when provider i… 0.01s
+
+  Tests:    24 passed (300 assertions)
+  Duration: 1.37s

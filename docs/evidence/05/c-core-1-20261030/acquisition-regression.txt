@@ -1,0 +1,143 @@
+PASS  Tests\Feature\Acquisition\AnalyticsCapacityTest
+  ✓ heartbeats cannot displace filtered complete cohorts or independent… 1.20s
+  ✓ real entrance limit is explicit without truncating independent epis… 0.73s
+  ✓ finance keyset batches are at most two hundred and do not double co… 0.06s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsLinkFilterTest
+  ✓ search finds old link beyond main page and has its own bounded pagi… 0.12s
+  ✓ selected authorized link survives other search and page while draft… 0.09s
+  ✓ own and assigned search scope never leaks same keyword and revoked…  0.06s
+  ✓ search treats sql wildcards as literal name characters               0.02s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsProvidersTest
+  ✓ real identity audience checkout reader and delayed payment outbox s… 0.13s
+  ✓ true withdrawal after logout by same viewer stops delayed fact with… 0.07s
+  ✓ account b does not inherit a and cannot withdraw as consent for a    0.06s
+
+   PASS  Tests\Feature\Acquisition\AnalyticsTest
+  ✓ click requires visible confirmation consent and exact window withou… 0.03s
+  ✓ advertising only landing does not create analysis subject and withd… 0.03s
+  ✓ valid new click overrides but invalid prefetch disabled and normal…  0.03s
+  ✓ separate analytics consent client idempotency forged fields and pla… 0.03s
+  ✓ anonymous login chain is preserved but account switch and logout ro… 0.03s
+  ✓ reliable payment dedup refund corrections and current finance witho… 0.05s
+  ✓ savepoint failure is retry without poisoning outer transaction and…  0.02s
+  ✓ rebinding produces new code preserves history and prune leaves sour… 0.03s
+  ✓ report authorized scope zero denominator and out of order funnel ar… 0.04s
+  ✓ same second provider payment uses exact order causality even when o… 0.06s
+  ✓ consented cookie restores anonymous source across server session ex… 0.02s
+  ✓ episode cutpoints use verified labels cumulative deltas and matchin… 0.07s
+  ✓ analytics tab renders with scope and invalid date keeps filter inpu… 0.04s
+  ✓ explicit advertising withdrawal blocks previously queued delivery a… 0.03s
+  ✓ assigned operator sees only its link aggregates and revocation remo… 0.04s
+  ✓ own links remain visible after redundant assignment revocation with… 0.05s
+
+   PASS  Tests\Feature\Acquisition\AssetTest
+  ✓ owner and assigned scope is enforced for reads writes probe summary… 0.03s
+  ✓ mfa disabled staff and wrong roles cannot read assets                0.02s
+  ✓ registration does not enable external delivery or accept script or…  0.02s
+  ✓ pixel versions and link versions reject stale updates and unfrozen…  0.02s
+  ✓ link requires accessible matching pixel and current content          0.02s
+  ✓ unfrozen attribution is explicitly unavailable and does not trust m… 0.02s
+
+   PASS  Tests\Feature\Acquisition\AssignmentTest
+  ✓ owner shares multiple people and removal revokes access without cha… 0.03s
+  ✓ selected person outside current page is repopulated and revalidated… 0.07s
+  ✓ unavailable read ports are explicit and never replaced with public…  0.02s
+
+   PASS  Tests\Feature\Acquisition\BillingBridgeTest
+  ✓ consumer failure leaves verified payment and membership intact and…  0.04s
+  ✓ real billing outbox reaches consumer once and unattributed does not… 0.04s
+
+   PASS  Tests\Feature\Acquisition\ClickMatchingTest
+  ✓ meta and dotted tiktok url to encrypted source to fake http payload… 0.08s
+  ✓ unknown denied malformed and oversized matching is not persisted     0.05s
+  ✓ late landing confirmation retries entry events then attributes with… 0.04s
+  ✓ dotted tiktok boundary retains case and rejects urls scripts whites… 0.06s
+
+   PASS  Tests\Feature\Acquisition\ConcurrencyTest
+  ✓ two postgresql connections contend and record one payment even with… 0.31s
+
+   PASS  Tests\Feature\Acquisition\DeliveryBoundaryTest
+  ✓ lost or expired lease during preparation never sends or changes the… 0.15s
+  ✓ sixth attempt is reserved with frozen payload and original first ti… 0.04s
+  ✓ late response cannot overwrite expired or replaced lease             0.03s
+  ✓ consent revoked during payload preparation blocks reservation and s… 0.02s
+
+   PASS  Tests\Feature\Acquisition\DeliveryProcessTest
+  ✓ real process takeover leaves resumed old preparer without transport… 0.72s
+  ✓ six sigkills inside http do not lose reservations or allow a sevent… 2.29s
+
+   PASS  Tests\Feature\Acquisition\DeliveryTest
+  ✓ both platforms have explicit local sending and no external requests  0.13s
+  ✓ disabled sender and unknown or revoked consent block real attempts   0.03s
+  ✓ test payments can never be sent to production assets                 0.03s
+  ✓ http adapters map integer usd stable ids and do not send contact or… 0.03s
+  ✓ failed retry uses frozen payload and stable event id then stops aft… 0.04s
+  ✓ http 200 errors and redirects are not marked accepted                0.04s
+  ✓ external review match context and event age are checked before http  0.03s
+  ✓ simulated context missing credentials and disabled pixel are blocke… 0.02s
+  ✓ active lease prevents duplicate sending and expired lease can recov… 0.02s
+  ✓ retry limit and production simulation boot guard                     0.02s
+  ✓ unknown remote outcome is not resent after the retry window even if… 0.03s
+
+   PASS  Tests\Feature\Acquisition\DeskTest
+  ✓ old pixel beyond two hundred assets remains paged and repopulates s… 0.10s
+  ✓ form save reopen local probe link edit disable and summary           0.11s
+  ✓ link validation is actionable chinese and preserves unsaved input    0.04s
+  ✓ pixel and assignment validation stays strict with chinese messages   0.05s
+  ✓ hidden action calls cannot edit foreign pixel or self assign         0.05s
+  ✓ page permissions do not bootstrap assets or bypass mfa               0.02s
+  ✓ workspace tabs are allowlisted and assignment tab is owner only      0.07s
+  ✓ url tab restores only authorized context and invalid input falls ba… 0.06s
+  ✓ asset dialog actions keep context and failed save preserves editor   0.08s
+  ✓ editors are shared dialogs and tab list has only four entries        0.05s
+  ✓ payment display uses shared exact usd format without float conversi… 0.04s
+
+   PASS  Tests\Feature\Acquisition\MeasurementCoreTest
+  ✓ context matches frozen disabled and before start without measuremen… 0.03s
+  ✓ secure request sets secure http only measurement cookies             0.02s
+  ✓ missing module never saves preferences or creates measurement data   0.02s
+  ✓ synthetic profile is explicit expiring and not derived from country… 0.03s
+  ✓ notice version and start shape are strict and start does not grant…  0.03s
+  ✓ deny is necessary even while disabled and allow requires another st… 0.03s
+  ✓ revision conflict cannot overwrite newer deny                        0.03s
+  ✓ legacy denial and revoked proof block c without rewriting the old p… 0.04s
+  ✓ unsupported purposes never save and context exposes no internal ide… 0.03s
+  ✓ forbidden identity url and financial properties or success events a… 0.09s
+  ✓ event replays changed payload and cross subject reuse are distinct   0.06s
+  ✓ catalog relation and unavailability do not accept fake content       0.03s
+  ✓ play progress limits seek and uses catalog duration for completion   0.05s
+  ✓ expiry is absolute context does not keep session alive and no late…  0.04s
+  ✓ session absolute cap and policy loss revalidate each event           0.22s
+  ✓ schema size origin and safe errors                                   0.03s
+  ✓ storage failure is retryable without partial batch and legacy still… 0.03s
+  ✓ late batch failure rolls back prior events and does not poison othe… 0.04s
+  ✓ logout c storage failure still clears browser capabilities and old…  0.02s
+  ✓ preference storage failure does not claim saved or change old choic… 0.02s
+  ✓ logout ends c but keeps denial and legacy proofs                     0.03s
+  ✓ retention removes c data at boundaries without touching v1           0.03s
+  ✓ subject metadata has a hard 37 day cap and contains no forbidden co… 0.03s
+  ✓ c core cannot be enabled outside local testing even when provider i… 0.01s
+
+   PASS  Tests\Feature\Acquisition\PaymentTest
+  ✓ event and payment deduplication preserve one receipt and one conver… 0.03s
+  ✓ same payment with changed facts is rejected without overwriting his… 0.03s
+  ✓ unknown source is not reinterpreted as current pixel and no source…  0.03s
+  ✓ first resubscription renewal and test real are separate but same ki… 0.04s
+  ✓ pixel and link edits do not rewrite already received attribution or… 0.03s
+
+   PASS  Tests\Feature\Acquisition\ReadProvidersIntegrationTest
+  ✓ real directories support both platforms sharing revocation and publ… 0.11s
+  ✓ workbench uses real cursor and repopulates saved choices before rev… 0.21s
+
+   PASS  Tests\Feature\Acquisition\TrackingHttpTest
+  ✓ default unknown and disabled context is private and records no subj… 0.02s
+  ✓ consent http batch retries and unknown fields do not leak identifie… 0.04s
+  ✓ payload size count origin and boolean strictness are enforced        0.03s
+  ✓ transient storage 503 allows same id replay after rollback           0.06s
+  ✓ diagnostics separate no consent schema conflict and temporary catal… 0.05s
+  ✓ http rate limit has safe persistent diagnostic                       0.22s
+
+  Tests:    107 passed (1437 assertions)
+  Duration: 10.41s

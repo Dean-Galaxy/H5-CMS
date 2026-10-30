@@ -1,0 +1,106 @@
+{
+  "scope": "explicit local synthetic HTTP only; not real eligibility",
+  "http_port": 8706,
+  "checks": [
+    {
+      "check": "default disabled matches frozen example",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "context creates no measurement records",
+      "passed": true
+    },
+    {
+      "check": "explicit synthetic policy is eligible but off before start",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "before-start context creates no measurement records",
+      "passed": true
+    },
+    {
+      "check": "actual web CSRF rejects missing token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "check": "existing guest login page supplies necessary CSRF session",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "notice start works with genuine session and CSRF",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "measurement cookies are HttpOnly and SameSite=Lax",
+      "passed": true
+    },
+    {
+      "check": "first event",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "identical replay",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "replay increases raw events once",
+      "passed": true
+    },
+    {
+      "check": "changed replay rejected",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "public payment success forbidden",
+      "passed": true,
+      "status": 422
+    },
+    {
+      "check": "deny confirmed server-side",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "stale allow cannot overwrite deny",
+      "passed": true,
+      "status": 409
+    },
+    {
+      "check": "event after deny is not collected",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "cross-origin start rejected",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "check": "legacy pipeline stays separately disabled",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "no C real-data flags",
+      "passed": true
+    },
+    {
+      "check": "no legacy source or payment writes",
+      "passed": true
+    }
+  ],
+  "passed": 20,
+  "owned_http_starts": 2,
+  "owned_http_stopped": true,
+  "queue_scheduler_started": false,
+  "external_sending_enabled": false,
+  "other_runtime_touched": false
+}

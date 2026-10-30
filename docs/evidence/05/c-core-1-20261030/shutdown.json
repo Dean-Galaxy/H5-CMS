@@ -1,0 +1,15 @@
+{
+  "scope": "05 own workspace only",
+  "owned_test_http_processes_remaining": 0,
+  "preexisting_own_services_preserved": {
+    "web": true,
+    "queue": true,
+    "scheduler": true
+  },
+  "own_postgres_preserved_for_preexisting_services": true,
+  "new_synthetic_test_databases_preserved": true,
+  "environment_file_changed": false,
+  "C2_thursday_ANM01_touched": false,
+  "C_default_enabled": false,
+  "new_C_schedule_registered_when_disabled": false
+}
