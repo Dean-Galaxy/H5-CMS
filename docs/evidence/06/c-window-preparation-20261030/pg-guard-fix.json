@@ -1,0 +1,23 @@
+{
+  "schema": "06-c-pg-guard-fix-1",
+  "base_sha": "c01d0feec513dcc8ebf2cc9e7d6acfb999a26ca3",
+  "code_identity": {
+    "method": "base commit plus exact changed file SHA256; delivery commit supplied in 06 receipt",
+    "files_sha256": {
+      "scripts/ops/c_window.py": "05910c93975656015cb22a7ec555fc38c1ee6a11409139c8bcdc7134d3b18aa1",
+      "scripts/ops/tests/test_c_window_lifecycle.py": "f0f2fd527cbdc865ce220b35665c4cfd9f00eb910ec62d01bf30099b57490868"
+    }
+  },
+  "offline_tests": 26,
+  "passed": true,
+  "http_boundary_classification_cases": 21,
+  "new_tests": [
+    "same-prefix/embedded/duplicate/missing/malformed -D rejected before pg_ctl",
+    "exact directory accepted; stop receipt requires both ports unbound",
+    "occupied own port prevents successful stop receipt without signalling occupant"
+  ],
+  "test_process_and_ports": "mocked; no runtime services/listeners started",
+  "actual_new_or_old_window_operations": false,
+  "actual_stop_verified": false,
+  "old_evidence": "83ca6b5/23-test preparation evidence remains unchanged; not relabelled as new candidate acceptance"
+}

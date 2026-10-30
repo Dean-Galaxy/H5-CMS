@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import shlex
 import signal
 import socket
 import subprocess
@@ -79,8 +80,14 @@ def pg_guard():
         if len(rows) < 4 or rows[1] != str(data) or rows[3] != str(config['db_port']):
             raise ValueError('FOREIGN_POSTGRES_PID_FILE')
         ps = subprocess.run(['ps', '-p', rows[0], '-o', 'command='], capture_output=True, text=True)
-        if ps.returncode == 0 and (' -D ' + str(data)) not in ps.stdout.strip():
-            raise ValueError('FOREIGN_POSTGRES_PROCESS')
+        if ps.returncode == 0:
+            try:
+                argv = shlex.split(ps.stdout.strip())
+            except ValueError:
+                raise ValueError('FOREIGN_POSTGRES_PROCESS') from None
+            positions = [i for i, token in enumerate(argv) if token == '-D']
+            if len(positions) != 1 or positions[0] + 1 >= len(argv) or argv[positions[0] + 1] != str(data):
+                raise ValueError('FOREIGN_POSTGRES_PROCESS')
 
 
 def main():
@@ -133,12 +140,15 @@ def main():
             if any(dev.process_alive(name) for name in ('web', 'queue', 'scheduler')):
                 raise ValueError('OTHER_OWN_APPLICATION_REMAINS')
         if args.action == 'quiesce':
-            dev.write_private(OUT / 'quiesced.json', json.dumps({'candidate': args.candidate, 'own_web_stopped': True, 'own_pg_retained': True}))
+            port_available(config['port'])
+            dev.write_private(OUT / 'quiesced.json', json.dumps({'candidate': args.candidate, 'own_web_stopped': True, 'own_pg_retained': True, 'web_port_unbound': True}))
             print(json.dumps({'web_stopped': True, 'pg_retained_for_backup': True})); return
         pg_guard()
         if (ROOT / '.runtime/postgres/postmaster.pid').exists():
             subprocess.run([str(dev.PG / 'pg_ctl'), '-D', str(ROOT / '.runtime/postgres'), '-m', 'fast', '-w', 'stop'], check=True, capture_output=True)
-        dev.write_private(OUT / 'stopped.json', json.dumps({'candidate': args.candidate, 'data_preserved': True, 'own_web_and_pg_stopped': True}))
+        port_available(config['port'])
+        port_available(config['db_port'])
+        dev.write_private(OUT / 'stopped.json', json.dumps({'candidate': args.candidate, 'data_preserved': True, 'own_web_and_pg_stopped': True, 'web_port_unbound': True, 'db_port_unbound': True}))
         print(json.dumps({'stopped': True, 'data_preserved': True, 'other_windows_touched': False})); return
     validate_manifest(ROOT, args.candidate, doc, future_policy=args.action in ('setup', 'seed', 'start'))
     if (ROOT / 'h5-platform/bootstrap/cache/config.php').exists():

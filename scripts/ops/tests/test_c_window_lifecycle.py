@@ -61,7 +61,8 @@ class Lifecycle(unittest.TestCase):
             with patch.multiple(w, ROOT=root, OUT=out, MANIFEST=manifest, ROUTER=root/'router.php'), \
                  patch.object(w.importlib.util, 'spec_from_file_location', return_value=SimpleNamespace(loader=SimpleNamespace(exec_module=lambda module: None))), \
                  patch.object(w.importlib.util, 'module_from_spec', return_value=fake_dev), \
-                 patch.object(sys, 'argv', ['c_window.py','stop','--candidate','a'*40]), patch('builtins.print'):
+                 patch.object(sys, 'argv', ['c_window.py','stop','--candidate','a'*40]), patch('builtins.print'), \
+                 patch.object(w, 'port_available'):
                 extra(root, out, config)
 
     def test_stop_before_web_was_created_does_not_need_process_record(self):
@@ -88,6 +89,45 @@ class Lifecycle(unittest.TestCase):
             with patch.object(w.os, 'killpg') as kill, patch.object(w.subprocess, 'run', return_value=foreign):
                 with self.assertRaisesRegex(ValueError, 'PID_REUSED_OR_FOREIGN_PROCESS'): w.main()
                 kill.assert_not_called()
+        self.stop_fixture(check)
+
+    def test_same_prefix_foreign_pg_directory_cannot_reach_pg_ctl(self):
+        def check(root, out, config):
+            directory = root/'.runtime/postgres'; directory.mkdir()
+            (directory/'postmaster.pid').write_text('12345\n'+str(directory)+'\n0\n5911\n')
+            for arguments in ('-D '+str(directory)+'-other', '--label="-D '+str(directory)+'"',
+                              '-D '+str(directory)+' -D /foreign', '-D', '-D "unterminated'):
+                process = subprocess.CompletedProcess([],0,'/synthetic/pg/postgres '+arguments,'')
+                with self.subTest(arguments=arguments), patch.object(w.os, 'killpg') as kill, \
+                     patch.object(w.subprocess, 'run', return_value=process) as run:
+                    with self.assertRaisesRegex(ValueError, 'FOREIGN_POSTGRES_PROCESS'): w.main()
+                    self.assertEqual(run.call_count, 1)
+                    self.assertEqual(run.call_args.args[0][0], 'ps')
+                    kill.assert_not_called()
+                    self.assertFalse((out/'stopped.json').exists())
+        self.stop_fixture(check)
+
+    def test_exact_pg_directory_and_unbound_ports_required_for_stop_receipt(self):
+        def check(root, out, config):
+            directory = root/'.runtime/postgres'; directory.mkdir()
+            (directory/'postmaster.pid').write_text('12345\n'+str(directory)+'\n0\n5911\n')
+            process = subprocess.CompletedProcess([],0,'/synthetic/pg/postgres -D "'+str(directory)+'"','')
+            with patch.object(w.subprocess, 'run', return_value=process) as run:
+                w.main()
+                self.assertEqual(run.call_count, 2)
+                self.assertEqual(run.call_args.args[0][:3], ['/synthetic/pg/pg_ctl','-D',str(directory)])
+            self.assertEqual([call.args[0] for call in w.port_available.call_args_list], [8411,5911])
+            stopped = json.loads((out/'stopped.json').read_text())
+            self.assertTrue(stopped['web_port_unbound']); self.assertTrue(stopped['db_port_unbound'])
+        self.stop_fixture(check)
+
+    def test_busy_own_port_prevents_success_receipt_without_stopping_occupant(self):
+        def check(root, out, config):
+            for side_effect in ([OSError('web still occupied')], [None,OSError('db still occupied')]):
+                with patch.object(w, 'port_available', side_effect=side_effect), patch.object(w.os,'killpg') as kill:
+                    with self.assertRaises(OSError): w.main()
+                    kill.assert_not_called()
+                    self.assertFalse((out/'stopped.json').exists())
         self.stop_fixture(check)
 
     def test_http_boundary_without_application_boot(self):
