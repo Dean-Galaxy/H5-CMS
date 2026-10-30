@@ -1,0 +1,119 @@
+{
+  "schema": "06-c-first-actual-run-1",
+  "runtime_candidate": "dc7833af4fe6c19c13087fa45aebae7c1ec77de3",
+  "contracts": [
+    "c-core-1",
+    "c-ui-1"
+  ],
+  "setup_seed": {
+    "passed": true,
+    "migrations": 25,
+    "seed_runs": 1,
+    "published_episodes": 6,
+    "seconds_per_episode": 8,
+    "free_episodes": 5,
+    "all_material_self_generated_in_new_workspace": true
+  },
+  "baseline": {
+    "viewers": 0,
+    "prices": 0,
+    "orders": 0,
+    "payments": 0,
+    "entitlements": 0,
+    "subscriptions": 0,
+    "refunds": 0,
+    "billing_inbox_outbox_behavior_outbox": 0,
+    "v1_measurement": 0,
+    "c_measurement": 0,
+    "gateway": "UnconfiguredGateway",
+    "paypal_api": false,
+    "purchase_provider": "unconfigured",
+    "advertising_transport": "disabled",
+    "external_enabled": false,
+    "queue_scheduler_started": false,
+    "public_enabled": false
+  },
+  "browser": {
+    "executed": true,
+    "passed": false,
+    "failed_phase": "visit",
+    "first_failure": "wait for start dispatch timed out after 15000ms",
+    "checks_passed": 3,
+    "remaining_eight_scenarios": "not_executed",
+    "external_attempts": 0,
+    "actual_mse_decode": "not_executed",
+    "real_device": false,
+    "diagnosis": {
+      "owner": "06 test router",
+      "issue": "existing asset SCRIPT_NAME caused Request pathInfo /; CSS URL returned HTML home page",
+      "actual_css_probes": [
+        {
+          "path": "/identity.css",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "bytes": 12822
+        },
+        {
+          "path": "/audience/site.css",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "bytes": 12839
+        },
+        {
+          "path": "/audience/measurement-c.css",
+          "status": 200,
+          "content_type": "text/html; charset=utf-8",
+          "bytes": 12866
+        }
+      ],
+      "module_defect_established": false
+    }
+  },
+  "rehearsal": {
+    "passed": true,
+    "quiesce_backup_stop_restart_then_backup_stop_executed": true,
+    "fingerprint_tables": 60,
+    "fingerprint_scope": "identity/content/billing/acquisition prefixed tables and migrations; excludes generic session/cache/runtime and other prefixes",
+    "before_after_sha256": "5301a0bc129c034d64ecb4624f5cdc879a5cfc481f0169cae5634b44475742f8",
+    "business_rows_unchanged": true,
+    "before_restart_backup_verified_files": 12,
+    "final_backup_verified_files": 12,
+    "pg_restore_list_passed": true,
+    "independent_restore_executed": false
+  },
+  "final_status": {
+    "same_runtime_HEAD_preserved": true,
+    "web_port_8411_unbound_rechecked": true,
+    "pg_port_5911_unbound_rechecked": true,
+    "fault_file_present": false,
+    "data_kept": true,
+    "human_new_c": "0/3",
+    "no_human_entry_released": true,
+    "other_windows_operated": false
+  },
+  "proposed_fix": {
+    "source_sha": "b6e690c1964bddcf5f54524c676af170b4ed4c04",
+    "python_offline_tests": 33,
+    "node_offline_tests": 6,
+    "passed": true,
+    "real_HTTP_verification_on_fixed_candidate": "not_executed",
+    "runtime_rebind_owner": "00",
+    "files_sha256": {
+      "h5-platform/tests/Browser/Support/CWindowBoundary.php": "0b418f1fd3a64f79250c4983affe75a49ee20f833f1b675cf38925c89e5025dd",
+      "h5-platform/tests/Browser/Support/c-window-router.php": "67aec41a47211d5a72a954a4ee1f1b4e9cb9a303468d16d038964888267128bb",
+      "scripts/ops/c_window_browser.cjs": "9b735c28d92983da47cfca2eea7b9cb45f9584829194e87b1133369618cacfc3",
+      "scripts/ops/tests/test_c_window_lifecycle.py": "27552bcc69957753521ae31506c011ee2874d9bfd322abeaa31a969567b30684"
+    }
+  },
+  "raw_artifacts": "Only own private .runtime: browser failure, request traces, checkpoints, rehearsal, manifest, PID, Owner and backups. Not copied into Git.",
+  "not_claimed": [
+    "Nine-scenario browser acceptance",
+    "403 route/CSRF actual acceptance on repaired entry",
+    "Actual storage503/pressure429 on this run",
+    "Independent restore",
+    "Real phone",
+    "Public traffic",
+    "Legal eligibility",
+    "Official payment or advertising"
+  ]
+}
