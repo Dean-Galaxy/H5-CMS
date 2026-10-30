@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "enabled": false,
+  "policy_version": "first-party-measurement-c-v1",
+  "eligibility": "unknown",
+  "basis_kind": "none",
+  "site_choice": "unset",
+  "site_effective": "off",
+  "notice_version": "c-notice-c-core-1",
+  "reason": "FEATURE_DISABLED",
+  "account_link": {
+    "choice": "unknown",
+    "effective": false,
+    "reason": "DEPENDENCY_NOT_READY"
+  },
+  "conversion_link": {
+    "mode": "off",
+    "effective": false
+  },
+  "advertising": {
+    "choice": "unknown",
+    "effective": false,
+    "opt_out_signal": false
+  },
+  "revision": 0
+}
