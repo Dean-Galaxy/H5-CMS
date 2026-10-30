@@ -2,10 +2,11 @@
 
 namespace App\Modules\Acquisition\Registration;
 
+use App\Contracts\RegistrationMeasurementCapture;
 use Illuminate\Http\Request;
 
 /** Ephemeral server request capability. It cannot be persisted as an identity-to-C retry mapping. */
-final readonly class RequestObservation
+final readonly class RequestObservation implements RegistrationMeasurementCapture
 {
     public function __construct(private Request $request, private string $operation, private string $subject, private string $session, private int $revision) {}
 

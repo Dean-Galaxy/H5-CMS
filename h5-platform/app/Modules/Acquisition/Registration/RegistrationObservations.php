@@ -7,9 +7,17 @@ use App\Modules\Acquisition\Measurement\CoreContext;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-/** Internal module responsibility only. 00's public PHP facade and the 01 adapter are not wired yet. */
+/** Same-request provider core; no identity properties or durable retry captures. */
 final class RegistrationObservations
 {
+    /** @var \WeakMap<RequestObservation, bool> */
+    private \WeakMap $issued;
+
+    public function __construct()
+    {
+        $this->issued = new \WeakMap;
+    }
+
     public function capture(?string $notice = null): ?RequestObservation
     {
         if ($notice !== PurposePolicy::NOTICE || config('acquisition.registration.observations_enabled', false) !== true) {
@@ -29,7 +37,10 @@ final class RegistrationObservations
                     $r->attributes->set('acquisition.r1.registration_operation', $operation);
                 }
 
-                return new RequestObservation($r, $operation, $active[0]->id, $active[1]->id, (int) $core->preference()->revision);
+                $capture = new RequestObservation($r, $operation, $active[0]->id, $active[1]->id, (int) $core->preference()->revision);
+                $this->issued[$capture] = true;
+
+                return $capture;
             });
         } catch (\Throwable) {
             return null;
@@ -38,7 +49,7 @@ final class RegistrationObservations
 
     public function record(?RequestObservation $capture, string $event, ?string $failure = null): Result
     {
-        if (! $capture || ! $capture->belongsTo(request()) || ! request()->hasSession() || ! in_array($event, ['registration_succeeded', 'registration_failed'], true)
+        if (! $capture || ! isset($this->issued[$capture]) || ! $capture->belongsTo(request()) || ! request()->hasSession() || ! in_array($event, ['registration_succeeded', 'registration_failed'], true)
             || ($event === 'registration_succeeded' && $failure !== null)
             || ($event === 'registration_failed' && ! in_array($failure, ['validation', 'conflict', 'temporary', 'unknown'], true))) {
             return Result::Skipped;

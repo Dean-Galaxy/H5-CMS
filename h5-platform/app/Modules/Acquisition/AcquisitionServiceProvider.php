@@ -4,12 +4,15 @@ namespace App\Modules\Acquisition;
 
 use App\Contracts\AttributionService;
 use App\Contracts\BehaviorEventRecorder;
+use App\Contracts\RegistrationMeasurement;
 use App\Data\PaymentSettled;
 use App\Modules\Acquisition\Analytics\BehaviorRecorder;
 use App\Modules\Acquisition\Console\DispatchAcquisition;
 use App\Modules\Acquisition\Console\PruneAnalytics;
 use App\Modules\Acquisition\Console\PruneMeasurement;
 use App\Modules\Acquisition\Console\PruneRegistrationPurposes;
+use App\Modules\Acquisition\Registration\RegistrationMeasurementAdapter;
+use App\Modules\Acquisition\Registration\RegistrationObservations;
 use App\Modules\Acquisition\Services\AttributionRecorder;
 use App\Modules\Acquisition\Services\PaymentReceiver;
 use Illuminate\Console\Scheduling\Schedule;
@@ -23,6 +26,8 @@ final class AcquisitionServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/config.php', 'acquisition');
         $this->app->bind(AttributionService::class, AttributionRecorder::class);
         $this->app->bind(BehaviorEventRecorder::class, BehaviorRecorder::class);
+        $this->app->singleton(RegistrationObservations::class);
+        $this->app->bind(RegistrationMeasurement::class, RegistrationMeasurementAdapter::class);
     }
 
     public function boot(): void
