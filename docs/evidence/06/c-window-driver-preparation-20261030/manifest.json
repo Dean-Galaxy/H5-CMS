@@ -1,0 +1,100 @@
+{
+  "schema": "06-c-browser-driver-preparation-1",
+  "recorded_utc": "2026-10-30T10:58:51.896980+00:00",
+  "source_sha": "a252dbdbabe57ae7ee74ede73b7bfcfd96d69c06",
+  "received_00_base": "b005e18beeeea356edf2e5aa6676fc53c60f37a2",
+  "development_merge": "d4338f44f48228c8b53509367fb5b0e8d8170201",
+  "contracts": [
+    "c-core-1",
+    "c-ui-1"
+  ],
+  "offline_tests": {
+    "python": {
+      "exit_code": 0,
+      "tests": 31,
+      "raw_sha256": "99267d98e852e2d136c8256a85c1fbb30f72690a166afaf998cb6d7860febdab"
+    },
+    "node": {
+      "exit_code": 0,
+      "tests": 6,
+      "raw_sha256": "183e9502eceb08275c4705329e145b4ad47dfa0beba98be5a11466fa67b073bc"
+    }
+  },
+  "php_syntax": [
+    {
+      "file": "scripts/ops/c_window_control.php",
+      "exit_code": 0
+    },
+    {
+      "file": "h5-platform/tests/Browser/Support/CWindowStorageFault.php",
+      "exit_code": 0
+    },
+    {
+      "file": "h5-platform/tests/Browser/Support/c-window-router.php",
+      "exit_code": 0
+    }
+  ],
+  "node_and_python_syntax_passed": true,
+  "inert_plans": {
+    "browser": {
+      "cases": [
+        "visit",
+        "decode-seek",
+        "deny-refresh-play",
+        "initial-read-503",
+        "save-503",
+        "revision-409",
+        "short-screens",
+        "boundaries",
+        "real-pressure"
+      ],
+      "browser_executed": false,
+      "runtime_started": false
+    },
+    "lifecycle": {
+      "steps": [
+        "fingerprint-before",
+        "quiesce",
+        "backup",
+        "verify-private-archive",
+        "stop",
+        "start",
+        "fingerprint-after",
+        "quiesce",
+        "backup",
+        "stop"
+      ],
+      "runtime_started": false,
+      "restoration_executed": false
+    }
+  },
+  "files_sha256": {
+    "scripts/ops/c_window_browser.cjs": "7e68574c880cd5ca83cfba59098d9463b8733c77aecd56d3b40d7b93388adf17",
+    "scripts/ops/c_window_fault.py": "363d5c2b338e19b17ffca82ff0d55244d75ad269f08d13181d46503af605f018",
+    "scripts/ops/c_window_rehearsal.py": "c2f89088d0cc968d0e4c498680d57439b4a9d33a196eb46736f514da2be16f63",
+    "scripts/ops/c_window.py": "6e1b2230a966b02e10c01117073ee8bf88781966827655cd8e014fb58b9ab13a",
+    "scripts/ops/c_window_control.php": "b4f52e59519994e9abd8b8248e2bd2a452ff2033c718f46e76e5ddcf7e4e2be8",
+    "h5-platform/tests/Browser/Support/CWindowStorageFault.php": "a515aea05a9e8f7eee5810db918e4d454f6427690e2a2b6473465448f362c423",
+    "h5-platform/tests/Browser/Support/c-window-router.php": "93fdb0b8fa3665e7ebf8cdd5c4c6565a48454f86f20f3a3250394d9a5d17083f",
+    "scripts/ops/tests/c_window_browser.test.cjs": "631c334336eb2bf502845bcfe62c89dadf1a1a95a84d1816a5a64a7fad88dfd1",
+    "scripts/ops/tests/test_c_window_rehearsal.py": "200055dbe9106fa1d135e39ce41b996acab3d6230f866dee1323c1a15ff30c57"
+  },
+  "runtime_execution": {
+    "chrome": false,
+    "http": false,
+    "sql_fault": false,
+    "quiesce": false,
+    "backup": false,
+    "stop": false,
+    "restart": false,
+    "independent_restore": false
+  },
+  "human_new_c": "0/3",
+  "real_device": false,
+  "public_traffic": false,
+  "notes": [
+    "Offline assertions and synthetic archive bytes only; no new window started.",
+    "Final combined candidate and 00 execution window still required.",
+    "Existing 00/04/05 actual results retain their original source versions; this report does not re-label them."
+  ]
+}
