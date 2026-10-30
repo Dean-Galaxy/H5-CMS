@@ -92,7 +92,7 @@ def pg_guard():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['setup', 'seed', 'start', 'state', 'checkpoint', 'backup', 'quiesce', 'stop'])
+    parser.add_argument('action', choices=['setup', 'seed', 'start', 'state', 'checkpoint', 'fingerprint', 'backup', 'quiesce', 'stop'])
     parser.add_argument('--candidate', required=True)
     parser.add_argument('--label', default='snapshot')
     args = parser.parse_args()
@@ -222,6 +222,8 @@ def main():
                 if pidfile.exists() and private_json(pidfile).get('pid') == process.pid: pidfile.unlink()
                 (OUT / 'live-receipt.json').unlink(missing_ok=True)
                 dev.write_private(OUT / 'startup-failed.json', json.dumps({'candidate': args.candidate, 'own_web_cleaned': True, 'own_pg_may_remain': True}))
+    if args.action == 'fingerprint':
+        print(json.dumps(control('fingerprint'))); return
     if args.action in ('state', 'checkpoint'):
         state = control('state')
         if args.action == 'checkpoint':
@@ -248,6 +250,9 @@ def main():
             if source.is_symlink() or source.stat().st_nlink != 1: raise ValueError('OWN_REGULAR_BACKUP_SOURCE_REQUIRED')
             shutil.copyfile(source, directory / name); (directory / name).chmod(0o600)
         state = control('state'); dev.write_private(directory / 'state.json', json.dumps(state, indent=2))
+        for item in directory.rglob('*'):
+            if item.is_file(): item.chmod(0o600)
+            elif item.is_dir(): item.chmod(0o700)
         hashes = {str(path.relative_to(directory)): hashlib.sha256(path.read_bytes()).hexdigest() for path in directory.rglob('*') if path.is_file()}
         dev.write_private(directory / 'sha256.json', json.dumps(hashes, indent=2))
         print(json.dumps({'private_backup': str(directory), 'restoration_executed': False})); return

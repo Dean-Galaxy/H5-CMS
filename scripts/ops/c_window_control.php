@@ -80,4 +80,21 @@ if ($action === 'seed') {
         'v1_events' => DB::table('acquisition_behaviors')->select('event_name')->selectRaw('COUNT(*) AS count')->groupBy('event_name')->get(),
         'free_episode_path' => '/dramas/'.$fixture['drama_id'].'/episodes/'.$fixture['episodes'][0],
         'locked_episode_path' => '/dramas/'.$fixture['drama_id'].'/episodes/'.$fixture['episodes'][5]], JSON_THROW_ON_ERROR)."\n";
-} else { throw new LogicException('ONLY SEED OR AGGREGATE STATE'); }
+} elseif ($action === 'fingerprint') {
+    // All rows of business tables, not just counts. Exclude necessary generic session/cache/runtime tables.
+    $tables = [];
+    foreach (DB::select("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public' ORDER BY tablename") as $table) {
+        $name = $table->tablename;
+        if ($name !== 'migrations' && ! preg_match('/^(identity|content|billing|acquisition)_[a-z0-9_]+$/D', $name)) { continue; }
+        $rows = [];
+        foreach (DB::table($name)->get() as $record) {
+            $row = (array) $record; ksort($row);
+            $rows[] = json_encode($row, JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION);
+        }
+        sort($rows, SORT_STRING);
+        $tables[$name] = ['count' => count($rows), 'sha256' => hash('sha256', json_encode($rows, JSON_THROW_ON_ERROR))];
+    }
+    echo json_encode(['candidate' => getenv('H5_ANALYTICS_BROWSER_CANDIDATE'), 'tables' => $tables,
+        'sha256' => hash('sha256', json_encode($tables, JSON_THROW_ON_ERROR)),
+        'scope' => 'business_rows_and_migrations_not_generic_session_cache_runtime'], JSON_THROW_ON_ERROR)."\n";
+} else { throw new LogicException('ONLY SEED AGGREGATE STATE OR BUSINESS FINGERPRINT'); }

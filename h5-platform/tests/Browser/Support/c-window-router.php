@@ -12,6 +12,7 @@ if (! Tests\Browser\Support\CWindowBoundary::allows($request->method(), $path)) 
     http_response_code(403); header('Content-Type: application/json'); header('Cache-Control: no-store');
     echo json_encode(['error' => 'C_SYNTHETIC_PRIVACY_WINDOW_ONLY']); return;
 }
+Tests\Browser\Support\CWindowStorageFault::install($request);
 $public = realpath($root.'/h5-platform/public');
 $target = realpath($public.$path);
 if ($read && $target && str_starts_with($target, $public.'/') && is_file($target)
