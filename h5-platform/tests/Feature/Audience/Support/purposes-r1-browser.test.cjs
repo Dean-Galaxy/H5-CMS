@@ -30,7 +30,7 @@ async function open(page) {
   await page.waitForFunction(()=>{const n=document.querySelector('[data-purpose-reading]');return n&&!n.textContent;});
 }
 async function auth(context,page,index=0,logout=false) {
-  const token=await page.locator('meta[name="csrf-token"]').getAttribute('content');
+  const token=(await (await context.request.get(base+'/api/v1/auth/csrf')).json()).csrf_token;
   const response=await context.request.post(base+'/api/v1/auth/'+(logout?'logout':'login'),{headers:{'X-CSRF-TOKEN':token,'Origin':base,'Accept':'application/json'},data:logout?{}:fixture.accounts[index]});
   assert([200,204].includes(response.status()),'Normal identity flow status '+response.status());
   await page.reload({waitUntil:'domcontentloaded'});
@@ -150,11 +150,48 @@ async function remote(context,page,purpose,choice,revision) {
     await open(page);assert.equal(await page.locator('[data-c-purpose-manager] input:checked').count(),0);assert.equal(await page.locator('[data-purpose-legacy]').innerText(),'Earlier allow');
     assert(await item(page,'account_link').locator('input[value=allow]').isDisabled());await item(page,'account_link').locator('[data-purpose-deny]').click();await until(page,'account_link','saved');assert.equal(posts[0].choice,'deny');await context.close();
   });
-  await check('Real expired login returns 401 and clears prior drafts without another account request',async()=>{
+  await check('Real login scope change clears old drafts before any preference write',async()=>{
     const {context,page,posts}=await session();await auth(context,page);await open(page);await item(page,'advertising').locator('input[value=allow]').check();
     const token=await page.locator('meta[name="csrf-token"]').getAttribute('content');assert([200,204].includes((await context.request.post(base+'/api/v1/auth/logout',{headers:{'X-CSRF-TOKEN':token,'Origin':base,'Accept':'application/json'},data:{}})).status()));
-    await item(page,'advertising').locator('[data-purpose-save]').click();await until(page,'advertising','login_required');assert.equal(await page.locator('[data-c-purpose-manager] input:checked').count(),0);assert.equal(posts.length,1);
-    await item(page,'account_link').locator('input[value=allow]').check();await item(page,'account_link').locator('[data-purpose-save]').click();assert.equal(posts.length,1);await context.close();
+    await item(page,'advertising').locator('[data-purpose-save]').click();await until(page,'advertising','login_required');assert.equal(await page.locator('[data-c-purpose-manager] input:checked').count(),0);assert.equal(posts.length,0);
+    await item(page,'account_link').locator('input[value=allow]').check();await item(page,'account_link').locator('[data-purpose-save]').click();assert.equal(posts.length,0);await context.close();
+  });
+  await check('Real registration rotates CSRF without reload; v2 off and v3 save then verify/relogin preserve deny',async()=>{
+    const {context,page,posts}=await session();await page.goto(base+'/identity/register?lang=en',{waitUntil:'domcontentloaded'});
+    const old=await page.locator('meta[name="csrf-token"]').getAttribute('content');const url=page.url();let registrations=0;
+    page.on('request',r=>{if(r.url().endsWith('/api/v1/auth/register'))registrations++;});
+    const account={email:crypto.randomUUID()+'@example.test',password:'OnlyTest!A1'+crypto.randomUUID()};
+    const before=Number(sql('SELECT count(*) FROM identity_viewers'));
+    const status=await page.evaluate(async({account,token})=>{
+      const form=document.querySelector('[data-identity-form]');
+      const response=await fetch('/api/v1/auth/register',{method:'POST',credentials:'same-origin',headers:{'Accept':'application/json','Content-Type':'application/json','X-CSRF-TOKEN':token},body:JSON.stringify({name:'Synthetic same DOM',...account,password_confirmation:account.password,terms_accepted:true,terms_version:form.querySelector('[name=terms_version]').value,privacy_notice_version:form.querySelector('[name=privacy_notice_version]').value})});return response.status;
+    },{account,token:old});
+    assert.equal(status,200);assert.equal(page.url(),url);assert.equal(Number(sql('SELECT count(*) FROM identity_viewers')),before+1);
+    const current=(await (await context.request.get(base+'/api/v1/auth/csrf')).json()).csrf_token;assert.notEqual(current,old);assert.equal(await page.locator('meta[name="csrf-token"]').getAttribute('content'),old);
+    await open(page);const off=page.waitForResponse(r=>r.url().endsWith('/api/v2/measurement/preferences'));
+    await page.locator('[data-c-dialog] [data-c-off]').click();await page.waitForFunction(()=>document.querySelector('[data-measurement-c]').dataset.state==='off');assert.equal((await off).status(),200);
+    await choose(page,'account_link','allow');await until(page,'account_link','saved');assert.equal(posts.length,1);await page.locator('[data-c-close]').click();
+    const verification=execFileSync('/opt/homebrew/opt/php@8.4/bin/php',[path.join(__dirname,'c-ui-fixture.php')],{env:{...process.env,H5_C_UI_VERIFY:'1',H5_C_UI_VERIFY_EMAIL:account.email},encoding:'utf8'}).trim();
+    assert(verification.startsWith(base+'/api/v1/auth/email/verify/'));assert.equal((await context.request.get(verification,{headers:{'Accept':'application/json'}})).status(),200);
+    assert.equal((await (await context.request.get(base+'/api/v2/measurement/context')).json()).site_choice,'deny');
+    await auth(context,page,0,true);
+    const token=(await (await context.request.get(base+'/api/v1/auth/csrf')).json()).csrf_token;
+    assert.equal((await context.request.post(base+'/api/v1/auth/login',{headers:{'X-CSRF-TOKEN':token,'Accept':'application/json','Origin':base},data:account})).status(),200);
+    await page.reload({waitUntil:'domcontentloaded'});assert.equal((await (await context.request.get(base+'/api/v2/measurement/context')).json()).site_choice,'deny');assert.equal(registrations,1);
+    fs.writeFileSync(path.join(out,'same-dom-registration.json'),JSON.stringify({actual_registration:true,registration_posts:registrations,no_reload_before_off:true,csrf_rotated:true,v2_deny_confirmed:true,v3_allow_saved_not_running:true,actual_verification:true,deny_after_relogin:true},null,2));await context.close();
+  });
+  for(const failure of ['csrf-503','write-419'])await check(failure+' leaves v2 paused and v3 unconfirmed, with explicit retry only',async()=>{
+    const {context,page,posts}=await session();await auth(context,page);await open(page);let fail=true,offPosts=0;
+    page.on('request',r=>{if(r.url().endsWith('/api/v2/measurement/preferences'))offPosts++;});
+    if(failure==='csrf-503')await page.route('**/api/v1/auth/csrf',r=>fail?r.fulfill({status:503,contentType:'application/json',body:'{}'}):r.continue());
+    else await page.route(url=>['/api/v2/measurement/preferences','/api/v3/measurement/purposes/preferences'].includes(url.pathname),r=>fail?r.fulfill({status:419,contentType:'application/json',body:'{}'}):r.continue());
+    await choose(page,'account_link','allow');await until(page,'account_link',failure==='csrf-503'?'failed':'login_required');
+    assert.equal(posts.length,failure==='csrf-503'?0:1);
+    await page.locator('[data-c-dialog] [data-c-off]').click();await page.waitForFunction(()=>document.querySelector('[data-measurement-c]').dataset.state==='save_failed');
+    assert.equal(offPosts,failure==='csrf-503'?0:1);await page.waitForTimeout(250);assert.equal(offPosts,failure==='csrf-503'?0:1);
+    fail=false;
+    if(failure==='write-419'){await open(page);await choose(page,'account_link','allow');}else await item(page,'account_link').locator('[data-purpose-save]').click();
+    await until(page,'account_link','saved');await page.locator('[data-c-retry]').click();await page.waitForFunction(()=>document.querySelector('[data-measurement-c]').dataset.state==='off');await context.close();
   });
   await check('Normal logout/account switch discards drafts and hides prior owner allow',async()=>{
     const {context,page}=await session();await auth(context,page,0);await open(page);await choose(page,'account_link','allow');await until(page,'account_link','saved');

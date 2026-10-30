@@ -54,9 +54,16 @@
     const abort = new AbortController();
     const timeout = setTimeout(() => abort.abort(), 6000);
     try {
+      let csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+      if (body && mount.hasAttribute('data-c-registration')) {
+        const prepared = await fetch('/api/v1/auth/csrf', {credentials: 'same-origin', cache: 'no-store', referrerPolicy: 'no-referrer', signal: abort.signal, headers: {'Accept': 'application/json'}});
+        const token = await prepared.json();
+        if (prepared.status !== 200 || typeof token.csrf_token !== 'string' || !/^[a-zA-Z0-9]{40}$/.test(token.csrf_token)) throw new Error('csrf');
+        csrf = token.csrf_token;
+      }
       const response = await fetch('/api/v2/measurement/' + endpoint, {
         method, credentials: 'same-origin', cache: 'no-store', referrerPolicy: 'no-referrer', signal: abort.signal,
-        headers: {'Accept': 'application/json', ...(body ? {'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''} : {})},
+        headers: {'Accept': 'application/json', ...(body ? {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf} : {})},
         ...(body ? {body: JSON.stringify(body)} : {}),
       });
       const value = await response.json();

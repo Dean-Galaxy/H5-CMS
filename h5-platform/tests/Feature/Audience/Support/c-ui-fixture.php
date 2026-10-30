@@ -6,6 +6,7 @@ use App\Modules\Content\Models\DramaRecord;
 use App\Modules\Content\Models\EpisodeRecord;
 use App\Modules\Content\Models\Plan;
 use App\Modules\Identity\Models\Viewer;
+use App\Modules\Identity\Services\Verification;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,6 +23,14 @@ if (! app()->environment('testing') || $owned['root'] !== $root || $owned['datab
     throw new LogicException('Refuse non-owned synthetic C UI database or media.');
 }
 $target = $root.'/.runtime/'.$scope.'/fixture.json';
+if ($r1 && getenv('H5_C_UI_VERIFY') === '1') {
+    $email = getenv('H5_C_UI_VERIFY_EMAIL');
+    if (! is_string($email) || ! preg_match('/^[a-f0-9-]{36}@example\.test$/D', $email)) {
+        throw new LogicException('Refuse non-synthetic verification fixture.');
+    }
+    echo app(Verification::class)->url(Viewer::where('email', $email)->firstOrFail());
+    exit;
+}
 if (is_file($target)) {
     $fixture = json_decode(file_get_contents($target), true);
     if (DramaRecord::find($fixture['drama'])) {

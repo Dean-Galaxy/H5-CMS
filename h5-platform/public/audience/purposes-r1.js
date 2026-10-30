@@ -8,7 +8,7 @@
   const purposes = ['account_link', 'advertising'];
   const safeReasons = new Set(['ASSOCIATION_NOT_READY', 'EXTERNAL_DISABLED', 'PURPOSE_OPTOUT', 'SITE_OPTOUT', 'LEGACY_DENIED', 'POLICY_UNRESOLVED', 'DEPENDENCY_NOT_READY', 'FEATURE_DISABLED']);
   const items = Object.fromEntries(purposes.map(name => [name, {node: root.querySelector('[data-purpose="' + name + '"]'), state: null, draft: null, operation: null, busy: false, result: '', confirmed: false, until: 0, timer: null, requireRead: false}]));
-  let generation = 0, reading = false, loginNeeded = false;
+  let generation = 0, reading = false, loginNeeded = false, actor;
   const requests = new Set();
   const validState = value => value && ['unknown', 'allow', 'deny'].includes(value.choice) && value.effective === false
     && ['unavailable', 'choice_only'].includes(value.capability) && value.choice_scope === 'current_browser'
@@ -17,13 +17,14 @@
     && value.notice_version === NOTICE && value.is_test === true && ['eligible', 'unknown', 'ineligible'].includes(value.eligibility)
     && purposes.every(name => validState(value.purposes?.[name])) && ['unknown', 'allow', 'deny'].includes(value.legacy_advertising?.choice)
     && ['unset', 'allow', 'deny'].includes(value.site_session?.choice) && ['on', 'off'].includes(value.site_session?.effective);
-  async function request(path, body) {
+  async function request(path, body, identity = false, csrf = '') {
     const controller = new AbortController(); requests.add(controller);
     const timeout = setTimeout(() => controller.abort(), 6000);
     try {
-      const response = await fetch('/api/v3/measurement/purposes/' + path, {
+      if (body && !/^[a-zA-Z0-9]{40}$/.test(csrf)) throw new Error('csrf');
+      const response = await fetch((identity ? '/api/v1/auth/' : '/api/v3/measurement/purposes/') + path, {
         method: body ? 'PATCH' : 'GET', credentials: 'same-origin', cache: 'no-store', referrerPolicy: 'no-referrer', signal: controller.signal,
-        headers: {'Accept': 'application/json', ...(body ? {'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''} : {})},
+        headers: {'Accept': 'application/json', ...(body ? {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf} : {})},
         ...(body ? {body: JSON.stringify(body)} : {}),
       });
       let value;
@@ -31,6 +32,12 @@
       if (response.status !== 200) throw Object.assign(new Error('request'), {status: response.status, value, retryAfter: Number(response.headers.get('Retry-After'))});
       return value;
     } finally { clearTimeout(timeout); requests.delete(controller); }
+  }
+  async function identity() {
+    const value = await request('me', null, true);
+    if (value.viewer === null) return null;
+    if (typeof value.viewer?.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.viewer.id)) throw new Error('identity');
+    return value.viewer.id; // Permission scope in this page's memory only; never telemetry or persistent storage.
   }
   function paint(name) {
     const item = items[name], state = item.state;
@@ -53,7 +60,7 @@
   }
   function discard() {
     generation++; requests.forEach(controller => controller.abort()); requests.clear(); reading = false;
-    loginNeeded = false;
+    loginNeeded = false; actor = undefined;
     for (const name of purposes) {
       clearTimeout(items[name].timer);
       Object.assign(items[name], {state: null, draft: null, operation: null, busy: false, result: '', confirmed: false, until: 0, requireRead: false, http: null}); paint(name);
@@ -66,6 +73,10 @@
     purposes.forEach(paint);
     const epoch = generation;
     try {
+      let current;
+      try { current = await identity(); } catch (_) { current = undefined; }
+      if (epoch !== generation) return;
+      actor = current; root.dataset.signedIn = typeof current === 'string' ? '1' : '0';
       const value = await request('context');
       if (epoch !== generation) return;
       if (!validContext(value)) throw new Error('shape');
@@ -81,13 +92,28 @@
   async function save(name) {
     const item = items[name];
     if (reading || item.busy || item.draft === null || item.requireRead || Date.now() < item.until) return;
-    if (item.draft === 'allow' && (root.dataset.signedIn !== '1' || loginNeeded)) { item.result = 'login_required'; paint(name); return; }
-    // Retrying an unknown result reuses the exact operation, revision and choice. No automatic replay.
-    item.operation ??= {purpose: name, choice: item.draft, notice_version: NOTICE, expected_revision: item.state?.revision ?? 0, operation_id: crypto.randomUUID()};
-    const operation = item.operation, epoch = generation;
+    const epoch = generation;
     item.busy = true; item.result = 'saving'; paint(name);
     try {
-      const value = await request('preferences', operation);
+      // Pin the token before checking the actor. A later session rotation must reject this write,
+      // rather than refreshing into a different account after the permission check.
+      const prepared = await request('csrf', null, true);
+      if (typeof prepared.csrf_token !== 'string' || !/^[a-zA-Z0-9]{40}$/.test(prepared.csrf_token)) throw new Error('csrf');
+      if (epoch !== generation) return;
+      let current;
+      try { current = await identity(); } catch (error) { if (item.draft === 'allow') throw error; current = actor; }
+      if (epoch !== generation) return;
+      if (actor !== undefined && current !== actor) {
+        discard(); root.dataset.signedIn = '0'; loginNeeded = true;
+        purposes.forEach(purpose => { items[purpose].result = 'login_required'; paint(purpose); });
+        root.querySelector('[data-purpose-reading]').textContent = words.login_required;
+        root.querySelectorAll('[data-purpose-login]').forEach(link => { link.hidden = false; }); return;
+      }
+      if (item.draft === 'allow' && (typeof actor !== 'string' || current === null || loginNeeded)) { item.result = 'login_required'; return; }
+      // Unknown-result retries preserve their operation; token preparation never replays a mutation.
+      item.operation ??= {purpose: name, choice: item.draft, notice_version: NOTICE, expected_revision: item.state?.revision ?? 0, operation_id: crypto.randomUUID()};
+      const operation = item.operation;
+      const value = await request('preferences', operation, false, prepared.csrf_token);
       if (epoch !== generation) return;
       if (value.schema_version !== 3 || value.purpose !== name || !['saved', 'unchanged'].includes(value.status) || !validState(value.state)) throw new Error('shape');
       item.state = value.state; item.confirmed = true; item.operation = null; item.http = 200;
