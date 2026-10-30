@@ -18,6 +18,7 @@ document.querySelectorAll('[data-identity-form]').forEach(form => {
         if (purposes) {
           form.dataset.registrationComplete = 'true';
           check.hidden = true;
+          // A status read proves the current sign-in, not creation by this registration POST.
           await purposes.complete(body.viewer);
         } else window.location.assign('/identity/account');
       }
@@ -58,7 +59,7 @@ document.querySelectorAll('[data-identity-form]').forEach(form => {
         if (purposes) {
           form.dataset.registrationComplete = 'true';
           form.querySelectorAll('input[type="password"]').forEach(input => { input.value = ''; });
-          await purposes.complete(body.identity?.viewer);
+          await purposes.complete(body.identity?.viewer, true);
         } else window.location.assign(body.redirect_to);
         return;
       }
@@ -180,7 +181,7 @@ function registrationPurposes(form) {
     } catch (_) { item.status = 'unconfirmed'; }
     finally { item.busy = false; render(item); }
   }
-  return {async complete(viewer) {
+  return {async complete(viewer, creationConfirmed = false) {
     if (complete) return;
     complete = true;
     form.querySelector('button[type=submit]').hidden = true;
@@ -188,7 +189,7 @@ function registrationPurposes(form) {
     expectedViewer = viewer && typeof viewer.id === 'string' && viewer.email === email ? {id:viewer.id,email:viewer.email} : null;
     proceed.hidden = false;
     form.querySelectorAll('input:not([data-registration-purpose])').forEach(input => { input.readOnly = true; if (input.type === 'checkbox') input.disabled = true; });
-    form.querySelector('[data-result]').textContent = text.created;
+    form.querySelector('[data-result]').textContent = creationConfirmed ? text.created : text.current_account;
     await ready;
     if (!expectedViewer) { discard(text.account_unknown); return; }
     if (!await sameAccount()) {
