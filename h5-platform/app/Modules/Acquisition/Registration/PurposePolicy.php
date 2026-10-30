@@ -23,11 +23,14 @@ final class PurposePolicy
             try {
                 $from = config('acquisition.registration.synthetic_from');
                 $until = config('acquisition.registration.synthetic_until');
-                if (is_string($from) && is_string($until) && $from !== '' && $until !== '') {
+                $iso = '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})$/D';
+                if (is_string($from) && is_string($until) && preg_match($iso, $from) && preg_match($iso, $until)
+                    && date_parse($from)['warning_count'] === 0 && date_parse($from)['error_count'] === 0
+                    && date_parse($until)['warning_count'] === 0 && date_parse($until)['error_count'] === 0) {
                     $start = CarbonImmutable::parse($from);
                     $end = CarbonImmutable::parse($until);
                     if ($start->lessThanOrEqualTo(now()) && $end->greaterThan(now())
-                        && $end->greaterThan($start) && $end->lessThanOrEqualTo($start->addDay())) {
+                        && $end->greaterThan($start) && $start->diffInSeconds($end, false) <= 86400) {
                         return ['eligibility' => 'eligible', 'reason' => null];
                     }
                 }

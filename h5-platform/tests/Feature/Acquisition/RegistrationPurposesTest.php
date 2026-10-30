@@ -84,6 +84,8 @@ final class RegistrationPurposesTest extends AcquisitionTestCase
             ['acquisition.registration.synthetic_policy' => true, 'acquisition.registration.synthetic_until' => now()->addDays(2)->toIso8601String()],
             ['acquisition.registration.synthetic_until' => now()->toIso8601String()],
             ['acquisition.registration.synthetic_until' => 'invalid'],
+            ['acquisition.registration.synthetic_from' => 'now', 'acquisition.registration.synthetic_until' => '+23 hours'],
+            ['acquisition.registration.synthetic_from' => '2026-02-30T00:00:00Z', 'acquisition.registration.synthetic_until' => now()->addHour()->toIso8601String()],
             ['h5.measurement_c_registration' => false]] as $values) {
             config($values + ['h5.local_us_test_region' => true]);
             $this->send($this->body(choice: 'allow'))->assertStatus(503)->assertJsonPath('error.code', 'DEPENDENCY_NOT_READY');
