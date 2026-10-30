@@ -5,6 +5,7 @@ import sys
 import tempfile
 import subprocess
 import json
+import socket
 import unittest
 
 OPS=Path(__file__).resolve().parents[1]
@@ -62,5 +63,11 @@ class PrivacyWindowIsolation(unittest.TestCase):
             pidfile.write_text(json.dumps({'pid':1,'marker':'FOREIGN'}));pidfile.chmod(0o600)
             m.cleanup_failed_start(process,pidfile)
             self.assertTrue(pidfile.exists());self.assertEqual(1,json.loads(pidfile.read_text())['pid'])
+
+    def test_port_probe_still_refuses_an_active_listener(self):
+        with socket.socket() as listener:
+            listener.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+            listener.bind(('127.0.0.1',0));listener.listen()
+            with self.assertRaises(OSError):m.assert_port_available(listener.getsockname()[1])
 
 if __name__=='__main__':unittest.main()

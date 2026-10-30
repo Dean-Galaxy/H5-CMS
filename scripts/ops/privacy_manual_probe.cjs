@@ -62,12 +62,15 @@ let phase='start';
                 if(advertising)await page.locator('[name=advertising]').check();
                 const consent=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v1/tracking/consent'&&r.status()===200);
                 const landing=advertising?page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v1/tracking/landing'&&r.status()===200):null;
+                const events=analytics?page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v1/tracking/events'&&r.status()===200):null;
                 await page.locator(key==='denied'?'[data-privacy-reject]':'[data-privacy-form] button[type=submit]').click();
                 const saved=await(await consent).json();
                 check(key+' saves the two purposes independently',saved.consent.analytics===(analytics?'granted':'denied')&&saved.consent.advertising===(advertising?'granted':'denied'));
                 if(landing)assert.equal((await(await landing).json()).confirmed,true);
                 await page.locator('[data-privacy-dialog]').waitFor({state:'hidden'});
-                await page.waitForTimeout(900);
+                // The real page batches observations at 1000ms. Wait for actual server acceptance, not an early timer.
+                if(events)assert((await(await events).json()).accepted>0);
+                else await page.waitForTimeout(1200);
                 const after=state();
                 if(key==='advertising')check('advertising-only uses landing without analytics',after.counts.acquisition_sources===before.counts.acquisition_sources+1&&after.counts.acquisition_subjects===before.counts.acquisition_subjects&&after.counts.acquisition_behaviors===before.counts.acquisition_behaviors&&eventCalls===0);
                 if(key==='analytics')check('analytics-only has observations without ad source',after.counts.acquisition_sources===before.counts.acquisition_sources&&after.counts.acquisition_subjects===before.counts.acquisition_subjects+1&&after.counts.acquisition_behaviors>before.counts.acquisition_behaviors);

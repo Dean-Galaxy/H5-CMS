@@ -42,6 +42,13 @@ def command(config):
     return [PHP,'-d','expose_php=0','-S',f'127.0.0.1:{config["port"]}','-t',str(ROOT/'h5-platform/public'),str(ROUTER)]
 
 
+def assert_port_available(port):
+    with socket.socket() as sock:
+        # A just-closed own HTTP connection may remain TIME_WAIT; an active listener still refuses this bind.
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind(('127.0.0.1',port))
+
+
 def matching(record, config):
     if record.get('root') != str(ROOT) or record.get('command') != command(config):
         return False
@@ -124,7 +131,7 @@ def main():
     private_json(DIRECTORY/'privacy-cases.json')
     if args.action == 'start':
         if any((ROOT/'.runtime/pids'/f'{n}.json').exists() for n in ['web','queue','scheduler']): raise ValueError('OWN_SERVICE_ALREADY_RECORDED')
-        with socket.socket() as sock: sock.bind(('127.0.0.1',config['port']))
+        assert_port_available(config['port'])
         dev.database_start()
         process = subprocess.Popen(command(config),cwd=ROOT/'h5-platform/public',env=env,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
         pidfile = ROOT/'.runtime/pids/web.json'
