@@ -158,6 +158,7 @@ async function remote(context,page,purpose,choice,revision) {
   });
   await check('Real registration rotates CSRF without reload; v2 off and v3 save then verify/relogin preserve deny',async()=>{
     const {context,page,posts}=await session();await page.goto(base+'/identity/register?lang=en',{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>document.querySelector('[data-measurement-c]').dataset.state==='active');await page.waitForTimeout(1000);
     const old=await page.locator('meta[name="csrf-token"]').getAttribute('content');const url=page.url();let registrations=0;
     page.on('request',r=>{if(r.url().endsWith('/api/v1/auth/register'))registrations++;});
     const account={email:crypto.randomUUID()+'@example.test',password:'OnlyTest!A1'+crypto.randomUUID()};
@@ -168,6 +169,7 @@ async function remote(context,page,purpose,choice,revision) {
     },{account,token:old});
     assert.equal(status,200);assert.equal(page.url(),url);assert.equal(Number(sql('SELECT count(*) FROM identity_viewers')),before+1);
     const current=(await (await context.request.get(base+'/api/v1/auth/csrf')).json()).csrf_token;assert.notEqual(current,old);assert.equal(await page.locator('meta[name="csrf-token"]').getAttribute('content'),old);
+    assert((await (await context.request.get(base+'/api/v1/auth/me')).json()).viewer,'Real account remains signed in after registration');
     await open(page);const off=page.waitForResponse(r=>r.url().endsWith('/api/v2/measurement/preferences'));
     await page.locator('[data-c-dialog] [data-c-off]').click();await page.waitForFunction(()=>document.querySelector('[data-measurement-c]').dataset.state==='off');assert.equal((await off).status(),200);
     await choose(page,'account_link','allow');await until(page,'account_link','saved');assert.equal(posts.length,1);await page.locator('[data-c-close]').click();
@@ -207,4 +209,4 @@ async function remote(context,page,purpose,choice,revision) {
   });
   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.equal(sql('SELECT count(*) FROM billing_orders'),'0');
   fs.writeFileSync(path.join(out,'browser.json'),JSON.stringify({passed:results.length,results,errors,external,scope:'04 real synthetic 05-A HTTP management; faults labelled; not 01-B or 00/06 final combination'},null,2));
-})().catch(async error=>{console.error(error);process.exitCode=1;fs.writeFileSync(path.join(out,'failure.json'),JSON.stringify({results,errors,error:String(error)},null,2));if(last&&!last.isClosed())await last.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});}).finally(async()=>{await browser?.close();});
+})().catch(async error=>{console.error(error);process.exitCode=1;let state=null;if(last&&!last.isClosed()){state=await last.evaluate(()=>({signedIn:document.querySelector('[data-c-purpose-manager]')?.dataset.signedIn,reading:document.querySelector('[data-purpose-reading]')?.textContent,items:[...document.querySelectorAll('[data-purpose]')].map(n=>({purpose:n.dataset.purpose,status:n.dataset.purposeStatus,result:n.querySelector('[data-purpose-result]')?.textContent}))})).catch(()=>null);await last.screenshot({path:path.join(out,'failure.png')}).catch(()=>{});}fs.writeFileSync(path.join(out,'failure.json'),JSON.stringify({results,errors,state,error:String(error)},null,2));}).finally(async()=>{await browser?.close();});

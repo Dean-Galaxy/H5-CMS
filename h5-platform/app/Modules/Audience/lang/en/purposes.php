@@ -27,5 +27,5 @@ return [
     'legacy_allow' => 'Earlier allow', 'legacy_deny' => 'Earlier off',
     'technical' => 'Technical details (optional)',
     'scope' => 'Choices apply to this browser, not across devices. Allow is visible only to its signed-in owner; a browser off choice remains. No draft or operation receipt is stored in browser history or persistent storage.',
-    'retention' => 'Necessary choice evidence is kept for at most 24 months; operation receipts at most 24 hours. Reading does not create or extend evidence. Closing this panel or leaving the page does not save a choice.',
+    'retention' => 'Necessary choice evidence is kept for at most 24 months; operation receipts at most 24 hours. Reading does not create or extend evidence. Closing or leaving does not submit unsaved drafts. A request already sent may still complete; reopen to check its actual state.',
 ];
