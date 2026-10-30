@@ -34,7 +34,7 @@ async function measure(page) {
   return page.evaluate(()=>{
     const box=node=>{const r=node.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height,font:parseFloat(getComputedStyle(node).fontSize),href:node.getAttribute('href')};};
     const header=document.querySelector('.site-header');
-    return {viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,header:box(header),nav:box(header.querySelector('nav')),
+    return {viewport:innerWidth,viewportHeight:innerHeight,deviceScaleFactor:devicePixelRatio,brand:box(header.querySelector('.brand')),documentWidth:document.documentElement.scrollWidth,header:box(header),nav:box(header.querySelector('nav')),
       links:[...header.querySelectorAll('a')].filter(n=>n.getClientRects().length&&(!n.closest('details')||n.closest('details').open)).map(box),summary:box(header.querySelector('summary'))};
   });
 }
@@ -43,17 +43,17 @@ async function reachable(page,locale) {
   assert.deepEqual(await nav.evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href'))),['/','/catalog','/membership']);
   assert.equal(await header.locator('.brand').getAttribute('href'),'/');
   assert((await header.locator('[data-audience-login]').getAttribute('href')).startsWith('/identity/login?'));
-  for(const node of [...await nav.all(),header.locator('[data-audience-login]'),header.locator('summary')]) {
+  for(const node of [header.locator('.brand'),...await nav.all(),header.locator('[data-audience-login]'),header.locator('summary')]) {
     await node.focus();assert(await node.evaluate(n=>document.activeElement===n));
     await node.scrollIntoViewIfNeeded();
     assert(await node.evaluate(n=>{const r=n.getBoundingClientRect();const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return n.contains(hit);}));
-    assert((await node.boundingBox()).height>=44);
+    assert((await node.boundingBox()).height>=44,'Header target must be >=44px: '+await node.getAttribute('class'));
     await page.keyboard.press('Tab');
   }
   await header.locator('summary').focus();await page.keyboard.press('Enter');
   assert(await header.locator('details').evaluate(n=>n.open));
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-  for(const node of await header.locator('.language a').all()) {assert(await node.isVisible());assert((await node.boundingBox()).height>=44);}
+  for(const node of await header.locator('.language a').all()) {assert(await node.isVisible());assert((await node.boundingBox()).height>=44,'Header target must be >=44px: '+await node.getAttribute('class'));}
   const language=header.locator('.language a[lang="'+(locale==='en'?'zh-Hans':'en')+'"]');
   assert(new URL(await language.getAttribute('href')).origin===base);
   await header.locator('summary').focus();await page.keyboard.press('Enter');

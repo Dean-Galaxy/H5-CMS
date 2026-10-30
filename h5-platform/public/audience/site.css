@@ -10,3 +10,4 @@
 .site-header nav{min-width:0;flex-wrap:wrap}
 .site-header .header-tools{min-width:0;max-width:100%;flex-wrap:wrap}
 .site-header nav a,.site-header .header-tools>a,.site-header .language summary,.site-header .language>div a{display:flex;align-items:center;min-height:44px;max-width:100%;overflow-wrap:anywhere}
+.site-header .brand{display:flex;align-items:center;min-height:44px}
