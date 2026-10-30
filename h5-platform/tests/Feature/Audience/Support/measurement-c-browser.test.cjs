@@ -138,27 +138,84 @@ async function untilState(page, value) { await page.waitForFunction(value => doc
     await page.locator('[data-c-close]').click(); await page.locator('nav a[href="/catalog"]').click();
     await untilState(page,'read_failed'); await context.close();
   });
-  await check('Injected preference 503 keeps draft across refresh, retry confirms actual deny', async () => {
+  await check('Actual preference storage 503 keeps draft across refresh, explicit retry confirms deny', async () => {
     const {context,page} = await session(); await active(page);
-    await page.route('**/api/v2/measurement/preferences', route => route.fulfill({status:503,contentType:'application/json',body:'{}'}));
-    await page.locator('[data-c-off]').first().click(); await untilState(page,'save_failed');
-    const before = count(); await page.reload({waitUntil:'domcontentloaded'}); await untilState(page,'save_failed');
-    assert.equal(count(),before); await page.locator('[data-c-open]').first().click();
-    await page.screenshot({path:path.join(out,'save-failure.png')});
-    await page.unroute('**/api/v2/measurement/preferences');
-    await page.locator('[data-c-retry]').click(); await untilState(page,'off');
+    assert(process.env.DB_DATABASE.endsWith('_cui1_audience_http_test'));
+    // A temporary NOT VALID constraint faults only future off writes in this owned synthetic DB.
+    // Existing rows remain intact, and CoreController must really roll back and return 503.
+    sql("ALTER TABLE acquisition_c_preferences ADD CONSTRAINT audience_c_off_failure CHECK (choice <> 'deny') NOT VALID");
+    try {
+      const response=page.waitForResponse(r=>r.url().endsWith('/measurement/preferences'));
+      const deniesBefore=Number(sql("SELECT count(*) FROM acquisition_c_preferences WHERE choice='deny'"));
+      await page.locator('[data-c-off]').first().click(); await untilState(page,'save_failed');
+      assert.equal((await response).status(),503);
+      assert.equal(Number(sql("SELECT count(*) FROM acquisition_c_preferences WHERE choice='deny'")),deniesBefore);
+      await page.locator('[data-c-open]').first().click();
+      assert.equal(await page.locator('[data-c-processing]').innerText(),'Not confirmed');
+      const before = count(); await page.reload({waitUntil:'domcontentloaded'}); await untilState(page,'save_failed');
+      assert.equal(count(),before); await page.locator('[data-c-open]').first().click();
+      await page.screenshot({path:path.join(out,'save-failure.png')});
+    } finally { sql('ALTER TABLE acquisition_c_preferences DROP CONSTRAINT audience_c_off_failure'); }
+    await page.locator('[data-c-retry]').click(); await untilState(page,'off'); await context.close();
+  });
+  await check('Actual read quota 429 does not block an initial revision-zero off request', async () => {
+    const {context,page}=await session();
+    let limited=false,readAttempts=0;
+    for(let i=0;i<130;i++) {
+      const response=await context.request.get(base+'/api/v2/measurement/context'); readAttempts++;
+      if(response.status()===429){limited=true;break;} assert.equal(response.status(),200);
+    }
+    assert(limited); assert.equal(readAttempts,121);
+    let reads=0;const patches=[];
+    page.on('request',r=>{if(r.url().endsWith('/measurement/context'))reads++;if(r.url().endsWith('/measurement/preferences'))patches.push(r.postDataJSON());});
+    await page.goto(base+'/',{waitUntil:'domcontentloaded'}); await untilState(page,'read_failed');
+    const before=reads; const response=page.waitForResponse(r=>r.url().endsWith('/measurement/preferences'));
+    await page.locator('[data-c-off]').first().click(); await untilState(page,'off');
+    const saved=await response;assert.equal(saved.status(),200);
+    const value=await saved.json();assert.equal(value.site_choice,'deny');assert.equal(value.site_effective,'off');
+    assert.equal(reads,before);assert.deepEqual(patches.map(p=>p.expected_revision),[0]);
+    assert.equal((await context.request.get(base+'/api/v2/measurement/context')).status(),429);
+    fs.writeFileSync(path.join(out,'read-quota-off.json'),JSON.stringify({actual_read_429:true,read_attempts:readAttempts,off_status:200,revision:0,extra_reads:reads-before,server_choice:value.site_choice},null,2));
     await context.close();
   });
-  await check('Injected revision conflict rereads facts, stays paused, and requires explicit retry', async () => {
+  await check('Initial continuous context 503 still allows the real preference endpoint to confirm off', async () => {
+    const {context,page}=await session();let reads=0;const patches=[];
+    await page.route('**/api/v2/measurement/context',route=>{reads++;return route.fulfill({status:503,contentType:'application/json',body:'{}'});});
+    page.on('request',r=>{if(r.url().endsWith('/measurement/preferences'))patches.push(r.postDataJSON());});
+    await page.goto(base+'/',{waitUntil:'domcontentloaded'}); await untilState(page,'read_failed');
+    const before=reads;const response=page.waitForResponse(r=>r.url().endsWith('/measurement/preferences'));
+    await page.locator('[data-c-off]').first().click(); await untilState(page,'off');
+    assert.equal((await response).status(),200);assert.equal(reads,before);assert.deepEqual(patches.map(p=>p.expected_revision),[0]);
+    await context.close();
+  });
+  await check('Actual newer revision returns 409 facts without another read or automatic replay', async () => {
     const {context,page} = await session(); await active(page);
-    let patches = 0;
-    await page.route('**/api/v2/measurement/preferences', route => { patches++; return route.fulfill({status:409,contentType:'application/json',body:'{}'}); });
+    const remoteChoice=async revision=> {
+      const csrf=await page.locator('meta[name="csrf-token"]').getAttribute('content');
+      const response=await context.request.patch(base+'/api/v2/measurement/preferences',{headers:{'X-CSRF-TOKEN':csrf,'Origin':base},
+        data:{site_session:'allow',notice_version:'c-notice-c-core-1',expected_revision:revision}});
+      assert.equal(response.status(),200);return response.json();
+    };
+    assert.equal((await remoteChoice(0)).revision,1);
+    await page.reload({waitUntil:'domcontentloaded'});await untilState(page,'active');
+    let reads=0;const patches=[];
+    await page.route('**/api/v2/measurement/context',route=>{reads++;return route.fulfill({status:429,contentType:'application/json',body:'{}'});});
+    await untilState(page,'read_failed');
+    assert.equal((await remoteChoice(1)).revision,2);
+    page.on('request',r=>{if(r.url().endsWith('/measurement/preferences'))patches.push(r.postDataJSON());});
+    const before=reads;const response=page.waitForResponse(r=>r.url().endsWith('/measurement/preferences'));
     await page.locator('[data-c-off]').first().click(); await untilState(page,'conflict');
-    await page.waitForTimeout(800); assert.equal(patches,1);
+    const conflict=await response;assert.equal(conflict.status(),409);assert.equal((await conflict.json()).revision,2);
+    await page.waitForTimeout(800); assert.equal(patches.length,1);assert.equal(reads,before);
     await page.locator('[data-c-open]').first().click();
-    assert.equal(await page.locator('[data-c-processing]').innerText(),'On');
+    assert.equal(await page.locator('[data-c-choice]').innerText(),'Explicitly allowed');
+    assert.equal(await page.locator('[data-c-processing]').innerText(),'Off');
     assert.equal(await page.locator('[data-c-local]').innerText(),'No optional collection');
-    await page.unroute('**/api/v2/measurement/preferences'); await page.locator('[data-c-retry]').click(); await untilState(page,'off');
+    assert(Number(sql("SELECT count(*) FROM acquisition_c_preferences WHERE revision=2 AND choice='allow'"))>0);
+    const retry=page.waitForResponse(r=>r.url().endsWith('/measurement/preferences'));
+    await page.locator('[data-c-retry]').click();await untilState(page,'off');
+    const saved=await retry;assert.equal(saved.status(),200);assert.equal((await saved.json()).revision,3);
+    assert.deepEqual(patches.map(p=>p.expected_revision),[1,2]);assert.equal(reads,before);
     await context.close();
   });
   await check('Late start response cannot reopen after off; other tabs receive pause only', async () => {

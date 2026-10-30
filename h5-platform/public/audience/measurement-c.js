@@ -121,26 +121,19 @@
     rememberPause(); pause('saving'); saving = true; paint();
     const generation = epoch;
     try {
-      if (!known) {
-        const value = await api('context');
-        if (generation !== epoch) return;
-        if (!valid(value)) throw new Error('shape');
-        context = value; known = true;
-      }
-      const value = await api('preferences', 'PATCH', {site_session: 'deny', notice_version: VERSION, expected_revision: context.revision});
+      // A failed/limited read must not prevent a necessary off request. Retain the last validated revision;
+      // zero is only an optimistic initial revision, never a forced write. The server still compares it.
+      const revision = valid(context) ? context.revision : 0;
+      const value = await api('preferences', 'PATCH', {site_session: 'deny', notice_version: VERSION, expected_revision: revision});
       if (generation !== epoch) return;
       if (!valid(value) || value.site_choice !== 'deny' || value.site_effective !== 'off') throw new Error('unconfirmed');
       context = value; known = true; state = 'off';
     } catch (error) {
       if (generation !== epoch) return;
       known = false; state = error.status === 409 ? 'conflict' : 'save_failed';
-      // Conflict only refreshes facts. It never replays a choice or starts collection.
-      if (error.status === 409) {
-        try {
-          const value = await api('context');
-          if (generation === epoch && valid(value)) { context = value; known = true; }
-        } catch (_) { /* Retain local pause and draft. */ }
-      }
+      // A valid conflict body supplies current facts without spending the read budget.
+      // Keep the off draft paused; only another explicit user action may submit the new revision.
+      if (error.status === 409 && valid(error.value)) { context = error.value; known = true; }
     } finally { saving = false; paint(); }
   }
   function open(details = false) {
