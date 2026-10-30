@@ -2,6 +2,7 @@
 
 namespace App\Modules\Acquisition\Registration;
 
+use App\Modules\Acquisition\Analytics\Clock;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,7 @@ final class PurposeProof
     {
         $id = $this->id();
 
-        return $id ? DB::table('acquisition_r1_proofs')->where('id', $id)->where('expires_at', '>', now())->first() : null;
+        return $id ? DB::table('acquisition_r1_proofs')->where('id', $id)->where('expires_at', '>', Clock::stamp())->first() : null;
     }
 
     public function choice(string $purpose): ?object

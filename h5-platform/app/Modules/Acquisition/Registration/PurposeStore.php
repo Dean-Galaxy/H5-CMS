@@ -70,7 +70,7 @@ final class PurposeStore
                 if ($notice !== PurposePolicy::NOTICE) {
                     throw new PurposeConflict('NOTICE_CONFLICT', $this->state($purpose, $row));
                 }
-                DB::table('acquisition_r1_operations')->where('id', $operation)->where('expires_at', '<=', now())->delete();
+                DB::table('acquisition_r1_operations')->where('id', $operation)->where('expires_at', '<=', Clock::stamp())->delete();
                 $old = DB::table('acquisition_r1_operations')->where('id', $operation)->first();
                 if ($old) {
                     if (! $proof || $old->proof_id !== $proof->id || $old->actor_id !== $actor || ! hash_equals($old->fingerprint, $fingerprint)) {
