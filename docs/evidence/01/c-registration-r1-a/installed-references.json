@@ -1,0 +1,14 @@
+[
+    {
+        "package": "livewire\/livewire",
+        "installed": "v4.4.8",
+        "reference": "8d7f8fc6138274a2f3384c9db354ca012215a259",
+        "matches_lock": true
+    },
+    {
+        "package": "symfony\/mime",
+        "installed": "v8.1.10",
+        "reference": "8d1232052c9cdef170ed9608b3147bca4f61ff69",
+        "matches_lock": true
+    }
+]

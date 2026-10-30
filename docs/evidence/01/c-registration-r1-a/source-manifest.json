@@ -1,0 +1,70 @@
+{
+  "baseline": "6d22515a47fe315bd3aba1279c8136c0f409c3a4",
+  "source": "835a93bea1f94469c8593215bffd7b3f1241365d",
+  "files": [
+    {
+      "path": "h5-platform/app/Modules/Identity/Actions/CreateViewer.php",
+      "sha256": "eb36a386ba5aceed5f5a6861c174ad1b23748387ad347b4ee941fa0b4507a114"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/Http/AuthResponse.php",
+      "sha256": "e94ef096a18e2053f9b7bd1473447cb67174fb1d7f191871a34a3c0a60cf2854"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/Http/ViewerRegistrationController.php",
+      "sha256": "25616517c45b9ec7d799fa82a90d5467321102c34b489930b28fe8764f13e81e"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/Services/RegistrationTerms.php",
+      "sha256": "b6f69a8fb4dfdef9514ff9a715d2f8c09e552bd816d707ca432860cb7d309f14"
+    },
+    {
+      "path": "h5-platform/app/Modules/Identity/Services/Verification.php",
+      "sha256": "932b5fefc64a707867c8f6d51868d1ccfbe812046ffbc684642649dbf724bf01"
+    },
+    {
+      "path": "h5-platform/database/migrations/2026_10_31_010001_create_identity_registration_receipts.php",
+      "sha256": "513a86784ace29d6412c249110341ca40f5d4574c53bf6a22586378e9fb15978"
+    },
+    {
+      "path": "h5-platform/lang/en/identity.php",
+      "sha256": "2d15726330515191cc153287dad2eae8d2f306fe08182f004affc8e9e2c6e33a"
+    },
+    {
+      "path": "h5-platform/lang/zh_CN/identity.php",
+      "sha256": "e5711be3c06f673967a4322ca964524e3e8446db98c328dc63c9597ab5521b4c"
+    },
+    {
+      "path": "h5-platform/public/identity.css",
+      "sha256": "1ae8e645a89ad9634a3552e5fb35846d4db30c5bb3580351c4df38755d096fc4"
+    },
+    {
+      "path": "h5-platform/public/identity.js",
+      "sha256": "d948e2a35a8e43eee9c130ba46dc4519fac7d83002da5f7753d4681006f4a38b"
+    },
+    {
+      "path": "h5-platform/resources/views/identity/account.blade.php",
+      "sha256": "66d9a3d69c05a2eeb4f20fc553d4c4a5fdaf161cf5aa1a4f857d0b77df82e66d"
+    },
+    {
+      "path": "h5-platform/resources/views/identity/register.blade.php",
+      "sha256": "2f0746012ae3f1de771e368ee01a76c2d93b05862508345fbc66b27520cf7fe2"
+    },
+    {
+      "path": "h5-platform/resources/views/identity/test-document.blade.php",
+      "sha256": "3eb0a81e4b111128e6b85e44d50f09209c9a575b294834b501a570ef6cee177e"
+    },
+    {
+      "path": "h5-platform/routes/modules/identity.php",
+      "sha256": "eb509d4e1935b11f832d21e7454ae6871553ed8167f10dd52007200e5ae9c738"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Identity/RegistrationTermsTest.php",
+      "sha256": "4e016090de424e6b11f194d84897c32fa291ec843a05502604de5e86a16033ff"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Identity/Support/registration-r1.browser.cjs",
+      "sha256": "74382ab1534654b937848694ca4a7a059ed179dfb9773c6dbc6072ce3f214a5d"
+    }
+  ]
+}
