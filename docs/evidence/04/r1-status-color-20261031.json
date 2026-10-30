@@ -1,0 +1,342 @@
+{
+  "candidate_commit": "6f4ff757f50ff307901da3e142c7193e38c47b1d",
+  "actual_A_source_commit": "1263bdcb3576986a74a0cf59a7c7ea61072b9062",
+  "prior_04_commit": "4b686c55e91bead1e6a936d56b38aba6e2eeb16a",
+  "sources": [
+    {
+      "path": "h5-platform/resources/views/components/layouts/site.blade.php",
+      "candidate_sha256": "6d722152b88e78c2643dfc768bc15b6a9a97ff06b4345d0815d371a75b2f9956",
+      "primary_render_source": true,
+      "actual_A_sha256": "6d722152b88e78c2643dfc768bc15b6a9a97ff06b4345d0815d371a75b2f9956",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/resources/views/identity/register.blade.php",
+      "candidate_sha256": "b1c3acac8a64f258c77c40b1f21622c4af4424f7786fbb2a8fd63ea7890769dc",
+      "primary_render_source": true,
+      "actual_A_sha256": "b1c3acac8a64f258c77c40b1f21622c4af4424f7786fbb2a8fd63ea7890769dc",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/public/identity.css",
+      "candidate_sha256": "b0b67bd8c877fcd6485524b32d4a90b666b51a92ee9df5bbdde794d9c611b000",
+      "primary_render_source": true,
+      "actual_A_sha256": "b0b67bd8c877fcd6485524b32d4a90b666b51a92ee9df5bbdde794d9c611b000",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/public/audience/site.css",
+      "candidate_sha256": "26a9db5188557cde2e487add85d879efe8696751778e6ca762401543e252b330",
+      "primary_render_source": true,
+      "actual_A_sha256": "cd70a32327d607124c75707e96f4dbfb4edda108732ff99f0d43c9126281e33f",
+      "byte_identical_to_actual_A": false
+    },
+    {
+      "path": "h5-platform/public/identity.js",
+      "candidate_sha256": "dbb7948eb403ceb72df689c4b496edcf4a8f9282fd7b9b9a55e50f28af100391",
+      "primary_render_source": false,
+      "actual_A_sha256": "dbb7948eb403ceb72df689c4b496edcf4a8f9282fd7b9b9a55e50f28af100391",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/lang/en/identity.php",
+      "candidate_sha256": "404619813ff98f99e4fbab3ac255e37cbe9638f7c2bef0f5e9a8ebdc5a34bf61",
+      "primary_render_source": false,
+      "actual_A_sha256": "404619813ff98f99e4fbab3ac255e37cbe9638f7c2bef0f5e9a8ebdc5a34bf61",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/lang/zh_CN/identity.php",
+      "candidate_sha256": "325c1983a0440655dbae19e4a21e5baab872d5531b4280662149df0bb87faf20",
+      "primary_render_source": false,
+      "actual_A_sha256": "325c1983a0440655dbae19e4a21e5baab872d5531b4280662149df0bb87faf20",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/tests/Feature/Audience/Support/header-font-browser.test.cjs",
+      "candidate_sha256": "44474ccd99039089edbac4e4bbec429f7fe0e7d9be4f80333b51ece8709969df",
+      "primary_render_source": false
+    }
+  ],
+  "files": [
+    {
+      "file": "header-browser.json",
+      "sha256": "9fb80c20c9ce03dab31dfe94aceaca737fd44c8a1a14e9e7230b42471c80bee0"
+    },
+    {
+      "file": "status-color.json",
+      "sha256": "7dda7d5c4aecd6c4f703a470c4c950ebfb0dd90253ad490e80a42d295ed0b286"
+    },
+    {
+      "file": "baseline.json",
+      "sha256": "93f06f2579439ed0509c6100eea17657ed2f40cee9c97c6428c91dec6e6da783"
+    },
+    {
+      "file": "runtime.json",
+      "sha256": "424d05ae124ea38a8296a9cfc1a8340e3d61e5b681f2de9b17da6a76d523532a"
+    },
+    {
+      "file": "baseline-en-320-font200.png",
+      "sha256": "08df6f049427ac8860ce541f1cccdbdf5bdefe4a53a080e405f6c354bffbc05a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-320-normal.png",
+      "sha256": "a0daa2d09683fa90151f5e06019c53bbf9335e678c3d9aa8564f8a2ffe044e18",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-320-font200.png",
+      "sha256": "0a32308b5a53798034997212b88b59092feefa0ca7482351f3eee9e7becff6f7",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-1280-normal.png",
+      "sha256": "bee0c1458b3603dc4d9bb41c6ff6882c1e873cbad394b8b6c9bda574f1f23c59",
+      "native_png_dimensions": [
+        1280,
+        850
+      ]
+    },
+    {
+      "file": "en-1280-font200.png",
+      "sha256": "dbff8bd5a03282b67a5a218986bc05303077a50b0d9a30898e77aa2f0b070d73",
+      "native_png_dimensions": [
+        1280,
+        850
+      ]
+    },
+    {
+      "file": "zh-CN-320-normal.png",
+      "sha256": "339c131855fe9db6bc23051084d9d5613c042e2549ba7a3a0d7a07d890966532",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-320-font200.png",
+      "sha256": "654972d750c58b1777a0368c43b156053b554600f8835579f82cb84cc772dc8c",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-1280-normal.png",
+      "sha256": "9129ae9ddea8f18b65bd9c0ef3f505cab3052227a4bdbffb21193e7a7cd66b5a",
+      "native_png_dimensions": [
+        1280,
+        850
+      ]
+    },
+    {
+      "file": "zh-CN-1280-font200.png",
+      "sha256": "e942a5450d13bb2035ea39b324d42263a3115ef1ea271da7124d8ef1d4080181",
+      "native_png_dimensions": [
+        1280,
+        850
+      ]
+    },
+    {
+      "file": "ui-text-fixture-created-en-actualA-320.png",
+      "sha256": "19ed38db79b651d35259beb97f0dea68457f1511d979f21c4c21a359be8ab486",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "ui-text-fixture-created-en-candidate-320.png",
+      "sha256": "32d88c7f003b6ea28ba3bbba0b248f539243264c27576e7df6333f15e3244c6a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "ui-text-fixture-created-zh-CN-actualA-320.png",
+      "sha256": "d14eb54e1e762d004672fd90c91bcdbcd037b5764eb35e88bebef3dd6e22ed48",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "ui-text-fixture-created-zh-CN-candidate-320.png",
+      "sha256": "d73ae6c2e340c1d02fcadc61099deaf9d808e791ca4635e4fadcbd617a8ef7d2",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    }
+  ],
+  "checks": 15,
+  "ui_text_fixture_only": true,
+  "app_scripts_inert": true,
+  "actual_registration_performed": false,
+  "production_delta_exactly_one_scoped_color_rule": true,
+  "four_primary_render_sources": [
+    {
+      "path": "h5-platform/resources/views/components/layouts/site.blade.php",
+      "candidate_sha256": "6d722152b88e78c2643dfc768bc15b6a9a97ff06b4345d0815d371a75b2f9956",
+      "primary_render_source": true,
+      "actual_A_sha256": "6d722152b88e78c2643dfc768bc15b6a9a97ff06b4345d0815d371a75b2f9956",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/resources/views/identity/register.blade.php",
+      "candidate_sha256": "b1c3acac8a64f258c77c40b1f21622c4af4424f7786fbb2a8fd63ea7890769dc",
+      "primary_render_source": true,
+      "actual_A_sha256": "b1c3acac8a64f258c77c40b1f21622c4af4424f7786fbb2a8fd63ea7890769dc",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/public/identity.css",
+      "candidate_sha256": "b0b67bd8c877fcd6485524b32d4a90b666b51a92ee9df5bbdde794d9c611b000",
+      "primary_render_source": true,
+      "actual_A_sha256": "b0b67bd8c877fcd6485524b32d4a90b666b51a92ee9df5bbdde794d9c611b000",
+      "byte_identical_to_actual_A": true
+    },
+    {
+      "path": "h5-platform/public/audience/site.css",
+      "candidate_sha256": "26a9db5188557cde2e487add85d879efe8696751778e6ca762401543e252b330",
+      "primary_render_source": true,
+      "actual_A_sha256": "cd70a32327d607124c75707e96f4dbfb4edda108732ff99f0d43c9126281e33f",
+      "byte_identical_to_actual_A": false
+    }
+  ],
+  "message_source": "server-rendered registration [data-purpose-messages].created, injected as text into existing [data-result] by isolated UI test",
+  "red_before_color_rule": {
+    "new_45_assertion_failed": true,
+    "contrast": 2.2898941379420705,
+    "foreground": "rgb(145, 61, 32)",
+    "background": "rgb(28, 30, 38)"
+  },
+  "color_checks": [
+    {
+      "locale": "en",
+      "cssSource": "actualA",
+      "actualA": "1263bdcb3576986a74a0cf59a7c7ea61072b9062",
+      "measured": {
+        "foreground": "rgb(145, 61, 32)",
+        "background": "rgb(28, 30, 38)",
+        "backgroundTag": "SECTION",
+        "backgroundClass": "card identity-registration-r1",
+        "fontSize": "14px",
+        "role": "status",
+        "text": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+        "contrast": 2.2898941379420705,
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "messageSource": "server-rendered [data-purpose-messages].created; UI text fixture only"
+      },
+      "nonAudienceForeground": "rgb(145, 61, 32)",
+      "passesBodyText45": false
+    },
+    {
+      "locale": "en",
+      "cssSource": "candidate",
+      "actualA": "1263bdcb3576986a74a0cf59a7c7ea61072b9062",
+      "measured": {
+        "foreground": "rgb(246, 243, 238)",
+        "background": "rgb(28, 30, 38)",
+        "backgroundTag": "SECTION",
+        "backgroundClass": "card identity-registration-r1",
+        "fontSize": "14px",
+        "role": "status",
+        "text": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+        "contrast": 15.02163126055119,
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "messageSource": "server-rendered [data-purpose-messages].created; UI text fixture only"
+      },
+      "nonAudienceForeground": "rgb(145, 61, 32)",
+      "passesBodyText45": true
+    },
+    {
+      "locale": "zh-CN",
+      "cssSource": "actualA",
+      "actualA": "1263bdcb3576986a74a0cf59a7c7ea61072b9062",
+      "measured": {
+        "foreground": "rgb(145, 61, 32)",
+        "background": "rgb(28, 30, 38)",
+        "backgroundTag": "SECTION",
+        "backgroundClass": "card identity-registration-r1",
+        "fontSize": "14px",
+        "role": "status",
+        "text": "账号已创建。以下仅保存选择，不运行账户关联或广告。",
+        "contrast": 2.2898941379420705,
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "messageSource": "server-rendered [data-purpose-messages].created; UI text fixture only"
+      },
+      "nonAudienceForeground": "rgb(145, 61, 32)",
+      "passesBodyText45": false
+    },
+    {
+      "locale": "zh-CN",
+      "cssSource": "candidate",
+      "actualA": "1263bdcb3576986a74a0cf59a7c7ea61072b9062",
+      "measured": {
+        "foreground": "rgb(246, 243, 238)",
+        "background": "rgb(28, 30, 38)",
+        "backgroundTag": "SECTION",
+        "backgroundClass": "card identity-registration-r1",
+        "fontSize": "14px",
+        "role": "status",
+        "text": "账号已创建。以下仅保存选择，不运行账户关联或广告。",
+        "contrast": 15.02163126055119,
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "messageSource": "server-rendered [data-purpose-messages].created; UI text fixture only"
+      },
+      "nonAudienceForeground": "rgb(145, 61, 32)",
+      "passesBodyText45": true
+    }
+  ],
+  "checks_breakdown": {
+    "existing_header_range": 11,
+    "old_A_low_contrast_expected_checks": 2,
+    "candidate_contrast_checks": 2
+  },
+  "counts": {
+    "viewers": 0,
+    "registration_receipts": 0,
+    "orders": 0,
+    "subjects": 0,
+    "purpose_proofs": 0
+  },
+  "errors": [],
+  "external_requests": [],
+  "mutations": [],
+  "registration_submissions": 0,
+  "protected_runtime_modified": false,
+  "visual_acceptance_pending": true,
+  "closed_own_ports": {
+    "5604": true,
+    "8204": true,
+    "8215": true
+  }
+}
