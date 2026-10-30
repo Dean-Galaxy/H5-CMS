@@ -1,0 +1,11 @@
+{
+  "scope": "00 independent protected marked synthetic database; no human or external provider",
+  "candidate": "5304dd5f2f49942aa42e600d98eb7a39e8dee555",
+  "command": "cui_throttle_test.py clean test tests/Feature/Acquisition",
+  "passed_tests": 127,
+  "assertions": 2498,
+  "exit_code": 0,
+  "duration_seconds": 46.03,
+  "new_window_started": false,
+  "measured_at_utc": "2026-10-30T10:46:10.218736+00:00"
+}

@@ -1,0 +1,85 @@
+{
+  "scope": "00 independently executed synthetic real Chrome/Laravel C UI; not human or production",
+  "candidate_at_start": "9fbfbe4b7fa82a2fbc0352dbfcdf6d282bb0d366",
+  "application_source_equals": "6ea2a512cd61fd3d18db66e8df71bc4f675a667a",
+  "browser_result": {
+    "results": [
+      {
+        "name": "Actual C start waits for context and visible notice; no automatic modal or pre-start events",
+        "passed": true
+      },
+      {
+        "name": "en 320×500: notice, manually opened scroll panel, readable details and reachable close/off",
+        "passed": true
+      },
+      {
+        "name": "zh-CN 320×500: notice, manually opened scroll panel, readable details and reachable close/off",
+        "passed": true
+      },
+      {
+        "name": "Actual playing advances; preloading and seeking do not create completion or watched time",
+        "passed": true
+      },
+      {
+        "name": "Actual deny survives refresh; free preview still plays and creates no new C events",
+        "passed": true
+      },
+      {
+        "name": "Injected context 503: local pause/server unconfirmed; privacy and browsing remain usable",
+        "passed": true
+      },
+      {
+        "name": "Actual preference storage 503 keeps draft across refresh, explicit retry confirms deny",
+        "passed": true
+      },
+      {
+        "name": "Actual read quota 429 does not block an initial revision-zero off request",
+        "passed": true
+      },
+      {
+        "name": "Initial continuous context 503 still allows the real preference endpoint to confirm off",
+        "passed": true
+      },
+      {
+        "name": "Actual newer revision returns 409 facts without another read or automatic replay",
+        "passed": true
+      },
+      {
+        "name": "Late start response cannot reopen after off; other tabs receive pause only",
+        "passed": true
+      },
+      {
+        "name": "Actual membership denial and injected region/media hooks retain short error categories",
+        "passed": true
+      },
+      {
+        "name": "Unavailable browser storage promises only a page pause when server save fails",
+        "passed": true
+      },
+      {
+        "name": "No JavaScript leaves optional collection unstarted and data-use text readable",
+        "passed": true
+      },
+      {
+        "name": "Injected event 503: memory cap 100, batch cap 20/32KiB, max five attempts and expiry",
+        "passed": true
+      },
+      {
+        "name": "C hook filters forbidden legacy fields and unknown event names",
+        "passed": true
+      },
+      {
+        "name": "Real Chrome tab hide/resume retains one page and one play; hidden time is not watched",
+        "passed": true
+      }
+    ],
+    "passed": 17,
+    "errors": [],
+    "external": [],
+    "legacy_requests": 0
+  },
+  "own_http_stopped": true,
+  "queue_scheduler_started": false,
+  "public_enabled": false,
+  "provider_enabled": false
+}

@@ -1,0 +1,132 @@
+{
+  "scope": "00 independently executed marked synthetic HTTP pressure; not human or production",
+  "checks": [
+    {
+      "check": "120 context calls exhaust only context budget",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "60 starts remain independent then enforce their own limit",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "120 event calls enforce a separate event budget",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "retries do not duplicate raw events",
+      "passed": true
+    },
+    {
+      "check": "all optional budgets exhausted but necessary denial still saves",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "31st preference attempt is independently limited with retry headers",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "preference quota rejection writes no proof or revision",
+      "passed": true
+    },
+    {
+      "check": "forged viewer session and forwarding headers cannot replenish quota",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "C pressure leaves original v1 endpoint budget independent",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "missing actual CSRF still rejected",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "check": "another session CSRF token is not authority",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "check": "genuine session still cannot save cross origin",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "check": "browser supplied identity remains invalid and writes nothing",
+      "passed": true,
+      "status": 422
+    },
+    {
+      "check": "another genuine session can independently close on same IP",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "other session cannot donate quota to exhausted original session",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "rate limited allow cannot rewrite a confirmed denial",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "optional pressure and refusal checked within one real 60 second window",
+      "passed": true
+    },
+    {
+      "check": "six genuine sessions each have 30 independent preference attempts",
+      "passed": true
+    },
+    {
+      "check": "rotating sessions cannot bypass 180 per IP preference ceiling",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "preference abuse cannot consume independent context quota",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "IP rotation ceiling verified within one real 60 second window",
+      "passed": true
+    },
+    {
+      "check": "no legacy analysis source payment or delivery writes",
+      "passed": true
+    },
+    {
+      "check": "C pressure events are explicitly synthetic",
+      "passed": true
+    }
+  ],
+  "passed": 23,
+  "window_seconds": [
+    7.41,
+    5.51
+  ],
+  "owned_http_starts": 2,
+  "owned_http_stopped": true,
+  "cache_cleared_during_pressure": false,
+  "limits_per_minute": {
+    "context_ip": 120,
+    "start_ip": 60,
+    "events_ip": 120,
+    "preferences_session": 30,
+    "preferences_ip": 180
+  },
+  "queue_scheduler_started": false,
+  "external_sending_enabled": false,
+  "other_runtime_touched": false,
+  "candidate": "5304dd5f2f49942aa42e600d98eb7a39e8dee555"
+}
