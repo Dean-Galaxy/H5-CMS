@@ -1,0 +1,19 @@
+{
+  "scope": "05 fresh marked synthetic upgrade DB only",
+  "old_migrations": 25,
+  "new_migrations": 26,
+  "preserved_business_tables": 67,
+  "populated_fixture_tables": [
+    "acquisition_privacy",
+    "acquisition_c_preferences",
+    "acquisition_c_subjects",
+    "acquisition_c_sessions"
+  ],
+  "original_column_data_hashes_unchanged": true,
+  "added_nullable_columns": 2,
+  "new_business_tables": 3,
+  "existing_denial_columns_default_null": true,
+  "rollback_and_reapply_preserved_original_data": true,
+  "adopted_050006_unchanged": true,
+  "other_databases_modified": false
+}

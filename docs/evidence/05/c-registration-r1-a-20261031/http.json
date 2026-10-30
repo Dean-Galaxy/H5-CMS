@@ -1,0 +1,138 @@
+{
+  "scope": "05 own marked synthetic HTTP/service processes; not 01-A terms or 01-B facade integration",
+  "checks": [
+    {
+      "check": "R1 eligible choice-only context is read-only",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "actual CSRF rejects preference without token",
+      "passed": true,
+      "status": 419
+    },
+    {
+      "check": "cross-origin preference rejected",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "check": "anonymous allow requires web identity",
+      "passed": true,
+      "status": 401
+    },
+    {
+      "check": "browser cannot supply identity",
+      "passed": true,
+      "status": 422
+    },
+    {
+      "check": "4KiB request ceiling enforced",
+      "passed": true,
+      "status": 413
+    },
+    {
+      "check": "anonymous necessary deny saves without C start",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "necessary proof cookie is HttpOnly SameSite Lax",
+      "passed": true
+    },
+    {
+      "check": "GET neither queues R1 proof cookie nor extends proof",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "real existing Identity registration creates one necessary account",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "web allow saves intent but never runs account association",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "advertising intent does not create legacy grant",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "ordinary legacy grant before R1 refusal remains compatible",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "R1 ad denial really stops recognizable legacy proof",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "old allow replay confirms operation with CURRENT denial",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "new choice-only allow cannot erase legacy suppression",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "storage fault returns 503 without false saved result",
+      "passed": true,
+      "status": 503
+    },
+    {
+      "check": "preference failure preserves real current account",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "R1 context reaches its independent budget",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "exhausted R1 reads do not block necessary preference denial",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "R1 preference abuse is bounded with Retry-After",
+      "passed": true,
+      "status": 429
+    },
+    {
+      "check": "R1 pressure does not consume v2 necessary exit budget",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "R1 disabled and old frontend cannot revive ad grant",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "check": "two processes replay same operation exactly once",
+      "passed": true
+    },
+    {
+      "check": "competing process CAS has one winner and truthful conflict",
+      "passed": true
+    },
+    {
+      "check": "no C identity conversion or delivery graph created",
+      "passed": true
+    }
+  ],
+  "passed": 26,
+  "owned_http_starts": 2,
+  "owned_http_stopped": true,
+  "concurrent_worker_processes": 4,
+  "queue_scheduler_started": false,
+  "external_sending_enabled": false,
+  "other_runtime_touched": false
+}
