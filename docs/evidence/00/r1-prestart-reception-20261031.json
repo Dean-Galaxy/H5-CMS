@@ -1,0 +1,16 @@
+{
+  "scope": "pre-start engineering reception only; no new runtime or human acceptance",
+  "product_base": "2511ca30d13be4098ea02dcafbe16671dd2bd618",
+  "tools_delivery": "ab5bd11560fc4b093833fc5f7768535efe281bda",
+  "tools_changed_files": 9,
+  "committed_execution_files_bound": 10,
+  "root_offline_tests": 11,
+  "root_intercepted_client_scenarios": 26,
+  "root_recovery_scenarios": 6,
+  "root_same_probe_red_then_green": true,
+  "new_runtime_manifest_absent_at_review": true,
+  "web_pg_ports_free_at_review": true,
+  "runtime_combination_passed": false,
+  "human_registered": 0,
+  "external_and_payment_not_enabled": true
+}
