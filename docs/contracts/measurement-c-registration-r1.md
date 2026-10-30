@@ -72,10 +72,29 @@ R1仅准入**显式合成策略下**同请求`registration_succeeded|registratio
 
 可信结果不加入浏览器可伪造的事件名单；原v2事件入口应继续422拒绝伪造成功。登录/Verified等其他权威结果本批关闭。退出/换号复用结束职责，存储故障也清浏览器测量能力，保留deny且不撤历史订单授权。
 
-00下一步提供实际`app/Contracts`/DTO/no-op与适配测试，再派01-B/05适配；当前这里只冻结职责和载荷，**不能把候选类名当已存在**。05-A可先实现模块内服务和测试，不越权创建共享类；01-A不先调用05内部实现。01-B前该公共端口必须显式DEPENDENCY_NOT_READY。
+00现已提供第7节实际PHP契约、结果DTO和默认不可用实现；05提供方适配及01-B仍须独立交付/复验。05-A模块内服务不是公共端口，01不得直接调用；未接入真实适配前，公共端口显式DEPENDENCY_NOT_READY。
 
 ## 6. 接收与下一人工
 
 01-A测必要接受/版本/原模式兼容/真实建号及回程故障；05-A测每用途真实存储/身份scope、CAS/幂等/期限、旧拒绝/模式回退、401/419/409/429/503以及原账务/D05不变。独立库/标记和新迁移，禁止改已采用迁移。
 
 合并PHP端口/01-B及04管理接线后，06另备全新独立注册窗口/合成账号/本地邮件预览及短期策略，08复看中英/窄屏/真实保存状态，00固定GitHub版本后交07新0/3。测试不选可选仍建号、原site deny验证/退出重登仍保持，不重复旧游客小轮；全部允许/单项撤回与异常先工程自动化。付款/渠道/账户边及有序报表分后批，未映射付款“不适用”，不算全体转化率。
+
+## 7. 实际PHP端口 c-reg-r1-php-1
+
+2026-10-31增量，00归属的实际文件已提供；不是新增HTTP接口或原业务版本变更。
+
+| 文件/方法 | 固定职责 |
+|---|---|
+| `App\Contracts\RegistrationMeasurement::availability()` | 返回`RegistrationMeasurementAvailability::Available`或`DependencyNotReady`；仅说明适配依赖是否存在，不是政策允许、C已启或用户同意 |
+| `capture(string $deliveredNoticeVersion)` | 返回可空`RegistrationMeasurementCapture`；只接受01可信服务端已经交付的R1 notice版本，不能直接把POST隐藏字段当交付证明；无现有合法C不创建/补记 |
+| `record(?RegistrationMeasurementCapture, RegistrationResult)` | 返回既有`BehaviorRecordingResult::Accepted/Skipped/Retry`；不得抛错阻止账号结果。Retry只指当次临时失败，不允许持久化捕获、身份映射或日后补采 |
+| `RegistrationMeasurementCapture` | 不暴露账号/邮箱/C主体或会话；只能由05的同Request能力实现并由其再次验证。`__serialize()`必须抛异常，浏览器不接收此对象；伪造实现/别的请求/已结束能力必须Skipped |
+| `App\Data\RegistrationResult` | 仅`event_name: RegistrationResultKind`与可空`failure: RegistrationFailure`；成功必须null、失败必须validation/conflict/temporary/unknown之一；无任意properties/身份字段 |
+| 默认`UnavailableRegistrationMeasurement` | 已由AppServiceProvider绑定，availability显式DEPENDENCY_NOT_READY、capture=null、record=Skipped；没有数据库/事件写入，不假报记录成功，不要求身份流程排队等依赖 |
+
+05负责用真实模块内`RegistrationObservations`适配/绑定该接口，原`RequestObservation`实现公共marker且仍拒绝序列化；返回Available也必须在每次capture/record重验现有C、R1合成策略/期限/结果开关、已交付notice及拒绝状态。不能在注册前后增身份边或把v1 viewer事件改投C。
+
+01-B先在R1页面真实呈现对应说明时以服务端受保护状态记交付版本，在同一次注册请求捕获；只在必要事务已提交且自动登录清旧C之前记录成功，必要创建失败按短枚举记录失败。必要条款拒绝/失败、邮件失败/回程不明不能伪造成功；邮件失败发生在账号提交后不能改记注册失败。端口缺失/抛错/Skipped/Retry均不改账号、条款收据、付款或登录结果，不自动重发注册。真正分项选择继续消费第4节v3 HTTP，不把这个结果端口当可选同意保存口。
+
+00已独立执行默认不可用/结果类型与未知字段专项3项17断言通过；真实提供方及01可信时序组合仍待05/01交付。新增端口不代表R1整体通过或当前可人工。
