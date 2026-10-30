@@ -1,0 +1,93 @@
+{
+  "source_commit": "b3efa8f7a6e363d97aa8293f9bd0089edb256f35",
+  "baseline": "05d2db9cd77b304193b770da514b4a5f6a51607e",
+  "production_change": "public/audience/site.css header rules only",
+  "old_css": {
+    "normal_document_width": 320,
+    "font200_document_width": 363,
+    "nav_right": 363.046875,
+    "nav_width": 345.046875,
+    "ratio": 2,
+    "every_selected_font_doubled": true
+  },
+  "candidate_layout_cases": [
+    {
+      "name": "en-320-font200",
+      "ratio": 2,
+      "document_width": 320,
+      "nav_right": 302,
+      "header_height": 287
+    },
+    {
+      "name": "en-320-normal",
+      "ratio": 1,
+      "document_width": 320,
+      "nav_right": 302,
+      "header_height": 147
+    },
+    {
+      "name": "en-1280-font200",
+      "ratio": 2,
+      "document_width": 1280,
+      "nav_right": 1000.546875,
+      "header_height": 123.890625
+    },
+    {
+      "name": "en-1280-normal",
+      "ratio": 1,
+      "document_width": 1280,
+      "nav_right": 1084.125,
+      "header_height": 92
+    },
+    {
+      "name": "zh-CN-320-font200",
+      "ratio": 2,
+      "document_width": 320,
+      "nav_right": 302,
+      "header_height": 227
+    },
+    {
+      "name": "zh-CN-320-normal",
+      "ratio": 1,
+      "document_width": 320,
+      "nav_right": 302,
+      "header_height": 147
+    },
+    {
+      "name": "zh-CN-1280-font200",
+      "ratio": 2,
+      "document_width": 1280,
+      "nav_right": 991.296875,
+      "header_height": 123.890625
+    },
+    {
+      "name": "zh-CN-1280-normal",
+      "ratio": 1,
+      "document_width": 1280,
+      "nav_right": 1084.0625,
+      "header_height": 92
+    }
+  ],
+  "expected_failure_reproduction_checks": 1,
+  "candidate_layout_checks": 8,
+  "native_navigation_checks": 2,
+  "errors": [],
+  "external_page_requests": [],
+  "mutation_requests": [],
+  "synthetic_counts": {
+    "viewers": 0,
+    "registration_receipts": 0,
+    "orders": 0,
+    "subjects": 0,
+    "purpose_proofs": 0
+  },
+  "app_scripts_inert": true,
+  "registration_submissions": 0,
+  "closed_own_ports": {
+    "8204": true,
+    "5604": true,
+    "8214": true
+  },
+  "visual_acceptance_pending": true,
+  "protected_runtime_modified": false
+}
