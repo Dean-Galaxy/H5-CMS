@@ -36,6 +36,8 @@ if ($action === 'seed_cases') {
     }
     Runtime::write('privacy-cases.json', ['application_base' => '4add9e40e4820bbc0dfa38c3ea5796b527943c38',
         'seed_candidate' => getenv('H5_ANALYTICS_BROWSER_CANDIDATE'), 'groups' => $groups]);
+    Illuminate\Support\Facades\Mail::raw('AN-M01 own local preview only. No real email was sent; no viewer or payment was created.',
+        fn ($message) => $message->to('an-m01-preview@example.test')->subject('AN-M01 local preview, not delivered'));
     echo json_encode(['cases_created' => 10, 'viewers_created' => 0, 'financial_facts_created' => 0])."\n";
 } elseif ($action === 'state') {
     $fixture = Runtime::document('fixture.json');

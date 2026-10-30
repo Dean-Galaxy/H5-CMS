@@ -16,7 +16,8 @@ $path = $request->getPathInfo();
 // This test-window restriction is additional to the unchanged application guards.
 $blocked = str_starts_with($path, '/webhooks/')
     || (! in_array($request->method(), ['GET', 'HEAD', 'OPTIONS'], true)
-        && (str_starts_with($path, '/api/v1/auth/') || str_starts_with($path, '/membership/') || str_starts_with($path, '/billing/')));
+        && (str_starts_with($path, '/api/v1/auth/') || str_starts_with($path, '/api/v1/billing/')
+            || str_starts_with($path, '/membership/') || str_starts_with($path, '/billing/')));
 if ($blocked) {
     http_response_code(403);
     header('Content-Type: application/json');
