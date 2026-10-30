@@ -80,6 +80,8 @@ try:
     else: raise AssertionError('Owned HTTP startup timeout')
     env['NODE_PATH'] = os.environ.get('NODE_PATH', str(Path.home()/'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules'))
     script = 'header-font-browser.test.cjs' if header else ('purposes-r1-browser.test.cjs' if r1 else 'measurement-c-browser.test.cjs')
+    if header and os.environ.get('H5_C_UI_DIALOG_ONLY') == '1':
+        script = 'dialog-font-browser.test.cjs'
     subprocess.run(['node', str(Path(__file__).with_name(script))], env=env, cwd=ROOT, check=True)
 finally:
     if process:
