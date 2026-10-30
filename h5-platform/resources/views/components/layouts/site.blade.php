@@ -15,10 +15,17 @@
 @else
 <header><a class="brand" href="/">H5 <span>{{ __('identity.foundation') }}</span></a><nav><a href="?lang=zh_CN">简体中文</a><a href="?lang=en">English</a><a href="/identity/account">{{ __('identity.account') }}</a><a href="/admin">{{ __('identity.admin') }}</a></nav></header>
 @endif
+@if($audience && config('h5.modules.acquisition.ready') && config('h5.measurement_c_experience'))
+    @includeIf('audience.partials.measurement-c-notice')
+@endif
 <main id="main">{{ $slot }}
 @if($audience && request()->is('identity/account'))<p><a class="button" href="/membership">{{ __('audience::messages.membership') }}</a></p>@endif
 </main><footer>@if($audience)<strong>{{ __('audience::messages.brand') }}</strong><p>{{ __('audience::messages.footer') }}</p>@if(app()->environment('local'))<small>{{ __('audience::messages.local_detail') }}</small>@endif @else{{ __('identity.local_boundary') }}@endif</footer>
 @if($audience && config('h5.modules.acquisition.ready'))
-    @includeIf('audience.partials.tracking')
+    @if(config('h5.measurement_c_experience'))
+        @includeIf('audience.partials.measurement-c')
+    @else
+        @includeIf('audience.partials.tracking')
+    @endif
 @endif
 @stack('scripts')</body></html>

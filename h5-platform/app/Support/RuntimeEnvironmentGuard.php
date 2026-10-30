@@ -13,9 +13,10 @@ final class RuntimeEnvironmentGuard
         $environment = config('app.env');
         $this->require(in_array($environment, ['local', 'testing', 'staging', 'production'], true)
             && $environment === app()->environment() && $environment === Env::get('APP_ENV'), 'RUNTIME_ENVIRONMENT_INVALID');
-        foreach (['app.debug', 'h5.controlled_staging', 'h5.simulation', 'h5.local_us_test_region'] as $key) {
+        foreach (['app.debug', 'h5.controlled_staging', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience'] as $key) {
             $this->require(is_bool(config($key)), 'RUNTIME_BOOLEAN_INVALID');
         }
+        $this->require(! config('h5.measurement_c_experience') || in_array($environment, ['local', 'testing'], true), 'RUNTIME_C_EXPERIENCE_FORBIDDEN');
         $this->require(is_string(config('h5.local_modules')), 'RUNTIME_MODULES_INVALID');
         $this->require(! config('h5.controlled_staging') || $environment === 'staging', 'STAGING_ENVIRONMENT_REQUIRED');
         $this->paypal($environment);
