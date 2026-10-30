@@ -1,0 +1,32 @@
+{
+  "scope": "repair engineering reception; actual retry not executed",
+  "old_runtime": "f9d21fbccc54e7c3796e83b9824c8d0edc91174f",
+  "old_regression": {
+    "passed": 878,
+    "failed": 4,
+    "assertions": 12751,
+    "whole_passed": false
+  },
+  "clock_failure_claim_withdrawn": true,
+  "root_shared_clock_verified": true,
+  "original_first_lifecycle_assert_unknown": true,
+  "independent_sql_precision_confirmed": true,
+  "root_new_php": {
+    "passed": 189,
+    "assertions": 3570,
+    "seconds": 59.88
+  },
+  "root_new_offline_tools_passed": 15,
+  "preserved_checkpoint_digest_counts": [
+    12,
+    11
+  ],
+  "old_archives_readable": 4,
+  "old_fingerprint_tables_each": 72,
+  "new_product_base": "a2861a6ddc57d1386e0d57906510e44c5fca2a7a",
+  "fixed_policy_until": "2026-10-31T18:53:47Z",
+  "policy_auto_extension": false,
+  "independent_restore_proven": false,
+  "whole_runtime_passed": false,
+  "human_passed": 0
+}
