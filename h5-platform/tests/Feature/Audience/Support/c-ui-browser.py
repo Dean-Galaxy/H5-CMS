@@ -15,11 +15,12 @@ spec = importlib.util.spec_from_file_location('h5dev', ROOT / 'scripts/dev.py')
 dev = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(dev)
 cfg = dev.config()
-r1 = os.environ.get('H5_C_UI_R1') == '1'
-scope = 'r1-audience' if r1 else 'c-ui-1-audience'
+header = os.environ.get('H5_C_UI_HEADER_ONLY') == '1'
+r1 = os.environ.get('H5_C_UI_R1') == '1' or header
+scope = 'header-audience' if header else ('r1-audience' if r1 else 'c-ui-1-audience')
 assert not (dev.APP / 'bootstrap/cache/config.php').exists(), 'Refuse cached config'
 dev.database_start()
-db = cfg['db'] + ('_r1_audience_http_test' if r1 else '_cui1_audience_http_test')
+db = cfg['db'] + ('_header_audience_http_test' if header else ('_r1_audience_http_test' if r1 else '_cui1_audience_http_test'))
 marker = dev.RUN / (scope + '-owned.json')
 admin = dev.pg_env(admin=True)
 exists = subprocess.run([str(dev.PG / 'psql'), '-Atc', "SELECT 1 FROM pg_database WHERE datname='" + db + "'"],
@@ -45,7 +46,7 @@ env.update(APP_ENV='testing', APP_DEBUG='false', APP_URL=base, H5_LOCAL_MODULES=
            ACQUISITION_ANALYTICS_ENABLED='false', ACQUISITION_TRANSPORT='disabled', ACQUISITION_EXTERNAL_ENABLED='false',
            PAYPAL_API_ENABLED='false', H5_BILLING_DRIVER='unconfigured', H5_BILLING_CHECKOUT_PROVIDER='unconfigured', H5_C_UI_BASE=base, H5_C_UI_OUT=str(out))
 if r1:
-    env.update(H5_C_REGISTRATION_ENABLED='true', H5_WORKSPACE=cfg['workspace']+'_r1_audience',
+    env.update(H5_C_REGISTRATION_ENABLED='true', H5_WORKSPACE=cfg['workspace']+('_header_audience' if header else '_r1_audience'),
                ACQUISITION_R1_SYNTHETIC_POLICY='true', ACQUISITION_R1_OBSERVATIONS_ENABLED='false',
                ACQUISITION_R1_SYNTHETIC_FROM=(datetime.datetime.now(datetime.timezone.utc)-datetime.timedelta(minutes=1)).isoformat(),
                ACQUISITION_R1_SYNTHETIC_UNTIL=(datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(hours=1)).isoformat())
@@ -78,7 +79,8 @@ try:
         except Exception: time.sleep(.1)
     else: raise AssertionError('Owned HTTP startup timeout')
     env['NODE_PATH'] = os.environ.get('NODE_PATH', str(Path.home()/'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules'))
-    subprocess.run(['node', str(Path(__file__).with_name('purposes-r1-browser.test.cjs' if r1 else 'measurement-c-browser.test.cjs'))], env=env, cwd=ROOT, check=True)
+    script = 'header-font-browser.test.cjs' if header else ('purposes-r1-browser.test.cjs' if r1 else 'measurement-c-browser.test.cjs')
+    subprocess.run(['node', str(Path(__file__).with_name(script))], env=env, cwd=ROOT, check=True)
 finally:
     if process:
         os.killpg(process.pid, signal.SIGTERM)

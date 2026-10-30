@@ -15,11 +15,12 @@ require __DIR__.'/../../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 $root = realpath(base_path('..'));
-$r1 = getenv('H5_C_UI_R1') === '1';
-$scope = $r1 ? 'r1-audience' : 'c-ui-1-audience';
+$header = getenv('H5_C_UI_HEADER_ONLY') === '1';
+$r1 = getenv('H5_C_UI_R1') === '1' || $header;
+$scope = $header ? 'header-audience' : ($r1 ? 'r1-audience' : 'c-ui-1-audience');
 $owned = json_decode(file_get_contents($root.'/.runtime/'.$scope.'-owned.json'), true, flags: JSON_THROW_ON_ERROR);
 if (! app()->environment('testing') || $owned['root'] !== $root || $owned['database'] !== DB::connection()->getDatabaseName()
-    || ! str_ends_with($owned['database'], $r1 ? '_r1_audience_http_test' : '_cui1_audience_http_test') || ! str_starts_with(config('h5.media_root'), $root.'/.runtime/'.$scope.'/')) {
+    || ! str_ends_with($owned['database'], $header ? '_header_audience_http_test' : ($r1 ? '_r1_audience_http_test' : '_cui1_audience_http_test')) || ! str_starts_with(config('h5.media_root'), $root.'/.runtime/'.$scope.'/')) {
     throw new LogicException('Refuse non-owned synthetic C UI database or media.');
 }
 $target = $root.'/.runtime/'.$scope.'/fixture.json';
@@ -40,7 +41,7 @@ if (is_file($target)) {
 if (DramaRecord::count() !== 0) {
     throw new LogicException('Unexpected content in synthetic DB; refusing to replace.');
 }
-DB::transaction(function () use ($target, $r1) {
+DB::transaction(function () use ($target, $r1, $header) {
     $owner = (string) Str::uuid(); // Synthetic author reference only; no usable staff login.
     $coverBytes = filesize(config('h5.media_root').'/cover/image.png');
     $cover = Asset::create(['created_by' => $owner, 'kind' => 'cover', 'state' => 'ready', 'extension' => 'png',
@@ -60,7 +61,7 @@ DB::transaction(function () use ($target, $r1) {
     }
     Plan::create(['drama_id' => $drama->id, 'mode' => 'completed', 'launch_at' => now(), 'state' => 'active']);
     $accounts = [];
-    if ($r1) {
+    if ($r1 && ! $header) {
         foreach (range(1, 2) as $number) {
             $email = Str::uuid().'@example.test';
             $password = Str::random(24).'T1!';
