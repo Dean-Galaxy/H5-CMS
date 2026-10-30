@@ -1,0 +1,2201 @@
+{
+  "candidate_commit": "3373bcca21ff3f9491d00cc984a4eb3a14b7637e",
+  "previous_04_commit": "398c800134018e05b9a913add93c530a017fe4e2",
+  "Y": "3c109badaec215428ca8e1bd221829c82fe42d34",
+  "S": "c473f592f3eff3d1e0dd9f1595e1b7d89a49e7a9",
+  "S_source_sha256": "329cfff417a721118656d327ced494cd6badbedf898fb6e1dbf8b5dc52e9a30b",
+  "scaleDialog_verbatim_copy": true,
+  "scaleDialog_sha256": "32dd5ed54b424eda8a3eb5e50325c67901e50474a2666ae733f9309926db0d8b",
+  "sources": [
+    {
+      "path": "h5-platform/public/audience/measurement-c.css",
+      "Y_sha256": "f1fc10f4b63089ce6736adbea0923de334ca8f7cf0e9d6e2125fd0a0a83e641f",
+      "candidate_sha256": "519d99d8a5607c41fc664c519b5508b4898c4d569c965df7c87d96a708b25049",
+      "same_as_Y": false
+    },
+    {
+      "path": "h5-platform/public/audience/purposes-r1.css",
+      "Y_sha256": "3b95a13d7478d2163651b0310477fa785c602ebd5e41bc0e821935ad6c516fbf",
+      "candidate_sha256": "96ae50eda41de887e5b5cfdacb24d8dd07e7e33d1bdcdf217d87614dab6d3c00",
+      "same_as_Y": false
+    },
+    {
+      "path": "h5-platform/public/audience/site.css",
+      "Y_sha256": "26a9db5188557cde2e487add85d879efe8696751778e6ca762401543e252b330",
+      "candidate_sha256": "26a9db5188557cde2e487add85d879efe8696751778e6ca762401543e252b330",
+      "same_as_Y": true
+    },
+    {
+      "path": "h5-platform/public/identity.css",
+      "Y_sha256": "b0b67bd8c877fcd6485524b32d4a90b666b51a92ee9df5bbdde794d9c611b000",
+      "candidate_sha256": "b0b67bd8c877fcd6485524b32d4a90b666b51a92ee9df5bbdde794d9c611b000",
+      "same_as_Y": true
+    },
+    {
+      "path": "h5-platform/resources/views/audience/partials/measurement-c.blade.php",
+      "Y_sha256": "c78f8a140d63764eac71fe241b4565d542feba5c93d4a1fbb4ead7d6a87d0119",
+      "candidate_sha256": "c78f8a140d63764eac71fe241b4565d542feba5c93d4a1fbb4ead7d6a87d0119",
+      "same_as_Y": true
+    },
+    {
+      "path": "h5-platform/resources/views/audience/partials/purposes-r1.blade.php",
+      "Y_sha256": "c8d836108fcbc6537b8423e6bbcf1d9af4c80cb5a0fc3e5347af8c82d8335c63",
+      "candidate_sha256": "c8d836108fcbc6537b8423e6bbcf1d9af4c80cb5a0fc3e5347af8c82d8335c63",
+      "same_as_Y": true
+    },
+    {
+      "path": "h5-platform/resources/views/components/layouts/site.blade.php",
+      "Y_sha256": "6d722152b88e78c2643dfc768bc15b6a9a97ff06b4345d0815d371a75b2f9956",
+      "candidate_sha256": "6d722152b88e78c2643dfc768bc15b6a9a97ff06b4345d0815d371a75b2f9956",
+      "same_as_Y": true
+    },
+    {
+      "path": "h5-platform/app/Modules/Audience/lang/en/measurement.php",
+      "Y_sha256": "7a368479b7f12bb474dfc85e9ac6db5338b9109046b67a8e397ab5bd65e4bb0d",
+      "candidate_sha256": "7a368479b7f12bb474dfc85e9ac6db5338b9109046b67a8e397ab5bd65e4bb0d",
+      "same_as_Y": true
+    },
+    {
+      "path": "h5-platform/app/Modules/Audience/lang/en/purposes.php",
+      "Y_sha256": "a0d3e1f5d5d34e89df8b7a7c01b5ae2fc7e1463b4aa9cb6717825d5faf53699f",
+      "candidate_sha256": "a0d3e1f5d5d34e89df8b7a7c01b5ae2fc7e1463b4aa9cb6717825d5faf53699f",
+      "same_as_Y": true
+    },
+    {
+      "path": "h5-platform/app/Modules/Audience/lang/zh_CN/measurement.php",
+      "Y_sha256": "2847865320fd903d4e84be4795dcadc5b3c7e59006a0f8c2ac4cda4094854e7e",
+      "candidate_sha256": "2847865320fd903d4e84be4795dcadc5b3c7e59006a0f8c2ac4cda4094854e7e",
+      "same_as_Y": true
+    },
+    {
+      "path": "h5-platform/app/Modules/Audience/lang/zh_CN/purposes.php",
+      "Y_sha256": "802bab5329dcc5157118d07ec33c924ba11df4015098927807ff90ed36bbc36a",
+      "candidate_sha256": "802bab5329dcc5157118d07ec33c924ba11df4015098927807ff90ed36bbc36a",
+      "same_as_Y": true
+    }
+  ],
+  "files": [
+    {
+      "file": "dialog-browser.json",
+      "sha256": "6078db43c03e58238fa011234a524d0b1470064961da1e9a49b5650985cdc773"
+    },
+    {
+      "file": "en-Y-font-x2-account-bottom.png",
+      "sha256": "42625a5491df837b356dc838e68b0152aa459bf0aeb95727b53f29c4587718c4",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-font-x2-account-legend.png",
+      "sha256": "65a088ac21d3e7728b054d0a5aa3b0d3d115f6b8b91403ca26601b4729cc9868",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-font-x2-advertising-bottom.png",
+      "sha256": "b2bc5130bb4991b8b14346e0f272fe97e97cbce69fd7256897566d0ca74ca033",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-font-x2-advertising-legend.png",
+      "sha256": "6718c779609d074be783493fa24a9078ca2ba13516a6da9412e03331e8c610f0",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-font-x2-scope-bottom.png",
+      "sha256": "6702255160bbc60cd7770573bddc0d8ecaa09e9abcee76336c5bcd511231a5db",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-font-x2-title.png",
+      "sha256": "cb9a4523cbb449b8a37097fc59ae3d31e1fc3140356a4aa730a858ad84948cd4",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-normal-account-bottom.png",
+      "sha256": "df085dffd1308f27b2aefe3cfaad30d4909cae2fac11db8585837f1d7a0a55b1",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-normal-account-legend.png",
+      "sha256": "69fe16830932317d4ba196e7b166b2e033f70fa98aef75fa5e619034460dca97",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-normal-advertising-bottom.png",
+      "sha256": "61ee08179895dc316c6047254fc4ee96f217479bdef0526e2c6fe79c963713b3",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-normal-advertising-legend.png",
+      "sha256": "b8c9b4a79bcc29147a938671fccb080a7d80a10f3570b07f7abaf903c37490c7",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-normal-scope-bottom.png",
+      "sha256": "4ea2388206a9f9713c5105ddc3418c40de025c2bcf6e6ef429997175ad054b93",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-Y-normal-title.png",
+      "sha256": "57c2866070979d78fee35c2b4229746bdaeccc03fd973b2aacc23779d8ae513a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-font-x2-account-bottom.png",
+      "sha256": "1dd2364576193a832231a46e72993c88466c8625978a9748f9a6757d7e55e98f",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-font-x2-account-legend.png",
+      "sha256": "3d19576a511553c66091d2a70c0b45dc1dfd773eaac4f619d6dc2303110cea30",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-font-x2-advertising-bottom.png",
+      "sha256": "fbd01d8b789cb38a30ee186af87c5ad646f615aac7b46b7ec69699cfae4ba840",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-font-x2-advertising-legend.png",
+      "sha256": "baa5d8593e929444af483f9a02d7847a8ffd6e9319182946c149dbff52bc6e97",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-font-x2-scope-bottom.png",
+      "sha256": "2430d931a2d829786f01c8d1f9d76f262c64b1c9365c70b1d44bdc98ecb015ff",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-font-x2-title.png",
+      "sha256": "f396c126508c59953b19c4b596ca1063566268652ef5523b31add1a302b9ac3f",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-normal-account-bottom.png",
+      "sha256": "df085dffd1308f27b2aefe3cfaad30d4909cae2fac11db8585837f1d7a0a55b1",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-normal-account-legend.png",
+      "sha256": "69fe16830932317d4ba196e7b166b2e033f70fa98aef75fa5e619034460dca97",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-normal-advertising-bottom.png",
+      "sha256": "61ee08179895dc316c6047254fc4ee96f217479bdef0526e2c6fe79c963713b3",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-normal-advertising-legend.png",
+      "sha256": "b8c9b4a79bcc29147a938671fccb080a7d80a10f3570b07f7abaf903c37490c7",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-normal-scope-bottom.png",
+      "sha256": "4ea2388206a9f9713c5105ddc3418c40de025c2bcf6e6ef429997175ad054b93",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-candidate-normal-title.png",
+      "sha256": "57c2866070979d78fee35c2b4229746bdaeccc03fd973b2aacc23779d8ae513a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-font-x2-account-bottom.png",
+      "sha256": "0718635e8ed6a3e9b46cac8249d08017e02718baa3f9538a9aa96537782f3d3a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-font-x2-account-legend.png",
+      "sha256": "92e29767007ae0d35ae752e7de4d844eed9f16af48f317130907f60175202ff8",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-font-x2-advertising-bottom.png",
+      "sha256": "0718635e8ed6a3e9b46cac8249d08017e02718baa3f9538a9aa96537782f3d3a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-font-x2-advertising-legend.png",
+      "sha256": "ca8be75c1df26fe08c5958fba25287170a610be349d2e075c174542d017d7bb2",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-font-x2-scope-bottom.png",
+      "sha256": "d07ad94e3cdd59a9d2bb043caa67ea41277edb246577669d349af0206ba6e5fd",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-font-x2-title.png",
+      "sha256": "0b71702749e236cfdf5f144b270950755a4c82a9ddb62923c92a772012fc3719",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-normal-account-bottom.png",
+      "sha256": "a3b6096021f6327aa8d3b547fe6d0818b2f6ee4557a44731b11b8c372d9abdb1",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-normal-account-legend.png",
+      "sha256": "3b923fa6e296def6b95145b8aac83b590ff0e261fcc9e437e02d996101f19952",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-normal-advertising-bottom.png",
+      "sha256": "18126300eb21fc6636fd63e9c5ebf706b71eedf7bc081e659e102360acdf5ccf",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-normal-advertising-legend.png",
+      "sha256": "cb18318c8fa9b9f0ef060215ead406ae4263a2f9afcf661040fe8da0ce21cedb",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-normal-scope-bottom.png",
+      "sha256": "c8d510f1fee976b2b7bbb793ea92a26155fc356434248de61673e190f8125d0d",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-Y-normal-title.png",
+      "sha256": "0c5d190c671827c45f86d22af246be17906e6e1dc1aa784f0f4df3b263bf5bc4",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-font-x2-account-bottom.png",
+      "sha256": "0718635e8ed6a3e9b46cac8249d08017e02718baa3f9538a9aa96537782f3d3a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-font-x2-account-legend.png",
+      "sha256": "92e29767007ae0d35ae752e7de4d844eed9f16af48f317130907f60175202ff8",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-font-x2-advertising-bottom.png",
+      "sha256": "0718635e8ed6a3e9b46cac8249d08017e02718baa3f9538a9aa96537782f3d3a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-font-x2-advertising-legend.png",
+      "sha256": "ca8be75c1df26fe08c5958fba25287170a610be349d2e075c174542d017d7bb2",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-font-x2-scope-bottom.png",
+      "sha256": "d07ad94e3cdd59a9d2bb043caa67ea41277edb246577669d349af0206ba6e5fd",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-font-x2-title.png",
+      "sha256": "0b71702749e236cfdf5f144b270950755a4c82a9ddb62923c92a772012fc3719",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-normal-account-bottom.png",
+      "sha256": "a3b6096021f6327aa8d3b547fe6d0818b2f6ee4557a44731b11b8c372d9abdb1",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-normal-account-legend.png",
+      "sha256": "3b923fa6e296def6b95145b8aac83b590ff0e261fcc9e437e02d996101f19952",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-normal-advertising-bottom.png",
+      "sha256": "18126300eb21fc6636fd63e9c5ebf706b71eedf7bc081e659e102360acdf5ccf",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-normal-advertising-legend.png",
+      "sha256": "cb18318c8fa9b9f0ef060215ead406ae4263a2f9afcf661040fe8da0ce21cedb",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-normal-scope-bottom.png",
+      "sha256": "c8d510f1fee976b2b7bbb793ea92a26155fc356434248de61673e190f8125d0d",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-candidate-normal-title.png",
+      "sha256": "0c5d190c671827c45f86d22af246be17906e6e1dc1aa784f0f4df3b263bf5bc4",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    }
+  ],
+  "ui_fixture_only": true,
+  "application_scripts_inert": true,
+  "registration_or_preference_submission": false,
+  "test_sources": [
+    {
+      "path": "h5-platform/tests/Feature/Audience/Support/dialog-font-browser.test.cjs",
+      "sha256": "92a2a40ff3060a82e6406bec6dbc99349486428baca8bd088a57ddc24ca44417"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Audience/Support/c-ui-browser.py",
+      "sha256": "2508dea56ac5892b935f5f7d75c0f2ec0ce8777e354794ef84b30c178830aee8"
+    }
+  ],
+  "checks": {
+    "Y_control_cases": 4,
+    "candidate_cases": 4,
+    "total": 8,
+    "old_en_x2_expected_failure": 1
+  },
+  "original_S_first_failure_deidentified": {
+    "clientWidth": 248,
+    "scrollWidth": 261,
+    "scrollHeight": 11518,
+    "clientHeight": 210,
+    "left": 36,
+    "right": 284,
+    "scrollTop": 0,
+    "png_sha256": "da5a8f083f95d19d1f03f5815186ef37dd746a9a482463782cec50a01e0928c4"
+  },
+  "normal_geometry_exactly_equal_to_Y": true,
+  "title_legend_colors_fonts_background_unchanged": true,
+  "native_frame_scope": "6 representative scroll positions per case; not S full vertical coverage or actual saved-state management capture",
+  "counts": {
+    "viewers": 0,
+    "receipts": 0,
+    "subjects": 0,
+    "proofs": 0,
+    "operations": 0,
+    "choices": 0,
+    "events": 0
+  },
+  "errors": [],
+  "external_requests": [],
+  "mutations": [],
+  "protected_runtime_modified": false,
+  "visual_acceptance_pending": true,
+  "closed_own_ports": {
+    "5604": true,
+    "8204": true,
+    "8214": true
+  },
+  "cases": [
+    {
+      "name": "en-Y-normal",
+      "measured": {
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "scale": 1,
+        "body": {
+          "left": 20,
+          "right": 300,
+          "top": 16,
+          "bottom": 323,
+          "width": 280,
+          "height": 307,
+          "clientWidth": 280,
+          "scrollWidth": 280,
+          "clientHeight": 307,
+          "scrollHeight": 3474,
+          "scrollTop": 0,
+          "overflowX": "auto"
+        },
+        "title": {
+          "left": 34,
+          "right": 286,
+          "top": 30,
+          "bottom": 64.640625,
+          "width": 252,
+          "height": 34.640625,
+          "text": "Privacy management",
+          "style": {
+            "font": "21px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "700",
+            "lineHeight": "34.65px"
+          }
+        },
+        "colors": {
+          "dialog": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(28, 30, 38)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "body": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "page": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(18, 19, 24)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "backdrop": "rgba(16, 35, 27, 0.76)"
+        },
+        "fields": [
+          {
+            "purpose": "account_link",
+            "left": 34,
+            "right": 286,
+            "top": 608.84375,
+            "bottom": 1310.171875,
+            "width": 252,
+            "height": 701.328125,
+            "clientWidth": 250,
+            "scrollWidth": 250,
+            "legend": {
+              "left": 47,
+              "right": 215.734375,
+              "top": 608.84375,
+              "bottom": 635.234375,
+              "width": 168.734375,
+              "height": 26.390625,
+              "style": {
+                "font": "16px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "26.4px"
+              }
+            }
+          },
+          {
+            "purpose": "advertising",
+            "left": 34,
+            "right": 286,
+            "top": 1326.171875,
+            "bottom": 2005.8125,
+            "width": 252,
+            "height": 679.640625,
+            "clientWidth": 250,
+            "scrollWidth": 250,
+            "legend": {
+              "left": 47,
+              "right": 259.203125,
+              "top": 1326.171875,
+              "bottom": 1352.5625,
+              "width": 212.203125,
+              "height": 26.390625,
+              "style": {
+                "font": "16px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "26.4px"
+              }
+            }
+          }
+        ],
+        "textOverflows": []
+      },
+      "font_method": null,
+      "frames": [
+        {
+          "label": "title",
+          "scrollTop": 0,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "account-legend",
+          "scrollTop": 593,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "account-bottom",
+          "scrollTop": 987,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "advertising-legend",
+          "scrollTop": 1310,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "advertising-bottom",
+          "scrollTop": 1683,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "scope-bottom",
+          "scrollTop": 3137,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        }
+      ]
+    },
+    {
+      "name": "en-Y-font-x2",
+      "measured": {
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "scale": 1,
+        "body": {
+          "left": 36,
+          "right": 284,
+          "top": 16,
+          "bottom": 225.53125,
+          "width": 248,
+          "height": 209.53125,
+          "clientWidth": 248,
+          "scrollWidth": 261,
+          "clientHeight": 210,
+          "scrollHeight": 11518,
+          "scrollTop": 0,
+          "overflowX": "auto"
+        },
+        "title": {
+          "left": 50,
+          "right": 270,
+          "top": 30,
+          "bottom": 168.59375,
+          "width": 220,
+          "height": 138.59375,
+          "text": "Privacy management",
+          "style": {
+            "font": "42px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "700",
+            "lineHeight": "69.3px"
+          }
+        },
+        "colors": {
+          "dialog": {
+            "font": "32px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(28, 30, 38)",
+            "fontWeight": "400",
+            "lineHeight": "52.8px"
+          },
+          "body": {
+            "font": "32px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "400",
+            "lineHeight": "52.8px"
+          },
+          "page": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(18, 19, 24)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "backdrop": "rgba(16, 35, 27, 0.76)"
+        },
+        "fields": [
+          {
+            "purpose": "account_link",
+            "left": 50,
+            "right": 270,
+            "top": 1829.546875,
+            "bottom": 3754.46875,
+            "width": 220,
+            "height": 1924.921875,
+            "clientWidth": 218,
+            "scrollWidth": 218,
+            "legend": {
+              "left": 63,
+              "right": 257,
+              "top": 1829.546875,
+              "bottom": 1935.140625,
+              "width": 194,
+              "height": 105.59375,
+              "style": {
+                "font": "32px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "52.8px"
+              }
+            }
+          },
+          {
+            "purpose": "advertising",
+            "left": 50,
+            "right": 270,
+            "top": 3770.46875,
+            "bottom": 5608.609375,
+            "width": 220,
+            "height": 1838.140625,
+            "clientWidth": 218,
+            "scrollWidth": 218,
+            "legend": {
+              "left": 63,
+              "right": 281.34375,
+              "top": 3770.46875,
+              "bottom": 3876.0625,
+              "width": 218.34375,
+              "height": 105.59375,
+              "style": {
+                "font": "32px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "52.8px"
+              }
+            }
+          }
+        ],
+        "textOverflows": [
+          {
+            "tag": "H2",
+            "text": "Privacy management",
+            "left": 50,
+            "right": 296.578125
+          },
+          {
+            "tag": "LEGEND",
+            "text": "Advertising measurement",
+            "left": 69,
+            "right": 275.34375
+          }
+        ]
+      },
+      "font_method": {
+        "method": "open_dialog_visible_html_precomputed_font_px_times_2",
+        "scope": "Only rendered HTML in the current open dialog, including off-scroll content; excludes hidden/SVG/pseudo text/background/browser UI",
+        "browser_zoom_tested": false,
+        "background_measured": 52,
+        "background_changed": 0,
+        "dpr_before": 1,
+        "dpr_after": 1,
+        "scale_before": 1,
+        "scale_after": 1,
+        "measured_elements": 73,
+        "outside_tolerance": 0,
+        "representatives": {
+          "DIALOG": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DIV": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "H2": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "P": {
+            "count": 15,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DL": {
+            "count": 3,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DT": {
+            "count": 9,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DD": {
+            "count": 9,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SECTION": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "BUTTON": {
+            "count": 8,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "FIELDSET": {
+            "count": 2,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "LEGEND": {
+            "count": 2,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "LABEL": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "INPUT": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DETAILS": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SUMMARY": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "STRONG": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SPAN": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          }
+        }
+      },
+      "frames": [
+        {
+          "label": "title",
+          "scrollTop": 0,
+          "clientWidth": 248,
+          "scrollWidth": 261
+        },
+        {
+          "label": "account-legend",
+          "scrollTop": 1814,
+          "clientWidth": 248,
+          "scrollWidth": 261
+        },
+        {
+          "label": "account-bottom",
+          "scrollTop": 3528,
+          "clientWidth": 248,
+          "scrollWidth": 261
+        },
+        {
+          "label": "advertising-legend",
+          "scrollTop": 3754,
+          "clientWidth": 248,
+          "scrollWidth": 261
+        },
+        {
+          "label": "advertising-bottom",
+          "scrollTop": 5383,
+          "clientWidth": 248,
+          "scrollWidth": 261
+        },
+        {
+          "label": "scope-bottom",
+          "scrollTop": 11278,
+          "clientWidth": 248,
+          "scrollWidth": 261
+        }
+      ]
+    },
+    {
+      "name": "en-candidate-normal",
+      "measured": {
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "scale": 1,
+        "body": {
+          "left": 20,
+          "right": 300,
+          "top": 16,
+          "bottom": 323,
+          "width": 280,
+          "height": 307,
+          "clientWidth": 280,
+          "scrollWidth": 280,
+          "clientHeight": 307,
+          "scrollHeight": 3474,
+          "scrollTop": 0,
+          "overflowX": "auto"
+        },
+        "title": {
+          "left": 34,
+          "right": 286,
+          "top": 30,
+          "bottom": 64.640625,
+          "width": 252,
+          "height": 34.640625,
+          "text": "Privacy management",
+          "style": {
+            "font": "21px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "700",
+            "lineHeight": "34.65px"
+          }
+        },
+        "colors": {
+          "dialog": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(28, 30, 38)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "body": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "page": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(18, 19, 24)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "backdrop": "rgba(16, 35, 27, 0.76)"
+        },
+        "fields": [
+          {
+            "purpose": "account_link",
+            "left": 34,
+            "right": 286,
+            "top": 608.84375,
+            "bottom": 1310.171875,
+            "width": 252,
+            "height": 701.328125,
+            "clientWidth": 250,
+            "scrollWidth": 250,
+            "legend": {
+              "left": 47,
+              "right": 215.734375,
+              "top": 608.84375,
+              "bottom": 635.234375,
+              "width": 168.734375,
+              "height": 26.390625,
+              "style": {
+                "font": "16px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "26.4px"
+              }
+            }
+          },
+          {
+            "purpose": "advertising",
+            "left": 34,
+            "right": 286,
+            "top": 1326.171875,
+            "bottom": 2005.8125,
+            "width": 252,
+            "height": 679.640625,
+            "clientWidth": 250,
+            "scrollWidth": 250,
+            "legend": {
+              "left": 47,
+              "right": 259.203125,
+              "top": 1326.171875,
+              "bottom": 1352.5625,
+              "width": 212.203125,
+              "height": 26.390625,
+              "style": {
+                "font": "16px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "26.4px"
+              }
+            }
+          }
+        ],
+        "textOverflows": []
+      },
+      "font_method": null,
+      "frames": [
+        {
+          "label": "title",
+          "scrollTop": 0,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "account-legend",
+          "scrollTop": 593,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "account-bottom",
+          "scrollTop": 987,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "advertising-legend",
+          "scrollTop": 1310,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "advertising-bottom",
+          "scrollTop": 1683,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "scope-bottom",
+          "scrollTop": 3137,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        }
+      ]
+    },
+    {
+      "name": "en-candidate-font-x2",
+      "measured": {
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "scale": 1,
+        "body": {
+          "left": 36,
+          "right": 284,
+          "top": 16,
+          "bottom": 225.53125,
+          "width": 248,
+          "height": 209.53125,
+          "clientWidth": 248,
+          "scrollWidth": 248,
+          "clientHeight": 210,
+          "scrollHeight": 11640,
+          "scrollTop": 0,
+          "overflowX": "auto"
+        },
+        "title": {
+          "left": 50,
+          "right": 270,
+          "top": 30,
+          "bottom": 237.890625,
+          "width": 220,
+          "height": 207.890625,
+          "text": "Privacy management",
+          "style": {
+            "font": "42px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "700",
+            "lineHeight": "69.3px"
+          }
+        },
+        "colors": {
+          "dialog": {
+            "font": "32px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(28, 30, 38)",
+            "fontWeight": "400",
+            "lineHeight": "52.8px"
+          },
+          "body": {
+            "font": "32px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "400",
+            "lineHeight": "52.8px"
+          },
+          "page": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(18, 19, 24)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "backdrop": "rgba(16, 35, 27, 0.76)"
+        },
+        "fields": [
+          {
+            "purpose": "account_link",
+            "left": 50,
+            "right": 270,
+            "top": 1898.84375,
+            "bottom": 3823.765625,
+            "width": 220,
+            "height": 1924.921875,
+            "clientWidth": 218,
+            "scrollWidth": 218,
+            "legend": {
+              "left": 63,
+              "right": 257,
+              "top": 1898.84375,
+              "bottom": 2004.4375,
+              "width": 194,
+              "height": 105.59375,
+              "style": {
+                "font": "32px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "52.8px"
+              }
+            }
+          },
+          {
+            "purpose": "advertising",
+            "left": 50,
+            "right": 270,
+            "top": 3839.765625,
+            "bottom": 5730.703125,
+            "width": 220,
+            "height": 1890.9375,
+            "clientWidth": 218,
+            "scrollWidth": 218,
+            "legend": {
+              "left": 63,
+              "right": 257,
+              "top": 3839.765625,
+              "bottom": 3998.15625,
+              "width": 194,
+              "height": 158.390625,
+              "style": {
+                "font": "32px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "52.8px"
+              }
+            }
+          }
+        ],
+        "textOverflows": []
+      },
+      "font_method": {
+        "method": "open_dialog_visible_html_precomputed_font_px_times_2",
+        "scope": "Only rendered HTML in the current open dialog, including off-scroll content; excludes hidden/SVG/pseudo text/background/browser UI",
+        "browser_zoom_tested": false,
+        "background_measured": 52,
+        "background_changed": 0,
+        "dpr_before": 1,
+        "dpr_after": 1,
+        "scale_before": 1,
+        "scale_after": 1,
+        "measured_elements": 73,
+        "outside_tolerance": 0,
+        "representatives": {
+          "DIALOG": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DIV": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "H2": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "P": {
+            "count": 15,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DL": {
+            "count": 3,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DT": {
+            "count": 9,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DD": {
+            "count": 9,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SECTION": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "BUTTON": {
+            "count": 8,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "FIELDSET": {
+            "count": 2,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "LEGEND": {
+            "count": 2,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "LABEL": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "INPUT": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DETAILS": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SUMMARY": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "STRONG": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SPAN": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          }
+        }
+      },
+      "frames": [
+        {
+          "label": "title",
+          "scrollTop": 0,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "account-legend",
+          "scrollTop": 1883,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "account-bottom",
+          "scrollTop": 3598,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "advertising-legend",
+          "scrollTop": 3824,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "advertising-bottom",
+          "scrollTop": 5505,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "scope-bottom",
+          "scrollTop": 11400,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        }
+      ]
+    },
+    {
+      "name": "zh-CN-Y-normal",
+      "measured": {
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "scale": 1,
+        "body": {
+          "left": 20,
+          "right": 300,
+          "top": 16,
+          "bottom": 323,
+          "width": 280,
+          "height": 307,
+          "clientWidth": 280,
+          "scrollWidth": 280,
+          "clientHeight": 307,
+          "scrollHeight": 2848,
+          "scrollTop": 0,
+          "overflowX": "auto"
+        },
+        "title": {
+          "left": 34,
+          "right": 286,
+          "top": 30,
+          "bottom": 64.640625,
+          "width": 252,
+          "height": 34.640625,
+          "text": "隐私管理",
+          "style": {
+            "font": "21px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "700",
+            "lineHeight": "34.65px"
+          }
+        },
+        "colors": {
+          "dialog": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(28, 30, 38)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "body": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "page": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(18, 19, 24)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "backdrop": "rgba(16, 35, 27, 0.76)"
+        },
+        "fields": [
+          {
+            "purpose": "account_link",
+            "left": 34,
+            "right": 286,
+            "top": 524.890625,
+            "bottom": 1161.15625,
+            "width": 252,
+            "height": 636.265625,
+            "clientWidth": 250,
+            "scrollWidth": 250,
+            "legend": {
+              "left": 47,
+              "right": 124.28125,
+              "top": 524.890625,
+              "bottom": 551.28125,
+              "width": 77.28125,
+              "height": 26.390625,
+              "style": {
+                "font": "16px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "26.4px"
+              }
+            }
+          },
+          {
+            "purpose": "advertising",
+            "left": 34,
+            "right": 286,
+            "top": 1177.15625,
+            "bottom": 1791.734375,
+            "width": 252,
+            "height": 614.578125,
+            "clientWidth": 250,
+            "scrollWidth": 250,
+            "legend": {
+              "left": 47,
+              "right": 124.28125,
+              "top": 1177.15625,
+              "bottom": 1203.546875,
+              "width": 77.28125,
+              "height": 26.390625,
+              "style": {
+                "font": "16px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "26.4px"
+              }
+            }
+          }
+        ],
+        "textOverflows": []
+      },
+      "font_method": null,
+      "frames": [
+        {
+          "label": "title",
+          "scrollTop": 0,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "account-legend",
+          "scrollTop": 509,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "account-bottom",
+          "scrollTop": 838,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "advertising-legend",
+          "scrollTop": 1161,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "advertising-bottom",
+          "scrollTop": 1469,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "scope-bottom",
+          "scrollTop": 2511,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        }
+      ]
+    },
+    {
+      "name": "zh-CN-Y-font-x2",
+      "measured": {
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "scale": 1,
+        "body": {
+          "left": 36,
+          "right": 284,
+          "top": 16,
+          "bottom": 260.625,
+          "width": 248,
+          "height": 244.625,
+          "clientWidth": 248,
+          "scrollWidth": 248,
+          "clientHeight": 245,
+          "scrollHeight": 8245,
+          "scrollTop": 0,
+          "overflowX": "auto"
+        },
+        "title": {
+          "left": 50,
+          "right": 270,
+          "top": 30,
+          "bottom": 99.296875,
+          "width": 220,
+          "height": 69.296875,
+          "text": "隐私管理",
+          "style": {
+            "font": "42px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "700",
+            "lineHeight": "69.3px"
+          }
+        },
+        "colors": {
+          "dialog": {
+            "font": "32px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(28, 30, 38)",
+            "fontWeight": "400",
+            "lineHeight": "52.8px"
+          },
+          "body": {
+            "font": "32px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "400",
+            "lineHeight": "52.8px"
+          },
+          "page": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(18, 19, 24)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "backdrop": "rgba(16, 35, 27, 0.76)"
+        },
+        "fields": [
+          {
+            "purpose": "account_link",
+            "left": 50,
+            "right": 270,
+            "top": 1284.734375,
+            "bottom": 2713.546875,
+            "width": 220,
+            "height": 1428.8125,
+            "clientWidth": 218,
+            "scrollWidth": 218,
+            "legend": {
+              "left": 63,
+              "right": 204.15625,
+              "top": 1284.734375,
+              "bottom": 1337.53125,
+              "width": 141.15625,
+              "height": 52.796875,
+              "style": {
+                "font": "32px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "52.8px"
+              }
+            }
+          },
+          {
+            "purpose": "advertising",
+            "left": 50,
+            "right": 270,
+            "top": 2729.546875,
+            "bottom": 4071.578125,
+            "width": 220,
+            "height": 1342.03125,
+            "clientWidth": 218,
+            "scrollWidth": 218,
+            "legend": {
+              "left": 63,
+              "right": 204.15625,
+              "top": 2729.546875,
+              "bottom": 2782.34375,
+              "width": 141.15625,
+              "height": 52.796875,
+              "style": {
+                "font": "32px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "52.8px"
+              }
+            }
+          }
+        ],
+        "textOverflows": []
+      },
+      "font_method": {
+        "method": "open_dialog_visible_html_precomputed_font_px_times_2",
+        "scope": "Only rendered HTML in the current open dialog, including off-scroll content; excludes hidden/SVG/pseudo text/background/browser UI",
+        "browser_zoom_tested": false,
+        "background_measured": 52,
+        "background_changed": 0,
+        "dpr_before": 1,
+        "dpr_after": 1,
+        "scale_before": 1,
+        "scale_after": 1,
+        "measured_elements": 73,
+        "outside_tolerance": 0,
+        "representatives": {
+          "DIALOG": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DIV": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "H2": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "P": {
+            "count": 15,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DL": {
+            "count": 3,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DT": {
+            "count": 9,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DD": {
+            "count": 9,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SECTION": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "BUTTON": {
+            "count": 8,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "FIELDSET": {
+            "count": 2,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "LEGEND": {
+            "count": 2,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "LABEL": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "INPUT": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DETAILS": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SUMMARY": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "STRONG": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SPAN": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          }
+        }
+      },
+      "frames": [
+        {
+          "label": "title",
+          "scrollTop": 0,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "account-legend",
+          "scrollTop": 1269,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "account-bottom",
+          "scrollTop": 2453,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "advertising-legend",
+          "scrollTop": 2714,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "advertising-bottom",
+          "scrollTop": 3811,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "scope-bottom",
+          "scrollTop": 7970,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        }
+      ]
+    },
+    {
+      "name": "zh-CN-candidate-normal",
+      "measured": {
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "scale": 1,
+        "body": {
+          "left": 20,
+          "right": 300,
+          "top": 16,
+          "bottom": 323,
+          "width": 280,
+          "height": 307,
+          "clientWidth": 280,
+          "scrollWidth": 280,
+          "clientHeight": 307,
+          "scrollHeight": 2848,
+          "scrollTop": 0,
+          "overflowX": "auto"
+        },
+        "title": {
+          "left": 34,
+          "right": 286,
+          "top": 30,
+          "bottom": 64.640625,
+          "width": 252,
+          "height": 34.640625,
+          "text": "隐私管理",
+          "style": {
+            "font": "21px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "700",
+            "lineHeight": "34.65px"
+          }
+        },
+        "colors": {
+          "dialog": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(28, 30, 38)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "body": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "page": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(18, 19, 24)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "backdrop": "rgba(16, 35, 27, 0.76)"
+        },
+        "fields": [
+          {
+            "purpose": "account_link",
+            "left": 34,
+            "right": 286,
+            "top": 524.890625,
+            "bottom": 1161.15625,
+            "width": 252,
+            "height": 636.265625,
+            "clientWidth": 250,
+            "scrollWidth": 250,
+            "legend": {
+              "left": 47,
+              "right": 124.28125,
+              "top": 524.890625,
+              "bottom": 551.28125,
+              "width": 77.28125,
+              "height": 26.390625,
+              "style": {
+                "font": "16px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "26.4px"
+              }
+            }
+          },
+          {
+            "purpose": "advertising",
+            "left": 34,
+            "right": 286,
+            "top": 1177.15625,
+            "bottom": 1791.734375,
+            "width": 252,
+            "height": 614.578125,
+            "clientWidth": 250,
+            "scrollWidth": 250,
+            "legend": {
+              "left": 47,
+              "right": 124.28125,
+              "top": 1177.15625,
+              "bottom": 1203.546875,
+              "width": 77.28125,
+              "height": 26.390625,
+              "style": {
+                "font": "16px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "26.4px"
+              }
+            }
+          }
+        ],
+        "textOverflows": []
+      },
+      "font_method": null,
+      "frames": [
+        {
+          "label": "title",
+          "scrollTop": 0,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "account-legend",
+          "scrollTop": 509,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "account-bottom",
+          "scrollTop": 838,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "advertising-legend",
+          "scrollTop": 1161,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "advertising-bottom",
+          "scrollTop": 1469,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        },
+        {
+          "label": "scope-bottom",
+          "scrollTop": 2511,
+          "clientWidth": 280,
+          "scrollWidth": 280
+        }
+      ]
+    },
+    {
+      "name": "zh-CN-candidate-font-x2",
+      "measured": {
+        "viewport": [
+          320,
+          500
+        ],
+        "dpr": 1,
+        "scale": 1,
+        "body": {
+          "left": 36,
+          "right": 284,
+          "top": 16,
+          "bottom": 260.625,
+          "width": 248,
+          "height": 244.625,
+          "clientWidth": 248,
+          "scrollWidth": 248,
+          "clientHeight": 245,
+          "scrollHeight": 8245,
+          "scrollTop": 0,
+          "overflowX": "auto"
+        },
+        "title": {
+          "left": 50,
+          "right": 270,
+          "top": 30,
+          "bottom": 99.296875,
+          "width": 220,
+          "height": 69.296875,
+          "text": "隐私管理",
+          "style": {
+            "font": "42px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "700",
+            "lineHeight": "69.3px"
+          }
+        },
+        "colors": {
+          "dialog": {
+            "font": "32px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(28, 30, 38)",
+            "fontWeight": "400",
+            "lineHeight": "52.8px"
+          },
+          "body": {
+            "font": "32px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgba(0, 0, 0, 0)",
+            "fontWeight": "400",
+            "lineHeight": "52.8px"
+          },
+          "page": {
+            "font": "16px",
+            "color": "rgb(246, 243, 238)",
+            "background": "rgb(18, 19, 24)",
+            "fontWeight": "400",
+            "lineHeight": "26.4px"
+          },
+          "backdrop": "rgba(16, 35, 27, 0.76)"
+        },
+        "fields": [
+          {
+            "purpose": "account_link",
+            "left": 50,
+            "right": 270,
+            "top": 1284.734375,
+            "bottom": 2713.546875,
+            "width": 220,
+            "height": 1428.8125,
+            "clientWidth": 218,
+            "scrollWidth": 218,
+            "legend": {
+              "left": 63,
+              "right": 204.15625,
+              "top": 1284.734375,
+              "bottom": 1337.53125,
+              "width": 141.15625,
+              "height": 52.796875,
+              "style": {
+                "font": "32px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "52.8px"
+              }
+            }
+          },
+          {
+            "purpose": "advertising",
+            "left": 50,
+            "right": 270,
+            "top": 2729.546875,
+            "bottom": 4071.578125,
+            "width": 220,
+            "height": 1342.03125,
+            "clientWidth": 218,
+            "scrollWidth": 218,
+            "legend": {
+              "left": 63,
+              "right": 204.15625,
+              "top": 2729.546875,
+              "bottom": 2782.34375,
+              "width": 141.15625,
+              "height": 52.796875,
+              "style": {
+                "font": "32px",
+                "color": "rgb(246, 243, 238)",
+                "background": "rgba(0, 0, 0, 0)",
+                "fontWeight": "700",
+                "lineHeight": "52.8px"
+              }
+            }
+          }
+        ],
+        "textOverflows": []
+      },
+      "font_method": {
+        "method": "open_dialog_visible_html_precomputed_font_px_times_2",
+        "scope": "Only rendered HTML in the current open dialog, including off-scroll content; excludes hidden/SVG/pseudo text/background/browser UI",
+        "browser_zoom_tested": false,
+        "background_measured": 52,
+        "background_changed": 0,
+        "dpr_before": 1,
+        "dpr_after": 1,
+        "scale_before": 1,
+        "scale_after": 1,
+        "measured_elements": 73,
+        "outside_tolerance": 0,
+        "representatives": {
+          "DIALOG": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DIV": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "H2": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "P": {
+            "count": 15,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DL": {
+            "count": 3,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DT": {
+            "count": 9,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DD": {
+            "count": 9,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SECTION": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "BUTTON": {
+            "count": 8,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "FIELDSET": {
+            "count": 2,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "LEGEND": {
+            "count": 2,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "LABEL": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "INPUT": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "DETAILS": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SUMMARY": {
+            "count": 4,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "STRONG": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          },
+          "SPAN": {
+            "count": 1,
+            "min_ratio": 2,
+            "max_ratio": 2
+          }
+        }
+      },
+      "frames": [
+        {
+          "label": "title",
+          "scrollTop": 0,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "account-legend",
+          "scrollTop": 1269,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "account-bottom",
+          "scrollTop": 2453,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "advertising-legend",
+          "scrollTop": 2714,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "advertising-bottom",
+          "scrollTop": 3811,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        },
+        {
+          "label": "scope-bottom",
+          "scrollTop": 7970,
+          "clientWidth": 248,
+          "scrollWidth": 248
+        }
+      ]
+    }
+  ]
+}
