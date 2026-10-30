@@ -54,7 +54,7 @@ class RuntimeEnvironmentGuardTest extends TestCase
         $this->environment('staging');
         config([
             'app.debug' => false, 'app.url' => 'https://staging.example.test',
-            'h5.controlled_staging' => false, 'h5.simulation' => false, 'h5.local_us_test_region' => false, 'h5.measurement_c_experience' => false,
+            'h5.controlled_staging' => false, 'h5.simulation' => false, 'h5.local_us_test_region' => false, 'h5.measurement_c_experience' => false, 'h5.measurement_c_registration' => false,
             'h5.local_modules' => '', 'h5.modules.acquisition' => ['provider' => null, 'ready' => false],
             'session.secure' => true, 'session.http_only' => true, 'session.same_site' => 'lax',
             'trustedproxy.proxies' => null, 'billing.driver' => 'unconfigured',
@@ -97,7 +97,7 @@ class RuntimeEnvironmentGuardTest extends TestCase
 
     public function test_boolean_environment_and_nonlocal_overrides_fail_closed(): void
     {
-        foreach (['app.debug', 'h5.controlled_staging', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience'] as $key) {
+        foreach (['app.debug', 'h5.controlled_staging', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration'] as $key) {
             foreach (['false', 'junk', 0, 1, null, []] as $value) {
                 $this->safeStaging([$key => $value]);
                 $this->rejects(fn () => app(RuntimeEnvironmentGuard::class)->assertSafeRuntime());
@@ -155,6 +155,26 @@ class RuntimeEnvironmentGuardTest extends TestCase
             } catch (LogicException $error) {
                 $this->assertSame('RUNTIME_C_EXPERIENCE_FORBIDDEN', $error->getMessage());
             }
+        }
+    }
+
+    public function test_registration_opt_in_requires_local_c_experience_and_never_opens_a_provider(): void
+    {
+        $guard = app(RuntimeEnvironmentGuard::class);
+        foreach (['local', 'testing'] as $environment) {
+            $this->safeStaging();
+            $this->environment($environment);
+            config(['h5.measurement_c_registration' => true, 'billing.new_purchase_provider' => 'unconfigured']);
+            $this->rejects(fn () => $guard->assertSafeRuntime());
+            config(['h5.measurement_c_experience' => true]);
+            $guard->assertSafeRuntime();
+            $this->assertFalse(config('h5.modules.acquisition.ready'));
+            $this->assertSame('unconfigured', config('billing.new_purchase_provider'));
+        }
+        foreach (['staging', 'production'] as $environment) {
+            $this->safeStaging(['h5.measurement_c_registration' => true]);
+            $this->environment($environment);
+            $this->rejects(fn () => $guard->assertSafeRuntime());
         }
     }
 

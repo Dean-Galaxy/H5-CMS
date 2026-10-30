@@ -20,6 +20,7 @@ return [
     ],
     'local_us_test_region' => env('H5_LOCAL_US_TEST_REGION', false),
     'measurement_c_experience' => env('H5_C_EXPERIENCE_ENABLED', false),
+    'measurement_c_registration' => env('H5_C_REGISTRATION_ENABLED', false),
     'media_root' => env('H5_MEDIA_ROOT', storage_path('app/private/media')),
     'mail_preview_root' => base_path('../.runtime/mail'),
     'modules' => [
