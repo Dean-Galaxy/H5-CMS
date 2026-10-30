@@ -60,6 +60,7 @@ function createBackend429Guard(persist){
   snapshot(){return {actual_first_429:first,api_transfers:transfers.map(value=>({...value})),scope:'Serialized actual API transfers; no API forwarding after observed real 429. Already forwarded in-flight requests cannot be recalled.'};}
  };
 }
+function backendFetchOptions(options={}){return {...options,maxRedirects:0,maxRetries:0};}
 function isBackendAPI(url){return core.allowRequest(url)&&new URL(url).pathname.startsWith('/api/');}
 function requestMeta(request,forwardSource){return {method:request.method(),path:new URL(request.url()).pathname,forward_source:forwardSource};}
 async function main(){
@@ -72,7 +73,7 @@ async function main(){
  let browser,page,phase='launch',registrations=0,patches=[],responses=[],injected=[],cas={},snapshotBefore,registrationStatus,routeError=null;
  const backendGuard=createBackend429Guard(receipt=>save(path.join(directory,'actual-rate-limit-private.json'),{...binding,...input,...receipt}));
  const safeRoute=handler=>async route=>{try{backendGuard.assertOpen();await handler(route);}catch(error){routeError=String(error.stack);try{await route.abort();}catch{}}};
- const fetchBackend=(route,options={},source='api_serial_bridge')=>backendGuard.transfer(requestMeta(route.request(),source),()=>route.fetch({maxRetries:0,...options}));
+ const fetchBackend=(route,options={},source='api_serial_bridge')=>backendGuard.transfer(requestMeta(route.request(),source),()=>route.fetch(backendFetchOptions(options)));
  const forwardBackend=async route=>{const response=await fetchBackend(route);backendGuard.assertOpen();return route.fulfill({response});};
  try{
   await backendGuard.run(async()=>{
@@ -128,4 +129,4 @@ async function main(){
  }finally{if(fs.existsSync(lock)&&privateJSON(lock).token===token)fs.unlinkSync(lock);}
 }
 if(require.main===module)main().catch(error=>{console.error('External observer preflight refused: '+String(error.message));process.exitCode=1;});
-module.exports={parse,digest,preflight,privateJSON,save,control,paceRegistration,createBackend429Guard,isBackendAPI};
+module.exports={parse,digest,preflight,privateJSON,save,control,paceRegistration,createBackend429Guard,isBackendAPI,backendFetchOptions};
