@@ -12,3 +12,12 @@ Route::prefix('/api/v1/tracking')->middleware(TrackingRequest::class)->group(fun
     Route::post('consent', [TrackingController::class, 'consent'])->middleware(TrackingThrottle::class.':30,1')->block(10, 10);
     Route::post('events', [TrackingController::class, 'events'])->middleware(TrackingThrottle::class.':120,1')->block(10, 10);
 });
+
+// C-only API. No webpage consumer or identity/payment port is connected in c-core-1.
+Route::prefix('/api/v2/measurement')->middleware(\App\Modules\Acquisition\Measurement\CoreRequest::class)->group(function () {
+    $controller = \App\Modules\Acquisition\Measurement\CoreController::class;
+    Route::get('context', [$controller, 'context'])->middleware('throttle:120,1');
+    Route::post('start', [$controller, 'start'])->middleware('throttle:60,1')->block(10, 10);
+    Route::patch('preferences', [$controller, 'preferences'])->middleware('throttle:30,1')->block(10, 10);
+    Route::post('events', [$controller, 'events'])->middleware('throttle:120,1')->block(10, 10);
+});

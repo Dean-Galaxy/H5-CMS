@@ -320,6 +320,14 @@ final class BehaviorRecorder implements BehaviorEventRecorder
     public function clearBrowserContext(): void
     {
         try {
+            app(\App\Modules\Acquisition\Measurement\CoreContext::class)->end();
+        } catch (Throwable) {
+            // C is independent: its storage failure must not prevent legacy logout/context clearing.
+            if (request()->hasSession()) {
+                request()->session()->forget(['measurement_c.subject', 'measurement_c.session']);
+            }
+        }
+        try {
             DB::transaction(fn () => app(TrackingContext::class)->clear());
         } catch (Throwable) {
             $this->diagnostic('context_clear_failed');

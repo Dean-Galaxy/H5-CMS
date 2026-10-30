@@ -1,6 +1,12 @@
 <?php
 
 return [
+    // Explicit isolated synthetic engineering only; not a real US policy.
+    'measurement' => [
+        'enabled' => (bool) env('ACQUISITION_C_ENABLED', false),
+        'synthetic_policy' => (bool) env('ACQUISITION_C_SYNTHETIC_POLICY', false),
+        'synthetic_until' => env('ACQUISITION_C_SYNTHETIC_UNTIL'),
+    ],
     'analytics_enabled' => (bool) env('ACQUISITION_ANALYTICS_ENABLED', false),
     'behavior_retention_days' => 90,
     // Asset registration never turns external delivery on.
