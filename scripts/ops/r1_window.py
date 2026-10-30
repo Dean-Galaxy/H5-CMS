@@ -20,7 +20,7 @@ import urllib.request
 from analytics_acceptance import private_json, testing_environment
 
 ROOT = Path(__file__).resolve().parents[2]
-BASE = '2511ca30d13be4098ea02dcafbe16671dd2bd618'
+BASE = 'a2861a6ddc57d1386e0d57906510e44c5fca2a7a'
 OUT = ROOT / '.runtime/06/r1'
 PHP = '/opt/homebrew/opt/php@8.4/bin/php'
 PG = Path('/opt/homebrew/opt/postgresql@17/bin')
