@@ -16,6 +16,10 @@ final class Verification
 {
     public function send(Viewer $viewer): void
     {
+        if (RegistrationTerms::enabled() && config('mail.default') !== 'preview'
+            && ! (app()->environment('testing') && config('mail.default') === 'array')) {
+            throw new ApiProblem('DEPENDENCY_NOT_READY', 503, '本机注册测试只提供私密邮件预览');
+        }
         DB::transaction(function () use ($viewer) {
             $user = Viewer::query()->lockForUpdate()->findOrFail($viewer->id);
             if ($user->hasVerifiedEmail()) {

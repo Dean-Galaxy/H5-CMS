@@ -3,6 +3,7 @@
 namespace App\Modules\Identity\Http;
 
 use App\Contracts\IdentityContext;
+use App\Modules\Identity\Services\RegistrationTerms;
 use App\Modules\Identity\Services\SafeReturn;
 use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
@@ -14,6 +15,11 @@ final class AuthResponse implements LoginResponse, RegisterResponse
         $target = app(SafeReturn::class)->current();
         if ($pending = $request->session()->pull('identity.pending_verify')) {
             $target = $pending;
+        }
+        if (RegistrationTerms::enabled() && $request->routeIs('register.store')) {
+            // A confirms only the necessary account. Keep the original safe return in session;
+            // purpose submission is not ready and must never be inferred from this redirect.
+            $target = '/identity/account';
         }
         if (! $request->expectsJson()) {
             return redirect($target);
