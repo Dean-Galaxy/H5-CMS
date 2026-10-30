@@ -34,3 +34,23 @@ test('payload assertion rejects identity, source and arbitrary URL properties',(
  assert.throws(()=>driver.validateBatch({events:[]}));
 });
 test('unknown scenario cannot silently become passed or reach runtime admission',async()=>{await assert.rejects(driver.run('a'.repeat(40),['not-a-case']));});
+
+test('seek acceptance requires real pre-seek sampling and rejects inflated watch/completion',()=>{
+ const observed={before_position:5.25,resumed_position:7.65,duration:8,frames_before:130,frames_after:139};
+ const events=[{event_name:'watch_progress',properties:{watched_seconds:5.1}}];
+ assert.equal(driver.seekEvidence(events,observed),true);
+ assert.equal(driver.seekEvidence([],observed),false);
+ assert.equal(driver.seekEvidence([{event_name:'watch_progress',properties:{watched_seconds:8}}],observed),false);
+ assert.equal(driver.seekEvidence([...events,{event_name:'episode_completed'}],observed),false);
+ assert.equal(driver.seekEvidence(events,{...observed,before_position:.6}),false);
+ assert.equal(driver.seekEvidence(events,{...observed,frames_after:130}),false);
+});
+
+test('read-only server observation accepts only an actual UUID play reference',()=>{
+ const query=driver.sqlForPlay('00000000-0000-4000-8000-000000000006');assert(query.startsWith('SELECT '));assert(!/INSERT|UPDATE|DELETE|DROP/.test(query));
+ for(const input of ["';DROP TABLE acquisition_c_plays;--",'',null,'not-a-play'])assert.throws(()=>driver.sqlForPlay(input));
+});
+test('explicit old target is rejected before runtime/dependency loading',()=>{
+ const proc=cp.spawnSync(process.execPath,[path.resolve(__dirname,'../c_window_browser.cjs'),'--run','--candidate','a'.repeat(40)],{encoding:'utf8',env:{PATH:process.env.PATH,H5_C_TARGET_ROOT:'/Volumes/KESU/H5',H5_PLAYWRIGHT_MODULE:'/does-not-exist'}});
+ assert.equal(proc.status,1);assert.match(proc.stderr,/admission failed/);
+});

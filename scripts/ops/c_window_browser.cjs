@@ -2,15 +2,16 @@
 // 06 actual Chrome driver. --plan is inert; --run requires exact live new C manifest/process.
 const fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process');
 const crypto=require('node:crypto'),assert=require('node:assert/strict');
-const ROOT=path.resolve(__dirname,'../..');
+const TOOL_ROOT=path.resolve(__dirname,'../..');
+const ROOT=process.env.H5_C_TARGET_ROOT||TOOL_ROOT;
 const NOTICE='c-notice-c-core-1';
 const CASES=['visit','decode-seek','deny-refresh-play','initial-read-503','save-503','revision-409','short-screens','boundaries','real-pressure'];
 const PROTECTED=new Set([8206,8303,5606,8377,5877,8406,5906,8407,8408,8409,8410,5910]);
 function digest(bytes){return crypto.createHash('sha256').update(bytes).digest('hex');}
 function privateJson(file){const s=fs.lstatSync(file);assert(s.isFile()&&!s.isSymbolicLink()&&s.nlink===1&&s.uid===process.getuid()&&!(s.mode&0o077)&&s.size<=524288);return JSON.parse(fs.readFileSync(file,'utf8'));}
+function targetRootGuard(root){assert(path.isAbsolute(root));assert.equal(path.basename(path.dirname(root)),'h5-c-ui-manual');assert.equal(path.basename(root),'H5');assert.equal(fs.realpathSync(root),root);}
 function binding(root,cfg,candidate){
-  assert.match(candidate,/^[a-f0-9]{40}$/);assert.equal(fs.realpathSync(root),root);assert.equal(path.basename(path.dirname(root)),'h5-c-ui-manual');
-  assert.equal(path.basename(root),'H5');assert.equal(cfg.root,root);
+  targetRootGuard(root);assert.match(candidate,/^[a-f0-9]{40}$/);assert.equal(cfg.root,root);
   const suffix=digest(root).slice(0,10);assert.equal(cfg.workspace,'h5_'+suffix);assert.equal(cfg.db,'h5_'+suffix);assert.equal(cfg.user,'h5_app_'+suffix);
   for(const k of ['port','db_port'])assert(Number.isInteger(cfg[k])&&cfg[k]>=1024&&cfg[k]<=65535&&!PROTECTED.has(cfg[k]));
   assert.notEqual(cfg.port,cfg.db_port);return `http://127.0.0.1:${cfg.port}`;
@@ -27,7 +28,29 @@ function validateBatch(batch){
   const allowed=new Set(['page_instance_id','page_type','locale','drama_id','episode_id','play_instance_id','position_seconds','duration_seconds','watched_seconds','startup_ms','stall_ms','error_code']);
   for(const event of batch.events){assert.deepEqual(Object.keys(event).sort(),['event_id','event_name','properties']);assert.match(event.event_id,/^[a-f0-9-]{36}$/i);assert(/^[a-z_]+$/.test(event.event_name));assert(event.properties&&Object.keys(event.properties).every(key=>allowed.has(key)));}
 }
+function seekEvidence(events, observation){
+  const {before_position,resumed_position,duration,frames_before,frames_after}=observation;
+  const progress=events.filter(e=>e.event_name==='watch_progress');
+  const realViewingUpper=before_position+(duration-resumed_position)+.5;
+  return before_position>=5&&resumed_position>before_position+1&&resumed_position<duration
+    &&frames_after>frames_before&&progress.length>0
+    &&progress.every(e=>Number.isFinite(e.properties?.watched_seconds)&&e.properties.watched_seconds<=realViewingUpper)
+    &&!events.some(e=>e.event_name==='episode_completed');
+}
+function sqlForPlay(play){
+  assert.match(play,/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i);
+  return `SELECT json_build_object('plays',(SELECT COALESCE(json_agg(json_build_object('watched_seconds',watched_seconds,'started',started)),'[]'::json) FROM acquisition_c_plays WHERE play_instance_id='${play}'),'events',(SELECT COALESCE(json_agg(json_build_object('event_name',event_name,'watched_seconds',properties->'watched_seconds')),'[]'::json) FROM acquisition_c_events WHERE is_test=true AND properties->>'play_instance_id'='${play}'));`;
+}
+function serverSeek(cfg,candidate,play){
+  binding(ROOT,cfg,candidate);const file=ROOT+'/.runtime/pg-app-password',info=fs.lstatSync(file);
+  assert(info.isFile()&&!info.isSymbolicLink()&&info.nlink===1&&info.uid===process.getuid()&&!(info.mode&0o077)&&info.size<=512);
+  // Explicit own app role/database; no inherited PGHOSTADDR/service/options. The session is read-only.
+  const env={PATH:process.env.PATH||'/usr/bin:/bin',LANG:'C',PGHOST:'127.0.0.1',PGPORT:String(cfg.db_port),PGUSER:cfg.user,PGDATABASE:cfg.db+'_test',PGPASSWORD:fs.readFileSync(file,'utf8'),PGCONNECT_TIMEOUT:'5',PGOPTIONS:'-c default_transaction_read_only=on'};
+  return JSON.parse(cp.execFileSync('/opt/homebrew/opt/postgresql@17/bin/psql',['-X','-q','-A','-t','-v','ON_ERROR_STOP=1','-c',sqlForPlay(play)],{env,encoding:'utf8',stdio:['ignore','pipe','pipe']}));
+}
 function runtime(candidate){
+  targetRootGuard(ROOT);
+  assert.equal(cp.execFileSync('git',['status','--porcelain','--','scripts/ops/c_window_browser.cjs'],{cwd:TOOL_ROOT,encoding:'utf8'}).trim(),'','Observation driver must be committed');
   assert.equal(cp.execFileSync('git',['rev-parse','HEAD'],{cwd:ROOT,encoding:'utf8'}).trim(),candidate);
   const cfg=privateJson(ROOT+'/.runtime/workspace.json'),base=binding(ROOT,cfg,candidate);
   const manifestFile=ROOT+'/.runtime/06/c-window/manifest.json',manifest=privateJson(manifestFile);
@@ -47,7 +70,8 @@ async function run(candidate,selected=CASES){
   process.umask(0o077);const live=runtime(candidate),{base,fixture}=live;
   const directory=ROOT+'/.runtime/06/c-window/browser-'+Date.now()+'-'+crypto.randomBytes(3).toString('hex');
   fs.mkdirSync(directory,{mode:0o700});
-  const checks=[],result={candidate,driver_sha256:digest(fs.readFileSync(__filename)),cases:[],passed:false,real_device:false,official_payment:false,external_attempts:0};
+  const toolCommit=cp.execFileSync('git',['rev-parse','HEAD'],{cwd:TOOL_ROOT,encoding:'utf8'}).trim();
+  const checks=[],result={candidate,tool_commit:toolCommit,driver_sha256:digest(fs.readFileSync(__filename)),cases:[],passed:false,real_device:false,official_payment:false,external_attempts:0};
   let phase='gate',browser;
   const check=(name,value)=>{assert(value,name);checks.push({name,passed:true});};
   const state=()=>JSON.parse(cp.execFileSync('python3',['-B',ROOT+'/scripts/ops/c_window.py','state','--candidate',candidate],{cwd:ROOT,encoding:'utf8',stdio:['ignore','pipe','pipe']}));
@@ -125,14 +149,22 @@ async function run(candidate,selected=CASES){
       check('actual unsigned media request403',unsigned.status()===403);
       if(seek){
         // Native video controls are not stable DOM. This is a real media seek via keyboard, not a synthetic seeking/timeupdate event.
-        await s.page.locator('video').evaluate(v=>v.pause());
+        // Observe the first genuine five-second report before seeking; a sub-second play need not emit progress.
+        await s.page.waitForFunction(()=>{const v=document.querySelector('video');return v.currentTime>=5.2&&!v.ended;},null,{timeout:15000});
+        const paused=await s.page.locator('video').evaluate(v=>{v.pause();return {position:v.currentTime,frames:v.getVideoPlaybackQuality().totalVideoFrames};});
         await s.page.locator('video').focus();await s.page.keyboard.press('End');
-        await s.page.waitForFunction(prior=>document.querySelector('video').currentTime>prior+3,before.time);
-        await s.page.locator('video').evaluate(v=>{v.currentTime=Math.min(v.currentTime,v.duration-.35);return v.play();});
+        await s.page.waitForFunction(prior=>document.querySelector('video').currentTime>prior+1,paused.position);
+        const resumed=await s.page.locator('video').evaluate(v=>{v.currentTime=Math.min(v.currentTime,v.duration-.35);return {position:v.currentTime,duration:v.duration};});
+        await s.page.locator('video').evaluate(v=>v.play());
         await s.page.waitForFunction(()=>document.querySelector('video').ended,null,{timeout:15000});
         await s.page.waitForTimeout(1600);
-        const events=s.raw.batches.flatMap(b=>b.events||[]),progress=events.filter(e=>e.event_name==='watch_progress');
-        check('real seek does not count skipped viewing',progress.length>0&&progress.every(e=>e.properties.watched_seconds<4)&&!events.some(e=>e.event_name==='episode_completed'));
+        const observation={before_position:paused.position,resumed_position:resumed.position,duration:resumed.duration,frames_before:paused.frames,frames_after:await s.page.locator('video').evaluate(v=>v.getVideoPlaybackQuality().totalVideoFrames)};
+        s.raw.actualSeek=observation;
+        const events=s.raw.batches.flatMap(b=>b.events||[]);
+        check('real seek does not count skipped viewing',seekEvidence(events,observation));
+        const playId=events.find(e=>e.event_name==='watch_progress')?.properties.play_instance_id;
+        const persisted=serverSeek(live.cfg,candidate,playId);s.raw.serverSeek=persisted;
+        check('own server play counter excludes skipped viewing',persisted.plays.length===1&&persisted.plays[0].started===true&&persisted.plays[0].watched_seconds<=observation.before_position+(observation.duration-observation.resumed_position)+.5&&seekEvidence(persisted.events.map(e=>({event_name:e.event_name,properties:{watched_seconds:e.watched_seconds}})),observation));
       }else{
         await s.page.waitForTimeout(700);
         const after=await s.page.locator('video').evaluate(v=>({time:v.currentTime,frames:v.getVideoPlaybackQuality().totalVideoFrames}));
@@ -247,11 +279,11 @@ async function run(candidate,selected=CASES){
     if(browser)await browser.close();result.checks=checks;
     fs.writeFileSync(directory+'/network-private.json',JSON.stringify(privateRaw,null,2),{mode:0o600});
     fs.writeFileSync(directory+'/result-private.json',JSON.stringify(result,null,2),{mode:0o600});
-    console.log(JSON.stringify({candidate,passed:result.passed,checks:checks.length,failed_phase:result.failed_phase,cases:result.cases.map(c=>({name:c.name,passed:c.passed})),browser_executed:!!browser,real_device:false}));
+    console.log(JSON.stringify({candidate,tool_commit:toolCommit,driver_sha256:result.driver_sha256,passed:result.passed,checks:checks.length,failed_phase:result.failed_phase,cases:result.cases.map(c=>({name:c.name,passed:c.passed})),browser_executed:!!browser,real_device:false}));
   }
   return result;
 }
-module.exports={CASES,binding,noOptionalDelta,financialZero,validateBatch,run};
+module.exports={CASES,targetRootGuard,sqlForPlay,binding,noOptionalDelta,financialZero,validateBatch,seekEvidence,run};
 if(require.main===module){
   const args=process.argv.slice(2);
   if(args.length===1&&args[0]==='--plan')console.log(JSON.stringify({cases:CASES,browser_executed:false,runtime_started:false}));
