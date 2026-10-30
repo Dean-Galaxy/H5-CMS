@@ -52,6 +52,8 @@ async function remote(context,page,purpose,choice,revision) {
     for(const purpose of ['account_link','advertising']) {
       await item(page,purpose).locator('legend').evaluate(n=>n.scrollIntoView({block:'start'}));
       await page.screenshot({path:path.join(out,locale+'-'+purpose+'-state-320.png')});
+      await item(page,purpose).locator('dl').evaluate(n=>n.scrollIntoView({block:'start'}));
+      await page.screenshot({path:path.join(out,locale+'-'+purpose+'-values-320.png')});
       await item(page,purpose).scrollIntoViewIfNeeded();
       assert(await item(page,purpose).locator('[data-purpose-effective]').innerText().then(t=>t=== (locale==='en'?'Not running':'尚未运行')));
       const button=item(page,purpose).locator('[data-purpose-deny]');await button.scrollIntoViewIfNeeded();assert((await button.boundingBox()).height>=44);
@@ -60,7 +62,9 @@ async function remote(context,page,purpose,choice,revision) {
     const close=page.locator('[data-c-close]');await close.focus();await page.keyboard.press('Tab');
     assert(await page.locator('[data-c-dialog]').evaluate(n=>n.contains(document.activeElement)));
     const zoom=await page.addStyleTag({content:'.measurement-c-body,.measurement-c-body p,.measurement-c-body dd,.purpose-manager label,.purpose-manager dt,.purpose-manager button{font-size:28px!important}'});
-    await item(page,'account_link').scrollIntoViewIfNeeded();assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await item(page,'account_link').locator('dl').evaluate(n=>n.scrollIntoView({block:'start'}));assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    assert(await page.locator('.measurement-c-body').evaluate(n=>n.scrollWidth<=n.clientWidth+1));
+    assert((await item(page,'account_link').locator('dd').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().width))).every(width=>width>=140));
     await page.screenshot({path:path.join(out,locale+'-large-text.png')});await zoom.evaluate(n=>n.remove());
     await page.keyboard.press('Escape');assert.equal(await page.locator('dialog[open]').count(),0);assert.equal(posts.length,0);
     await context.close();

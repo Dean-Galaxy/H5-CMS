@@ -5,7 +5,7 @@ return [
     'account_link' => '账户关联', 'advertising' => '广告衡量',
     'account_info' => '保存是否允许在后续获批范围内将当前浏览器与登录账号关联。本轮不运行账户关联；后续版本须重新告知并由你主动选择。',
     'advertising_info' => '独立保存广告选择。在这里允许不代表授权旧广告外发；关闭本用途也会请求其必要停止约束。',
-    'allow' => '允许保存这项选择', 'deny' => '关闭这项目的',
+    'allow' => '记录允许本用途的选择', 'deny' => '关闭这项目的',
     'unknown' => '尚无已确认选择', 'saved_allow' => '已保存允许选择', 'saved_deny' => '已保存关闭选择',
     'choice' => '已保存选择', 'capability' => '当前可用能力', 'effective' => '实际运行',
     'choice_only' => '仅可保存偏好', 'unavailable' => '暂不能保存允许，仍可请求关闭',

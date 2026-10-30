@@ -5,7 +5,7 @@ return [
     'account_link' => 'Account association', 'advertising' => 'Advertising measurement',
     'account_info' => 'Save whether this browser may be associated with the signed-in account in a future approved scope. Account association does not run in this test; a later version requires a new notice and explicit choice.',
     'advertising_info' => 'Save a separate advertising choice. Allowing here does not authorize old advertising delivery. Turning this purpose off also requests its necessary stop protections.',
-    'allow' => 'Allow this choice to be saved', 'deny' => 'Turn this purpose off',
+    'allow' => 'Record an allow choice', 'deny' => 'Turn this purpose off',
     'unknown' => 'No confirmed choice', 'saved_allow' => 'Allow choice saved', 'saved_deny' => 'Off choice saved',
     'choice' => 'Saved choice', 'capability' => 'Current capability', 'effective' => 'Actual operation',
     'choice_only' => 'Choice saving only', 'unavailable' => 'Allow saving unavailable; off can still be requested',
