@@ -1,0 +1,103 @@
+{
+  "application_base": "4add9e40e4820bbc0dfa38c3ea5796b527943c38",
+  "candidate": "8139575738611f4c10197bb5db2556610d0e9c66",
+  "new_purchase_provider": "unconfigured",
+  "paypal_api_enabled": false,
+  "advertising_transport": "disabled",
+  "advertising_external_enabled": false,
+  "debug": false,
+  "mail": "preview",
+  "billing_driver": "unconfigured",
+  "gateway_class": "App\\Modules\\Billing\\Gateway\\UnconfiguredGateway",
+  "payment_fixture_installed": false,
+  "counts": {
+    "identity_viewers": 0,
+    "billing_orders": 0,
+    "billing_payments": 0,
+    "billing_entitlements": 0,
+    "billing_subscriptions": 0,
+    "billing_refunds": 0,
+    "acquisition_subjects": 2,
+    "acquisition_sources": 2,
+    "acquisition_behaviors": 6,
+    "acquisition_event_keys": 6
+  },
+  "case_counts": {
+    "automatic": {
+      "unknown": {
+        "sources": 0,
+        "behaviors": 0
+      },
+      "analytics": {
+        "sources": 0,
+        "behaviors": 0
+      },
+      "advertising": {
+        "sources": 1,
+        "behaviors": 0
+      },
+      "both": {
+        "sources": 1,
+        "behaviors": 3
+      },
+      "denied": {
+        "sources": 0,
+        "behaviors": 0
+      }
+    },
+    "manual": {
+      "unknown": {
+        "sources": 0,
+        "behaviors": 0
+      },
+      "analytics": {
+        "sources": 0,
+        "behaviors": 0
+      },
+      "advertising": {
+        "sources": 0,
+        "behaviors": 0
+      },
+      "both": {
+        "sources": 0,
+        "behaviors": 0
+      },
+      "denied": {
+        "sources": 0,
+        "behaviors": 0
+      }
+    }
+  },
+  "migrations": 23,
+  "privacy_states": [
+    {
+      "analytics": "granted",
+      "advertising": "granted",
+      "count": 1
+    },
+    {
+      "analytics": "denied",
+      "advertising": "granted",
+      "count": 1
+    },
+    {
+      "analytics": "granted",
+      "advertising": "denied",
+      "count": 2
+    }
+  ],
+  "events": [
+    {
+      "event_name": "page_view",
+      "count": 2
+    },
+    {
+      "event_name": "drama_view",
+      "count": 2
+    },
+    {
+      "event_name": "landing_view",
+      "count": 2
+    }
+  ]
+}

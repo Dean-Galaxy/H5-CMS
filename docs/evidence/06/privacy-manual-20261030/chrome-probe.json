@@ -1,0 +1,149 @@
+{
+  "candidate": "8139575738611f4c10197bb5db2556610d0e9c66",
+  "application_base": "4add9e40e4820bbc0dfa38c3ea5796b527943c38",
+  "real_device": false,
+  "official_payment": false,
+  "external_attempts": 0,
+  "separate_contexts": 5,
+  "checks": [
+    {
+      "name": "runtime keeps purchase and provider API off",
+      "passed": true
+    },
+    {
+      "name": "external advertising and debug off",
+      "passed": true
+    },
+    {
+      "name": "unknown starts with both choices unchecked",
+      "passed": true
+    },
+    {
+      "name": "unknown creates no analysis or source",
+      "passed": true
+    },
+    {
+      "name": "analytics starts with both choices unchecked",
+      "passed": true
+    },
+    {
+      "name": "analytics saves the two purposes independently",
+      "passed": true
+    },
+    {
+      "name": "analytics-only has observations without ad source",
+      "passed": true
+    },
+    {
+      "name": "analytics survives refresh",
+      "passed": true
+    },
+    {
+      "name": "advertising starts with both choices unchecked",
+      "passed": true
+    },
+    {
+      "name": "advertising saves the two purposes independently",
+      "passed": true
+    },
+    {
+      "name": "advertising-only uses landing without analytics",
+      "passed": true
+    },
+    {
+      "name": "advertising survives refresh",
+      "passed": true
+    },
+    {
+      "name": "both starts with both choices unchecked",
+      "passed": true
+    },
+    {
+      "name": "both saves the two purposes independently",
+      "passed": true
+    },
+    {
+      "name": "both survives refresh",
+      "passed": true
+    },
+    {
+      "name": "denied starts with both choices unchecked",
+      "passed": true
+    },
+    {
+      "name": "denied saves the two purposes independently",
+      "passed": true
+    },
+    {
+      "name": "rejecting creates no subject source or behavior",
+      "passed": true
+    },
+    {
+      "name": "denied survives refresh",
+      "passed": true
+    },
+    {
+      "name": "anonymous reject still decodes real MSE free episode",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /api/v1/auth/register",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /api/v1/billing/checkout",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /api/v1/billing/subscription/cancel",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /api/v1/billing/subscription/resume",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /membership/checkout",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /membership/cancel",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /membership/resume",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /billing/return/recheck",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /webhooks/paypal",
+      "passed": true
+    },
+    {
+      "name": "privacy window blocks /webhooks/stripe",
+      "passed": true
+    },
+    {
+      "name": "no viewer or financial fact created",
+      "passed": true
+    },
+    {
+      "name": "human manual links remain unused",
+      "passed": true
+    },
+    {
+      "name": "zero external browser requests",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "probe_sha256": "0d6896ca70e59e3a86838d9a7a90294a32943a6ddb0574a56bce39235c717747",
+  "decoded_playback": {
+    "advanced_seconds": 1.2026999999999999,
+    "additional_frames": 30,
+    "mse": true
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "application_base": "4add9e40e4820bbc0dfa38c3ea5796b527943c38",
+  "actual_chrome_candidate": "8139575738611f4c10197bb5db2556610d0e9c66",
+  "actual_startup_cleanup_candidate": "6968059dea5141155528cb6406bce9b1a60b0726",
+  "actual_seed_candidate": "cb76d8f8e29f2c257f28e502a425de90d6bcd58f",
+  "worktree": "/Users/hejunxiang/.codex/worktrees/h5-06-privacy-manual/H5",
+  "web_port": 8410,
+  "db_port": 5910,
+  "database": "h5_17f62cf34a_test",
+  "user_manual_execution_count": 0,
+  "official_payment": false,
+  "official_advertising": false,
+  "real_phone": false,
+  "backup_only_no_new_restore_claim": true,
+  "final_runtime_candidate_receipt": ".runtime/06/privacy-manual/live-receipt.json",
+  "files": {
+    "manual-baseline.json": "74ca1fec37b3df9d54c3ccc5a4ef56ac03fe84222e578ef569e1c2ed16635094",
+    "dependencies.json": "4564f7e3cd3945e329369b2fdc0e4177c6a55f6a295aa63adea4cb53253ca17e",
+    "denied-after-refresh.png": "96a1dc5dd6f331dc58bc69c1ff4d7a406001163f64dd3fc3665713b030cec333",
+    "advertising-after-refresh.png": "cd187ad68f76c3eea62f4a7c3e66cd8fa8db8f9fcf25651fa3fb58e176bad0ef",
+    "analytics-after-refresh.png": "b7d4857906740f3b7185ae1fee7dad9ae08e8137bd2d7414e6672bae23990c82",
+    "both-after-refresh.png": "8d8f5234aeaaa6587d2671e2a3c658bf8c51387687a8ba06a3ac971317544018",
+    "unknown.png": "66d65265f701062f89c17090a2f55c83cc15bb9785156a8e608e3ba19659b5aa",
+    "chrome-probe.json": "9d332325420b6f3abb32e96f86712cd2faf96a33bb1529f7fcd390b6913f20fc",
+    "dependency-audit.json": "ec6f18f04750ed4b84258acac00a0271f2bdf5b7ddbb1b0fd6db87e1df9f42c9",
+    "startup-cleanup.json": "ac95506a5c7cd2ca8480746ed8bc38e841ababb5c635036b7d5512b749d76130",
+    "denied-free-mse.png": "4a26b47e8c14dc5f095cee17f43e52bac3dabc79395446f99853cf6a318fa9bf"
+  }
+}
