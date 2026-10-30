@@ -1,0 +1,20 @@
+{
+  "source": "a90310e1a1dade1c0abb52e0c10ad348aae7a3fc",
+  "php_pint": "passed (6 changed PHP files)",
+  "python_ast": "passed (r1a support Python files)",
+  "diff_check": "passed",
+  "source_migration_count": 27,
+  "source_migration_hashes_unchanged": true,
+  "dependencies_unchanged": true,
+  "original_6d_evidence_and_handoff_unchanged": true,
+  "openapi_version": "1.0.5",
+  "public_examples_passed": 59,
+  "composer_locked_advisories": 0,
+  "composer_abandoned": 0,
+  "own_existing_web_queue_scheduler_pg_and_health": "all retained and healthy on final status",
+  "temporary_http": "2 starts stopped; 4 independent worker processes ended per successful probe",
+  "other_sites_started_or_stopped": false,
+  "r1_enabled_on_existing_site": false,
+  "external_sending_enabled": false,
+  "new_shared_or_identity_edits": false
+}

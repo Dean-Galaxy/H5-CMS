@@ -1,0 +1,39 @@
+{
+  "baseline_01a": "235e5c97c146411e471995f73bfa89599de076b3",
+  "merge_01a": "ef33bd237df6e59136d94ded3b8cf153f7604e40",
+  "public_php_baseline": "e6c2a4b300c1fc16493be2592b425b0da7bbf406",
+  "merge_php": "457f91a37b87e1759a8ff423f3b7151765d3c613",
+  "tool_fixture_commit": "4641c4bc64ba3e15cb50aca5a77ea7d3ef949795",
+  "adapter_commit": "a90310e1a1dade1c0abb52e0c10ad348aae7a3fc",
+  "contract": "business 1.0.5 / c-reg-r1-http / c-reg-r1-php-1; v2 unchanged",
+  "tested_state": "both source changes present; tests completed before separate source commits, source bytes unchanged",
+  "scope": "05 typed adapter + accepted 01-A combined regression",
+  "source_files": {
+    "h5-platform/tests/Feature/Acquisition/RegistrationPurposesTest.php": "57698c1f735c936dda2ddb0fb96f1e1d0a01891cb7d09965d2f4b46fa360abeb",
+    "h5-platform/tests/Feature/Acquisition/Support/r1a_http_probe.py": "5b4d9406a3342641b1984e8e4a0ef28ed51398dbf85386af89c4269825a022d7",
+    "h5-platform/tests/Feature/Acquisition/Support/r1a_migration_probe.py": "fc829d60001e1146ddb80b0f1921c502d6f73294b3ea2cfcfd7ebe3b36b494f3",
+    "h5-platform/tests/Feature/Acquisition/Support/r1a_test.py": "8c1705cb33f43ab2b930e1d69c6a0c65e56ffaf9fec977d3114615c7104cb83b",
+    "h5-platform/app/Modules/Acquisition/AcquisitionServiceProvider.php": "a0fea3209dabf590e699c769752075de3fdffc128a6fd07473b170f724fbf861",
+    "h5-platform/app/Modules/Acquisition/Registration/RegistrationMeasurementAdapter.php": "3710f5919a11ddd9831fbdb2e8f3ff5c63d74d3c23ff2ba91e73877715151d4a",
+    "h5-platform/app/Modules/Acquisition/Registration/RegistrationObservations.php": "547a7d1c2396037271918ca34123bd4b692d19cb9a80157510ef5bcba3240010",
+    "h5-platform/app/Modules/Acquisition/Registration/RequestObservation.php": "2acd2fa1ebc22874163df0505eb15c2de5b6c8f9b6a48ce306c43f06a3e5fc99",
+    "h5-platform/tests/Feature/Acquisition/RegistrationMeasurementAdapterTest.php": "8c710345c4eadb440a23827a045ca98a9e38741762c82d2037d9cf120c9449a9"
+  },
+  "evidence_files": {
+    "adapter-tests.txt": "029b58c6f3509d7d00c6277a3295b703fe8f6ce0321c00f257df9d648e30c6fa",
+    "combined-regression.txt": "bd4a7662ca0fa9d2b1051bc80cb30f2a648bffe0eb6130cf7d8ba8eb9abc5055",
+    "composer-audit.json": "3d68c4566587606c21e4bcd82b55d322ddb79158f657d9fb90bf0d24ab5bccdf",
+    "contracts.txt": "aea6b6c9fdfa0feb860540ce88c4aeca0c1ab1782369759aaa0ffd7394020f66",
+    "verification.json": "96d46234e33efe9b8c821760612e04a3b41fb3229bb06856be2af83c71cc3126"
+  },
+  "not_claimed": [
+    "01-B trusted consumer timing and UI integration",
+    "R1 combined browser or human acceptance",
+    "real policy eligibility",
+    "C account/payment association",
+    "real Meta/TikTok platform acceptance",
+    "production release",
+    "independent restore",
+    "GitHub remote backup"
+  ]
+}

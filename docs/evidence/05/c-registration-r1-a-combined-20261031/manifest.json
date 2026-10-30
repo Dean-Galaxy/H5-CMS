@@ -1,0 +1,32 @@
+{
+  "baseline_01a": "235e5c97c146411e471995f73bfa89599de076b3",
+  "merge_01a": "ef33bd237df6e59136d94ded3b8cf153f7604e40",
+  "public_php_baseline": "e6c2a4b300c1fc16493be2592b425b0da7bbf406",
+  "merge_php": "457f91a37b87e1759a8ff423f3b7151765d3c613",
+  "tool_fixture_commit": "4641c4bc64ba3e15cb50aca5a77ea7d3ef949795",
+  "adapter_commit": "a90310e1a1dade1c0abb52e0c10ad348aae7a3fc",
+  "contract": "business 1.0.5 / c-reg-r1-http / c-reg-r1-php-1; v2 unchanged",
+  "tested_state": "both source changes present; tests completed before separate source commits, source bytes unchanged",
+  "scope": "05 tools + accepted 01-A actual HTTP and upgrade",
+  "source_files": {
+    "h5-platform/tests/Feature/Acquisition/RegistrationPurposesTest.php": "57698c1f735c936dda2ddb0fb96f1e1d0a01891cb7d09965d2f4b46fa360abeb",
+    "h5-platform/tests/Feature/Acquisition/Support/r1a_http_probe.py": "5b4d9406a3342641b1984e8e4a0ef28ed51398dbf85386af89c4269825a022d7",
+    "h5-platform/tests/Feature/Acquisition/Support/r1a_migration_probe.py": "fc829d60001e1146ddb80b0f1921c502d6f73294b3ea2cfcfd7ebe3b36b494f3",
+    "h5-platform/tests/Feature/Acquisition/Support/r1a_test.py": "8c1705cb33f43ab2b930e1d69c6a0c65e56ffaf9fec977d3114615c7104cb83b"
+  },
+  "evidence_files": {
+    "http.json": "7817bb5cd16514e7ae2246ef6fe90fc58c7506d0d4e2ec04253c62b4a2c1d4fc",
+    "migration-upgrade.json": "00583b2a88baf5ab52be096550dce19296ed0d4c378cfbe1d5fe350cf1e03445",
+    "preflight.json": "64e1a4a30e753996475f526a393c5e42d3a80f2d538c8aa0539c4dc99e370d30"
+  },
+  "not_claimed": [
+    "01-B trusted consumer timing and UI integration",
+    "R1 combined browser or human acceptance",
+    "real policy eligibility",
+    "C account/payment association",
+    "real Meta/TikTok platform acceptance",
+    "production release",
+    "independent restore",
+    "GitHub remote backup"
+  ]
+}

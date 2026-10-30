@@ -1,0 +1,18 @@
+{
+  "scope": "only own previously marked synthetic DBs; no implicit fresh",
+  "checks": [
+    {
+      "purpose": "http",
+      "default_refused_existing_schema_or_data": true,
+      "all_table_full_row_hashes_unchanged": true,
+      "tables_checked": 71
+    },
+    {
+      "purpose": "upgrade",
+      "default_refused_existing_schema_or_data": true,
+      "all_table_full_row_hashes_unchanged": true,
+      "tables_checked": 71
+    }
+  ],
+  "source_migration_count": 27
+}
