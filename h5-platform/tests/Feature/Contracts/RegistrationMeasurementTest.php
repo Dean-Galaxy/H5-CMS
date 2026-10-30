@@ -8,6 +8,7 @@ use App\Enums\BehaviorRecordingResult;
 use App\Enums\RegistrationFailure;
 use App\Enums\RegistrationMeasurementAvailability;
 use App\Enums\RegistrationResultKind;
+use App\Providers\AppServiceProvider;
 use App\Support\UnavailableRegistrationMeasurement;
 use InvalidArgumentException;
 use Tests\TestCase;
@@ -16,6 +17,9 @@ final class RegistrationMeasurementTest extends TestCase
 {
     public function test_missing_provider_is_explicit_and_cannot_claim_a_recorded_result(): void
     {
+        // Exercise the missing-module foundation, even when this run also loads the real adapter.
+        config(['h5.local_modules' => '', 'h5.modules.acquisition' => ['provider' => null, 'ready' => false]]);
+        (new AppServiceProvider($this->app))->register();
         $port = app(RegistrationMeasurement::class);
         $this->assertInstanceOf(UnavailableRegistrationMeasurement::class, $port);
         $this->assertSame(RegistrationMeasurementAvailability::DependencyNotReady, $port->availability());

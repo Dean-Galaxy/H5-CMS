@@ -1,0 +1,29 @@
+{
+  "scope": "00 independent engineering, separate runs; not production or human acceptance",
+  "source_before_root_tests": "e5f8a02b43ba4449488c7882f3bb959753bf344d",
+  "php_combined": {
+    "tests": 302,
+    "assertions": 4386,
+    "before_audience_ui": true
+  },
+  "final_audience_contract": {
+    "tests": 57,
+    "assertions": 641
+  },
+  "identity_intercepted_client": [
+    24,
+    6
+  ],
+  "real_v3_http": 28,
+  "real_joint_http": 14,
+  "real_audience_chrome": 20,
+  "migration": {
+    "from": 26,
+    "to": 27,
+    "old_tables_full_rows_preserved": 68
+  },
+  "temporary_http_stopped": true,
+  "external_and_payment_disabled": true,
+  "human_registration_passed": 0,
+  "final_design_review_pending": true
+}
