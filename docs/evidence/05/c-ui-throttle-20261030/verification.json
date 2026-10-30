@@ -1,0 +1,30 @@
+{
+  "baseline": "5b44182a284665dd705037d8b5cfec6ac77f0a34",
+  "dependency_files": {
+    "h5-platform/composer.json": {
+      "unchanged": true,
+      "sha256": "9614e847dd18c65398a1c0ea037357780a98e1090dedfea917d86cf8d79cbce6"
+    },
+    "h5-platform/composer.lock": {
+      "unchanged": true,
+      "sha256": "4b245e26cacae32194fa73c83aec232912ce90054259b1ff85779fad58fe1848"
+    }
+  },
+  "existing_migration_files_unchanged": 25,
+  "fresh_http_migrations": 25,
+  "new_migrations": 0,
+  "owned_http_starts": 2,
+  "owned_http_process_groups_stopped": 2,
+  "owned_http_listeners_remaining": 0,
+  "preexisting_own_services_preserved": {
+    "web": true,
+    "queue": true,
+    "scheduler": true
+  },
+  "own_postgres_preserved": true,
+  "existing_env_changed": false,
+  "existing_env_C_flags_enabled": false,
+  "new_queue_scheduler_started": false,
+  "other_runtime_touched": false,
+  "history_c_ui_1_evidence_changed": false
+}

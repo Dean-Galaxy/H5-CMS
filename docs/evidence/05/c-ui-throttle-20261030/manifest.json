@@ -1,0 +1,34 @@
+{
+  "baseline": "5b44182a284665dd705037d8b5cfec6ac77f0a34",
+  "merge": "3d26d848570ecec16dcad85c9641365ffdefc763",
+  "source": "a9c626dbce3dbd15f977268b0225e2e363661b94",
+  "contract": "business 1.0.5 + c-core-1 + c-ui-1; unchanged",
+  "source_files": {
+    "h5-platform/app/Modules/Acquisition/Measurement/CoreThrottle.php": "ccbc1b00e08f09b11df17f7b14a26a3f73dc01d43d93bc21477ea6e9f7e6932d",
+    "h5-platform/routes/modules/acquisition.php": "a512d124343927fe7b2e8274c91f51551c870b47fb541651c49d2642894a93ee",
+    "h5-platform/tests/Feature/Acquisition/MeasurementThrottleTest.php": "5fee5d5713f44ab516a136a8660064c622d246c30ac83f863b88f9972f17022f",
+    "h5-platform/tests/Feature/Acquisition/Support/cui_throttle_http_probe.py": "f03f652a2194b2caaabbbe320da062988835e702bfac71f02a0008b1b791a623",
+    "h5-platform/tests/Feature/Acquisition/Support/cui_throttle_test.py": "bbb1e8108de64ca5abadae2782d26f2cc07b8a5e4de9b89d0df0754bdddf721e"
+  },
+  "checks": {
+    "new_throttle_tests": 4,
+    "new_throttle_assertions": 855,
+    "acquisition_regression_tests": 127,
+    "acquisition_assertions": 2498,
+    "actual_local_http_pressure_checks": 23,
+    "contract_examples": 59,
+    "fresh_migrations": 25,
+    "new_migrations": 0,
+    "composer_advisories": 0,
+    "composer_abandoned": 0
+  },
+  "not_claimed": [
+    "04 combined browser acceptance including unknown-context branch",
+    "human manual acceptance",
+    "real eligibility",
+    "platform HTTP acceptance",
+    "Meta or TikTok confirmation",
+    "production release",
+    "GitHub remote backup"
+  ]
+}
