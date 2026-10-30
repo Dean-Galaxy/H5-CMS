@@ -28,5 +28,20 @@
   "policy_auto_extension": false,
   "independent_restore_proven": false,
   "whole_runtime_passed": false,
-  "human_passed": 0
+  "human_passed": 0,
+  "root_default_scope_fixture": {
+    "before": {
+      "passed": 22,
+      "failed": 4
+    },
+    "after": {
+      "passed": 26,
+      "assertions": 538
+    },
+    "change": "explicit real provider registration in 00 integration fixture only; global defaults unchanged"
+  },
+  "root_default_missing_consumer_case": {
+    "passed": 1,
+    "assertions": 9
+  }
 }

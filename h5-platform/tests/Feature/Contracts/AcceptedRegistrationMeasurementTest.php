@@ -4,6 +4,7 @@ namespace Tests\Feature\Contracts;
 
 use App\Contracts\RegistrationMeasurement;
 use App\Enums\RegistrationMeasurementAvailability;
+use App\Modules\Acquisition\AcquisitionServiceProvider;
 use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\RegistrationTerms;
 use App\Modules\Identity\Services\Verification;
@@ -25,7 +26,9 @@ final class AcceptedRegistrationMeasurementTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->app->register(AcquisitionServiceProvider::class);
         config([
+            'h5.modules.acquisition.ready' => true,
             'h5.measurement_c_experience' => true, 'h5.measurement_c_registration' => true,
             'acquisition.measurement.enabled' => true, 'acquisition.measurement.synthetic_policy' => true,
             'acquisition.measurement.synthetic_until' => now()->addHour()->toIso8601String(),
