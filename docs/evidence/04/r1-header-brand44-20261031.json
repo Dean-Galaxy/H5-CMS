@@ -1,0 +1,241 @@
+{
+  "source_commit": "561ffa057769754dd3f728b4679def911c1ddb63",
+  "previous_source_commit": "b3efa8f7a6e363d97aa8293f9bd0089edb256f35",
+  "production_change": "one additional brand rule in public/audience/site.css; no font size, URL or DOM change",
+  "actual_html_source": "h5-platform/resources/views/components/layouts/site.blade.php",
+  "page": "/identity/register?lang=en or zh_CN",
+  "application_scripts_inert": true,
+  "native_viewport_screenshots": true,
+  "device_scale_factor": 1,
+  "font200_method": "snapshot every original computed font size, then set each to exactly twice; not DPR",
+  "red": {
+    "css_source": "b3efa8f7a6e363d97aa8293f9bd0089edb256f35",
+    "new_assertion_failed": true,
+    "error": "AssertionError [ERR_ASSERTION]: Header target must be >=44px: brand",
+    "viewport": [
+      320,
+      500
+    ],
+    "brand_height": 33,
+    "brand_font_size": 20,
+    "href": "/"
+  },
+  "checks": {
+    "old_363px_overflow_expected_failure": 1,
+    "candidate_layout": 8,
+    "native_navigation": 2,
+    "total": 11
+  },
+  "candidate_cases": [
+    {
+      "name": "en-320-font200",
+      "viewport": [
+        320,
+        500
+      ],
+      "dpr": 1,
+      "document_width": 320,
+      "brand_height": 66,
+      "brand_font_size": 40,
+      "brand_href": "/",
+      "all_selected_fonts_doubled": true
+    },
+    {
+      "name": "en-320-normal",
+      "viewport": [
+        320,
+        500
+      ],
+      "dpr": 1,
+      "document_width": 320,
+      "brand_height": 44,
+      "brand_font_size": 20,
+      "brand_href": "/",
+      "all_selected_fonts_doubled": null
+    },
+    {
+      "name": "en-1280-font200",
+      "viewport": [
+        1280,
+        850
+      ],
+      "dpr": 1,
+      "document_width": 1280,
+      "brand_height": 75.890625,
+      "brand_font_size": 46,
+      "brand_href": "/",
+      "all_selected_fonts_doubled": true
+    },
+    {
+      "name": "en-1280-normal",
+      "viewport": [
+        1280,
+        850
+      ],
+      "dpr": 1,
+      "document_width": 1280,
+      "brand_height": 44,
+      "brand_font_size": 23,
+      "brand_href": "/",
+      "all_selected_fonts_doubled": null
+    },
+    {
+      "name": "zh-CN-320-font200",
+      "viewport": [
+        320,
+        500
+      ],
+      "dpr": 1,
+      "document_width": 320,
+      "brand_height": 66,
+      "brand_font_size": 40,
+      "brand_href": "/",
+      "all_selected_fonts_doubled": true
+    },
+    {
+      "name": "zh-CN-320-normal",
+      "viewport": [
+        320,
+        500
+      ],
+      "dpr": 1,
+      "document_width": 320,
+      "brand_height": 44,
+      "brand_font_size": 20,
+      "brand_href": "/",
+      "all_selected_fonts_doubled": null
+    },
+    {
+      "name": "zh-CN-1280-font200",
+      "viewport": [
+        1280,
+        850
+      ],
+      "dpr": 1,
+      "document_width": 1280,
+      "brand_height": 75.890625,
+      "brand_font_size": 46,
+      "brand_href": "/",
+      "all_selected_fonts_doubled": true
+    },
+    {
+      "name": "zh-CN-1280-normal",
+      "viewport": [
+        1280,
+        850
+      ],
+      "dpr": 1,
+      "document_width": 1280,
+      "brand_height": 44,
+      "brand_font_size": 23,
+      "brand_href": "/",
+      "all_selected_fonts_doubled": null
+    }
+  ],
+  "counts": {
+    "viewers": 0,
+    "registration_receipts": 0,
+    "orders": 0,
+    "subjects": 0,
+    "purpose_proofs": 0
+  },
+  "errors": [],
+  "external_requests": [],
+  "mutations": [],
+  "registration_submissions": 0,
+  "protected_runtime_modified": false,
+  "visual_acceptance_pending": true,
+  "source_files": [
+    {
+      "path": "h5-platform/resources/views/components/layouts/site.blade.php",
+      "sha256": "6d722152b88e78c2643dfc768bc15b6a9a97ff06b4345d0815d371a75b2f9956"
+    },
+    {
+      "path": "h5-platform/public/audience/site.css",
+      "sha256": "cd70a32327d607124c75707e96f4dbfb4edda108732ff99f0d43c9126281e33f"
+    },
+    {
+      "path": "h5-platform/tests/Feature/Audience/Support/header-font-browser.test.cjs",
+      "sha256": "d9cfe507bfe43713e5ad52a29739753e64ce245a5ad7be8cb1a17fd092d5cef6"
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "baseline-en-320-font200.png",
+      "sha256": "08df6f049427ac8860ce541f1cccdbdf5bdefe4a53a080e405f6c354bffbc05a",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-320-normal.png",
+      "sha256": "a0daa2d09683fa90151f5e06019c53bbf9335e678c3d9aa8564f8a2ffe044e18",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-320-font200.png",
+      "sha256": "0a32308b5a53798034997212b88b59092feefa0ca7482351f3eee9e7becff6f7",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "en-1280-normal.png",
+      "sha256": "bee0c1458b3603dc4d9bb41c6ff6882c1e873cbad394b8b6c9bda574f1f23c59",
+      "native_png_dimensions": [
+        1280,
+        850
+      ]
+    },
+    {
+      "file": "en-1280-font200.png",
+      "sha256": "dbff8bd5a03282b67a5a218986bc05303077a50b0d9a30898e77aa2f0b070d73",
+      "native_png_dimensions": [
+        1280,
+        850
+      ]
+    },
+    {
+      "file": "zh-CN-320-normal.png",
+      "sha256": "339c131855fe9db6bc23051084d9d5613c042e2549ba7a3a0d7a07d890966532",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-320-font200.png",
+      "sha256": "654972d750c58b1777a0368c43b156053b554600f8835579f82cb84cc772dc8c",
+      "native_png_dimensions": [
+        320,
+        500
+      ]
+    },
+    {
+      "file": "zh-CN-1280-normal.png",
+      "sha256": "9129ae9ddea8f18b65bd9c0ef3f505cab3052227a4bdbffb21193e7a7cd66b5a",
+      "native_png_dimensions": [
+        1280,
+        850
+      ]
+    },
+    {
+      "file": "zh-CN-1280-font200.png",
+      "sha256": "e942a5450d13bb2035ea39b324d42263a3115ef1ea271da7124d8ef1d4080181",
+      "native_png_dimensions": [
+        1280,
+        850
+      ]
+    }
+  ],
+  "closed_own_ports": {
+    "5604": true,
+    "8204": true,
+    "8215": true
+  }
+}
