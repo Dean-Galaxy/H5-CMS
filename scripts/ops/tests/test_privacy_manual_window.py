@@ -3,6 +3,8 @@ import importlib.util
 from pathlib import Path
 import sys
 import tempfile
+import subprocess
+import json
 import unittest
 
 OPS=Path(__file__).resolve().parents[1]
@@ -44,5 +46,21 @@ class PrivacyWindowIsolation(unittest.TestCase):
             self.assertEqual('false',env['H5_BILLING_PAYPAL_SANDBOX_ENABLED'])
             self.assertEqual('disabled',env['ACQUISITION_TRANSPORT'])
             self.assertEqual('false',env['ACQUISITION_EXTERNAL_ENABLED'])
+
+    def test_start_failure_reaps_only_its_child_and_removes_own_pid_record(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pidfile=Path(directory)/'web.json'
+            process=subprocess.Popen(['/usr/bin/python3','-c','import time; time.sleep(30)'],start_new_session=True)
+            pidfile.write_text(json.dumps({'pid':process.pid,'marker':str(m.ROUTER)}));pidfile.chmod(0o600)
+            m.cleanup_failed_start(process,pidfile)
+            self.assertIsNotNone(process.poll());self.assertFalse(pidfile.exists())
+
+    def test_start_failure_preserves_foreign_pid_record(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pidfile=Path(directory)/'web.json'
+            process=subprocess.Popen(['/usr/bin/python3','-c','import time; time.sleep(30)'],start_new_session=True)
+            pidfile.write_text(json.dumps({'pid':1,'marker':'FOREIGN'}));pidfile.chmod(0o600)
+            m.cleanup_failed_start(process,pidfile)
+            self.assertTrue(pidfile.exists());self.assertEqual(1,json.loads(pidfile.read_text())['pid'])
 
 if __name__=='__main__':unittest.main()

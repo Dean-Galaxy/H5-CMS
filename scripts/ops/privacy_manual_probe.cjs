@@ -26,7 +26,7 @@ let phase='start';
     const browser=await chromium.launch({headless:true,args:['--no-proxy-server'],executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});
     fs.mkdirSync(output+'/screenshots',{mode:0o700,recursive:true});
     try {
-        check('runtime keeps purchase and provider API off',initial.new_purchase_provider==='unconfigured'&&initial.paypal_api_enabled===false&&initial.payment_fixture_installed===false);
+        check('runtime keeps purchase and provider API off',initial.new_purchase_provider==='unconfigured'&&initial.paypal_api_enabled===false&&initial.payment_fixture_installed===false&&initial.billing_driver==='unconfigured'&&initial.gateway_class==='App\\Modules\\Billing\\Gateway\\UnconfiguredGateway');
         check('external advertising and debug off',initial.advertising_external_enabled===false&&initial.advertising_transport==='disabled'&&initial.debug===false);
         for(const key of ['unknown','analytics','advertising','both','denied']){
             phase=key;
@@ -47,6 +47,7 @@ let phase='start';
             try {
                 assert(cases[key].url.startsWith(base+'/r/'));
                 const response=await page.goto(cases[key].url);assert.equal(response.status(),200);
+                assert.equal(response.headers()['x-an-m01-gateway'],'UnconfiguredGateway');
                 await page.locator('[data-privacy-dialog]').waitFor({state:'visible'});
                 await page.waitForTimeout(350);
                 check(key+' starts with both choices unchecked',!await page.locator('[name=analytics]').isChecked()&&!await page.locator('[name=advertising]').isChecked());

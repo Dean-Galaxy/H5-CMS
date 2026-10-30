@@ -53,6 +53,17 @@ def matching(record, config):
     return process.returncode == 0 and process.stdout.strip() == ' '.join(command(config)) and start.stdout.strip() == record.get('started_at')
 
 
+def cleanup_failed_start(process, pidfile):
+    """Only the just-created Popen child is terminated; foreign PID records are retained."""
+    if process.poll() is None:
+        os.killpg(process.pid, signal.SIGTERM)
+        process.wait(timeout=5)
+    if pidfile.exists():
+        stored = private_json(pidfile)
+        if stored.get('pid') == process.pid and stored.get('marker') == str(ROUTER):
+            pidfile.unlink()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--candidate', required=True)
@@ -116,18 +127,28 @@ def main():
         with socket.socket() as sock: sock.bind(('127.0.0.1',config['port']))
         dev.database_start()
         process = subprocess.Popen(command(config),cwd=ROOT/'h5-platform/public',env=env,stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
-        time.sleep(.5)
-        if process.poll() is not None: raise ValueError('PRIVACY_SERVER_FAILED')
-        record = {'root':str(ROOT),'candidate':args.candidate,'application_base':BASE,'pid':process.pid,'command':command(config),
-                  'started_at':subprocess.check_output(['ps','-p',str(process.pid),'-o','lstart='],text=True).strip()}
-        dev.write_private(OUTPUT/'process.json',json.dumps(record,indent=2))
-        dev.write_private(ROOT/'.runtime/pids/web.json',json.dumps({'pid':process.pid,'marker':str(ROUTER)}))
-        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-        with opener.open(f'http://127.0.0.1:{config["port"]}/health',timeout=20) as response:
-            if response.status != 200: raise ValueError('HEALTH_FAILED')
-        state = php('scripts/ops/privacy_manual_control.php','state')
-        dev.write_private(OUTPUT/'live-receipt.json',json.dumps({**record,'state':state,'queue_started':False,'scheduler_started':False},indent=2))
-        print(json.dumps({'started':True,'candidate':args.candidate,'base':BASE,'port':config['port'],'db_port':config['db_port'],'purchase_provider':state['new_purchase_provider'],'gateway_fixture':False})); return
+        pidfile = ROOT/'.runtime/pids/web.json'
+        success = False
+        try:
+            time.sleep(.5)
+            if process.poll() is not None: raise ValueError('PRIVACY_SERVER_FAILED')
+            record = {'root':str(ROOT),'candidate':args.candidate,'application_base':BASE,'pid':process.pid,'command':command(config),
+                      'started_at':subprocess.check_output(['ps','-p',str(process.pid),'-o','lstart='],text=True).strip()}
+            dev.write_private(OUTPUT/'process.json',json.dumps(record,indent=2))
+            dev.write_private(pidfile,json.dumps({'pid':process.pid,'marker':str(ROUTER)}))
+            opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+            with opener.open(f'http://127.0.0.1:{config["port"]}/health',timeout=20) as response:
+                if response.status != 200 or response.headers.get('X-AN-M01-Gateway') != 'UnconfiguredGateway': raise ValueError('HEALTH_FAILED')
+            state = php('scripts/ops/privacy_manual_control.php','state')
+            dev.write_private(OUTPUT/'live-receipt.json',json.dumps({**record,'state':state,'queue_started':False,'scheduler_started':False},indent=2))
+            success = True
+            print(json.dumps({'started':True,'candidate':args.candidate,'base':BASE,'port':config['port'],'db_port':config['db_port'],
+                              'purchase_provider':state['new_purchase_provider'],'gateway_class':state['gateway_class']})); return
+        finally:
+            if not success:
+                cleanup_failed_start(process,pidfile)
+                (OUTPUT/'live-receipt.json').unlink(missing_ok=True)
+                dev.write_private(OUTPUT/'startup-failed.json',json.dumps({'candidate':args.candidate,'own_web_cleaned':True}))
     if args.action in ['state','checkpoint']:
         state = php('scripts/ops/privacy_manual_control.php','state')
         if args.action == 'checkpoint':

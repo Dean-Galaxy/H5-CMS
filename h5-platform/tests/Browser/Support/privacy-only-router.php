@@ -10,6 +10,10 @@ if ($target && str_starts_with($target, realpath($public).'/') && is_file($targe
 require $root.'/h5-platform/vendor/autoload.php';
 $app = Tests\Browser\Support\AnalyticsRuntime::boot(true);
 if (getenv('H5_ANALYTICS_PRIVACY_ONLY') !== '1') { throw new LogicException('PRIVACY ONLY MODE REQUIRED'); }
+$gateway = app(App\Modules\Billing\Gateway\PaymentGateway::class);
+if (get_class($gateway) !== App\Modules\Billing\Gateway\UnconfiguredGateway::class
+    || config('billing.driver') !== 'unconfigured') { throw new LogicException('UNCONFIGURED GATEWAY REQUIRED'); }
+header('X-AN-M01-Gateway: '.class_basename($gateway));
 Illuminate\Support\Facades\Http::preventStrayRequests();
 $request = Illuminate\Http\Request::capture();
 $path = $request->getPathInfo();
