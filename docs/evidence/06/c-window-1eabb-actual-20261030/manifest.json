@@ -1,0 +1,336 @@
+{
+  "schema": "06-c-local-acceptance-1",
+  "recorded_utc": "2026-10-30T11:30:40.110039+00:00",
+  "runtime_candidate": "1eabb1da365731bff0bf52d677a695a29a94a336",
+  "observer_tool_commit": "d533b236cff3f782cb0bff7efae6265f57efcbe5",
+  "observer_tool_sha256": "fa36a5e4bd83173df88d361ad5b3c94bbc7cced984670523511c142846edfb8f",
+  "contracts": [
+    "business-1.0.5",
+    "c-core-1",
+    "c-ui-1"
+  ],
+  "new_workspace": "h5-c-ui-manual",
+  "ports": {
+    "web": 8411,
+    "postgres": 5911
+  },
+  "migration_count": 25,
+  "seed": {
+    "original_candidate": "dc7833af4fe6c19c13087fa45aebae7c1ec77de3",
+    "runs": 1,
+    "data_and_environment_retained": true,
+    "episodes": 6,
+    "free_episodes": 5,
+    "self_generated_video_target_seconds": 8,
+    "observed_media_duration_seconds": 8.08
+  },
+  "actual_entry_http": {
+    "candidate": "1eabb1da365731bff0bf52d677a695a29a94a336",
+    "static": [
+      {
+        "path": "/identity.css",
+        "status": 200,
+        "content_type": "text/css;charset=UTF-8",
+        "source_bytes_matched": true,
+        "bytes": 1973
+      },
+      {
+        "path": "/audience/site.css",
+        "status": 200,
+        "content_type": "text/css;charset=UTF-8",
+        "source_bytes_matched": true,
+        "bytes": 9554
+      },
+      {
+        "path": "/audience/measurement-c.css",
+        "status": 200,
+        "content_type": "text/css;charset=UTF-8",
+        "source_bytes_matched": true,
+        "bytes": 1919
+      },
+      {
+        "path": "/identity.js",
+        "status": 200,
+        "content_type": "application/javascript",
+        "source_bytes_matched": true,
+        "bytes": 1680
+      },
+      {
+        "path": "/audience/measurement-c.js",
+        "status": 200,
+        "content_type": "application/javascript",
+        "source_bytes_matched": true,
+        "bytes": 19352
+      }
+    ],
+    "blocked": [
+      {
+        "path": "/api/v1/auth/register",
+        "status": 403
+      },
+      {
+        "path": "/membership/checkout",
+        "status": 403
+      },
+      {
+        "path": "/api/v1/billing/refunds",
+        "status": 403
+      },
+      {
+        "path": "/webhooks/paypal",
+        "status": 403
+      },
+      {
+        "path": "/webhooks/stripe",
+        "status": 403
+      }
+    ],
+    "passed": true,
+    "context": {
+      "status": 200,
+      "content_type": "application/json",
+      "reason": "NOTICE_NOT_READY",
+      "eligibility": "eligible"
+    },
+    "real_csrf_patch": {
+      "status": 200,
+      "choice": "deny",
+      "effective": "off"
+    }
+  },
+  "locked_hls_asset": {
+    "status": 200,
+    "content_type": "application/javascript",
+    "bytes": 619692,
+    "sha256": "a12e7ee1cd64a69dcdb314157e45dafcba705bfb0b1440b7935cb265d374423e",
+    "version": "1.7.3",
+    "registry_download_used_during_dependency_setup": true,
+    "application_uses_runtime_CDN": false
+  },
+  "actual_browser": {
+    "browser_version": "156.0.8078.74",
+    "passed": true,
+    "scenarios": 9,
+    "checks": 48,
+    "single_complete_run": true,
+    "cases": [
+      {
+        "name": "visit",
+        "passed": true
+      },
+      {
+        "name": "decode-seek",
+        "passed": true
+      },
+      {
+        "name": "deny-refresh-play",
+        "passed": true
+      },
+      {
+        "name": "initial-read-503",
+        "passed": true
+      },
+      {
+        "name": "save-503",
+        "passed": true
+      },
+      {
+        "name": "revision-409",
+        "passed": true
+      },
+      {
+        "name": "short-screens",
+        "passed": true,
+        "short_screens": [
+          {
+            "locale": "en",
+            "notice_height": 176.28125,
+            "viewport": {
+              "width": 320,
+              "height": 500
+            }
+          },
+          {
+            "locale": "zh_CN",
+            "notice_height": 155.28125,
+            "viewport": {
+              "width": 320,
+              "height": 500
+            }
+          }
+        ]
+      },
+      {
+        "name": "boundaries",
+        "passed": true
+      },
+      {
+        "name": "real-pressure",
+        "passed": true,
+        "server_pressure": {
+          "start": {
+            "throttled": true,
+            "statuses": {
+              "200": 50,
+              "429": 1
+            }
+          },
+          "events": {
+            "throttled": true,
+            "statuses": {
+              "200": 115,
+              "429": 1
+            }
+          },
+          "context": {
+            "throttled": true,
+            "statuses": {
+              "200": 101,
+              "429": 1
+            }
+          }
+        }
+      }
+    ],
+    "actual_seek": {
+      "before_position": 5.2032,
+      "resumed_position": 7.73,
+      "duration": 8.08,
+      "frames_before": 132,
+      "frames_after": 332
+    },
+    "server_seek_watched_seconds": 5.0382,
+    "server_episode_completed_events": 0,
+    "observed_external_attempts": 0,
+    "native_hls_branch_forced_off_to_test_actual_MSE": true,
+    "real_device": false
+  },
+  "actual_rehearsal": {
+    "candidate": "1eabb1da365731bff0bf52d677a695a29a94a336",
+    "driver_sha256": "c2f89088d0cc968d0e4c498680d57439b4a9d33a196eb46736f514da2be16f63",
+    "passed": true,
+    "restoration_executed": false,
+    "real_device": false,
+    "steps": [
+      {
+        "action": "fingerprint",
+        "passed": true
+      },
+      {
+        "action": "quiesce",
+        "passed": true
+      },
+      {
+        "action": "backup",
+        "passed": true
+      },
+      {
+        "action": "stop",
+        "passed": true
+      },
+      {
+        "action": "start",
+        "passed": true
+      },
+      {
+        "action": "fingerprint",
+        "passed": true
+      },
+      {
+        "action": "quiesce",
+        "passed": true
+      },
+      {
+        "action": "backup",
+        "passed": true
+      },
+      {
+        "action": "stop",
+        "passed": true
+      }
+    ],
+    "before_restart_archive": {
+      "files_verified": 12,
+      "restoration_executed": false
+    },
+    "business_rows_unchanged": true,
+    "business_digest": "5995bb257fe3ee20c432dba84792b2d00ce52347f5d7fdde185175f750016914",
+    "business_tables": 60,
+    "final_archive": {
+      "files_verified": 12,
+      "restoration_executed": false
+    },
+    "own_ports_unbound": true
+  },
+  "final_protected_counts": {
+    "identity_viewers": 0,
+    "billing_prices": 0,
+    "billing_orders": 0,
+    "billing_payments": 0,
+    "billing_entitlements": 0,
+    "billing_subscriptions": 0,
+    "billing_refunds": 0,
+    "billing_inbox": 0,
+    "billing_outbox": 0,
+    "billing_behavior_outbox": 0,
+    "acquisition_subjects": 0,
+    "acquisition_sources": 0,
+    "acquisition_behaviors": 0,
+    "acquisition_event_keys": 0
+  },
+  "accumulated_synthetic_C_counts": {
+    "acquisition_c_preferences": 25,
+    "acquisition_c_subjects": 20,
+    "acquisition_c_sessions": 20,
+    "acquisition_c_events": 257,
+    "acquisition_c_event_keys": 257,
+    "acquisition_c_plays": 3
+  },
+  "final_status": {
+    "live_same_candidate": true,
+    "context_status": 200,
+    "fault_file_present": false,
+    "gateway": "App\\Modules\\Billing\\Gateway\\UnconfiguredGateway",
+    "human_new_c": "0/3",
+    "window_owner": "00",
+    "automatic_browser_work_finished": true,
+    "human_entry_released_by_06": false,
+    "public_server": false,
+    "queue_scheduler": false,
+    "official_API": false,
+    "advertising_delivery": false
+  },
+  "prior_failures_preserved": [
+    {
+      "candidate": "dc7833af4fe6c19c13087fa45aebae7c1ec77de3",
+      "phase": "visit",
+      "cause": "06 router static URL/base-path defect; separate original report kept"
+    },
+    {
+      "candidate": "1eabb1da365731bff0bf52d677a695a29a94a336",
+      "phase": "decode-seek",
+      "cause": "missing locked HLS browser dependency; installed with existing lock and verified before retry"
+    },
+    {
+      "candidate": "1eabb1da365731bff0bf52d677a695a29a94a336",
+      "observer": "runtime bundled pre-d533 driver",
+      "phase": "decode-seek",
+      "cause": "assertion expected progress before five-second sampling; external committed observer corrected without editing runtime"
+    }
+  ],
+  "scope_limits": [
+    "Original PG restart/data preservation, not independent restore.",
+    "Initial GET503 is browser response injection; preference close remains real.",
+    "Save503 is token-scoped actual PG write-path failure with SQLSTATE22012; not a naturally occurring outage.",
+    "37-check selected-seven run retained independently; full claim uses subsequent single nine-case 48-check run only.",
+    "Screenshots/raw requests/credentials/manifest/PID/backups remain private runtime; only sanitized summary exported.",
+    "No C2/Thursday/old AN-M01 runtime operations.",
+    "Human/device/public/real-region-policy/SMTP/payment-advertising release not inferred."
+  ],
+  "offline_observer_tests": {
+    "python": 33,
+    "node": 9,
+    "passed": true,
+    "not_counted_as_actual_browser_checks": true
+  }
+}
