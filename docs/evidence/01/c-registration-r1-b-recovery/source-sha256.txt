@@ -1,0 +1,5 @@
+Source commit: f7540c9b17842aa16f280ab395a992eda6c8f920
+404619813ff98f99e4fbab3ac255e37cbe9638f7c2bef0f5e9a8ebdc5a34bf61  h5-platform/lang/en/identity.php
+325c1983a0440655dbae19e4a21e5baab872d5531b4280662149df0bb87faf20  h5-platform/lang/zh_CN/identity.php
+b4e37841ad259e684b69156ce5aa322b7ba556de9f87f6368acc2780c8b1d1f5  h5-platform/public/identity.js
+07f0fc5bc6d6adaf4aaab12c925b514176581599dd189174365ffc20122f4f32  h5-platform/tests/Feature/Identity/Support/registration-purposes.browser.cjs

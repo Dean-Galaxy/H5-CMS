@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "boundary": "intercepted client fault fixtures only; no real service or full R1 integration",
+  "outcomes": [
+    {
+      "scenario": "lost-response-anonymous",
+      "status": "passed",
+      "registrationPosts": 1,
+      "identityReads": 3
+    },
+    {
+      "scenario": "lost-response-authenticated",
+      "status": "passed",
+      "registrationPosts": 1,
+      "identityReads": 1
+    },
+    {
+      "scenario": "malformed-response",
+      "status": "passed",
+      "registrationPosts": 1,
+      "identityReads": 3
+    },
+    {
+      "scenario": "validation-retry",
+      "status": "passed",
+      "registrationPosts": 2,
+      "identityReads": 0
+    },
+    {
+      "scenario": "known-success",
+      "status": "passed",
+      "registrationPosts": 1,
+      "identityReads": 0
+    },
+    {
+      "scenario": "legacy-network-failure",
+      "status": "passed",
+      "registrationPosts": 1,
+      "identityReads": 0
+    }
+  ]
+}
