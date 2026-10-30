@@ -53,7 +53,7 @@ final class H5R1Runtime
             || ! hash_equals(hash_file('sha256', self::directory().'/manifest.json'), (string) getenv('H5_R1_MANIFEST_SHA256'))) {
             throw new LogicException('EXACT MANIFEST ROLE BINDING REQUIRED');
         }
-        $required = ['scripts/ops/r1_window.py','scripts/ops/r1_window_runtime.php','scripts/ops/r1_window_boundary.php','scripts/ops/r1_window_router.php','scripts/ops/r1_window_control.php'];
+        $required = ['scripts/ops/r1_window.py','scripts/ops/r1_window_runtime.php','scripts/ops/r1_window_boundary.php','scripts/ops/r1_window_router.php','scripts/ops/r1_window_control.php','scripts/ops/r1_browser.cjs','scripts/ops/r1_rehearsal.py','scripts/ops/r1_probe.php','scripts/ops/tests/test_r1_window.py'];
         if (count($manifest['tools_sha256'] ?? []) !== count($required)) { throw new LogicException('EXACT TOOL FILE SET REQUIRED'); }
         foreach ($required as $relative) {
             if (! isset($manifest['tools_sha256'][$relative]) || is_link($root.'/'.$relative)
@@ -61,6 +61,10 @@ final class H5R1Runtime
         }
         $git = new Symfony\Component\Process\Process(['git','-C',$root,'rev-parse','HEAD']); $git->mustRun();
         if (trim($git->getOutput()) !== $candidate) { throw new LogicException('FIXED HEAD REQUIRED'); }
+        foreach ($required as $relative) {
+            $committed = new Symfony\Component\Process\Process(['git','-C',$root,'show',$candidate.':'.$relative]); $committed->mustRun();
+            if (! hash_equals($manifest['tools_sha256'][$relative], hash('sha256', $committed->getOutput()))) { throw new LogicException('COMMITTED TOOL BYTES REQUIRED'); }
+        }
         $app = require $root.'/h5-platform/bootstrap/app.php';
         if ($http) { $app->instance('request', Illuminate\Http\Request::capture()); }
         $app->make($http ? Illuminate\Contracts\Http\Kernel::class : Illuminate\Contracts\Console\Kernel::class)->bootstrap();

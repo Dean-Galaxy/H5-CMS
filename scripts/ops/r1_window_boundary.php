@@ -21,6 +21,7 @@ final class H5R1Boundary
         if (! $directory || ! is_string($path) || ! str_starts_with($path, '/') || self::blocked($path)) { return null; }
         $target = realpath($directory.$path);
         return $target && str_starts_with($target, $directory.'/') && is_file($target)
+            && ! self::blocked(substr($target, strlen($directory)))
             && in_array(strtolower(pathinfo($target, PATHINFO_EXTENSION)), ['js','css','png','jpg','jpeg','svg','ico','woff','woff2','ttf'], true) ? $target : null;
     }
 

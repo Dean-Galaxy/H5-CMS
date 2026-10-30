@@ -87,13 +87,39 @@ class R1Boundary(unittest.TestCase):
             (directory/'database.dump').write_bytes(b'changed')
             with self.assertRaises(ValueError):r.verify_backup(directory)
 
+    def test_modified_untracked_or_missing_candidate_tools_refused(self):
+        file=self.root/'tool.py';file.write_text('committed')
+        with patch.object(r,'ROOT',self.root),patch.object(r.subprocess,'check_output',return_value=b'committed'):
+            self.assertEqual(len(r.committed_files('a'*40,['tool.py'])),1)
+            file.write_text('uncommitted')
+            with self.assertRaises(ValueError):r.committed_files('a'*40,['tool.py'])
+        with patch.object(r,'git',side_effect=['\n'.join(['scripts/ops/'+p for p in ['r1_window.py','r1_window_runtime.php','r1_window_boundary.php','r1_window_router.php','r1_window_control.php','r1_browser.cjs','r1_rehearsal.py','r1_probe.php','tests/test_r1_window.py']]),'?? scripts/ops/r1_extra.py']):
+            with self.assertRaises(ValueError):r.runtime_tools('a'*40)
+        with patch.object(r,'git',return_value='scripts/ops/r1_window.py'):
+            with self.assertRaises(ValueError):r.runtime_tools('a'*40)
+
+    def test_restored_target_missing_extra_corrupt_symlink_refused(self):
+        src=self.root/'source';dst=self.root/'target';src.mkdir();dst.mkdir(mode=0o700)
+        file=dst/'video.bin';file.write_bytes(b'own media');file.chmod(0o600)
+        index={'media/video.bin':hashlib.sha256(b'own media').hexdigest()}
+        self.assertTrue(r.compare_restore_tree(src,dst,index,'media')['sha256_verified'])
+        file.write_bytes(b'corrupt')
+        with self.assertRaises(ValueError):r.compare_restore_tree(src,dst,index,'media')
+        file.unlink()
+        with self.assertRaises(ValueError):r.compare_restore_tree(src,dst,index,'media')
+        file.write_bytes(b'own media');file.chmod(0o600);extra=dst/'extra';extra.write_text('extra');extra.chmod(0o600)
+        with self.assertRaises(ValueError):r.compare_restore_tree(src,dst,index,'media')
+        extra.unlink();file.unlink();file.symlink_to(src/'foreign')
+        with self.assertRaises(ValueError):r.compare_restore_tree(src,dst,index,'media')
+
     def test_php_exact_allowed_http_and_static_and_front_controller(self):
         public=self.root/'public';public.mkdir();(public/'index.php').write_text('synthetic index');(public/'app.css').write_text('body{}')
-        (public/'admin').mkdir();(public/'admin/admin.js').write_text('void 0;')
+        (public/'admin').mkdir();(public/'admin/admin.js').write_text('void 0;');(public/'open').mkdir()
         boundary=OPS/'r1_window_boundary.php';vendor=OPS.parents[1]/'h5-platform/vendor/autoload.php'
         code=r'''require $argv[1]; require $argv[2];$public=$argv[3];$u='00000000-0000-4000-8000-000000000006';
         foreach([['GET','/',true],['GET','/health',true],['GET','/api/v1/auth/csrf',true],['GET','/api/v1/auth/me',true],['POST','/api/v1/auth/register',true],['POST','/api/v1/auth/login',true],['POST','/api/v1/auth/logout',true],['GET','/identity/test-terms',true],['GET','/identity/test-privacy',true],['GET','/api/v3/measurement/purposes/context',true],['PATCH','/api/v3/measurement/purposes/preferences',true],['PATCH','/api/v2/measurement/preferences',true],['POST','/audience/dramas/'.$u.'/episodes/'.$u.'/playback',true],['GET','/admin',false],['POST','/api/v1/admin/staff',false],['GET','/membership',false],['POST','/membership/checkout',false],['POST','/api/v1/billing/refunds',false],['POST','/webhooks/paypal',false],['POST','/webhooks/stripe',false],['POST','/unknown',false],['POST','/api/v1/tracking/consent',false]] as $r){if(H5R1Boundary::allows($r[0],$r[1])!==$r[2]){exit(1);}}
         if(H5R1Boundary::staticTarget($public,'/app.css?v=1')!==$public.'/app.css'||H5R1Boundary::staticTarget($public,'/admin/admin.js')!==null||H5R1Boundary::staticTarget($public,'/../outside.css')!==null){exit(2);}
+        foreach(['/open/../admin/admin.js','/open/%2e%2e/admin/admin.js','/%61dmin/admin.js','/open/../../outside.js'] as $uri){if(H5R1Boundary::staticTarget($public,$uri)!==null){exit(4);}}
         $server=['REQUEST_METHOD'=>'PATCH','REQUEST_URI'=>'/api/v3/measurement/purposes/preferences?x=1','QUERY_STRING'=>'x=1','SCRIPT_NAME'=>'/api/v3/measurement/purposes/preferences','PHP_SELF'=>'/api/v3/measurement/purposes/preferences','SCRIPT_FILENAME'=>$public.'/wrong','SERVER_NAME'=>'127.0.0.1','HTTP_HOST'=>'127.0.0.1:8412','HTTP_X_CSRF_TOKEN'=>'synthetic-csrf'];
         $s=H5R1Boundary::normalize($server,$public);$request=new Symfony\Component\HttpFoundation\Request(['x'=>'1'],[],[],['synthetic'=>'cookie'],[],$s,'{"choice":"deny"}');
         if($request->getPathInfo()!=='/api/v3/measurement/purposes/preferences'||$request->getContent()!=='{"choice":"deny"}'||$request->cookies->get('synthetic')!=='cookie'||$request->headers->get('X-CSRF-TOKEN')!=='synthetic-csrf'||$request->query->get('x')!=='1'){exit(3);} echo '22 HTTP classifications; actual request normalization and safe static targets';'''

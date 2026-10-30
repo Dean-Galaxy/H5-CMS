@@ -80,12 +80,42 @@ def source(candidate):
     if not re.fullmatch('[a-f0-9]{40}',candidate) or git('rev-parse','HEAD') != candidate: raise ValueError('FULL_FIXED_HEAD_REQUIRED')
     subprocess.run(['git','-C',str(ROOT),'diff','--exit-code',BASE,candidate,'--',*PRODUCT],check=True,stdout=subprocess.DEVNULL)
     if git('status','--porcelain','--',*PRODUCT): raise ValueError('PRODUCT_MUST_BE_COMMITTED')
+    runtime_tools(candidate)
     if (ROOT/'h5-platform/bootstrap/cache/config.php').exists(): raise ValueError('NO_CACHED_CONFIG')
 
 
-def runtime_tools():
-    names=['r1_window.py','r1_window_runtime.php','r1_window_boundary.php','r1_window_router.php','r1_window_control.php']
-    return {'scripts/ops/'+name:hashlib.sha256((ROOT/'scripts/ops'/name).read_bytes()).hexdigest() for name in names}
+def committed_files(candidate, names):
+    result={}
+    for relative in names:
+        path=ROOT/relative
+        if path.is_symlink() or not path.is_file():raise ValueError('REGULAR_COMMITTED_TOOL_REQUIRED')
+        committed=subprocess.check_output(['git','-C',str(ROOT),'show',candidate+':'+relative],stderr=subprocess.DEVNULL)
+        actual=path.read_bytes()
+        if committed!=actual:raise ValueError('UNCOMMITTED_TOOL_REFUSED')
+        result[relative]=hashlib.sha256(committed).hexdigest()
+    return result
+
+
+def runtime_tools(candidate=None):
+    candidate=candidate or git('rev-parse','HEAD')
+    names=git('ls-tree','-r','--name-only',candidate,'--','scripts/ops/r1_window.py','scripts/ops/r1_window_runtime.php','scripts/ops/r1_window_boundary.php','scripts/ops/r1_window_router.php','scripts/ops/r1_window_control.php','scripts/ops/r1_browser.cjs','scripts/ops/r1_rehearsal.py','scripts/ops/r1_probe.php','scripts/ops/tests/test_r1_window.py').splitlines()
+    expected={'scripts/ops/'+name for name in ['r1_window.py','r1_window_runtime.php','r1_window_boundary.php','r1_window_router.php','r1_window_control.php','r1_browser.cjs','r1_rehearsal.py','r1_probe.php','tests/test_r1_window.py']}
+    if set(names)!=expected:raise ValueError('COMPLETE_COMMITTED_TOOL_SET_REQUIRED')
+    if git('status','--porcelain','--untracked-files=all','--','scripts/ops/r1*','scripts/ops/tests/test_r1*'):raise ValueError('DIRTY_OR_NEW_R1_TOOL_REFUSED')
+    return committed_files(candidate,names)
+
+
+def compare_restore_tree(source, destination, index, scope):
+    expected={name[len(scope)+1:]:digest for name,digest in index.items() if name.startswith(scope+'/')}
+    if source.is_symlink() or destination.is_symlink() or not destination.is_dir():raise ValueError('REGULAR_RESTORE_TREE_REQUIRED')
+    actual={}
+    for path in destination.rglob('*'):
+        if path.is_symlink() or path.resolve()!=path or path.stat().st_uid!=os.getuid() or path.stat().st_mode&0o077:raise ValueError('PRIVATE_REGULAR_RESTORE_TARGET_REQUIRED')
+        if path.is_file():
+            if path.stat().st_nlink!=1:raise ValueError('NO_RESTORE_HARDLINKS')
+            actual[str(path.relative_to(destination))]=hashlib.sha256(path.read_bytes()).hexdigest()
+    if actual!=expected:raise ValueError('RESTORE_TARGET_SET_OR_BYTES_DIFFER')
+    return {'scope':scope,'files':len(actual),'sha256_verified':True}
 
 
 def dependencies():
@@ -259,7 +289,7 @@ def main():
     if args.action=='regression':
         if args.role!='regression':raise ValueError('REGRESSION_DB_ONLY')
         suites=extra or ['tests/Feature/Acquisition','tests/Feature/Identity','tests/Feature/Audience','tests/Feature/Contracts/RegistrationMeasurementTest.php','tests/Feature/Contracts/AcceptedRegistrationMeasurementTest.php','tests/Feature/Contracts/RuntimeEnvironmentGuardTest.php','tests/Feature/Contracts/AdminPanelIntegrationTest.php']
-        if any(not re.fullmatch('tests/(Feature|Integration|Security)/[A-Za-z0-9_/]+(?:\\.php)?',s) for s in suites):raise ValueError('SAFE_SUITE_PATH_REQUIRED')
+        if any(not re.fullmatch(r'tests/(Feature|Integration|Security)/[A-Za-z0-9_/]+(?:\.php)?',s) for s in suites):raise ValueError('SAFE_SUITE_PATH_REQUIRED')
         target=OUT/'regression-private.txt'
         with target.open('w') as stream:result=subprocess.run([PHP,'-d','memory_limit=768M','artisan','test','--compact',*suites],cwd=ROOT/'h5-platform',env=env,stdout=stream,stderr=subprocess.STDOUT)
         target.chmod(0o600);print(json.dumps({'candidate':args.candidate,'regression_exit_code':result.returncode,'private_log':str(target)}));raise SystemExit(result.returncode)
@@ -331,9 +361,12 @@ def main():
         private_write(OUT/'restore-attempt.json',{'candidate':args.candidate,'source_backup':str(directory),'started':True})
         subprocess.run([str(PG/'pg_restore'),'--no-owner','--no-acl','--exit-on-error','-d',db_name(cfg,'restore'),str(directory/'database.dump')],env=restoreenv,check=True,capture_output=True)
         shutil.copytree(directory/'media',OUT/'restore-media');shutil.copytree(directory/'mail',OUT/'restore-mail')
+        index=private_json(directory/'sha256.json')
+        media=compare_restore_tree(directory/'media',OUT/'restore-media',index,'media')
+        mail=compare_restore_tree(directory/'mail',OUT/'restore-mail',index,'mail')
         actual=control(cfg,doc,'restore','fingerprint');expected=private_json(directory/'fingerprint.json')
         if actual!=expected:raise ValueError('RESTORED_ROWS_DIFFER')
-        private_write(OUT/'restore-receipt.json',{'candidate':args.candidate,'independent_destination_database':db_name(cfg,'restore'),'data_fingerprint':actual,'passed':True,'media_sha256_checked':True,'external_enabled':False})
+        private_write(OUT/'restore-receipt.json',{'candidate':args.candidate,'independent_destination_database':db_name(cfg,'restore'),'data_fingerprint':actual,'passed':True,'media':media,'mail':mail,'external_enabled':False})
         print(json.dumps({'independent_restore':True,'all_rows_equal':True,'tables':len(actual['tables']),'source_database_untouched':True}));return
 
 
