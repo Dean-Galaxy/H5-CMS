@@ -1,0 +1,3 @@
+Source commit: 129c59a57f46baadacb83d5a265b9bd998c77593
+dbb7948eb403ceb72df689c4b496edcf4a8f9282fd7b9b9a55e50f28af100391  h5-platform/public/identity.js
+ace66c62f99790190500d630e27c0fc367bfb895beb07b03cd29950134f40dea  h5-platform/tests/Feature/Identity/Support/registration-purposes.browser.cjs

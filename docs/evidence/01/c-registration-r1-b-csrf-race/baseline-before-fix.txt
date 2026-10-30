@@ -1,0 +1,14 @@
+Checking csrf-switch-before-identity
+{"scenario":"csrf-switch-before-identity","order":["me:A","me:A","csrf:B","patch:B/current:B"],"attempted":1,"persisted":1}
+expect(locator).toContainText(expected) failed
+
+Locator: locator('[data-result]')
+Expected substring: "Account changed"
+Received string:    "Your account was created. Choices can be saved, but account association and advertising do not run."
+Timeout: 5000ms
+
+Call log:
+  - Expect "to.have.text" with timeout 5000ms
+  - waiting for locator('[data-result]')
+    14 × locator resolved to <p data-result="">Your account was created. Choices can be saved, b…</p>
+       - unexpected value "Your account was created. Choices can be saved, but account association and advertising do not run."

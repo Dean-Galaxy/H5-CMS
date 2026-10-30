@@ -1,0 +1,15 @@
+{
+  "baseline_commit": "1d17ac0fa3bb29e3fc74c30b787919bfb35bc26d",
+  "baseline_identity_js_sha256": "b4e37841ad259e684b69156ce5aa322b7ba556de9f87f6368acc2780c8b1d1f5",
+  "fixed_source_commit": "129c59a57f46baadacb83d5a265b9bd998c77593",
+  "fixed_identity_js_sha256": "dbb7948eb403ceb72df689c4b496edcf4a8f9282fd7b9b9a55e50f28af100391",
+  "baseline_probe": "same newly-added csrf-switch-before-identity fixture executed before editing identity.js; expected safety assertion failed",
+  "baseline_order": [
+    "me:A",
+    "me:A",
+    "csrf:B",
+    "patch:B/current:B"
+  ],
+  "baseline_synthetic_persisted": 1,
+  "boundary": "Intercepted browser fixture only; persisted is an in-memory synthetic provider array, not an actual database."
+}
