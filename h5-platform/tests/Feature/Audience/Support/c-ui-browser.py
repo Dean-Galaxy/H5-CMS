@@ -17,8 +17,8 @@ spec.loader.exec_module(dev)
 cfg = dev.config()
 assert not (dev.APP / 'bootstrap/cache/config.php').exists(), 'Refuse cached config'
 dev.database_start()
-db = cfg['db'] + '_cui1_http_test'
-marker = dev.RUN / 'c-ui-1-owned.json'
+db = cfg['db'] + '_cui1_audience_http_test'
+marker = dev.RUN / 'c-ui-1-audience-owned.json'
 admin = dev.pg_env(admin=True)
 exists = subprocess.run([str(dev.PG / 'psql'), '-Atc', "SELECT 1 FROM pg_database WHERE datname='" + db + "'"],
                         env=admin, capture_output=True, text=True, check=True).stdout.strip()
@@ -26,14 +26,14 @@ if not exists:
     subprocess.run([str(dev.PG / 'createdb'), '-O', cfg['user'], db], env=admin, check=True)
     dev.write_private(marker, json.dumps({'root': str(ROOT), 'database': db}))
 assert marker.exists() and json.loads(marker.read_text()) == {'root': str(ROOT), 'database': db}, 'Refuse unowned DB'
-out = dev.RUN / 'c-ui-1'
+out = dev.RUN / 'c-ui-1-audience'
 media = out / 'media'
 media.mkdir(parents=True, exist_ok=True)
 port = dev.select_port(8214)
 base = 'http://127.0.0.1:' + str(port)
 env = os.environ.copy()
 env.update(APP_ENV='testing', APP_DEBUG='false', APP_URL=base, H5_LOCAL_MODULES='acquisition',
-           H5_C_EXPERIENCE_ENABLED='true', H5_LOCAL_US_TEST_REGION='true', H5_WORKSPACE=cfg['workspace']+'_cui1',
+           H5_C_EXPERIENCE_ENABLED='true', H5_LOCAL_US_TEST_REGION='true', H5_WORKSPACE=cfg['workspace']+'_cui1_audience',
            DB_CONNECTION='pgsql', DB_HOST='127.0.0.1', DB_PORT=str(cfg['db_port']), DB_DATABASE=db, DB_URL='',
            DB_USERNAME=cfg['user'], DB_PASSWORD=(dev.RUN/'pg-app-password').read_text(), H5_TEST_DATABASE=db,
            H5_MEDIA_ROOT=str(media), SESSION_DRIVER='database', CACHE_STORE='database', QUEUE_CONNECTION='sync',

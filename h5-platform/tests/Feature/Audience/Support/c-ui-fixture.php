@@ -13,12 +13,12 @@ require __DIR__.'/../../../../vendor/autoload.php';
 $app = require __DIR__.'/../../../../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 $root = realpath(base_path('..'));
-$owned = json_decode(file_get_contents($root.'/.runtime/c-ui-1-owned.json'), true, flags: JSON_THROW_ON_ERROR);
+$owned = json_decode(file_get_contents($root.'/.runtime/c-ui-1-audience-owned.json'), true, flags: JSON_THROW_ON_ERROR);
 if (! app()->environment('testing') || $owned['root'] !== $root || $owned['database'] !== DB::connection()->getDatabaseName()
-    || ! str_ends_with($owned['database'], '_cui1_http_test') || ! str_starts_with(config('h5.media_root'), $root.'/.runtime/c-ui-1/')) {
+    || ! str_ends_with($owned['database'], '_cui1_audience_http_test') || ! str_starts_with(config('h5.media_root'), $root.'/.runtime/c-ui-1-audience/')) {
     throw new LogicException('Refuse non-owned synthetic C UI database or media.');
 }
-$target = $root.'/.runtime/c-ui-1/fixture.json';
+$target = $root.'/.runtime/c-ui-1-audience/fixture.json';
 if (is_file($target)) {
     $fixture = json_decode(file_get_contents($target), true);
     if (DramaRecord::find($fixture['drama'])) {

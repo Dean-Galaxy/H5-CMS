@@ -16,8 +16,8 @@ const count = () => Number(sql('SELECT count(*) FROM acquisition_c_events'));
 const results = [], errors = [], eventRequests = [], external = [], legacy = [], responses = [], referrers = [];
 let browser, lastPage;
 function resetOwnedCache() {
-  assert(process.env.DB_DATABASE.endsWith('_cui1_http_test'));
-  const owned = JSON.parse(fs.readFileSync(path.join(out,'../c-ui-1-owned.json')));
+  assert(process.env.DB_DATABASE.endsWith('_cui1_audience_http_test'));
+  const owned = JSON.parse(fs.readFileSync(path.join(out,'../c-ui-1-audience-owned.json')));
   assert.equal(owned.database,process.env.DB_DATABASE);
   execFileSync('/opt/homebrew/opt/php@8.4/bin/php',['artisan','cache:clear'],{cwd:path.join(owned.root,'h5-platform'),env:process.env});
 }
