@@ -1,0 +1,17 @@
+{
+  "scope": "05 own workspace only",
+  "owned_http_process_groups_stopped": 4,
+  "owned_http_listeners_remaining": 0,
+  "preexisting_own_services_preserved": {
+    "web": true,
+    "queue": true,
+    "scheduler": true
+  },
+  "own_postgres_preserved": true,
+  "new_synthetic_databases_preserved": true,
+  "existing_env_changed": false,
+  "existing_env_C_flags_enabled": false,
+  "other_runtime_touched": false,
+  "new_queue_scheduler_started": false,
+  "external_sending_enabled": false
+}

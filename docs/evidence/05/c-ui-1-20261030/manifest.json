@@ -1,0 +1,40 @@
+{
+  "baseline": "841bed779a8a7157c92f0e8fc6940de4ff83e142",
+  "merge": "af95af32e7217550409443769b87bb1f0fbceeb8",
+  "source": "5c19f807d9bb0c28d6da5bfa5d19b31c5e0452b3",
+  "contract": "business 1.0.5 + first-party-measurement-c-v1 / c-core-1 + measurement-c-ui-1 / c-ui-1",
+  "source_files": {
+    "h5-platform/app/Modules/Acquisition/Analytics/BehaviorRecorder.php": "9c98c15245ec47cced4999243bc397c761d324aba846dbe0501eeaec0812a7e4",
+    "h5-platform/app/Modules/Acquisition/Analytics/TrackingContext.php": "3451fa0b73688b5ee46b1ac9b7809d247ce6ca8d15e2c666f3781d1919e55ba0",
+    "h5-platform/app/Modules/Acquisition/Measurement/CoreContext.php": "8fd1a0f56ec0f046934c4d90e2742ef9eb7efe4e6fad4d876168b8adefa304cc",
+    "h5-platform/app/Modules/Acquisition/Measurement/SiteAnalysisBridge.php": "d4711b5371ca23be30c1a816b27c5c6ecff997f29743e11fea8fdcf70c9385f4",
+    "h5-platform/database/migrations/2026_10_30_050007_bridge_site_analysis_denials.php": "4a00c7ed7f821c967baf3f76d73fb7f8a1e62d8938f18b88f39788ad010bb735",
+    "h5-platform/tests/Feature/Acquisition/BillingBridgeTest.php": "19bc18a7fd8dd88517ee4a833bbc74644c9be862bfd9c9ed21d39163a0c94dd2",
+    "h5-platform/tests/Feature/Acquisition/MeasurementCompatibilityTest.php": "62b4a811f24a2e92080e655e0358cca65b4e1b007520fb953ddf3f578dde7a7b",
+    "h5-platform/tests/Feature/Acquisition/MeasurementCoreTest.php": "1d0a118f0d337a799441d1c76f95fed96b07e839edf919dae6ba67aa8003fc4f",
+    "h5-platform/tests/Feature/Acquisition/Support/cui_http_probe.py": "9c143fb39624109f2f34dc5d36a4fa46ee8d1619965e798d7f71da127a2d3eb3",
+    "h5-platform/tests/Feature/Acquisition/Support/cui_migration_probe.py": "05ca6226e5b651d1e4f8ff4f043b7d61393c7e6f16fd6e97b38d840fcf1ce594",
+    "h5-platform/tests/Feature/Acquisition/Support/cui_test.py": "e0b11624f68de9047ba50028f3a9263317b1a8e550865140ef12cd9d02033e2e"
+  },
+  "checks": {
+    "acquisition_tests": 123,
+    "assertions": 1643,
+    "local_http": 25,
+    "contract_examples": 59,
+    "old_business_tables_preserved": 67,
+    "migrations": 25,
+    "composer_advisories": 0,
+    "composer_abandoned": 0
+  },
+  "not_claimed": [
+    "04 page delivery",
+    "06 combined browser acceptance",
+    "human C manual acceptance",
+    "real policy eligibility",
+    "account or conversion mapping",
+    "real platform HTTP acceptance",
+    "Meta or TikTok confirmation",
+    "production readiness",
+    "GitHub remote backup"
+  ]
+}
