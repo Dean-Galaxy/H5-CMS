@@ -1,11 +1,11 @@
 # 05 注册R1-A隔离证据
 
-2026-10-31。基线`6d22515a47fe315bd3aba1279c8136c0f409c3a4`，源码`e94a23472ec8e9fa38f39736e0aaac1d3566ff86`。仅合成/去敏摘要，不含.env、实际身份/账务、凭据、Cookie/CSRF或原始运行材料。
+2026-10-31。基线`6d22515a47fe315bd3aba1279c8136c0f409c3a4`，主源码`e94a23472ec8e9fa38f39736e0aaac1d3566ff86`及期限补丁`7ff8c47dcb364c2c4ada6ae351982adec5bf4536`。仅合成/去敏摘要，不含.env、实际身份/账务、凭据、Cookie/CSRF或原始运行材料。
 
 | 文件 | 内容 |
 |---|---|
 | manifest.json | 精确源码/合并起点、22文件摘要、计数与未验边界 |
-| acquisition-regression.txt | 最终组合151项/2858断言，只去ANSI及行尾空白 |
+| acquisition-regression.txt | 最终组合151项/2862断言，只去ANSI及行尾空白 |
 | http.json | 新真实HTTP/服务进程26项，含必要账号、4进程CAS/重放；2次自建HTTP均停；不是01-A条款/01-B共享接线或浏览器验收 |
 | migration-upgrade.json | 新标记合成库25→26、67旧表旧列摘要、回滚重施通过；新增3表及2可空字段 |
 | contracts.txt | 本批OpenAPI1.0.5/59旧公共样例；新R1公共机器契约由00后续发布 |

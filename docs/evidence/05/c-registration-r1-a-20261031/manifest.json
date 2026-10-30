@@ -1,7 +1,7 @@
 {
   "baseline": "6d22515a47fe315bd3aba1279c8136c0f409c3a4",
   "merge": "d963deaf9e838c89d13ce2ffc5280ce98c47a272",
-  "source": "e94a23472ec8e9fa38f39736e0aaac1d3566ff86",
+  "source": "7ff8c47dcb364c2c4ada6ae351982adec5bf4536",
   "contract": "c-reg-r1-http; business 1.0.5 and v2 unchanged",
   "source_files": {
     "h5-platform/app/Modules/Acquisition/AcquisitionServiceProvider.php": "091e66fb4a5d81fd0a0dff417d29f2d913e504e5ba0c2c7f674ec38ba229d67e",
@@ -10,7 +10,7 @@
     "h5-platform/app/Modules/Acquisition/Registration/LegacyAdvertisingBridge.php": "59e327ed2724b30c2c624136338c98d66f10155d9b4e3aab323ef29d7bc2c638",
     "h5-platform/app/Modules/Acquisition/Registration/PurposeConflict.php": "3c4b97bbc9bdecb5a8f4a7171a8510ce66ef1a0607e55c9ca80384f9ec23a282",
     "h5-platform/app/Modules/Acquisition/Registration/PurposeController.php": "4769b98e2881bf2cfdacb8b702ee1f6b6d56df6c77b58530d27124d27d84d68a",
-    "h5-platform/app/Modules/Acquisition/Registration/PurposePolicy.php": "d06cfdf7f1d7f17bb22418b1b2823de95fcbf06f42424650a7b2947380ed152f",
+    "h5-platform/app/Modules/Acquisition/Registration/PurposePolicy.php": "5046edd9a14cea53015dfa76ce88e1a18a7c9c448113d82ce222627ea9936405",
     "h5-platform/app/Modules/Acquisition/Registration/PurposeProof.php": "b806262e0afcec343f37259d43bc8d22a6aa9d6d2d62bcad66772918b285d4f4",
     "h5-platform/app/Modules/Acquisition/Registration/PurposeStore.php": "d1d1901ec691dfe1d696d7619498c89c04e9bbd683d9ea9a5c6879befa46dfce",
     "h5-platform/app/Modules/Acquisition/Registration/PurposeThrottle.php": "180d9c2b06d5d0bdd202235a4a6bc7998a42502bff84027004bf9e578b667b93",
@@ -21,7 +21,7 @@
     "h5-platform/database/migrations/2026_10_31_050008_create_acquisition_registration_purposes.php": "779c9d789a98c278e9f5d2be4f9d196cd8af6fce452fdbb3545c78d7d6a1e0db",
     "h5-platform/routes/modules/acquisition.php": "369647b55dc228b87e13a794c6675b7221054a7b88e618dd021bb6bb70dde066",
     "h5-platform/tests/Feature/Acquisition/RegistrationObservationTest.php": "92b257807794fd399cca22a9432f4a9960015f1fa2f5aade08e3b68ac4a48601",
-    "h5-platform/tests/Feature/Acquisition/RegistrationPurposesTest.php": "cd8dfc3e4b400db10c0b75459b5fb99be88416af9ba5fa8b7d1d4c3cebe2c2eb",
+    "h5-platform/tests/Feature/Acquisition/RegistrationPurposesTest.php": "e69e073dec811365447c2edecec0922cb0d3271642d179b6d136af5c350a3015",
     "h5-platform/tests/Feature/Acquisition/Support/r1a-worker.php": "e2d4d9de028106dff0f463696c65578f0a485a23d24b72bbf87ad71289a5a07d",
     "h5-platform/tests/Feature/Acquisition/Support/r1a_http_probe.py": "daaf8f6774542b4276d64ede0c8de1bb103e3d3ec0db0423e09b6be5b56eb9a9",
     "h5-platform/tests/Feature/Acquisition/Support/r1a_migration_probe.py": "99cab8a5d32c0fd276be0746e3694d3b9646a8cd2101a6c8d708c51294e24400",
@@ -29,7 +29,7 @@
   },
   "checks": {
     "acquisition_tests": 151,
-    "assertions": 2858,
+    "assertions": 2862,
     "new_r1_tests_in_combination": 24,
     "actual_http_and_concurrency_checks": 26,
     "worker_processes": 4,
@@ -51,5 +51,9 @@
     "production release",
     "independent restore",
     "GitHub remote backup"
+  ],
+  "source_commits": [
+    "e94a23472ec8e9fa38f39736e0aaac1d3566ff86",
+    "7ff8c47dcb364c2c4ada6ae351982adec5bf4536"
   ]
 }

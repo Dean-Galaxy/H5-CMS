@@ -21,5 +21,8 @@
   "existing_env_C_R1_flags_enabled": false,
   "new_queue_scheduler_started": false,
   "external_sending_enabled": false,
-  "other_runtime_touched": false
+  "other_runtime_touched": false,
+  "policy_absolute_iso_dates_only": true,
+  "policy_max_seconds": 86400,
+  "source_patch": "7ff8c47dcb364c2c4ada6ae351982adec5bf4536"
 }
