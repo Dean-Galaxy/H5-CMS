@@ -1,0 +1,9 @@
+{
+  "installed_equals_composer_lock": true,
+  "packages": 164,
+  "symfony_mime": "8.1.10",
+  "hls_js": "1.7.3",
+  "hls_sri_verified": true,
+  "installation": "own vendor installed offline from public archive caches; no env/database/business media copied",
+  "runtime_business_external_requests": 0
+}

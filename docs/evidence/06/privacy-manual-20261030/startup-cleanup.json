@@ -1,0 +1,8 @@
+{
+  "candidate": "6968059dea5141155528cb6406bce9b1a60b0726",
+  "forced_loopback_health_path_404": true,
+  "real_web_started_then_cleaned": true,
+  "own_web_pid_record_absent": true,
+  "port_8410_reusable": true,
+  "other_workspaces_touched": false
+}
