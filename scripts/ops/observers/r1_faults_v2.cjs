@@ -14,10 +14,14 @@ const command=(purpose,choice,revision)=>({purpose,choice,notice_version:'c-purp
 async function waitStatus(p,purpose,values){await p.waitForFunction(({purpose,values})=>values.includes(document.querySelector('[data-purpose-state="'+purpose+'"]')?.dataset.status),{purpose,values},{timeout:15000});}
 async function screenshot(p,file){await p.screenshot({path:file,fullPage:true,mask:[p.locator('input[name="name"],input[name="email"],input[type="password"]')]});fs.chmodSync(file,0o600);}
 function parse(argv){assert.equal(argv.length,3,'Usage: CASE en|zh_CN OBSERVER_FULL_SHA');const input=core.caseInput(argv[0],argv[1]);assert(/^[a-f0-9]{40}$/.test(argv[2]));return {...input,observer:argv[2]};}
+async function paceRegistration(key){
+ const ledger=path.join(OUT,'external-faults-v2','last-registration-private.json');let delay=13000;if(fs.existsSync(ledger))delay=Math.max(0,12500-(Date.now()-privateJSON(ledger).at));if(delay)await new Promise(resolve=>setTimeout(resolve,delay));
+ const temporary=ledger+'.'+crypto.randomUUID();fs.writeFileSync(temporary,JSON.stringify({at:Date.now(),...key}),{mode:0o600,flag:'wx'});fs.renameSync(temporary,ledger);
+}
 function preflight(input){
  assert.equal(fs.realpathSync(core.ROOT),core.ROOT);assert.equal(fs.realpathSync(SOURCE),SOURCE);assert.notEqual(SOURCE,core.ROOT);assert(!fs.existsSync(path.join(SOURCE,'.runtime/workspace.json')),'Source-only observer checkout required');
  assert.equal(cp.execFileSync('git',['rev-parse','HEAD'],{cwd:SOURCE,encoding:'utf8'}).trim(),input.observer);
- const files=['scripts/ops/observers/r1_faults_v2.cjs','scripts/ops/observers/r1_faults_core.cjs','scripts/ops/observers/r1_capture_viewports.cjs'],hashes={};
+ const files=['scripts/ops/observers/r1_faults_v2.cjs','scripts/ops/observers/r1_faults_core.cjs','scripts/ops/observers/r1_capture_viewports.cjs','scripts/ops/observers/r1_forms_v1.cjs'],hashes={};
  for(const file of files){const bytes=fs.readFileSync(path.join(SOURCE,file));assert.deepEqual(cp.execFileSync('git',['show',input.observer+':'+file],{cwd:SOURCE}),bytes);hashes[file]=digest(bytes);}
  const manifest=privateJSON(path.join(OUT,'manifest.json')),processRecord=privateJSON(path.join(OUT,'process.json'));core.validateTarget(core.ROOT,manifest,processRecord);
  cp.execFileSync('python3',['-B','-c','import sys,hashlib;sys.path.insert(0,"scripts/ops");import r1_window as r;c,d=r.manifest(sys.argv[1],future=True);p=r.private_json(r.OUT/"process.json");assert p["role"]=="manual" and r.matching(p,c);assert p["manifest_sha256"]==hashlib.sha256((r.OUT/"manifest.json").read_bytes()).hexdigest()',core.RUNTIME],{cwd:core.ROOT,stdio:'pipe'});
@@ -51,8 +55,7 @@ async function main(){
   }));
   phase='registration-form';for(const [field,value] of Object.entries({name:a.name,email:a.email,password:a.password,password_confirmation:a.password}))await page.locator('[name="'+field+'"]').fill(value);await page.locator('[name="terms_accepted"]').check();for(const purpose of ['account_link','advertising'])await page.locator('[data-registration-purpose="'+purpose+'"]').check();
   // Global observer pacing preserves scope/IP. It does not grant extra budget; real 429 stops this case.
-  const ledger=path.join(OUT,'external-faults-v2','last-registration-private.json');let delay=13000;if(fs.existsSync(ledger))delay=Math.max(0,12500-(Date.now()-privateJSON(ledger).at));if(delay)await new Promise(r=>setTimeout(r,delay));
-  const temp=ledger+'.'+crypto.randomUUID();fs.writeFileSync(temp,JSON.stringify({at:Date.now(),case:input.name,locale:input.locale}),{mode:0o600,flag:'wx'});fs.renameSync(temp,ledger);
+  await paceRegistration({case:input.name,locale:input.locale});
   const requestResponse=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/v1/auth/register'&&r.request().method()==='POST');await page.locator('form[data-registration-r1] button[type="submit"]').click();const registrationResponse=await requestResponse;
   if(registrationResponse.status()===429){save(path.join(directory,'registration-limited.json'),{...binding,retry_after:registrationResponse.headers()['retry-after'],no_automatic_retry:true});throw Error('Actual registration budget limited: wait Retry-After; no account replay');}
   assert(registrationResponse.ok());await page.waitForFunction(()=>document.querySelector('[data-registration-r1]')?.dataset.registrationComplete==='true',{},{timeout:20000});assert.equal(registrations,1);
@@ -84,4 +87,4 @@ async function main(){
  }finally{if(fs.existsSync(lock)&&privateJSON(lock).token===token)fs.unlinkSync(lock);}
 }
 if(require.main===module)main().catch(error=>{console.error('External observer preflight refused: '+String(error.message));process.exitCode=1;});
-module.exports={parse,digest,preflight};
+module.exports={parse,digest,preflight,privateJSON,save,control,paceRegistration};
