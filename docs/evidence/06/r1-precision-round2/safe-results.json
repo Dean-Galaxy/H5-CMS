@@ -1,0 +1,88 @@
+{
+  "runtime_candidate": "05d2db9cd77b304193b770da514b4a5f6a51607e",
+  "product_base": "a2861a6ddc57d1386e0d57906510e44c5fca2a7a",
+  "original_policy": {
+    "from": "2026-10-30T19:53:47Z",
+    "until": "2026-10-31T18:53:47Z",
+    "extended": false
+  },
+  "four_original_role_preservation": {
+    "roles": [
+      "manual",
+      "upgrade",
+      "lifecycle",
+      "regression"
+    ],
+    "tables_each": 72,
+    "all_full_rows_counts_migrations_equal": true,
+    "method": "candidate-external PDO BEGIN READ ONLY, SHOW transaction_read_only=on, UTC, ROLLBACK",
+    "inline_code_sha256": "983be2435aaa7f8b2e8d73b224c464b84c0ae7461038797a6110176d8a7dea41",
+    "builtin_regression_control_guard_passed": false
+  },
+  "lifecycle_retry1": {
+    "single_new_owned_database": true,
+    "passed": true,
+    "operation_24h_and_proof_24months_microsecond_boundaries": true,
+    "replay_unchanged_no_extension": true,
+    "other_tables_unchanged": 68,
+    "original_lifecycle_replayed": false
+  },
+  "full_regression": {
+    "passed": 892,
+    "failed": 0,
+    "assertions": 12986,
+    "duration_seconds": 79.95,
+    "same_owned_regression_database": true,
+    "default_local_modules": "",
+    "analytics_enabled": false,
+    "official_provider_acceptance": false
+  },
+  "manual_seed": {
+    "once": true,
+    "self_generated_episode_count": 6,
+    "free_count": 5,
+    "duration_seconds": 8,
+    "viewer_accounts": 0,
+    "required_receipts": 0,
+    "billing_prices_or_payments": 0
+  },
+  "actual_ui_first_failure": {
+    "case": "forms-en / 320x500 computed font 200 percent",
+    "normal_320_passed_before_font": true,
+    "body_font_ratio": 2,
+    "viewport_width": 320,
+    "document_width": 363,
+    "offender": "site header NAV / membership link",
+    "nav_right": 363.046875,
+    "registration_posts": 0,
+    "font_observer_sha256": "b5ae7599710ae3e593fab860575fd93151afb97df0f5ddb5e9d70a8e3290b3f7",
+    "whole_forms_group_passed": false
+  },
+  "backup_and_shutdown": {
+    "manual_backup_manifest_files_verified": 19,
+    "archive_readable": true,
+    "media_and_private_config_included": true,
+    "independent_restore": false,
+    "web_pg_ports_released": [
+      8412,
+      5912
+    ],
+    "fixed_runtime_source_unchanged": true
+  },
+  "pending": [
+    "real registration and preview-verification UI",
+    "Chinese UI and current font repair regression",
+    "purpose fault cases and management",
+    "HLS decode in this candidate",
+    "limited security HTTP",
+    "restart evidence and independent restore",
+    "real phone",
+    "human new registration 0/3"
+  ],
+  "old_f9_failures_preserved": {
+    "passed": 878,
+    "failed": 4,
+    "assertions": 12751,
+    "lifecycle_first_assertion": "unknown; not rewritten as passed"
+  }
+}
