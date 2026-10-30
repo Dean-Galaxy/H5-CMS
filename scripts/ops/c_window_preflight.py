@@ -71,6 +71,8 @@ def source_status(root, candidate):
 
 def workspace_binding(root, config):
     root_guard(root)
+    if not isinstance(config, dict):
+        raise ValueError('WORKSPACE_OBJECT_REQUIRED')
     suffix = hashlib.sha256(str(root).encode()).hexdigest()[:10]
     expected = {'root': str(root), 'workspace': 'h5_' + suffix, 'db': 'h5_' + suffix, 'user': 'h5_app_' + suffix}
     if any(config.get(k) != v for k, v in expected.items()):

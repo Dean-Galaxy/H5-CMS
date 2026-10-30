@@ -72,6 +72,18 @@ class Admission(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.verify(doc)
 
+    def test_invalid_workspace_object_refused(self):
+        for value in (None, [], 'copied-config', True):
+            doc = deepcopy(self.doc)
+            doc['workspace'] = value
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                self.verify(doc)
+
+    def test_expired_policy_can_be_inspected_without_restart_permission(self):
+        self.doc['synthetic_until'] = '2026-10-29T01:00:00Z'
+        with self.assertRaises(ValueError): self.verify()
+        self.assertEqual(m.validate_manifest(self.root, self.sha, self.doc, self.now, future_policy=False)['candidate'], self.sha)
+
     def test_partial_or_wrong_candidate_refused(self):
         for sha in (self.sha[:7], 'f' * 40):
             with self.subTest(sha=sha), self.assertRaises(ValueError):

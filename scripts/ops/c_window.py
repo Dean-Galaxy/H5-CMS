@@ -228,6 +228,7 @@ def main():
         no_application_records()
         directory = OUT / 'backups' / datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'); private_dir(directory)
         subprocess.run([str(dev.PG / 'pg_dump'), '-Fc', '--no-owner', '--no-acl', '-f', str(directory / 'database.dump')], env=dev.pg_env(testing=True), check=True, capture_output=True)
+        subprocess.run([str(dev.PG / 'pg_restore'), '--list', str(directory / 'database.dump')], check=True, capture_output=True)
         media = DATA / 'media'
         if media.is_symlink() or any(path.is_symlink() for path in media.rglob('*')): raise ValueError('OWN_REGULAR_MEDIA_REQUIRED')
         shutil.copytree(media, directory / 'media')
