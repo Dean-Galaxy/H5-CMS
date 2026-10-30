@@ -2,6 +2,7 @@
 
 namespace App\Modules\Identity\Http;
 
+use App\Modules\Identity\Services\RegistrationObservation;
 use App\Modules\Identity\Services\RegistrationTerms;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -20,7 +21,15 @@ final class ViewerRegistrationController
             return app(RegisteredUserController::class)->store($request, $creator);
         }
 
-        $viewer = $creator->create($request->all()); // Account and required receipt commit together.
+        $observation = new RegistrationObservation;
+        $observation->begin($request);
+        try {
+            $viewer = $creator->create($request->all()); // Account and required receipt commit together.
+        } catch (Throwable $exception) {
+            $observation->failed($exception);
+            throw $exception;
+        }
+        $observation->succeeded(); // Before Registered/mail/automatic Login can clear the old C context.
         try {
             event(new Registered($viewer));
         } catch (Throwable $exception) {

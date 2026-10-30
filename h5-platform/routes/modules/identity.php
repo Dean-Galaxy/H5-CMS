@@ -7,7 +7,9 @@ use App\Modules\Identity\Http\StaffMfa;
 use App\Modules\Identity\Http\TrackViewerAuthentication;
 use App\Modules\Identity\Http\VerificationLogin;
 use App\Modules\Identity\Http\ViewerRegistrationController;
+use App\Modules\Identity\Services\RegistrationObservation;
 use App\Modules\Identity\Services\RegistrationTerms;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 
@@ -34,7 +36,13 @@ Route::prefix('identity')->group(function () {
         });
     }
     Route::get('login', fn () => view('identity.login'))->middleware(RememberReturn::class)->name('login');
-    Route::get('register', fn () => view('identity.register'))->middleware(RememberReturn::class)->name('register');
+    Route::get('register', function (Request $request) {
+        // Build/render the real page first; POST/hidden notice versions cannot create this proof.
+        $response = response()->view('identity.register');
+        RegistrationObservation::delivered($request);
+
+        return $response;
+    })->middleware(RememberReturn::class)->name('register');
     Route::get('forgot-password', fn () => view('identity.forgot'))->name('password.request');
     Route::get('reset-password', fn () => view('identity.reset'))->name('password.reset');
     Route::get('account', fn () => view('identity.account'))->middleware('auth:web')->name('verification.notice');

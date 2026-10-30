@@ -3,6 +3,7 @@ document.querySelectorAll('[data-identity-form]').forEach(form => {
   const result = form.querySelector('[data-result]');
   const button = form.querySelector('button[type="submit"],button:not([type])');
   const check = form.querySelector('[data-registration-check]');
+  const purposes = r1 && form.querySelector('[data-registration-purposes]') ? registrationPurposes(form) : null;
   async function checkAccount() {
     if (!r1) return;
     check.disabled = true;
@@ -14,7 +15,11 @@ document.querySelectorAll('[data-identity-form]').forEach(form => {
       const email = form.querySelector('[name="email"]').value.trim().toLowerCase();
       if (response.ok && body.viewer && body.viewer.email === email) {
         result.textContent = form.dataset.confirmed;
-        window.location.assign('/identity/account');
+        if (purposes) {
+          form.dataset.registrationComplete = 'true';
+          check.hidden = true;
+          await purposes.complete(body.viewer);
+        } else window.location.assign('/identity/account');
       }
     } catch (_) {
       // No identity result is inferred from an unavailable/anonymous status check.
@@ -31,6 +36,7 @@ document.querySelectorAll('[data-identity-form]').forEach(form => {
   if (check) check.addEventListener('click', checkAccount);
   form.addEventListener('submit', async event => {
     event.preventDefault();
+    if (r1 && form.dataset.registrationComplete === 'true') return;
     if (r1 && form.dataset.registrationUnconfirmed === 'true') { await checkAccount(); return; }
     button.disabled = true; result.textContent = '';
     const controller = r1 ? new AbortController() : null;
@@ -46,7 +52,14 @@ document.querySelectorAll('[data-identity-form]').forEach(form => {
         if (response.status === 429 && retry) cooldown(button, retry); else button.disabled = false;
         return;
       }
-      if (body.redirect_to) { window.location.assign(body.redirect_to); return; }
+      if (body.redirect_to) {
+        if (purposes) {
+          form.dataset.registrationComplete = 'true';
+          form.querySelectorAll('input[type="password"]').forEach(input => { input.value = ''; });
+          await purposes.complete(body.identity?.viewer);
+        } else window.location.assign(body.redirect_to);
+        return;
+      }
       if (r1) { await unconfirmed(); return; }
       result.textContent = body.message || 'OK';
       if (button.dataset.cooldown) cooldown(button, Number(button.dataset.cooldown)); else button.disabled = false;
@@ -58,3 +71,118 @@ document.querySelectorAll('[data-identity-form]').forEach(form => {
   });
 });
 function cooldown(button, seconds) { const title = button.textContent; let left = Math.ceil(seconds); button.disabled = true; button.textContent = title + ' ('+left+'s)'; const timer = setInterval(() => { left--; if (left <= 0) {clearInterval(timer); button.disabled=false;button.textContent=title;} else button.textContent=title+' ('+left+'s)'; },1000); }
+
+// Registration-only consumer of the public v3 HTTP contract. No provider internals or storage.
+function registrationPurposes(form) {
+  const text = JSON.parse(form.querySelector('[data-purpose-messages]').textContent);
+  const notice = 'c-purpose-choice-only-r1-v1';
+  const items = new Map();
+  const proceed = form.querySelector('[data-registration-continue]');
+  let context = null, expectedViewer = null, complete = false, stopped = false;
+  const validState = s => s && ['unknown','allow','deny'].includes(s.choice) && s.effective === false && ['choice_only','unavailable'].includes(s.capability)
+    && s.choice_scope === 'current_browser' && Number.isInteger(s.revision) && s.revision >= 0 && s.revision < 2147483647
+    && (s.reason === null || typeof s.reason === 'string' && /^[A-Z_]{1,80}$/.test(s.reason));
+  async function http(url, options = {}) {
+    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(url, {credentials:'same-origin', ...options, signal:controller.signal, headers:{Accept:'application/json', ...options.headers}});
+      return {response, body:await response.json()};
+    } finally { clearTimeout(timeout); }
+  }
+  function render(item) {
+    const label = item.state ? `${text[item.state.choice]} · ${text.off} (${item.state.reason || ''})` : text.unavailable;
+    item.output.textContent = `${item.title}: ${label} — ${text[item.status] || text.unconfirmed}`;
+    item.output.dataset.status = item.status;
+    item.retry.hidden = !complete || stopped || !['unconfirmed','conflict'].includes(item.status);
+    item.retry.disabled = item.busy;
+    item.input.disabled = complete || stopped || item.state?.capability !== 'choice_only';
+    if (!item.dirty) item.input.checked = item.state?.choice === 'allow';
+  }
+  function discard(message) {
+    stopped = true; context = null; expectedViewer = null;
+    for (const item of items.values()) { item.dirty = false; item.command = null; item.desired = null; item.state = null; item.status = 'not_requested'; render(item); }
+    form.querySelector('[data-result]').textContent = message;
+  }
+  for (const input of form.querySelectorAll('[data-registration-purpose]')) {
+    const purpose = input.dataset.registrationPurpose;
+    const item = {purpose,input,title:input.closest('label').textContent.trim(),output:form.querySelector(`[data-purpose-state="${purpose}"]`),retry:form.querySelector(`[data-purpose-retry="${purpose}"]`),
+      state:null,desired:null,dirty:false,status:'not_requested',command:null,busy:false};
+    item.retry.setAttribute('aria-label', `${text.retry}: ${item.title}`);
+    items.set(purpose,item);
+    input.addEventListener('change', () => { item.desired = input.checked ? 'allow' : 'deny'; item.dirty = item.desired !== item.state?.choice; });
+    item.retry.addEventListener('click', async () => {
+      if (item.busy || stopped || !complete) return;
+      // Conflict rebasing is an explicit user action, never a response to a slow GET/409.
+      if (item.status === 'conflict') item.command = null;
+      await submit(item);
+    });
+  }
+  async function read() {
+    const {response,body} = await http('/api/v3/measurement/purposes/context');
+    if (!response.ok || body.schema_version !== 3 || body.policy_version !== 'registration-purpose-r1' || body.notice_version !== notice || body.is_test !== true
+      || ![...items.keys()].every(p => validState(body.purposes?.[p]))) throw new Error('Purpose context unavailable');
+    if (stopped) return;
+    context = body;
+    for (const item of items.values()) { item.state = body.purposes[item.purpose]; render(item); }
+    const site = body.site_session;
+    form.querySelector('[data-purpose-site]').textContent = `${text.site}: ${site?.effective === 'on' ? 'on' : 'off'} (${site?.reason || site?.choice || 'unknown'})`;
+    const legacy = body.legacy_advertising?.choice;
+    form.querySelector('[data-purpose-legacy]').textContent = `${text.legacy}: ${text[legacy] || text.unknown}`;
+  }
+  const ready = read().catch(() => { for (const item of items.values()) render(item); });
+  async function sameAccount() {
+    try {
+      const {response,body} = await http('/api/v1/auth/me');
+      if (response.status === 401 || (response.ok && body.viewer === null)) { discard(text.account_unknown); return false; }
+      if (!response.ok || !body.viewer) throw new Error('Identity unavailable');
+      if (!expectedViewer || body.viewer.id !== expectedViewer.id || body.viewer.email !== expectedViewer.email) { discard(text.account_changed); return false; }
+      return true;
+    } catch (_) { // A temporary identity read failure pauses; it never authorizes a PATCH.
+      form.querySelector('[data-result]').textContent = text.account_unknown;
+      return false;
+    }
+  }
+  async function submit(item) {
+    if (stopped || !item.dirty || item.busy) return;
+    item.busy = true; render(item);
+    try {
+      if (!await sameAccount()) { if (!stopped) item.status = 'unconfirmed'; return; }
+      const {response:csrfResponse,body:csrf} = await http('/api/v1/auth/csrf');
+      if (!csrfResponse.ok || typeof csrf.csrf_token !== 'string') throw new Error('CSRF unavailable');
+      if (!context || !item.state) { await read(); }
+      if (!item.command) {
+        item.command = {purpose:item.purpose,choice:item.desired,notice_version:context.notice_version,expected_revision:item.state.revision,operation_id:crypto.randomUUID()};
+      }
+      const {response,body} = await http('/api/v3/measurement/purposes/preferences', {method:'PATCH',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf.csrf_token},body:JSON.stringify(item.command)});
+      if (response.status === 409) {
+        let current = body.schema_version === 3 && body.purpose === item.purpose && validState(body.state);
+        if (current) item.state = body.state;
+        else { try { await read(); current = true; } catch (_) {} }
+        item.command = null; // An explicit retry must rebase, never replay the conflicted operation.
+        item.status = current ? 'conflict' : 'unconfirmed';
+      } else if (response.ok && body.schema_version === 3 && body.purpose === item.purpose && ['saved','unchanged'].includes(body.status) && validState(body.state)) {
+        item.state = body.state; item.status = body.status; item.dirty = false; item.command = null;
+      } else if ([401,403].includes(response.status)) {
+        discard(text.account_unknown);
+      } else item.status = 'unconfirmed';
+    } catch (_) { item.status = 'unconfirmed'; }
+    finally { item.busy = false; render(item); }
+  }
+  return {async complete(viewer) {
+    if (complete) return;
+    complete = true;
+    const email = form.querySelector('[name="email"]').value.trim().toLowerCase();
+    expectedViewer = viewer && typeof viewer.id === 'string' && viewer.email === email ? {id:viewer.id,email:viewer.email} : null;
+    proceed.hidden = false;
+    form.querySelectorAll('input:not([data-registration-purpose])').forEach(input => { input.readOnly = true; if (input.type === 'checkbox') input.disabled = true; });
+    form.querySelector('[data-result]').textContent = text.created;
+    await ready;
+    if (!expectedViewer) { discard(text.account_unknown); return; }
+    if (!await sameAccount()) {
+      if (!stopped) for (const item of items.values()) { if (item.dirty) item.status = 'unconfirmed'; render(item); }
+      return;
+    }
+    // A successful necessary account is never rolled back by either independent purpose command.
+    for (const item of items.values()) { if (item.dirty) await submit(item); else render(item); }
+  }};
+}

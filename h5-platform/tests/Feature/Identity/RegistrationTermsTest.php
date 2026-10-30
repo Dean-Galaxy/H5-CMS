@@ -67,7 +67,7 @@ class RegistrationTermsTest extends TestCase
         $this->assertSame('/membership', session('identity.return_to'));
         $this->assertSame($viewer->id, Auth::guard('web')->id());
         $this->assertSame(0, Staff::count());
-        $this->get('/identity/account?lang=en')->assertOk()->assertSee('Your local test account was created.')->assertSee('DEPENDENCY_NOT_READY');
+        $this->get('/identity/account?lang=en')->assertOk()->assertSee('Your local test account was created.')->assertSee('Optional choices');
         $viewer->delete();
         $this->assertDatabaseCount('identity_registration_receipts', 0);
     }
@@ -152,7 +152,7 @@ class RegistrationTermsTest extends TestCase
             ->assertOk()->assertJsonPath('identity.staff', null)->assertJsonPath('identity.viewer.email_verified', false);
         $this->assertSame(0, Staff::count());
         $this->getJson('/api/v1/admin/staff')->assertUnauthorized();
-        $this->get('/identity/account?lang=en')->assertSee('DEPENDENCY_NOT_READY');
+        $this->get('/identity/account?lang=en')->assertSee('Optional choices');
     }
 
     public function test_false_flag_does_not_require_new_fields_or_backfill_existing_accounts(): void
@@ -189,7 +189,7 @@ class RegistrationTermsTest extends TestCase
     public function test_test_documents_are_readable_in_both_languages_and_choices_are_not_preselected(): void
     {
         foreach (['zh_CN', 'en'] as $locale) {
-            $response = $this->get('/identity/register?lang='.$locale)->assertOk()->assertSee('DEPENDENCY_NOT_READY')->assertSee('terms_accepted', false);
+            $response = $this->get('/identity/register?lang='.$locale)->assertOk()->assertSee('data-registration-purposes', false)->assertSee('terms_accepted', false);
             $this->assertStringNotContainsString(' checked', $response->getContent());
             $this->get('/identity/test-terms?lang='.$locale)->assertOk()->assertSee(RegistrationTerms::TERMS);
             $this->get('/identity/test-privacy?lang='.$locale)->assertOk()->assertSee(RegistrationTerms::PRIVACY);
