@@ -1,0 +1,139 @@
+{
+  "source_commit": "698c93585f072e4fe60634fe2100a097d16731cb",
+  "base": "e6c2a4b300c1fc16493be2592b425b0da7bbf406",
+  "contract": [
+    "1.0.5",
+    "c-core-1",
+    "c-reg-r1-http",
+    "c-reg-r1-php-1"
+  ],
+  "scope": "04 isolated synthetic management and real HTTP registration timing; not 01-B full UI or 00/06 final integration",
+  "checks": [
+    {
+      "name": "en 320x500 unknown/read-only legacy, large text and keyboard focus",
+      "passed": true
+    },
+    {
+      "name": "zh-CN 320x500 unknown/read-only legacy, large text and keyboard focus",
+      "passed": true
+    },
+    {
+      "name": "Guest allow guides normal login without POST; guest deny is confirmed",
+      "passed": true
+    },
+    {
+      "name": "Actual account_link saved; other 503 retry is independent and idempotent",
+      "passed": true
+    },
+    {
+      "name": "Actual advertising saved; other 503 retry is independent and idempotent",
+      "passed": true
+    },
+    {
+      "name": "Real 409 returns new saved choice; allow draft requires another explicit CAS",
+      "passed": true
+    },
+    {
+      "name": "Lost response after real commit retries the same operation and confirms current state",
+      "passed": true
+    },
+    {
+      "name": "An older allow receipt returns current deny and cannot revive it",
+      "passed": true
+    },
+    {
+      "name": "Read 503 remains unknown; deny can use strict initial revision zero",
+      "passed": true
+    },
+    {
+      "name": "Explicit 429 preference fault never claims saved or replays",
+      "passed": true
+    },
+    {
+      "name": "Explicit bad preference fault never claims saved or replays",
+      "passed": true
+    },
+    {
+      "name": "Explicit timeout preference fault never claims saved or replays",
+      "passed": true
+    },
+    {
+      "name": "Closing discards drafts and late responses; reopen reads actual current state",
+      "passed": true
+    },
+    {
+      "name": "Injected unavailable capability and historical allow never preselect a new purpose",
+      "passed": true
+    },
+    {
+      "name": "Real login scope change clears old drafts before any preference write",
+      "passed": true
+    },
+    {
+      "name": "Real registration rotates CSRF without reload; v2 off and v3 save then verify/relogin preserve deny",
+      "passed": true
+    },
+    {
+      "name": "csrf-503 leaves v2 paused and v3 unconfirmed, with explicit retry only",
+      "passed": true
+    },
+    {
+      "name": "write-419 leaves v2 paused and v3 unconfirmed, with explicit retry only",
+      "passed": true
+    },
+    {
+      "name": "Normal logout/account switch discards drafts and hides prior owner allow",
+      "passed": true
+    },
+    {
+      "name": "Original site deny survives purpose choices, dialog close and normal login; preview still plays",
+      "passed": true
+    }
+  ],
+  "r1_browser_passed": 20,
+  "flag_false_browser_passed": 4,
+  "php_tests": 3,
+  "php_assertions": 88,
+  "same_dom_registration": {
+    "actual_registration": true,
+    "registration_posts": 1,
+    "no_reload_before_off": true,
+    "csrf_rotated": true,
+    "v2_deny_confirmed": true,
+    "v3_allow_saved_not_running": true,
+    "actual_verification": true,
+    "deny_after_relogin": true
+  },
+  "contract_examples_passed": 59,
+  "locked_audit": {
+    "advisories": 0,
+    "abandoned": 0
+  },
+  "page_errors": [],
+  "external_page_requests": [],
+  "closed_own_ports": {
+    "8204": true,
+    "8214": true,
+    "5604": true
+  },
+  "fault_fixture_scope": [
+    "503 responses",
+    "429 responses with Retry-After",
+    "malformed response",
+    "timeout",
+    "unavailable capability/historical advertising display",
+    "CSRF prep 503",
+    "write 419"
+  ],
+  "actual_provider_scope": [
+    "v3 context and saves",
+    "real CAS conflict",
+    "idempotent replay/current state",
+    "normal login/logout/account scope",
+    "required registration API/token rotation without navigation",
+    "normal signed verification route",
+    "original site deny/free playback"
+  ],
+  "manual_entry_issued": false,
+  "screenshots_in_git": false
+}
