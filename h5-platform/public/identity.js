@@ -154,14 +154,17 @@ function registrationPurposes(form) {
     if (stopped || !item.dirty || item.busy) return;
     item.busy = true; item.problem = null; render(item);
     try {
-      if (!await sameAccount()) { if (!stopped) item.status = 'unconfirmed'; return; }
+      if (!context || !item.state) { await read(); }
       const {response:csrfResponse,body:csrf} = await http('/api/v1/auth/csrf');
       if (!csrfResponse.ok || typeof csrf.csrf_token !== 'string') throw new Error('CSRF unavailable');
-      if (!context || !item.state) { await read(); }
+      const fixedCsrf = csrf.csrf_token;
+      // Bind this attempt to the token obtained BEFORE checking the current necessary identity.
+      // A switch during token lookup is detected below; a later switch must fail with this old token.
+      if (!await sameAccount()) { if (!stopped) item.status = 'unconfirmed'; return; }
       if (!item.command) {
         item.command = {purpose:item.purpose,choice:item.desired,notice_version:context.notice_version,expected_revision:item.state.revision,operation_id:crypto.randomUUID()};
       }
-      const {response,body} = await http('/api/v3/measurement/purposes/preferences', {method:'PATCH',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf.csrf_token},body:JSON.stringify(item.command)});
+      const {response,body} = await http('/api/v3/measurement/purposes/preferences', {method:'PATCH',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':fixedCsrf},body:JSON.stringify(item.command)});
       item.http = response.status;
       if (response.status === 429) {
         const seconds = Number(response.headers.get('Retry-After'));
