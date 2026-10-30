@@ -39,6 +39,29 @@ function preflight(input){
  cp.execFileSync('python3',['-B','-c','import sys,hashlib;sys.path.insert(0,"scripts/ops");import r1_window as r;c,d=r.manifest(sys.argv[1],future=True);p=r.private_json(r.OUT/"process.json");assert p["role"]=="manual" and r.matching(p,c);assert p["manifest_sha256"]==hashlib.sha256((r.OUT/"manifest.json").read_bytes()).hexdigest()',core.RUNTIME],{cwd:core.ROOT,stdio:'pipe'});
  return {runtime_sha:core.RUNTIME,observer_sha:input.observer,source_sha256:hashes,manifest_sha256:digest(fs.readFileSync(path.join(OUT,'manifest.json'))),policy_from:manifest.policy_from,policy_until:manifest.policy_until,source_root:SOURCE,runtime_root:core.ROOT};
 }
+// Only actual API transfers are serialized. HTML/assets retain normal browser forwarding.
+function createBackend429Guard(persist){
+ let first=null,queue=Promise.resolve(),resolveStopped;const stopped=new Promise(resolve=>{resolveStopped=resolve;}),fixtures=new WeakSet(),transfers=[];
+ const refusal=()=>Object.assign(new Error('Actual backend 429: stop this case; no automatic retry'),{code:'REAL_BACKEND_RATE_LIMIT',actual_rate_limit:first});
+ const assertOpen=()=>{if(first)throw refusal();};
+ function record(meta,status,rawRetryAfter,source){
+  if(status!==429||first)return;
+  first={method:meta.method,path:meta.path,status:429,retry_after_raw:rawRetryAfter??null,response_source:source,at:new Date().toISOString(),transfers_at_stop:transfers.map(value=>({...value})),no_automatic_retry:true};
+  try{persist(first);}catch(error){first.persistence_error_private=String(error.stack);}finally{resolveStopped();}
+ }
+ return {
+  assertOpen,markFixture(request){assertOpen();fixtures.add(request);},
+  observeBrowser(request,meta,status,rawRetryAfter){if(!fixtures.has(request))record(meta,status,rawRetryAfter,'actual_browser_response');},
+  async transfer(meta,fetcher){
+   const job=queue.then(async()=>{assertOpen();const entry={...meta,forwarded_at:new Date().toISOString()};transfers.push(entry);const response=await fetcher();entry.status=response.status();entry.received_at=new Date().toISOString();record(meta,entry.status,response.headers()['retry-after']??null,meta.forward_source);assertOpen();return response;});
+   queue=job.catch(()=>undefined);return job;
+  },
+  async run(work){assertOpen();return Promise.race([Promise.resolve().then(work),stopped.then(()=>{throw refusal();})]);},
+  snapshot(){return {actual_first_429:first,api_transfers:transfers.map(value=>({...value})),scope:'Serialized actual API transfers; no API forwarding after observed real 429. Already forwarded in-flight requests cannot be recalled.'};}
+ };
+}
+function isBackendAPI(url){return core.allowRequest(url)&&new URL(url).pathname.startsWith('/api/');}
+function requestMeta(request,forwardSource){return {method:request.method(),path:new URL(request.url()).pathname,forward_source:forwardSource};}
 async function main(){
  const input=parse(process.argv.slice(2)),binding=preflight(input),directory=path.join(OUT,'external-faults-v2',input.name,input.locale);assert(!fs.existsSync(directory),'Existing case attempt: inspect it; no automatic replay');
  const lock=path.join(OUT,'external-faults-v2','active-case-private.json'),token=crypto.randomUUID();fs.mkdirSync(path.dirname(lock),{recursive:true,mode:0o700});fs.writeFileSync(lock,JSON.stringify({pid:process.pid,token,case:input.name,locale:input.locale}),{mode:0o600,flag:'wx'});
@@ -47,23 +70,27 @@ async function main(){
  fs.mkdirSync(directory,{recursive:true,mode:0o700});save(path.join(directory,'started.json'),{...binding,...input,actor_label:label,at:new Date().toISOString()});
  const {chromium}=require('/Users/hejunxiang/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.js');
  let browser,page,phase='launch',registrations=0,patches=[],responses=[],injected=[],cas={},snapshotBefore,registrationStatus,routeError=null;
- const safeRoute=handler=>async route=>{try{await handler(route);}catch(error){routeError=String(error.stack);try{await route.abort();}catch{}}};
+ const backendGuard=createBackend429Guard(receipt=>save(path.join(directory,'actual-rate-limit-private.json'),{...binding,...input,...receipt}));
+ const safeRoute=handler=>async route=>{try{backendGuard.assertOpen();await handler(route);}catch(error){routeError=String(error.stack);try{await route.abort();}catch{}}};
+ const fetchBackend=(route,options={},source='api_serial_bridge')=>backendGuard.transfer(requestMeta(route.request(),source),()=>route.fetch({maxRetries:0,...options}));
+ const forwardBackend=async route=>{const response=await fetchBackend(route);backendGuard.assertOpen();return route.fulfill({response});};
  try{
-  browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const context=await browser.newContext({viewport:{width:390,height:844},locale:input.locale==='en'?'en-US':'zh-CN'});await context.route('**/*',r=>core.allowRequest(r.request().url())?r.continue():r.abort());page=await context.newPage();
+  await backendGuard.run(async()=>{
+  browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const context=await browser.newContext({viewport:{width:390,height:844},locale:input.locale==='en'?'en-US':'zh-CN'});await context.route('**/*',safeRoute(async route=>{if(!core.allowRequest(route.request().url()))return route.abort();if(isBackendAPI(route.request().url()))return forwardBackend(route);backendGuard.assertOpen();return route.continue();}));context.on('response',response=>{const request=response.request();if(core.allowRequest(request.url()))backendGuard.observeBrowser(request,requestMeta(request,'browser_native_forward'),response.status(),response.headers()['retry-after']??null);});page=await context.newPage();
   page.on('request',r=>{if(r.method()==='POST'&&new URL(r.url()).pathname==='/api/v1/auth/register')registrations++;if(r.method()==='PATCH'&&r.url().endsWith(PURPOSE+'preferences'))patches.push(JSON.parse(r.postData()));});
   page.on('response',r=>{if(r.request().method()==='PATCH'&&r.url().endsWith(PURPOSE+'preferences'))responses.push({status:r.status(),purpose:JSON.parse(r.request().postData()).purpose});});
   phase='initial-context';await page.goto(core.ORIGIN+'/identity/register?lang='+input.locale);await waitStatus(page,'account_link',['not_requested']);
   const initial=await api(page,PURPOSE+'context');assert.equal(initial.status,200);assert.equal(initial.data.purposes.account_link.effective,false);assert.equal(initial.data.purposes.advertising.effective,false);
   if(input.name==='actual-cas'){const first=await api(page,PURPOSE+'preferences','PATCH',command('account_link','deny',0));assert.equal(first.status,200);assert.equal(first.data.state.revision,1);snapshotBefore=control('fingerprint').tables.acquisition_r1_proofs;await page.reload();await waitStatus(page,'account_link',['not_requested']);}
   let first=true;
-  if(input.name==='lost-registration-json')await page.route('**/api/v1/auth/register',safeRoute(async route=>{const response=await route.fetch();registrationStatus=response.status();if(!response.ok())return route.fulfill({response});injected.push({phase:'registration_response',kind:'malformed_json_after_actual_commit',server_status:response.status()});await route.fulfill({response,body:'{malformed'});}));
-  if(input.name==='identity-unavailable')await page.route('**/api/v1/auth/me',route=>{injected.push({phase:'identity_read',status:503});return route.fulfill({status:503,contentType:'application/json',body:'{}'});});
+  if(input.name==='lost-registration-json')await page.route('**/api/v1/auth/register',safeRoute(async route=>{const response=await fetchBackend(route,{},'registration_response_pass_through');registrationStatus=response.status();if(!response.ok())return route.fulfill({response});injected.push({phase:'registration_response',kind:'malformed_json_after_actual_commit',server_status:response.status()});await route.fulfill({response,body:'{malformed'});}));
+  if(input.name==='identity-unavailable')await page.route('**/api/v1/auth/me',safeRoute(route=>{injected.push({phase:'identity_read',status:503});return route.fulfill({status:503,contentType:'application/json',body:'{}'});}));
   if(!['lost-registration-json','identity-unavailable'].includes(input.name))await page.route('**/api/v3/measurement/purposes/preferences',safeRoute(async route=>{
-   const request=JSON.parse(route.request().postData()),target=input.name==='partial-503'?'advertising':'account_link';if(request.purpose!==target||!first)return route.continue();first=false;
-   if(input.name==='actual-cas'){const competing=core.competingAllow(request),response=await route.fetch({postData:JSON.stringify(competing)}),body=await response.json();assert.equal(response.status(),200);assert.equal(body.status,'saved');assert.equal(body.state.choice,'allow');assert.equal(body.state.revision,request.expected_revision+1);assert.equal(body.state.effective,false);cas={original:request,competing,competition_state:body.state};return route.continue();}
-   if(input.name==='lost-purpose-json'){const response=await route.fetch();assert.equal(response.status(),200);injected.push({phase:'purpose_response',kind:'malformed_json_after_actual_save',server_status:200});return route.fulfill({response,body:'{malformed'});}
+   const request=JSON.parse(route.request().postData()),target=input.name==='partial-503'?'advertising':'account_link';if(request.purpose!==target||!first)return forwardBackend(route);first=false;
+   if(input.name==='actual-cas'){const competing=core.competingAllow(request),response=await fetchBackend(route,{postData:JSON.stringify(competing)},'actual_cas_competing_command'),body=await response.json();assert.equal(response.status(),200);assert.equal(body.status,'saved');assert.equal(body.state.choice,'allow');assert.equal(body.state.revision,request.expected_revision+1);assert.equal(body.state.effective,false);cas={original:request,competing,competition_state:body.state};return forwardBackend(route);}
+   if(input.name==='lost-purpose-json'){const response=await fetchBackend(route,{},'purpose_response_pass_through');assert.equal(response.status(),200);injected.push({phase:'purpose_response',kind:'malformed_json_after_actual_save',server_status:200});return route.fulfill({response,body:'{malformed'});}
    if(input.name==='network-before-purpose'){injected.push({phase:'before_purpose_request',kind:'client_abort_no_server_call'});return route.abort('internetdisconnected');}
-   const status=input.name==='partial-503'?503:Number(input.name.split('-')[1]);injected.push({phase:'purpose_response',kind:'explicit_client_fixture',status});return route.fulfill({status,contentType:'application/json',headers:status===429?{'Retry-After':'2'}:{},body:JSON.stringify({error:{code:'CONTROLLED_CLIENT_FAULT'}})});
+   const status=input.name==='partial-503'?503:Number(input.name.split('-')[1]);if(status===429)backendGuard.markFixture(route.request());injected.push({phase:'purpose_response',kind:'explicit_client_fixture',status});return route.fulfill({status,contentType:'application/json',headers:status===429?{'Retry-After':'2'}:{},body:JSON.stringify({error:{code:'CONTROLLED_CLIENT_FAULT'}})});
   }));
   phase='registration-form';for(const [field,value] of Object.entries({name:a.name,email:a.email,password:a.password,password_confirmation:a.password}))await page.locator('[name="'+field+'"]').fill(value);await page.locator('[name="terms_accepted"]').check();for(const purpose of ['account_link','advertising'])await page.locator('[data-registration-purpose="'+purpose+'"]').check();
   // Global observer pacing preserves scope/IP. It does not grant extra budget; real 429 stops this case.
@@ -94,9 +121,11 @@ async function main(){
   phase='account-and-final-context';assert.equal(registrations,1);const account=control('actor-status',label);assert(account.exists&&account.receipt_exists&&account.receipt_versions_match);assert.equal(await page.locator('[name="password"]').inputValue(),'');
   const final=await api(page,PURPOSE+'context');assert.equal(final.status,200);for(const purpose of ['account_link','advertising'])assert.equal(final.data.purposes[purpose].effective,false);await screenshot(page,path.join(directory,'completed.png'),binding,input);
   assert.equal(preflight(input).manifest_sha256,binding.manifest_sha256);assert.equal(routeError,null);
-  save(path.join(directory,'passed-private.json'),{...binding,...input,passed:true,registration_posts:registrations,account_and_required_receipt:account,patches,responses,explicit_client_faults:injected,real_cas:cas,final_context:final.data,actual_browser:await browser.version(),scope:'one existing scenario; real account/purpose backend; injected faults explicitly listed; not whole page/device acceptance',at:new Date().toISOString()});console.log(JSON.stringify({case:input.name,locale:input.locale,runtime:core.RUNTIME,observer:input.observer,passed:true,registration_posts:1}));
- }catch(error){save(path.join(directory,'failed-private.json'),{...binding,...input,passed:false,phase,error_private:String(error.stack),route_error_private:routeError,registration_posts:registrations,patches,responses,explicit_client_faults:injected,real_cas:cas,no_automatic_replay:true,at:new Date().toISOString()});console.error('External fault case failed at '+phase+'; inspect its private receipt.');process.exitCode=1;}finally{if(browser)await browser.close();}
+  backendGuard.assertOpen();const actualBrowser=await browser.version();await browser.close();browser=null;backendGuard.assertOpen();
+  save(path.join(directory,'passed-private.json'),{...binding,...input,passed:true,registration_posts:registrations,account_and_required_receipt:account,patches,responses,explicit_client_faults:injected,real_cas:cas,final_context:final.data,actual_browser:actualBrowser,rate_limit_guard:backendGuard.snapshot(),scope:'one existing scenario; real account/purpose backend; injected faults explicitly listed; not whole page/device acceptance',at:new Date().toISOString()});console.log(JSON.stringify({case:input.name,locale:input.locale,runtime:core.RUNTIME,observer:input.observer,passed:true,registration_posts:1}));
+  });
+ }catch(error){save(path.join(directory,'failed-private.json'),{...binding,...input,passed:false,phase,error_private:String(error.stack),route_error_private:routeError,rate_limit_guard:backendGuard.snapshot(),registration_posts:registrations,patches,responses,explicit_client_faults:injected,real_cas:cas,no_automatic_replay:true,at:new Date().toISOString()});console.error('External fault case failed at '+phase+'; inspect its private receipt.');process.exitCode=1;}finally{if(browser)await browser.close();}
  }finally{if(fs.existsSync(lock)&&privateJSON(lock).token===token)fs.unlinkSync(lock);}
 }
 if(require.main===module)main().catch(error=>{console.error('External observer preflight refused: '+String(error.message));process.exitCode=1;});
-module.exports={parse,digest,preflight,privateJSON,save,control,paceRegistration};
+module.exports={parse,digest,preflight,privateJSON,save,control,paceRegistration,createBackend429Guard,isBackendAPI};
