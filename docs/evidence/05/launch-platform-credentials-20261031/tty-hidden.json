@@ -1,0 +1,7 @@
+{
+  "scope": "real POSIX pseudo-terminal, hard-coded fake inputs only, no database or network",
+  "token_echo_disabled": true,
+  "test_code_echo_disabled": true,
+  "no_secret_in_captured_output": true,
+  "passed": true
+}

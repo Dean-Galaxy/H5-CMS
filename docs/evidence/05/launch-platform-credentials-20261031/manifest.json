@@ -1,0 +1,64 @@
+{
+  "baseline": "f10a97dcd85d110ba796fa0a79dbd19880087023",
+  "contract": "launch-prep-1",
+  "branch": "codex/05-platform-credentials",
+  "source_commit": "954b510010c974b944bb271ec428a14ec8072839",
+  "source_files": {
+    "h5-platform/app/Modules/Acquisition/AcquisitionServiceProvider.php": "24e2ec69ed34c2ee1057967d4ed063c0b438f8f120be006ac794769c48ab031e",
+    "h5-platform/app/Modules/Acquisition/Console/ConfigurePixelCredentials.php": "86280490e73bd1915f144942fead535f0ede42e74fd23861632bc3ad12c53e17",
+    "h5-platform/app/Modules/Acquisition/Console/CredentialPrompter.php": "5dadcdba77cab2e99ee495abade69cd4116c4dd91575af608b6ad2ceb631524a",
+    "h5-platform/app/Modules/Acquisition/Sending/CredentialFileException.php": "0c3ddb927698c3c79d523b49805c0e88044a81cc0eaf8d22dfac241cd39948ec",
+    "h5-platform/app/Modules/Acquisition/Sending/Credentials.php": "d055f02fd69cbabfd893360fa5266e219d79f2eb628fe49a5afd9a5696987512",
+    "h5-platform/app/Modules/Acquisition/Sending/PrivateCredentialFile.php": "15482346ec631ffa5ef232c80a2004c93cdd38f96f44bec3b4da6fd4316348ea",
+    "h5-platform/app/Modules/Acquisition/Services/AssetManager.php": "cd37646f0e54e43c09c746bb76d20968ca586d024987e66f2fee0cfa554197dc",
+    "h5-platform/resources/views/acquisition/desk.blade.php": "4691fccd242a2609dce65d157e338aca6d946aba6aa0e0b121e37709908167f7",
+    "h5-platform/tests/Feature/Acquisition/AcquisitionTestCase.php": "ea18fa31e93205e4c452526432ab77ab20793af2f35a4feb0e23a8f4952f1c0f",
+    "h5-platform/tests/Feature/Acquisition/DeliveryProcessTest.php": "ce5c8c8627a27bf02ebca803ecc2af8b2c014785befa24a21d9a3753d3906661",
+    "h5-platform/tests/Feature/Acquisition/PixelCredentialsTest.php": "a2a7a31b26e64b3ccc4b3ed52b06031ddabcba814968f6b5294ce22ce09f5060",
+    "h5-platform/tests/Feature/Acquisition/Support/credential-file-worker.php": "e26cd5164860718622a162823a41d48476bc9bf1e41303a7a53b5407087cd08b"
+  },
+  "verification": {
+    "focused_suite": "PixelCredentialsTest + directly affected DeliveryTest:19/194,1.26s",
+    "scope": "8 new filesystem/CLI/readiness/asset-scope tests plus11 existing local HTTP-fake delivery tests; no platform traffic",
+    "file_concurrency": "2 real child processes, fake-only data, shared stable lock, both records retained, children stopped",
+    "tty": "real POSIX pseudo-terminal; fake constants supplied through hidden input, echo disabled for both values, neither value in captured output; no DB/network",
+    "cli": "command path tested with explicit testing-only prompter double; stale/current-version race refused, no secret in output",
+    "storage": "private0700 directories outside Git/public, exact0600 files, owner/nlink/inode checks, atomic same-directory replace and stable sidecar lock; malformed previous map preserved",
+    "readiness": "real Livewire pixel tab uses existing object scope and only code/label/pending metadata",
+    "format": "Pint and PHP lint passed; actual Blade rendering covered by page test",
+    "fixture_compatibility": "existing test fake credential paths moved outside Git to private temporary directories; DeliveryProcessTest only path changed/linted, unchanged F07 lease suite not rerun"
+  },
+  "unchanged": [
+    "MetaAdapter",
+    "TikTokAdapter",
+    "DeliveryGate",
+    "DeliveryWorker",
+    "payload and frozen rows",
+    "shared Guard/config/schema/routes/locks",
+    "C/R1/D05 and external flags",
+    "R2-A UI branch preserved at3fb869f062c61125f8e05947577d79e163faceea"
+  ],
+  "runtime": {
+    "only_own_marked_r1a_clean_test_on_5605": true,
+    "real_secret_entered": false,
+    "official_request_or_probe": false,
+    "new_web_queue_scheduler_started": false,
+    "old_R1_C2_Thursday_or_private_data_accessed": false,
+    "env_or_switch_written": false
+  },
+  "evidence_files": {
+    "focused-tests.txt": "8a186a40382a7941951f8ec7d1b69cc04bf90579007acfecef03aa6d71afadf5",
+    "php-lint.txt": "e66b305f85f6a2b8c86b89dc43cf7a06315570605fbaebb589036318dd881571",
+    "pint.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a",
+    "tty-hidden.json": "2b4ff8eb5808f587c2d12f1bcb9fe029e82a7e38666f3d0ad26fa152c9bd23ce"
+  },
+  "not_claimed": [
+    "official token permission validation",
+    "HTTP accepted by real platform",
+    "Test Events confirmed",
+    "AWS/POSIX deployment acceptance",
+    "production or ad release",
+    "new payload policy accepted",
+    "GitHub remote backup"
+  ]
+}

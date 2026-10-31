@@ -1,0 +1,12 @@
+No syntax errors detected in h5-platform/app/Modules/Acquisition/AcquisitionServiceProvider.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Sending/Credentials.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Services/AssetManager.php
+No syntax errors detected in h5-platform/resources/views/acquisition/desk.blade.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/AcquisitionTestCase.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/DeliveryProcessTest.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Sending/PrivateCredentialFile.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Sending/CredentialFileException.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Console/CredentialPrompter.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Console/ConfigurePixelCredentials.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/PixelCredentialsTest.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/Support/credential-file-worker.php
