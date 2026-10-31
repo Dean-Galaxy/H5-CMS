@@ -60,6 +60,60 @@ class OfflineDeploymentTests(unittest.TestCase):
         self.assertIn('ORIGIN_REQUIRED', {b['code'] for b in report['blockers']})
         self.assertIn('SECRETS_NOT_PROVISIONED', {b['code'] for b in report['blockers']})
 
+    def test_direct_test_flag_default_and_rejection_are_static_only(self):
+        values = preflight.parse_example(self.example)
+        self.assertEqual('false', values['H5_ACQUISITION_STAGING_TEST'])
+        errors, blockers, _ = preflight.inspect(values)
+        self.assertEqual([], errors)
+        actions = {item['code']: item['action'] for item in blockers}
+        self.assertIn('ACQUISITION_CONTROLLED_TEST_PENDING', actions)
+        self.assertIn('production未放行', actions['ACQUISITION_CONTROLLED_TEST_PENDING'])
+        self.assertNotIn('ACQUISITION_PUBLIC_NOT_RELEASED', actions)
+        for flag in ['true', '1', 'false-but-invalid']:
+            with self.subTest(flag=flag):
+                example = self.directory / ('staging-' + flag + '.env.example')
+                example.write_text(self.example.replace('H5_ACQUISITION_STAGING_TEST=false',
+                                                       'H5_ACQUISITION_STAGING_TEST=' + flag))
+                output = self.directory / ('staging-' + flag + '.conf')
+                code, report = self.report('--env-file', str(example), '--domain',
+                                           'staging.example.com', '--output', str(output))
+                self.assertEqual(2, code)
+                self.assertIn('DEFAULT_GATES_OR_ISOLATION_UNSAFE', report['errors'])
+                self.assertFalse(report['rendered'])
+                self.assertFalse(report['deployment_ready'])
+                self.assertFalse(output.exists())
+
+    def test_geoip_defaults_and_activation_refusal_do_not_read_database(self):
+        values = preflight.parse_example(self.example)
+        self.assertEqual('disabled', values['GEOIP_DRIVER'])
+        self.assertEqual('', values['GEOIP_DATABASE'])
+        self.assertEqual('45', values['GEOIP_MAX_AGE_DAYS'])
+        errors, blockers, _ = preflight.inspect(values)
+        self.assertEqual([], errors)
+        self.assertIn('GEOIP_DATA_AND_HOST_UNVERIFIED', {b['code'] for b in blockers})
+        # geoip-ready-1 runtime accepts 1..45; this secretless preparation stage
+        # intentionally pins 45 and refuses any attempt to configure/activate a real file.
+        for index, (key, value) in enumerate([
+            ('GEOIP_DRIVER', 'dbip_lite'), ('GEOIP_DRIVER', 'true'),
+            ('GEOIP_DATABASE', '/synthetic/country.mmdb'),
+            ('GEOIP_MAX_AGE_DAYS', '0'), ('GEOIP_MAX_AGE_DAYS', '46'),
+            ('GEOIP_MAX_AGE_DAYS', '44'), ('GEOIP_MAX_AGE_DAYS', 'junk'),
+        ]):
+            with self.subTest(key=key, value=value):
+                example = self.directory / ('geoip-' + str(index) + '.env.example')
+                example.write_text(self.example.replace(key + '=' + values[key] + '\n',
+                                                       key + '=' + value + '\n'))
+                output = self.directory / ('geoip-' + str(index) + '.conf')
+                with patch.object(socket, 'socket', side_effect=AssertionError('No network')), \
+                     patch.object(subprocess, 'run', side_effect=AssertionError('No processes')):
+                    code, report = self.report('--env-file', str(example), '--domain',
+                                               'staging.example.com', '--output', str(output))
+                self.assertEqual(2, code)
+                self.assertIn('DEFAULT_GATES_OR_ISOLATION_UNSAFE', report['errors'])
+                self.assertFalse(report['deployment_ready'])
+                self.assertFalse(report['rendered'])
+                self.assertFalse(output.exists())
+
     def test_each_disabled_gate_and_isolation_rejects_changes_without_values(self):
         for key in preflight.LOCKED:
             with self.subTest(key=key):

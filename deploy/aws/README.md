@@ -2,6 +2,8 @@
 
 契约 [launch-prep-1](../../docs/contracts/launch-integration-prep-v1.md)；实现起点 `f10a97dcd85d110ba796fa0a79dbd19880087023`，业务契约1.0.5。本目录不是已部署网站，区域、域名、预算、Linux镜像和备份身份仍待00/本人决定。 本人已说明尚未买域名、预算未定；AWS注册选择美国不代表部署区已选。8GB/$44仅后续小规模试运营报价参考，非容量保证或采购授权。本轮不读取真实云凭据、不连接AWS/SMTP/DNS，不安装、申请证书、启动服务或访问数据库；不重开已关闭环境。
 
+2026-11-01离线兼容增量依据[direct-test-1](../../docs/contracts/acquisition-direct-test-v1.md)和[geoip-ready-1](../../docs/contracts/geoip-readiness-v1.md)，源码起点`fbb5f3a76d42bbf5e8f9cc4b86768cd61c5110f3`：受控test-only工程待组合接收、production未放行；模板测试位保持false。 GeoIP显式`GEOIP_DRIVER=disabled`、`GEOIP_DATABASE=`、`GEOIP_MAX_AGE_DAYS=45`；本阶段固定45，拒绝启用driver、填文件路径或更改年龄（实际查询契约另允许1..45）。GeoIP查询reader不代表实际数据、许可、版本或主机已验证；不把AWS区或加库视为游客国家。旧“公网投流完全不可能”描述由此更新，不能据此直接启用。域名/region/预算仍留未选阻塞。
+
 ## 本地怎么使用
 
 在本任务源码根运行；Python只使用标准库，无需Laravel依赖或数据库：
@@ -47,4 +49,4 @@ python3 -B scripts/ops/aws_preflight.py --domain staging.example.com --phase tls
 python3 -B -m unittest discover -s scripts/ops/tests -p test_aws_preflight.py -v
 ```
 
-仅12项定向离线测试，覆盖默认不联网/不执行子进程、不读取真实.env、保护项与输入拒绝、私有新文件/链接和覆盖拒绝、PayPal五头白名单、首张证书阶段及静态状态不会报部署通过。未跑旧全套、本地服务/数据库、Linux nginx -t、真实TLS/DNS/SES/平台回调；后四类必须在受权环境另取实际证据。
+launch-prep-1原首步12项定向离线测试覆盖默认不联网/不执行子进程、不读取真实.env、保护项与输入拒绝、私有新文件/链接和覆盖拒绝、PayPal五头白名单、首张证书阶段及静态状态不会报部署通过。本轮direct-test/GeoIP只执行新增2项定向验证，原12未受影响项复用。未跑旧全套、本地服务/数据库、Linux nginx -t、真实TLS/DNS/SES/平台回调；后四类必须在受权环境另取实际证据。

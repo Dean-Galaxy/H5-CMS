@@ -13,8 +13,10 @@ EXAMPLE = ROOT / 'deploy/aws/runtime.env.example'
 LOCKED = {
     'APP_NAME': 'H5', 'APP_ENV': 'staging', 'APP_DEBUG': 'false',
     'H5_WORKSPACE': 'h5_staging', 'H5_CONTROLLED_STAGING': 'true',
+    'H5_ACQUISITION_STAGING_TEST': 'false',
     'H5_SIMULATION': 'false', 'H5_LOCAL_US_TEST_REGION': 'false', 'H5_LOCAL_MODULES': '',
     'H5_C_EXPERIENCE_ENABLED': 'false', 'H5_C_REGISTRATION_ENABLED': 'false',
+    'GEOIP_DRIVER': 'disabled', 'GEOIP_DATABASE': '', 'GEOIP_MAX_AGE_DAYS': '45',
     'H5_MEDIA_ROOT': '/srv/h5/shared/media', 'CONTENT_FFMPEG': '/usr/bin/ffmpeg',
     'CONTENT_FFPROBE': '/usr/bin/ffprobe', 'DB_CONNECTION': 'pgsql', 'DB_HOST': '127.0.0.1',
     'DB_PORT': '5432', 'DB_DATABASE': 'h5_staging', 'DB_USERNAME': 'h5_staging',
@@ -35,8 +37,8 @@ REQUIRED = set(LOCKED) | SECRETS | VARIABLE
 PENDING = [
     ('BUDGET_NOT_APPROVED', '本人尚未确认商业运营预算；8GB档只作报价参考，不采购或保证容量'),
     ('RESOURCE_PLAN_NOT_APPROVED', '00/本人确认区域、镜像、规格、费用和运维身份后再建资源'),
-    ('GEOIP_NOT_INTEGRATED', '00接收可信地区来源与消费者；不以AWS区域替代访客地区'),
-    ('ACQUISITION_PUBLIC_NOT_RELEASED', '00/05另接非本地平台准入；保持广告默认关闭'),
+    ('GEOIP_DATA_AND_HOST_UNVERIFIED', 'geoip-ready-1本地文件查询待组合接收及实际库许可/版本/主机验证；不能因加reader或选AWS区视为已验证'),
+    ('ACQUISITION_CONTROLLED_TEST_PENDING', 'direct-test-1受控test-only源码待组合接收，production未放行；测试位及外发仍默认关闭'),
     ('PUBLIC_REGISTRATION_NOTICE_NOT_RELEASED', '01/08/00接收正式注册告知和版本收据'),
     ('HOST_AND_NETWORK_UNVERIFIED', '获授权后才核Linux依赖、TLS、DNS和实际进程；本工具不执行'),
     ('BACKUP_RESTORE_NOT_VERIFIED', '具体桶/身份/加密授权后另接云备份与独立恢复'),
