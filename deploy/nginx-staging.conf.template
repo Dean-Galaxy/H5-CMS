@@ -79,6 +79,11 @@ server {
         fastcgi_param HTTP_IF_RANGE $http_if_range;
         fastcgi_param HTTP_IDEMPOTENCY_KEY $http_idempotency_key;
         fastcgi_param HTTP_STRIPE_SIGNATURE $http_stripe_signature;
+        fastcgi_param HTTP_PAYPAL_AUTH_ALGO $http_paypal_auth_algo;
+        fastcgi_param HTTP_PAYPAL_CERT_URL $http_paypal_cert_url;
+        fastcgi_param HTTP_PAYPAL_TRANSMISSION_ID $http_paypal_transmission_id;
+        fastcgi_param HTTP_PAYPAL_TRANSMISSION_SIG $http_paypal_transmission_sig;
+        fastcgi_param HTTP_PAYPAL_TRANSMISSION_TIME $http_paypal_transmission_time;
         fastcgi_read_timeout 120s;
     }
     location ~ \.php$ { return 404; }
