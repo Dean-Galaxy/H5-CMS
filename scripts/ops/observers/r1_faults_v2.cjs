@@ -12,6 +12,11 @@ function actor(label){const file=path.join(OUT,'fixtures','actor-'+label+'.json'
 async function api(page,url,method='GET',body){return page.evaluate(async({url,method,body})=>{let csrf='';if(method!=='GET'){const r=await fetch('/api/v1/auth/csrf',{headers:{Accept:'application/json'},cache:'no-store'});csrf=(await r.json()).csrf_token;}const r=await fetch(url,{method,credentials:'same-origin',headers:{Accept:'application/json',...(method!=='GET'?{'Content-Type':'application/json','X-CSRF-TOKEN':csrf}:{})},...(body?{body:JSON.stringify(body)}:{})});let data;try{data=await r.json();}catch{data=null;}return {status:r.status,data,retry_after:r.headers.get('retry-after')};},{url,method,body});}
 const command=(purpose,choice,revision)=>({purpose,choice,notice_version:'c-purpose-choice-only-r1-v1',expected_revision:revision,operation_id:crypto.randomUUID()});
 async function waitStatus(p,purpose,values){await p.waitForFunction(({purpose,values})=>values.includes(document.querySelector('[data-purpose-state="'+purpose+'"]')?.dataset.status),{purpose,values},{timeout:15000});}
+async function settleInitialAdvertising(p,input,target){
+ // These cases finish outside the generic retry path; never wait for a stopped purpose.
+ if(['lost-registration-json','status-401','status-403'].includes(input.name))return;
+ if(target==='account_link'&&input.name!=='identity-unavailable')await waitStatus(p,'advertising',['saved']);
+}
 async function screenshot(p,file,binding,input,target){
  const targets=target?[target]:['account_link','advertising','registration_result'],masks=['input[name="name"]','input[name="email"]','input[type="password"]'];
  for(const [index,purpose] of targets.entries()){
@@ -110,6 +115,7 @@ async function main(){
    if(input.name==='actual-cas'){const conflict=responses.filter(r=>r.purpose==='account_link').at(-1);assert.equal(conflict.status,409);assert.equal(cas.competition_state.revision,2);}
    if(input.name==='partial-503')await waitStatus(page,'account_link',['saved']);if(input.name==='identity-unavailable')assert.equal(patches.length,0);
    if(input.name==='status-429')assert.equal(await page.locator('[data-purpose-retry="account_link"]').isDisabled(),true);
+   await settleInitialAdvertising(page,input,target);
    const before=patches.length;await screenshot(page,path.join(directory,'before-explicit-retry.png'),binding,input,target);await page.waitForTimeout(400);assert.equal(patches.length,before,'No automatic replay');
    if(input.name==='status-429')await page.locator('[data-purpose-retry="account_link"]').waitFor({state:'visible'}).then(()=>page.waitForFunction(()=>!document.querySelector('[data-purpose-retry="account_link"]').disabled,{},{timeout:5000}));
    if(input.name==='identity-unavailable')await page.unroute('**/api/v1/auth/me');phase='explicit-one-purpose-retry';const retried=page.waitForResponse(r=>r.request().method()==='PATCH'&&r.url().endsWith(PURPOSE+'preferences')&&JSON.parse(r.request().postData()).purpose===target);await page.locator('[data-purpose-retry="'+target+'"]').click();const response=await retried;assert.equal(response.status(),200);const result=await response.json();
@@ -129,4 +135,4 @@ async function main(){
  }finally{if(fs.existsSync(lock)&&privateJSON(lock).token===token)fs.unlinkSync(lock);}
 }
 if(require.main===module)main().catch(error=>{console.error('External observer preflight refused: '+String(error.message));process.exitCode=1;});
-module.exports={parse,digest,preflight,privateJSON,save,control,paceRegistration,createBackend429Guard,isBackendAPI,backendFetchOptions};
+module.exports={parse,digest,preflight,privateJSON,save,control,paceRegistration,createBackend429Guard,isBackendAPI,backendFetchOptions,settleInitialAdvertising};
