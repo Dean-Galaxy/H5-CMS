@@ -93,7 +93,11 @@ function registrationPurposes(form) {
     } finally { clearTimeout(timeout); }
   }
   function render(item) {
-    const label = item.state ? `${text[item.state.choice]}\n${text.off}` : text.unavailable;
+    const unconfirmedChoice = item.status === 'unconfirmed'
+      ? (validState(item.state) ? `${text.last_confirmed_choice}: ${text[item.state.choice]}` : text.saved_choice_unconfirmed)
+      : null;
+    const label = item.status === 'unconfirmed' ? `${unconfirmedChoice}\n${text.off}`
+      : item.state ? `${text[item.state.choice]}\n${text.off}` : text.unavailable;
     item.output.textContent = `${item.title}: ${label} — ${text[item.problem || item.status] || text.unconfirmed}` + (item.dirty ? ` · ${text.draft}: ${text['draft_' + item.desired]}` : '');
     item.output.dataset.status = item.status;
     item.retry.hidden = !complete || stopped || !['unconfirmed','conflict'].includes(item.status);
