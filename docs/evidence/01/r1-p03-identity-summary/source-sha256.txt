@@ -1,0 +1,4 @@
+Candidate: e430b4cc5357b1824d16b2297efb928cb897e957
+Base: 33e9e44757a0952fb67496e0cff7cdf28a376360
+ea1779afe2a94fc99556f533572981221d016dda112dafc25a23d7613acd7d47  h5-platform/public/identity.js
+504b1716e45c22dd17cfebfb3a1447efd9f616e6250317421432d483f24368c1  h5-platform/tests/Feature/Identity/Support/registration-identity-recovery.browser.cjs

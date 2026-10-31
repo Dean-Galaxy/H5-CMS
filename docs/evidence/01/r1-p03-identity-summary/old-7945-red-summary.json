@@ -1,0 +1,63 @@
+{
+  "status": "failed",
+  "identityScriptSha256": "3603e00e5f732e4195fc77d22be4ef928e3992ba726de42251e7a416ec5aff1a",
+  "source": "794520012266f7bdab72f32c93da4ed1d6996914",
+  "cases": [
+    {
+      "kind": "recover",
+      "locale": "en",
+      "origin": "created",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Your account was created. Choices can be saved, but account association and advertising do not run.\"\nReceived: \"Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.\""
+    },
+    {
+      "kind": "recover",
+      "locale": "en",
+      "origin": "current",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Your current account is signed in. Continue using the site or review your preferences. This does not confirm that this registration request created the account.\"\nReceived: \"Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.\""
+    },
+    {
+      "kind": "recover",
+      "locale": "zh_CN",
+      "origin": "created",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账号已创建。以下仅保存选择，不运行账户关联或广告。\"\nReceived: \"账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。\""
+    },
+    {
+      "kind": "recover",
+      "locale": "zh_CN",
+      "origin": "current",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"已确认当前账号已登录。可继续使用或核对偏好；本次注册是否新建账号仍未确认。\"\nReceived: \"账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。\""
+    },
+    {
+      "kind": "continuous-and-purpose-failure",
+      "locale": "en",
+      "origin": "created",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Your account was created. Choices can be saved, but account association and advertising do not run.\"\nReceived: \"Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.\""
+    },
+    {
+      "kind": "denied-late-success",
+      "locale": "en",
+      "origin": "created",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.\"\nReceived: \"The account changed. Previous account drafts were discarded and no further choice was sent.\""
+    },
+    {
+      "kind": "changed-late-catch",
+      "locale": "zh_CN",
+      "origin": "current",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账号已变化；已丢弃本页旧账号草稿，未继续提交。\"\nReceived: \"账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。\""
+    },
+    {
+      "kind": "unrelated-global-error",
+      "locale": "en",
+      "origin": "current",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"fixture: unrelated global error\"\nReceived: \"Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.\""
+    }
+  ]
+}

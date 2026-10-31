@@ -1,0 +1,69 @@
+{
+  "base": "33e9e44757a0952fb67496e0cff7cdf28a376360",
+  "old_public_7945_same_js": true,
+  "products": {
+    "h5-platform/public/identity.js": {
+      "old_sha256": "3603e00e5f732e4195fc77d22be4ef928e3992ba726de42251e7a416ec5aff1a",
+      "new_sha256": "ea1779afe2a94fc99556f533572981221d016dda112dafc25a23d7613acd7d47"
+    },
+    "h5-platform/lang/en/identity.php": {
+      "byte_identical": true,
+      "sha256": "8981fd7db52c3ba147590d9e57439f765d87c9be956008646b466718e7c65450"
+    },
+    "h5-platform/lang/zh_CN/identity.php": {
+      "byte_identical": true,
+      "sha256": "b58601b843e23d71fc1d3361a09583df6647ad302ab88bf2145259b48f6ab18e"
+    },
+    "h5-platform/resources/views/identity/register.blade.php": {
+      "byte_identical": true,
+      "sha256": "b1c3acac8a64f258c77c40b1f21622c4af4424f7786fbb2a8fd63ea7890769dc"
+    },
+    "h5-platform/public/identity.css": {
+      "byte_identical": true,
+      "sha256": "b0b67bd8c877fcd6485524b32d4a90b666b51a92ee9df5bbdde794d9c611b000"
+    },
+    "h5-platform/composer.lock": {
+      "byte_identical": true,
+      "sha256": "4b245e26cacae32194fa73c83aec232912ce90054259b1ff85779fad58fe1848"
+    },
+    "h5-platform/tests/Feature/Identity/Support/registration-purposes.browser.cjs": {
+      "byte_identical": true,
+      "sha256": "358aa1fb721f21059e3fc993c5f795e3edc883e1e547c96fa190a05f13f6fe71"
+    },
+    "h5-platform/tests/Feature/Identity/Support/registration-r1.browser.cjs": {
+      "byte_identical": true,
+      "sha256": "74382ab1534654b937848694ca4a7a059ed179dfb9773c6dbc6072ce3f214a5d"
+    },
+    "h5-platform/tests/Feature/Identity/Support/registration-draft-labels.browser.cjs": {
+      "byte_identical": true,
+      "sha256": "6951c33b2b405aa4134e7af7be62706c09b2adb18abfdb6731b654ab7f546dc1"
+    },
+    "h5-platform/tests/Feature/Identity/Support/registration-unconfirmed-labels.browser.cjs": {
+      "byte_identical": true,
+      "sha256": "0d58e05418b2818c9c9b88b49252034b97744ae4fde64e6701f4ed9013bfc3a3"
+    }
+  },
+  "allowed_display_blocks": [
+    {
+      "name": "local-display-flags",
+      "old_sha256": "bb0ab75c5cf6b5b2218f605f499cd034ae4d4c343fcbed0fab22d94db1fc2ea7",
+      "new_sha256": "82aa0dc943eb2769558f18b214e01359b55f24b0f43f745b1b5aef8e14770e33"
+    },
+    {
+      "name": "discard-display-reset",
+      "old_sha256": "c7dd23a1ad4861c7a8deb1b4e3098bbc30de9a2d7419b3e37524aef162d3f9c1",
+      "new_sha256": "b542290b57d920cb0cfe767d056327201312f9b01b7cb7c45fc93c069847b20e"
+    },
+    {
+      "name": "sameAccount-display-guards",
+      "old_sha256": "5b3e70f9728c7657b6485d06c97017b0779300da33bf1b1c23314925b5c34424",
+      "new_sha256": "052f55fb874637b722aa7c84f3bd201d48a03d076151f2bf60b9c337b823e97e"
+    },
+    {
+      "name": "complete-display-source",
+      "old_sha256": "1de20e0aacb084e0c27c47280f48fbaf7b58affb9c7076a8d976358961e1ada8",
+      "new_sha256": "b3e2edd709cf3de2c18e48d69f7632a387ee30cbc5c29210262df8d49e6dce56"
+    }
+  ],
+  "all_other_js_bytes_identical": true
+}

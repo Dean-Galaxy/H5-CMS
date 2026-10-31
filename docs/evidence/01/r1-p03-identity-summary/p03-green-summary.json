@@ -1,0 +1,384 @@
+{
+  "status": "passed",
+  "identityScriptSha256": "ea1779afe2a94fc99556f533572981221d016dda112dafc25a23d7613acd7d47",
+  "boundary": "8 whole-script flows; real complete translations; every HTTP request intercepted, synthetic memory only. Controlled late responses and one fixture-only unrelated UI marker, not actual sites or a broad race/security audit.",
+  "cases": [
+    {
+      "kind": "recover",
+      "locale": "en",
+      "origin": "created",
+      "status": "passed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "phases": {
+        "paused": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "firstMatchingBeforePurposeResponse": {
+          "global": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "afterFirst": {
+          "global": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+          "accountStatus": "saved",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 1
+        },
+        "final": {
+          "global": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+          "accountStatus": "saved",
+          "advertisingStatus": "saved",
+          "purposeResponses": 2
+        }
+      }
+    },
+    {
+      "kind": "recover",
+      "locale": "en",
+      "origin": "current",
+      "status": "passed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 4,
+        "csrf": 2,
+        "patch": 2
+      },
+      "phases": {
+        "paused": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "firstMatchingBeforePurposeResponse": {
+          "global": "Your current account is signed in. Continue using the site or review your preferences. This does not confirm that this registration request created the account.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "afterFirst": {
+          "global": "Your current account is signed in. Continue using the site or review your preferences. This does not confirm that this registration request created the account.",
+          "accountStatus": "saved",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 1
+        },
+        "final": {
+          "global": "Your current account is signed in. Continue using the site or review your preferences. This does not confirm that this registration request created the account.",
+          "accountStatus": "saved",
+          "advertisingStatus": "saved",
+          "purposeResponses": 2
+        }
+      }
+    },
+    {
+      "kind": "recover",
+      "locale": "zh_CN",
+      "origin": "created",
+      "status": "passed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "phases": {
+        "paused": {
+          "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "firstMatchingBeforePurposeResponse": {
+          "global": "账号已创建。以下仅保存选择，不运行账户关联或广告。",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "afterFirst": {
+          "global": "账号已创建。以下仅保存选择，不运行账户关联或广告。",
+          "accountStatus": "saved",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 1
+        },
+        "final": {
+          "global": "账号已创建。以下仅保存选择，不运行账户关联或广告。",
+          "accountStatus": "saved",
+          "advertisingStatus": "saved",
+          "purposeResponses": 2
+        }
+      }
+    },
+    {
+      "kind": "recover",
+      "locale": "zh_CN",
+      "origin": "current",
+      "status": "passed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 4,
+        "csrf": 2,
+        "patch": 2
+      },
+      "phases": {
+        "paused": {
+          "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "firstMatchingBeforePurposeResponse": {
+          "global": "已确认当前账号已登录。可继续使用或核对偏好；本次注册是否新建账号仍未确认。",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "afterFirst": {
+          "global": "已确认当前账号已登录。可继续使用或核对偏好；本次注册是否新建账号仍未确认。",
+          "accountStatus": "saved",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 1
+        },
+        "final": {
+          "global": "已确认当前账号已登录。可继续使用或核对偏好；本次注册是否新建账号仍未确认。",
+          "accountStatus": "saved",
+          "advertisingStatus": "saved",
+          "purposeResponses": 2
+        }
+      }
+    },
+    {
+      "kind": "continuous-and-purpose-failure",
+      "locale": "en",
+      "origin": "created",
+      "status": "passed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 5,
+        "csrf": 4,
+        "patch": 3
+      },
+      "phases": {
+        "paused": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "continuouslyUnknown": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "firstMatchingBeforePurposeResponse": {
+          "global": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "identityRecoveredPurposeFailed": {
+          "global": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 1
+        },
+        "final": {
+          "global": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+          "accountStatus": "saved",
+          "advertisingStatus": "saved",
+          "purposeResponses": 3
+        }
+      },
+      "events": [
+        "context:200",
+        "register:200",
+        "me:1:503",
+        "csrf:200",
+        "me:2:503",
+        "csrf:200",
+        "me:3:200-A",
+        "patch:account_link:503",
+        "csrf:200",
+        "me:4:200-A",
+        "patch:advertising:200",
+        "csrf:200",
+        "me:5:200-A",
+        "patch:account_link:200"
+      ]
+    },
+    {
+      "kind": "denied-late-success",
+      "locale": "en",
+      "origin": "created",
+      "status": "passed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 1
+      },
+      "phases": {
+        "paused": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "firstMatchingBeforePurposeResponse": {
+          "global": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "terminatedBeforeLateResponse": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "not_requested",
+          "advertisingStatus": "not_requested",
+          "purposeResponses": 1
+        },
+        "terminatedAfterLateResponse": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "not_requested",
+          "advertisingStatus": "not_requested",
+          "purposeResponses": 1
+        },
+        "final": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "not_requested",
+          "advertisingStatus": "not_requested",
+          "purposeResponses": 1
+        }
+      },
+      "events": [
+        "context:200",
+        "register:200",
+        "me:1:503",
+        "csrf:200",
+        "me:2:held",
+        "csrf:200",
+        "me:3:200-A",
+        "patch:advertising:403",
+        "me:2:200-A-late"
+      ]
+    },
+    {
+      "kind": "changed-late-catch",
+      "locale": "zh_CN",
+      "origin": "current",
+      "status": "passed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 4,
+        "csrf": 2,
+        "patch": 0
+      },
+      "phases": {
+        "paused": {
+          "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "terminatedBeforeLateResponse": {
+          "global": "账号已变化；已丢弃本页旧账号草稿，未继续提交。",
+          "accountStatus": "not_requested",
+          "advertisingStatus": "not_requested",
+          "purposeResponses": 0
+        },
+        "terminatedAfterLateResponse": {
+          "global": "账号已变化；已丢弃本页旧账号草稿，未继续提交。",
+          "accountStatus": "not_requested",
+          "advertisingStatus": "not_requested",
+          "purposeResponses": 0
+        },
+        "final": {
+          "global": "账号已变化；已丢弃本页旧账号草稿，未继续提交。",
+          "accountStatus": "not_requested",
+          "advertisingStatus": "not_requested",
+          "purposeResponses": 0
+        }
+      },
+      "events": [
+        "context:200",
+        "register:connection-reset",
+        "me:1:200-A",
+        "me:2:503",
+        "csrf:200",
+        "me:3:held",
+        "csrf:200",
+        "me:4:200-B",
+        "me:3:connection-reset"
+      ]
+    },
+    {
+      "kind": "unrelated-global-error",
+      "locale": "en",
+      "origin": "current",
+      "status": "passed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 5,
+        "csrf": 3,
+        "patch": 2
+      },
+      "phases": {
+        "paused": {
+          "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "afterUnrelatedErrorCatch": {
+          "global": "fixture: unrelated global error",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "firstMatchingBeforePurposeResponse": {
+          "global": "fixture: unrelated global error",
+          "accountStatus": "unconfirmed",
+          "advertisingStatus": "unconfirmed",
+          "purposeResponses": 0
+        },
+        "final": {
+          "global": "fixture: unrelated global error",
+          "accountStatus": "saved",
+          "advertisingStatus": "saved",
+          "purposeResponses": 2
+        }
+      },
+      "events": [
+        "context:200",
+        "register:connection-reset",
+        "me:1:200-A",
+        "me:2:503",
+        "csrf:200",
+        "me:3:held",
+        "me:3:connection-reset",
+        "csrf:200",
+        "me:4:200-A",
+        "patch:account_link:200",
+        "csrf:200",
+        "me:5:200-A",
+        "patch:advertising:200"
+      ]
+    }
+  ]
+}

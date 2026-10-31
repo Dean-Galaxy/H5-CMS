@@ -1,0 +1,43 @@
+{
+  "candidate": "e430b4cc5357b1824d16b2297efb928cb897e957",
+  "p03": {
+    "oldProductExpectedRed": 8,
+    "newWholeScriptMockFlowsPassed": 8,
+    "fullGreenOutputSha256": "154ed096c0aea356fd672236a11536bab10b0b0ad4d1d70a7792d08cd00b0199",
+    "fullRedOutputSha256": "d30ac284ce1509dd9cce6e0f3162c33b9a3eee096bbe697b9d52597833d3f286"
+  },
+  "nodeSyntax": "passed for product and new Support fixture",
+  "diffCheck": "passed",
+  "legacyRunsBeforeScopeReduction": [
+    {
+      "name": "purpose-26",
+      "status": "passed",
+      "checks": 26,
+      "outputSha256": "9fffb995ac61663b35cfedc7a0cd44ea4b093b814d4494e7ee16ce562c5b6074",
+      "timing": "already completed once before final scope reduction; not repeated"
+    },
+    {
+      "name": "recovery-6",
+      "status": "passed",
+      "checks": 6,
+      "outputSha256": "a76e93dddf04163475ab13431ca1e6ef76aeba1fc47b01bde11cd31ef89d8186",
+      "timing": "already completed once before final scope reduction; not repeated"
+    },
+    {
+      "name": "p01-4",
+      "status": "passed",
+      "checks": 4,
+      "outputSha256": "910e5fba8aa6091be7f5c8d9aec63e12bd761bcceee8f6b033c518c0e03f45bd",
+      "timing": "already completed once before final scope reduction; not repeated"
+    },
+    {
+      "name": "p02-32",
+      "status": "passed",
+      "checks": 32,
+      "outputSha256": "980e29fea7ddbff5b28d44ee86f78f37e584ee9745fe538e92c391dbbecb6282",
+      "timing": "already completed once before final scope reduction; not repeated"
+    }
+  ],
+  "p02Breakdown": "16 verbatim unknown-render snapshots + 8 normal-render checks + 8 whole-script HTTP flows, not 32 complete flows",
+  "runtime": "No DB/Web/queue/scheduler start/stop/probe or private state/env access; isolated mock contexts and browser closed in finally. No actual case/actor/site."
+}
