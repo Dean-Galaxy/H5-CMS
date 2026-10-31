@@ -17,7 +17,7 @@
 
 ## 05 受控广告用途与真实上下文
 
-- 将上述测试位当仅广告测试入口：分析/C/R1/增强身份关联不运行；`TrackingContext`可支持广告上下文/显式广告选择，但subject/BehaviorRecorder/浏览器行为事件及syncViewer关联必须保持禁用。现拒绝/撤回/旧拒绝桥/D05规则复用。受控页面响应须明确分析不可用，不把分析grant悄悄保存为成功；不因测试位设置任何grant或清旧拒绝。
+- 将上述测试位当仅广告测试入口：分析/C/R1/增强身份关联不运行；`TrackingContext`可支持广告上下文/显式广告选择，但subject/BehaviorRecorder/浏览器行为事件及syncViewer关联必须保持禁用。现拒绝/撤回/旧拒绝桥/D05规则复用。受控publicContext仅此模式增`advertising_test_only=true`、`analytics_available=false`两字段，04禁用分析选项并显示测试告知；受控页面响应须明确分析不可用，不把分析grant悄悄保存为成功；不因测试位设置任何grant或清旧拒绝。
 - 实现capture：重新读取当前有效来源/广告同意并与传入6字段逐项匹配，验证page.path固定和页面时间不未来/不超30分钟及请求上下文。新增本模块迁移私密加密checkout context（内部UUID、source/pixel及版本绑定、规范无query/片段的真实HTTPS页、当前直连IP/UA、捕获/保留期限），不加viewer/账户身份映射。只引用现获准的对应平台click/cookie标记，不重写落地来源/点击期限。失败不伪造上下文。
 - 05消费PaymentSettled新增可选context引用，在发送时验证与已固定source/pixel版本/平台绑定及用途/撤回；缺context、无效或旧冻结不合新最小白名单的载荷明确阻断并显示安全原因，不更改已冻结载荷或旧付款。controlled staging只发is_test=true＋environment=test，拒绝模拟来源和生产资产/实付款；不得把在用生产Pixel改标test或假源改真。续费在此新测试通道暂不放行，等待独立口径/真实上下文决议；旧local既有语义不改，不自动改正式续费政策。
 - 新载荷白名单仅Purchase、真实结算UTC时间、稳定event_id、USD和实付value、Meta真实website action_source、规范真实交易页及独立获准的对应平台IP/UA与fbc/fbp或ttclid/ttp。移除transaction_kind/discount_applied外发字段（仍留本站事实）；不发剧名/集数/播放、姓名/邮箱/电话及其新增哈希、原始内部ID、查询URL/Referrer，不把预期LTV当金额。不能靠换假页面隐瞒业务。
