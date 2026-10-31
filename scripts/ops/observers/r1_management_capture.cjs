@@ -3,7 +3,7 @@
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
 const core=require('./r1_faults_core.cjs'),observer=require('./r1_faults_v2.cjs'),viewport=require('./r1_capture_viewports.cjs');
 const OUT=path.join(core.ROOT,'.runtime/06/r1'),RECEIPTS=path.join(OUT,'management-window-receipts/20261030T220809812887Z');
-const MANIFEST_SHA='ecd62a55177feb892eb68b8942df52be7249a0aea0ba648118c1464fcbe80872',RECEIPT_SHA='a5a05269ce3c55401b0d47c87dbacc4a355d6d4368d662bc8d9fb7e3df7bb09e',ARTIFACT_SHA='366172d634ba03eb3fd74d46447bf1227e5ec7c4a0dc615fc47a6b39d7d0b6ba';
+const MANIFEST_SHA='c3719ddefd46fee464258a16cf786b50451ebf8929405cab85098fde40d9f639',RECEIPT_SHA='a5a05269ce3c55401b0d47c87dbacc4a355d6d4368d662bc8d9fb7e3df7bb09e',ARTIFACT_SHA='366172d634ba03eb3fd74d46447bf1227e5ec7c4a0dc615fc47a6b39d7d0b6ba';
 const SCOPE_DETAILS=['[data-c-purpose-manager] > details','[data-c-use]'];
 const DIALOG='[data-c-dialog]',BODY=DIALOG+' .measurement-c-body',MASKS=['input[name="name"]','input[name="email"]','input[type="password"]'],MASK_COLOR='#FF00FF';
 const TARGETS={c_status:'[data-c-status]',c_choice:'[data-c-choice]',c_processing:'[data-c-processing]',c_local:'[data-c-local]',legacy:'[data-c-purpose-manager] > p:has(> [data-purpose-legacy])',legacy_info:'[data-c-purpose-manager] > p:has(> [data-purpose-legacy]) + p',legacy_scope:'[data-c-purpose-manager] > details',c_scope:'[data-c-use]',close:'[data-c-close]'};
