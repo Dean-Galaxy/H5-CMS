@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),crypto=require('node:crypto');
 const ROOT='/Users/hejunxiang/.codex/worktrees/h5-r1-registration-manual/H5';
-const RUNTIME='78bec3629bb4523a424516a5755fea421a28b20d';
+const RUNTIME='2ada4ccd8361acb09818c1f8b0c2e5d294efdfc0';
 const FROM='2026-10-30T19:53:47Z',UNTIL='2026-10-31T18:53:47Z',ORIGIN='http://127.0.0.1:8412';
 const CASES=Object.freeze(['partial-503','lost-registration-json','lost-purpose-json','network-before-purpose','identity-unavailable','status-401','status-403','status-419','status-422','status-429','actual-cas']);
 function validateTarget(root,manifest,processRecord,now=Date.now()){
