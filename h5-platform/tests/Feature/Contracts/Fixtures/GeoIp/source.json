@@ -1,0 +1,21 @@
+{
+  "repository": "https://github.com/maxmind/MaxMind-DB",
+  "commit": "d1551916cff0712d12ff602c309234471b0402a2",
+  "paths": [
+    "test-data/GeoIP2-Country-Test.mmdb",
+    "LICENSE-APACHE"
+  ],
+  "license": "Apache-2.0 (upstream dual-license, Apache option selected)",
+  "sha256": {
+    "GeoIP2-Country-Test.mmdb": "fc12d6470b35b70bd3e4534dd433d3e262a6c73f7682f85c344e832d4190f02b",
+    "LICENSE-APACHE": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe"
+  },
+  "bytes": 17300,
+  "metadata": {
+    "databaseType": "GeoIP2-Country",
+    "buildEpoch": 1792695177,
+    "binaryFormatMajorVersion": 2,
+    "ipVersion": 6
+  },
+  "boundary": "Upstream synthetic test country fixture, not a real production/full GeoIP database or DB-IP licensed dataset. Tests freeze current time relative to its actual build epoch."
+}

@@ -27,7 +27,8 @@ final class ServerRegionResolver implements RegionResolver
             return new ResolvedRegion('US', 'local_us_test');
         }
 
-        // A deployment-specific trusted resolver must be supplied before geographical acceptance.
-        return new ResolvedRegion('ZZ', 'unresolved');
+        $country = (new DbIpCountryLookup)->countryFor($peer);
+
+        return $country === null ? new ResolvedRegion('ZZ', 'unresolved') : new ResolvedRegion($country, 'trusted');
     }
 }
