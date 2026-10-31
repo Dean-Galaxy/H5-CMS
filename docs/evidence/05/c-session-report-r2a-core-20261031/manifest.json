@@ -1,0 +1,46 @@
+{
+  "baseline": "b9af71d6503731aaa0204e513759006c104aa79d",
+  "frozen_tag": "h5-c-session-report-r2a-contract-2026-10-31",
+  "contract": "c-session-report-r2a-1",
+  "source_commit": "f7cbe52b90d3ce71c5d2f07bca92504cfa48797e",
+  "branch": "codex/05-r2a-report-core",
+  "source_files": {
+    "h5-platform/app/Modules/Acquisition/Measurement/CoreSessionReport.php": "f4d61505b6e2dc95b2a985c21057f25c3b6c7332f30bf60433d41cd3f084ef11",
+    "h5-platform/tests/Feature/Acquisition/CoreSessionReportTest.php": "0708fd7f2dcb02ae6cb3c33add7b65b8eb10a344ea22f2c3f350674f395cd070"
+  },
+  "verification": {
+    "full_new_suite": "22 tests / 117 assertions / 26.60s; final product bytes, before the subsequent group-state fixture/assertion increment",
+    "final_group_increment": "1 test / 11 assertions / 0.42s; only modified group case rerun, not an additional test or an additive suite total",
+    "format_and_syntax": "Pint and PHP lint passed for both final source files",
+    "database": "real PostgreSQL; explicit synthetic C rows on own marked _r1a_clean_test / own 5605 instance",
+    "read_only": "SET LOCAL transaction_read_only=on within a test savepoint; actual report succeeds, one aggregate SELECT, C six-table full-row digests unchanged",
+    "cap": "10000 vs 10001 entry sessions; late raw stage envelopes beyond 10000 are counted for an admitted session; limited and NARROW_WINDOW explicit",
+    "identity": "existing real staff permission/role authentication; no new accounts via public registration",
+    "not_rerun": "unchanged full product/R1 exception suites, migration/audit/contract baselines reused; no dependency changes"
+  },
+  "scope": {
+    "existing_files_changed": false,
+    "ui_or_routes_changed": false,
+    "config_or_schema_changed": false,
+    "runtime_sites_or_private_data_accessed": false,
+    "closed_R1_C2_Thursday_databases_accessed": false,
+    "external_requests": false,
+    "new_web_queue_or_scheduler_started": false,
+    "new_account_edge_payment_mapping_or_collection": false
+  },
+  "evidence_files": {
+    "core-tests.txt": "0bcfcf01254bff667290b2a3bceb9c2c1cfec0f1ff391a9a0972655b5da41470",
+    "group-state-increment.txt": "0fe843fb91da998c4794b117f322e5f66f38f44f54f68e368b3e5c02df9337df",
+    "php-lint.txt": "6382b4dfa7cff94605e154e8864e4cf12e2a28426d1f68ed8b7303a16495973b",
+    "pint.txt": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a"
+  },
+  "not_claimed": [
+    "browser collector delivery or R1 exception completion",
+    "UI integration or manual entry",
+    "concurrent-process stress or performance SLA",
+    "real-user coverage or population conversion",
+    "platform attribution/ROAS",
+    "production release or deployment",
+    "GitHub remote backup"
+  ]
+}

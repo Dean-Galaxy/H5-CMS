@@ -1,0 +1,2 @@
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Measurement/CoreSessionReport.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/CoreSessionReportTest.php
