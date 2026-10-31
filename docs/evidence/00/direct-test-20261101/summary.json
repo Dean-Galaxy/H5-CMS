@@ -1,0 +1,44 @@
+{
+  "recorded_at_utc": "2026-10-31T19:07:52.384991+00:00",
+  "previous_remote": "54633d43d2241d4644c2b6ef11c2f4216fecab88",
+  "received_combination": "4fe6b0a",
+  "independent_checks_separate_runs": [
+    {
+      "scope": "shared-direct-test",
+      "passed": 17,
+      "assertions": 415,
+      "output_sha256": "8bb4bba90504c870d02a394f36bf9d5d3d3cc8ea0b6ed1e346b182174ba0eadb"
+    },
+    {
+      "scope": "audience-checkout-independent",
+      "passed": 8,
+      "assertions": 74,
+      "output_sha256": "3ab7ae1c6a1642a570d0c389ec4c4c46128a10ed6b79d169a2cb76a770499388"
+    },
+    {
+      "scope": "geoip-independent",
+      "passed": 8,
+      "assertions": 95,
+      "output_sha256": "335dbd5c67c442866048ecf2020ddd2883fccfe6d78038b33dd0559b13b12a6c"
+    },
+    {
+      "scope": "acquisition-independent",
+      "passed": 13,
+      "assertions": 191,
+      "output_sha256": "1aeaf96ef4bd37a78ef830cba1df9462629944edc0a223e45626f277206770d0"
+    },
+    {
+      "scope": "combined-independent",
+      "passed": 7,
+      "assertions": 337,
+      "output_sha256": "1053b405b5989400072510d7f69560e1f5c2cd00ff021fcd38f2c0aeba0dee35"
+    }
+  ],
+  "offline_deployment_new_checks_passed": 2,
+  "root_pg5541_stopped": true,
+  "no_old_runtime_changes": true,
+  "no_real_platform_or_mail_requests": true,
+  "real_geoip_dataset_verified": false,
+  "production_release": false,
+  "scope": "synthetic engineering evidence, not official provider/platform, browser, TLS or deployment acceptance"
+}
