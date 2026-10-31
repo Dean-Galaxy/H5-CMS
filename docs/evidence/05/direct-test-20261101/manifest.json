@@ -1,0 +1,71 @@
+{
+  "baseline": "f4258a01deb39151cd032e2733492e156123e7be",
+  "source_commit": "8cd721b6bf2ae092d04d733748159be8c168fcd1",
+  "contract": "direct-test-1 + business 1.0.5",
+  "branch": "codex/05-direct-test",
+  "database_scope": "own marked disposable h5_d2a32071a6_r1a_clean_test on 5605",
+  "real_platform_requests": 0,
+  "real_credentials_entered": false,
+  "public_runtime_started": false,
+  "old_environments_accessed": false,
+  "tests": [
+    {
+      "file": "focused-tests.txt",
+      "passed": 39,
+      "assertions": 706,
+      "seconds": 4.45
+    },
+    {
+      "file": "incremental-tests.txt",
+      "passed": 2,
+      "assertions": 18,
+      "seconds": 0.39,
+      "overlaps": true
+    },
+    {
+      "file": "raw-configuration-test.txt",
+      "passed": 1,
+      "assertions": 19,
+      "seconds": 0.64
+    },
+    {
+      "file": "clear-prune-tests.txt",
+      "passed": 2,
+      "assertions": 28,
+      "seconds": 0.41,
+      "overlaps": true
+    }
+  ],
+  "lint_php_files": 21,
+  "artifacts": [
+    {
+      "file": "clear-prune-tests.txt",
+      "sha256": "8f7030a9fdcd04667bc1cd510a26c883f616d10ffb4acf2dd915a8eb23630367"
+    },
+    {
+      "file": "focused-tests.txt",
+      "sha256": "933e84bdaf51c1970f24d75d24126c1d71536950017fdffa908f0fcbf997a539"
+    },
+    {
+      "file": "incremental-tests.txt",
+      "sha256": "2ca22abbb048aa953463a4937e4a9241f2032f2fd7ded1fbc43cf6514282d45f"
+    },
+    {
+      "file": "php-lint.txt",
+      "sha256": "3df86f6c4c98da019d6f20d26428ed7764f989a803562c75f762008084f2db93"
+    },
+    {
+      "file": "pint.txt",
+      "sha256": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a"
+    },
+    {
+      "file": "raw-configuration-test.txt",
+      "sha256": "32ad6b8f15e9fe5a2a292933e15df3721c80d1f97530da57e66f05b6efdf605a"
+    }
+  ],
+  "platform_confirmation": {
+    "meta": "not_tested",
+    "tiktok": "not_tested"
+  },
+  "notes": "No aggregate test count across overlapping incremental runs. Initial fixture failures are explained in handoff; no platform acceptance claimed."
+}
