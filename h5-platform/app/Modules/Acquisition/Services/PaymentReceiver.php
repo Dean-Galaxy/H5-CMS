@@ -27,6 +27,7 @@ final class PaymentReceiver
             'attribution_snapshot.pixel_config_version' => ['sometimes', 'required', 'integer', 'min:1'],
             'attribution_snapshot.captured_at' => ['sometimes', 'required', 'date'],
             'attribution_snapshot.consent' => ['sometimes', 'required', 'in:granted,denied,unknown'],
+            'attribution_snapshot.checkout_context_id' => ['sometimes', 'required', 'uuid'],
         ])->validate();
         $fingerprintData = $data;
         unset($fingerprintData['event_id']);
@@ -84,7 +85,7 @@ final class PaymentReceiver
 
     private function behavior(PaymentSettled $event): void
     {
-        if (! app(TrackingContext::class)->enabled()) {
+        if (TrackingContext::advertisingTestOnly() || ! app(TrackingContext::class)->enabled()) {
             return;
         }
         $result = app(BehaviorEventRecorder::class)->recordFact('payment_confirmed', [

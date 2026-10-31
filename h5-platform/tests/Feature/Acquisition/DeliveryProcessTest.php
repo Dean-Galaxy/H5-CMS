@@ -68,9 +68,19 @@ final class DeliveryProcessTest extends TestCase
             'channel' => $platform, 'consent' => 'granted', 'policy_version' => 'EXPLICIT_F07_TEST_NOT_D05',
             'captured_at' => $time, 'expires_at' => $time->copy()->addDay(), 'is_simulation' => false,
             'context_encrypted' => Crypt::encryptString(json_encode(['page_url' => 'https://localhost/test', 'ip' => '8.8.8.8', 'user_agent' => 'F07 explicit HTTP fake']))]);
+        $privacy = AcquisitionStore::id();
+        $context = AcquisitionStore::id();
+        DB::table('acquisition_privacy')->insert(['id' => $privacy, 'analytics' => 'denied', 'advertising' => 'granted',
+            'policy_version' => 'F07_TEST_ONLY', 'created_at' => $time, 'updated_at' => $time]);
+        DB::table('acquisition_sources')->where('id', $source)->update(['privacy_id' => $privacy]);
+        DB::table('acquisition_checkout_contexts')->insert(['id' => $context, 'source_id' => $source, 'privacy_id' => $privacy,
+            'pixel_id' => $pixel, 'pixel_version' => 1, 'platform' => $platform,
+            'context_encrypted' => Crypt::encryptString(json_encode(['page_url' => 'https://localhost/membership',
+                'ip' => '8.8.8.8', 'user_agent' => 'F07 explicit HTTP fake'])),
+            'rendered_at' => $time, 'captured_at' => $time, 'expires_at' => $time->copy()->addDays(2)]);
         $event = new PaymentSettled(AcquisitionStore::id(), 'PaymentSettled.v1', AcquisitionStore::id(), AcquisitionStore::id(),
             AcquisitionStore::id(), TransactionKind::FirstSubscription, true, 300, 'USD', $time->toIso8601String(), true,
-            new AttributionSnapshot($source, $link, $platform, 1, $time->toIso8601String(), 'granted'));
+            new AttributionSnapshot($source, $link, $platform, 1, $time->toIso8601String(), 'granted', $context));
         app(PaymentReceiver::class)->handle($event);
         $delivery = DB::table('acquisition_deliveries')->where('receipt_id', $event->event_id)->first();
         $credentials = $this->directory.'/'.$pixel.'.json';

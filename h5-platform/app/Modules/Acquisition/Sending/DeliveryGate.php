@@ -3,13 +3,31 @@
 namespace App\Modules\Acquisition\Sending;
 
 use App\Modules\Acquisition\Registration\LegacyAdvertisingBridge;
+use App\Modules\Acquisition\Services\CheckoutContextStore;
+use App\Support\RuntimeEnvironmentGuard;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 final class DeliveryGate
 {
+    public static function runtimeReason(): ?string
+    {
+        if (! app()->environment('local', 'testing') || config('h5.acquisition_staging_test') !== false) {
+            try {
+                app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
+            } catch (\Throwable) {
+                return 'STAGING_TEST_RUNTIME_INVALID';
+            }
+        }
+
+        return null;
+    }
+
     public function reason(object $delivery, object $receipt, ?object $source, ?object $pixel, array $context): ?string
     {
+        if ($reason = self::runtimeReason()) {
+            return $reason;
+        }
         if (! $source || $source->consent !== 'granted' || $source->revoked_at !== null || $source->policy_version === '') {
             return 'CONSENT_REQUIRED_OR_REVOKED';
         }
@@ -24,6 +42,14 @@ final class DeliveryGate
         }
         if (($receipt->is_test && $delivery->environment !== 'test') || (! $receipt->is_test && $delivery->environment !== 'production')) {
             return 'PAYMENT_ASSET_ENVIRONMENT_MISMATCH';
+        }
+        if (config('h5.acquisition_staging_test') === true) {
+            if (! $receipt->is_test || $delivery->environment !== 'test') {
+                return 'STAGING_TEST_ASSET_REQUIRED';
+            }
+            if ($receipt->transaction_kind === 'renewal') {
+                return 'STAGING_RENEWAL_NOT_RELEASED';
+            }
         }
         $mode = config('acquisition.transport');
         if ($mode === 'disabled') {
@@ -51,7 +77,10 @@ final class DeliveryGate
             || ($delivery->first_attempted_at && CarbonImmutable::parse($delivery->first_attempted_at)->addDay()->lessThanOrEqualTo(now()))) {
             return 'RETRY_WINDOW_EXPIRED';
         }
-        if (! $this->validContext($context)) {
+        if (($context['_checkout_status'] ?? null) !== 'valid') {
+            return $context['_checkout_status'] ?? 'CHECKOUT_CONTEXT_REQUIRED';
+        }
+        if (! CheckoutContextStore::validContext($context)) {
             return 'MATCH_CONTEXT_REQUIRED';
         }
         // The first-party attribution expiry is not the platform's accepted event-age window.
@@ -62,16 +91,5 @@ final class DeliveryGate
         }
 
         return null;
-    }
-
-    private function validContext(array $c): bool
-    {
-        $url = $c['page_url'] ?? '';
-        $parts = is_string($url) ? parse_url($url) : false;
-
-        return is_array($parts) && ($parts['scheme'] ?? '') === 'https' && ($parts['host'] ?? '') === parse_url(config('app.url'), PHP_URL_HOST)
-            && ! isset($parts['user']) && ! isset($parts['pass']) && ! isset($parts['query']) && ! isset($parts['fragment'])
-            && is_string($c['user_agent'] ?? null) && strlen($c['user_agent']) > 0 && strlen($c['user_agent']) <= 512
-            && filter_var($c['ip'] ?? '', FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Modules\Acquisition;
 
 use App\Contracts\AttributionService;
 use App\Contracts\BehaviorEventRecorder;
+use App\Contracts\CheckoutAttribution;
 use App\Contracts\RegistrationMeasurement;
 use App\Data\PaymentSettled;
 use App\Modules\Acquisition\Analytics\BehaviorRecorder;
@@ -15,7 +16,9 @@ use App\Modules\Acquisition\Console\PruneRegistrationPurposes;
 use App\Modules\Acquisition\Registration\RegistrationMeasurementAdapter;
 use App\Modules\Acquisition\Registration\RegistrationObservations;
 use App\Modules\Acquisition\Services\AttributionRecorder;
+use App\Modules\Acquisition\Services\CheckoutContextStore;
 use App\Modules\Acquisition\Services\PaymentReceiver;
+use App\Support\RuntimeEnvironmentGuard;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -26,6 +29,7 @@ final class AcquisitionServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/config.php', 'acquisition');
         $this->app->bind(AttributionService::class, AttributionRecorder::class);
+        $this->app->bind(CheckoutAttribution::class, CheckoutContextStore::class);
         $this->app->bind(BehaviorEventRecorder::class, BehaviorRecorder::class);
         $this->app->singleton(RegistrationObservations::class);
         $this->app->bind(RegistrationMeasurement::class, RegistrationMeasurementAdapter::class);
@@ -33,6 +37,9 @@ final class AcquisitionServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (! app()->environment('local', 'testing') || config('h5.acquisition_staging_test') !== false) {
+            app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
+        }
         if (! app()->environment('local', 'testing') && (config('acquisition.measurement.enabled') || config('acquisition.measurement.synthetic_policy') || config('acquisition.registration.synthetic_policy') || config('acquisition.registration.observations_enabled'))) {
             throw new \LogicException('C core is restricted to isolated local/testing.');
         }

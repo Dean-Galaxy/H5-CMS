@@ -145,10 +145,31 @@ abstract class AcquisitionTestCase extends TestCase
     {
         [$pixel, $link] = $this->assets($platform, $environment);
         $source = $this->source($pixel, $link, $simulation);
-        $event = $this->event($source);
+        $event = $this->event($simulation ? $source : $this->checkoutSource($source));
         app(PaymentReceiver::class)->handle($event);
 
         return [$pixel, $link, $source, $event, DB::table('acquisition_deliveries')->where('receipt_id', $event->event_id)->first()];
+    }
+
+    /** Explicit test-only purchase evidence for delivery tests; capture itself has separate real-port tests. */
+    protected function checkoutSource(AttributionSnapshot $source): AttributionSnapshot
+    {
+        $row = DB::table('acquisition_sources')->where('id', $source->source_id)->first();
+        $privacy = $row->privacy_id ?? AcquisitionStore::id();
+        if (! $row->privacy_id) {
+            DB::table('acquisition_privacy')->insert(['id' => $privacy, 'analytics' => 'denied', 'advertising' => 'granted',
+                'policy_version' => 'TEST_ONLY', 'created_at' => now(), 'updated_at' => now()]);
+            DB::table('acquisition_sources')->where('id', $row->id)->update(['privacy_id' => $privacy]);
+        }
+        $id = AcquisitionStore::id();
+        $context = json_decode(Crypt::decryptString($row->context_encrypted), true);
+        $context['page_url'] = 'https://localhost/membership';
+        DB::table('acquisition_checkout_contexts')->insert(['id' => $id, 'source_id' => $row->id, 'privacy_id' => $privacy,
+            'pixel_id' => $row->pixel_id, 'pixel_version' => $row->pixel_version, 'platform' => $row->channel,
+            'context_encrypted' => Crypt::encryptString(json_encode($context)), 'rendered_at' => now(), 'captured_at' => now(), 'expires_at' => now()->addDays(7)]);
+
+        return new AttributionSnapshot($source->source_id, $source->link_id, $source->channel, $source->pixel_config_version,
+            $source->captured_at, $source->consent, $id);
     }
 
     protected function httpCredentials(object $delivery): void

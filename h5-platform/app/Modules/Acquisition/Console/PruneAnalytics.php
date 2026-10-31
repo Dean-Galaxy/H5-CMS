@@ -3,6 +3,7 @@
 namespace App\Modules\Acquisition\Console;
 
 use App\Modules\Acquisition\Analytics\BehaviorRecorder;
+use App\Modules\Acquisition\Analytics\Clock;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -17,6 +18,8 @@ final class PruneAnalytics extends Command
         $limit = max(1, min(5000, (int) $this->option('limit')));
         $cutoff = now()->subDays(90);
         DB::transaction(function () use ($limit, $cutoff) {
+            $contexts = DB::table('acquisition_checkout_contexts')->where('expires_at', '<=', Clock::stamp())->limit($limit)->pluck('id');
+            DB::table('acquisition_checkout_contexts')->whereIn('id', $contexts)->delete();
             $ids = DB::table('acquisition_behaviors')->where('received_at', '<', $cutoff)->whereNotIn('event_name', BehaviorRecorder::FINANCIAL)->limit($limit)->pluck('id');
             DB::table('acquisition_behaviors')->whereIn('id', $ids)->delete();
             $keys = DB::table('acquisition_event_keys')->where('created_at', '<', $cutoff)->limit($limit)->pluck('id');

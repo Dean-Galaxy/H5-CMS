@@ -17,7 +17,7 @@ $db = DB::connection()->getDatabaseName();
 [$script, $id, $mode, $directory, $credentials] = $argv;
 $directory = realpath($directory);
 if (PHP_SAPI !== 'cli' || ! $app->environment('testing') || $db !== getenv('H5_TEST_DATABASE') || ! str_ends_with($db, '_test')
-    || ! $directory || ! str_starts_with($directory, realpath(base_path('../.runtime')).DIRECTORY_SEPARATOR.'f07-workers'.DIRECTORY_SEPARATOR)
+    || ! $directory || preg_match('~^'.preg_quote(realpath(sys_get_temp_dir()), '~').'/h5-acq-worker-[a-f0-9-]{36}/[a-f0-9-]{36}$~D', $directory) !== 1
     || ! in_array($mode, ['pause_payload', 'crash_io', 'complete'], true)) {
     throw new RuntimeException('Isolated Acquisition testing only.');
 }

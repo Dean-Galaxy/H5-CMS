@@ -6,6 +6,7 @@ use App\Contracts\IdentityContext;
 use App\Modules\Acquisition\Measurement\SiteAnalysisBridge;
 use App\Modules\Acquisition\Registration\LegacyAdvertisingBridge;
 use App\Modules\Acquisition\Registration\PurposeProof;
+use App\Support\RuntimeEnvironmentGuard;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\Cookie;
@@ -16,7 +17,16 @@ final class TrackingContext
 {
     public function enabled(): bool
     {
-        return config('h5.modules.acquisition.ready', false) && config('acquisition.analytics_enabled', false);
+        if (self::advertisingTestOnly()) {
+            app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
+        }
+
+        return config('h5.modules.acquisition.ready', false) && (config('acquisition.analytics_enabled', false) || self::advertisingTestOnly());
+    }
+
+    public static function advertisingTestOnly(): bool
+    {
+        return config('h5.acquisition_staging_test') === true;
     }
 
     public function session(): ?Session
@@ -39,13 +49,13 @@ final class TrackingContext
         $row = is_string($id) && Str::isUuid($id) ? DB::table('acquisition_privacy')->where('id', $id)->first() : null;
         if ($row && $restore && $s) {
             $s->put('tracking.privacy', $row->id);
-            if ($row->current_subject) {
+            if (! self::advertisingTestOnly() && $row->current_subject) {
                 $s->put('tracking.subject', $row->current_subject);
             }
             if ($row->active_source) {
                 $s->put('tracking.source', $row->active_source);
             }
-            if ($row->viewer_id) {
+            if (! self::advertisingTestOnly() && $row->viewer_id) {
                 $s->put('tracking.viewer', $row->viewer_id);
             }
         }
@@ -79,7 +89,7 @@ final class TrackingContext
         if ($analytics && $advertising) {
             return;
         }
-        $viewer = app(IdentityContext::class)->viewer()?->id;
+        $viewer = self::advertisingTestOnly() ? null : app(IdentityContext::class)->viewer()?->id;
         $ids = array_values(array_unique([...$this->evidenceIds(), ...array_filter([$this->privacy()?->id])]));
         $query = DB::table('acquisition_privacy');
         if ($viewer) {
@@ -101,6 +111,10 @@ final class TrackingContext
 
     public function consent(bool $analytics, bool $advertising): void
     {
+        if (self::advertisingTestOnly()) {
+            app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
+            $analytics = false;
+        }
         $s = $this->session();
         if (! $s) {
             return;
@@ -111,7 +125,7 @@ final class TrackingContext
             $old = $this->privacy();
             $old = $old ? DB::table('acquisition_privacy')->where('id', $old->id)->lockForUpdate()->first() : null;
             $r1 = app(LegacyAdvertisingBridge::class);
-            if (! $advertising) {
+            if (! $advertising && ! self::advertisingTestOnly()) {
                 $r1->legacyWithdrawal();
             }
             $r1Denied = $r1->denied($old);
@@ -163,6 +177,9 @@ final class TrackingContext
 
     public function syncViewer(?string $viewer = null): void
     {
+        if (self::advertisingTestOnly()) {
+            return;
+        }
         $s = $this->session();
         if (! $s) {
             return;
@@ -195,7 +212,7 @@ final class TrackingContext
     public function subject(?string $viewer = null): ?object
     {
         $s = $this->session();
-        if (! $s || ! $this->enabled()) {
+        if (self::advertisingTestOnly() || ! $s || ! $this->enabled()) {
             return null;
         }
         if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
@@ -245,7 +262,15 @@ final class TrackingContext
             $this->session()->forget('tracking.pending');
         }
 
-        return ['enabled' => $this->enabled(), 'consent' => $p ? ['analytics' => $p->analytics, 'advertising' => $p->advertising] : ($this->session()?->get('tracking.consent') ?? ['analytics' => 'unknown', 'advertising' => 'unknown']),
+        $result = ['enabled' => $this->enabled(), 'consent' => $p ? ['analytics' => $p->analytics, 'advertising' => $p->advertising] : ($this->session()?->get('tracking.consent') ?? ['analytics' => 'unknown', 'advertising' => 'unknown']),
             'policy_version' => 'analytics-v1', 'pending_landing' => (bool) $this->session()?->has('tracking.pending')];
+        if (self::advertisingTestOnly()) {
+            $result['advertising_test_only'] = true;
+            $result['analytics_available'] = false;
+            // Historical grants cannot be presented as an available analysis feature here.
+            $result['consent']['analytics'] = $result['consent']['analytics'] === 'denied' ? 'denied' : 'unknown';
+        }
+
+        return $result;
     }
 }

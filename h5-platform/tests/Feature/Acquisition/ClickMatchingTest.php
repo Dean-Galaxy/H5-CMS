@@ -66,7 +66,7 @@ final class ClickMatchingTest extends AcquisitionTestCase
                 $this->assertArrayNotHasKey('fbc', $context);
                 $this->assertArrayNotHasKey('fbp', $context);
             }
-            $event = $this->event($before);
+            $event = $this->event($this->checkoutSource($before));
             $this->app->instance(BillingAnalyticsReader::class, new class($event) implements BillingAnalyticsReader
             {
                 public function __construct(private $e) {}

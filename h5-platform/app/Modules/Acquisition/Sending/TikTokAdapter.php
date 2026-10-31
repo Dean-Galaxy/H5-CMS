@@ -14,8 +14,7 @@ final class TikTokAdapter implements PlatformAdapter
         $body = ['event_source' => 'web', 'event_source_id' => $delivery->external_id, 'data' => [[
             'event' => 'Purchase', 'event_time' => CarbonImmutable::parse($receipt->occurred_at)->timestamp,
             'event_id' => $delivery->event_key, 'user' => (object) $user, 'page' => ['url' => $context['page_url']],
-            'properties' => ['currency' => 'USD', 'value' => $receipt->amount_minor / 100,
-                'transaction_kind' => $receipt->transaction_kind, 'discount_applied' => (bool) $receipt->discount_applied],
+            'properties' => ['currency' => 'USD', 'value' => $receipt->amount_minor / 100],
         ]]];
         if ($testCode !== null) {
             $body['test_event_code'] = $testCode;
@@ -26,6 +25,12 @@ final class TikTokAdapter implements PlatformAdapter
 
     public function send(object $delivery, array $payload, string $token): DeliveryResult
     {
+        if ($reason = DeliveryGate::runtimeReason()) {
+            return new DeliveryResult('blocked', $reason);
+        }
+        if (config('acquisition.transport') !== 'http' || config('acquisition.external_enabled') !== true || config('acquisition.platform_reviewed') !== true) {
+            return new DeliveryResult('blocked', 'EXTERNAL_REVIEW_REQUIRED');
+        }
         if (! preg_match('/^[A-Za-z0-9_-]{5,64}$/', $delivery->external_id)) {
             return new DeliveryResult('blocked', 'TIKTOK_ASSET_INVALID');
         }

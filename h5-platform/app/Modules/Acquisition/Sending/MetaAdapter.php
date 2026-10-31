@@ -17,8 +17,7 @@ final class MetaAdapter implements PlatformAdapter
             'event_name' => 'Purchase', 'event_time' => CarbonImmutable::parse($receipt->occurred_at)->timestamp,
             'event_id' => $delivery->event_key, 'action_source' => $receipt->transaction_kind === 'renewal' ? 'system_generated' : 'website',
             'event_source_url' => $context['page_url'], 'user_data' => $user,
-            'custom_data' => ['currency' => 'USD', 'value' => $receipt->amount_minor / 100,
-                'transaction_kind' => $receipt->transaction_kind, 'discount_applied' => (bool) $receipt->discount_applied],
+            'custom_data' => ['currency' => 'USD', 'value' => $receipt->amount_minor / 100],
         ]]];
         if ($testCode !== null) {
             $body['test_event_code'] = $testCode;
@@ -29,6 +28,12 @@ final class MetaAdapter implements PlatformAdapter
 
     public function send(object $delivery, array $payload, string $token): DeliveryResult
     {
+        if ($reason = DeliveryGate::runtimeReason()) {
+            return new DeliveryResult('blocked', $reason);
+        }
+        if (config('acquisition.transport') !== 'http' || config('acquisition.external_enabled') !== true || config('acquisition.platform_reviewed') !== true) {
+            return new DeliveryResult('blocked', 'EXTERNAL_REVIEW_REQUIRED');
+        }
         $version = config('acquisition.meta_api_version');
         if (! is_string($version) || ! preg_match('/^v\d{2}\.0$/', $version) || ! preg_match('/^[0-9]{5,30}$/', $delivery->external_id)) {
             return new DeliveryResult('blocked', 'META_VERSION_OR_ASSET_MISSING');

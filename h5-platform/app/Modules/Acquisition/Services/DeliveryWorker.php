@@ -7,6 +7,7 @@ use App\Modules\Acquisition\Sending\DeliveryGate;
 use App\Modules\Acquisition\Sending\DeliveryResult;
 use App\Modules\Acquisition\Sending\LocalSimulator;
 use App\Modules\Acquisition\Sending\MetaAdapter;
+use App\Modules\Acquisition\Sending\MinimalPayload;
 use App\Modules\Acquisition\Sending\PlatformAdapter;
 use App\Modules\Acquisition\Sending\TikTokAdapter;
 use Carbon\CarbonImmutable;
@@ -58,7 +59,7 @@ final class DeliveryWorker
             // Preparation is outside any transaction. A paused preparer may lose its lease.
             $draft = $row->payload_encrypted ? null : $adapter->payload($row, $receipt, $context,
                 $mode === 'local_simulation' ? 'LOCAL_SIMULATION' : ($row->environment === 'test' ? $credential['test_event_code'] : null));
-            $reservation = $this->reserveAttempt($row, $draft, $mode);
+            $reservation = $this->reserveAttempt($row, $draft, $mode, $credential['test_event_code'] ?? null);
             if ($reservation === null) {
                 return false;
             }
@@ -76,6 +77,9 @@ final class DeliveryWorker
                 $reason = app(DeliveryGate::class)->reason($row, $receipt, $source, $pixel, $context);
                 if ($reason) {
                     return new DeliveryResult('blocked', $reason);
+                }
+                if ($mode === 'http' && ! app(MinimalPayload::class)->valid($row, $receipt, $context, $payload, $credential['test_event_code'] ?? null)) {
+                    return new DeliveryResult('blocked', 'FROZEN_PAYLOAD_NOT_ALLOWED');
                 }
                 if (! $this->ownsLease(DB::table('acquisition_deliveries')->where('id', $row->id)->first(), $row->lease_token)) {
                     return new DeliveryResult('blocked', 'LEASE_LOST');
@@ -130,7 +134,9 @@ final class DeliveryWorker
         $receipt = DB::table('acquisition_receipts')->where('event_id', $row->receipt_id)->first();
         $source = DB::table('acquisition_sources')->where('id', $row->source_id)->first();
         $pixel = DB::table('acquisition_pixels')->where('id', $row->pixel_id)->first();
-        $context = $source?->context_encrypted ? json_decode(Crypt::decryptString($source->context_encrypted), true, flags: JSON_THROW_ON_ERROR) : [];
+        $context = config('acquisition.transport') === 'http'
+            ? app(CheckoutContextStore::class)->forDelivery($row, $receipt, $source)
+            : ($source?->context_encrypted ? json_decode(Crypt::decryptString($source->context_encrypted), true, flags: JSON_THROW_ON_ERROR) : []);
 
         return [$receipt, $source, $pixel, $context];
     }
@@ -142,9 +148,9 @@ final class DeliveryWorker
     }
 
     /** @return array{object, array}|DeliveryResult|null Null means ownership was lost. */
-    private function reserveAttempt(object $claim, ?array $draft, string $mode): array|DeliveryResult|null
+    private function reserveAttempt(object $claim, ?array $draft, string $mode, ?string $testCode): array|DeliveryResult|null
     {
-        return DB::transaction(function () use ($claim, $draft, $mode) {
+        return DB::transaction(function () use ($claim, $draft, $mode, $testCode) {
             $row = DB::table('acquisition_deliveries')->where('id', $claim->id)->lockForUpdate()->first();
             // Inspect the persisted row after acquiring the lock, not the stale claim snapshot.
             if (! $this->ownsLease($row, $claim->lease_token)) {
@@ -166,6 +172,9 @@ final class DeliveryWorker
             $payload = $row->payload_encrypted
                 ? json_decode(Crypt::decryptString($row->payload_encrypted), true, flags: JSON_THROW_ON_ERROR)
                 : $draft;
+            if ($mode === 'http' && is_array($payload) && ! app(MinimalPayload::class)->valid($row, $receipt, $context, $payload, $testCode)) {
+                return new DeliveryResult('blocked', 'FROZEN_PAYLOAD_NOT_ALLOWED');
+            }
             if (! is_array($payload)) {
                 return new DeliveryResult('blocked', 'DELIVERY_CONTEXT_INVALID');
             }

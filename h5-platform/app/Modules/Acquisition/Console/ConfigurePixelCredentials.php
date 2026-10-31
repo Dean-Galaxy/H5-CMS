@@ -3,6 +3,7 @@
 namespace App\Modules\Acquisition\Console;
 
 use App\Modules\Acquisition\Sending\PrivateCredentialFile;
+use App\Support\RuntimeEnvironmentGuard;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -17,14 +18,23 @@ final class ConfigurePixelCredentials extends Command
     public function handle(CredentialPrompter $prompter, PrivateCredentialFile $store): int
     {
         try {
-            if (! app()->environment('local', 'testing') || ! Str::isUuid($this->argument('pixel'))
+            if (! app()->environment('local', 'testing') || config('h5.acquisition_staging_test') !== false) {
+                app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
+            }
+            if (! Str::isUuid($this->argument('pixel'))
                 || ! ctype_digit((string) $this->argument('version')) || (int) $this->argument('version') < 1) {
                 throw new \LogicException;
             }
             $target = $this->target();
+            if (! app()->environment('local', 'testing') && $target->environment !== 'test') {
+                throw new \LogicException;
+            }
             $store->preflight();
             $secret = $prompter->ask($this->input, $this->output, $target->environment === 'test');
             DB::transaction(function () use ($target, $secret, $store) {
+                if (! app()->environment('local', 'testing') || config('h5.acquisition_staging_test') !== false) {
+                    app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
+                }
                 $current = $this->target(true);
                 if ((array) $current !== (array) $target) {
                     throw new \LogicException;

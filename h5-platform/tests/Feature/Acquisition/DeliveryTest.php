@@ -78,7 +78,8 @@ final class DeliveryTest extends AcquisitionTestCase
                 $money = $data[$platform === 'meta' ? 'custom_data' : 'properties'];
                 $this->assertEquals(3, $money['value']);
                 $this->assertSame('USD', $money['currency']);
-                $this->assertSame('first_subscription', $money['transaction_kind']);
+                $this->assertSame(['currency', 'value'], array_keys($money));
+                $this->assertSame('https://localhost/membership', $platform === 'meta' ? $data['event_source_url'] : $data['page']['url']);
                 $this->assertSame('UNIT_TEST', $body['test_event_code']);
                 $this->assertStringNotContainsString('must-not-send', json_encode($body));
                 $this->assertStringNotContainsString($event->order_id, json_encode($body));
@@ -147,16 +148,17 @@ final class DeliveryTest extends AcquisitionTestCase
         $worker->deliver($delivery->id);
         $this->assertDatabaseHas('acquisition_deliveries', ['last_error' => 'EXTERNAL_REVIEW_REQUIRED', 'attempts' => 0]);
         config(['acquisition.platform_reviewed' => true]);
-        $base = ['page_url' => 'https://localhost/dramas/example', 'ip' => '8.8.8.8', 'user_agent' => 'Test only'];
+        $base = ['page_url' => 'https://localhost/membership', 'ip' => '8.8.8.8', 'user_agent' => 'Test only'];
         foreach ([['page_url' => 'https://elsewhere.example/dramas/example'], ['page_url' => 'https://localhost/?email=private@example.test'],
             ['ip' => '127.0.0.1'], ['user_agent' => '']] as $invalid) {
-            DB::table('acquisition_sources')->where('id', $source->source_id)->update(['context_encrypted' => Crypt::encryptString(json_encode(array_replace($base, $invalid)))]);
+            DB::table('acquisition_checkout_contexts')->where('source_id', $source->source_id)->update(['context_encrypted' => Crypt::encryptString(json_encode(array_replace($base, $invalid)))]);
             $manager->retry($link['id']);
             $worker->deliver($delivery->id);
             $this->assertDatabaseHas('acquisition_deliveries', ['last_error' => 'MATCH_CONTEXT_REQUIRED', 'attempts' => 0]);
         }
-        DB::table('acquisition_sources')->where('id', $source->source_id)->update(['context_encrypted' => Crypt::encryptString(json_encode($base))]);
+        DB::table('acquisition_checkout_contexts')->where('source_id', $source->source_id)->update(['context_encrypted' => Crypt::encryptString(json_encode($base))]);
         $this->travel(8)->days();
+        DB::table('acquisition_checkout_contexts')->where('source_id', $source->source_id)->update(['expires_at' => now()->addHour()]);
         $manager->retry($link['id']);
         $worker->deliver($delivery->id);
         $this->assertDatabaseHas('acquisition_deliveries', ['last_error' => 'PLATFORM_EVENT_TIME_OUT_OF_RANGE', 'attempts' => 0]);
@@ -166,7 +168,8 @@ final class DeliveryTest extends AcquisitionTestCase
     public function test_simulated_context_missing_credentials_and_disabled_pixel_are_blocked(): void
     {
         $this->signIn();
-        [$pixel, $link, $source, , $delivery] = $this->queueEvent();
+        [$pixel, $link, $source, , $delivery] = $this->queueEvent(simulation: false);
+        DB::table('acquisition_sources')->where('id', $source->source_id)->update(['is_simulation' => true]);
         $this->httpCredentials($delivery);
         app(DeliveryWorker::class)->deliver($delivery->id);
         $this->assertDatabaseHas('acquisition_deliveries', ['last_error' => 'SIMULATED_SOURCE_EXTERNAL_FORBIDDEN']);

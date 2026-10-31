@@ -29,7 +29,7 @@ final class BehaviorRecorder implements BehaviorEventRecorder
 
     public function recordFact(string $eventName, array $properties, string $deduplicationKey): Result
     {
-        if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
+        if (TrackingContext::advertisingTestOnly() || SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
             return Result::Skipped;
         }
         if (! app(TrackingContext::class)->enabled()) {
@@ -106,7 +106,7 @@ final class BehaviorRecorder implements BehaviorEventRecorder
     /** Returns Accepted for an identical retry, Skipped for invalid or unconsented input. */
     public function browser(string $id, string $name, array $properties): Result
     {
-        if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
+        if (TrackingContext::advertisingTestOnly() || SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
             return Result::Skipped;
         }
         if (! app(TrackingContext::class)->enabled()) {
@@ -333,12 +333,14 @@ final class BehaviorRecorder implements BehaviorEventRecorder
 
     public function clearBrowserContext(): void
     {
-        try {
-            app(CoreContext::class)->end();
-        } catch (Throwable) {
-            // C is independent: its storage failure must not prevent legacy logout/context clearing.
-            if (request()->hasSession()) {
-                request()->session()->forget(['measurement_c.subject', 'measurement_c.session']);
+        if (! TrackingContext::advertisingTestOnly()) {
+            try {
+                app(CoreContext::class)->end();
+            } catch (Throwable) {
+                // C is independent: its storage failure must not prevent legacy logout/context clearing.
+                if (request()->hasSession()) {
+                    request()->session()->forget(['measurement_c.subject', 'measurement_c.session']);
+                }
             }
         }
         try {
