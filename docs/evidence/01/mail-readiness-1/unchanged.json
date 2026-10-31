@@ -1,0 +1,33 @@
+{
+  "base": "6cd9096cdebca824ed03179eaf888503854621f3",
+  "checks": {
+    "h5-platform/config/mail.php": {
+      "unchanged": true,
+      "sha256": "840f680053bf1dd8086fd233e347d9c62d90519daabf5088f5672a50710d93de"
+    },
+    "h5-platform/app/Support/RuntimeEnvironmentGuard.php": {
+      "unchanged": true,
+      "sha256": "ea512d8251c5cb5925c5c3095a1fbc062e3385093947c7f8a2e4cf036355948d"
+    },
+    "h5-platform/composer.lock": {
+      "unchanged": true,
+      "sha256": "4b245e26cacae32194fa73c83aec232912ce90054259b1ff85779fad58fe1848"
+    },
+    "h5-platform/app/Modules/Identity/Http/ViewerRegistrationController.php": {
+      "unchanged": true,
+      "sha256": "25033a54c44b74dcae025f81b64f755220dd0a40d55fc194f8c50164d33340a1"
+    },
+    "h5-platform/app/Modules/Identity/Actions/CreateViewer.php": {
+      "unchanged": true,
+      "sha256": "eb36a386ba5aceed5f5a6861c174ad1b23748387ad347b4ee941fa0b4507a114"
+    },
+    "h5-platform/app/Modules/Identity/Services/RegistrationTerms.php": {
+      "unchanged": true,
+      "sha256": "b6f69a8fb4dfdef9514ff9a715d2f8c09e552bd816d707ca432860cb7d309f14"
+    },
+    "h5-platform/public/identity.js": {
+      "unchanged": true,
+      "sha256": "ea1779afe2a94fc99556f533572981221d016dda112dafc25a23d7613acd7d47"
+    }
+  }
+}

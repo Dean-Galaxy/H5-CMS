@@ -1,0 +1,26 @@
+
+   INFO  Configuration cache cleared successfully.
+
+
+   PASS  Tests\Feature\Identity\MailFailureRecoveryTest
+  ✓ committed ordinary registration transport failure continues login a… 0.36s
+  ✓ html mail failure has chinese account notice and normal success kee… 0.03s
+  ✓ only mail send transport is recoverable not creation database or ot… 0.02s
+  ✓ registered listener error including transport shaped error is not s… 0.02s
+  ✓ non transport notification error is not mail recovery                0.02s
+  ✓ resend transport failure is safe 503 rolls back nonce and does not…  0.03s
+  ✓ forgot success missing transport failure and broker throttle share…  1.10s
+  ✓ forgot non transport failure is not hidden                           0.25s
+
+   PASS  Tests\Feature\Identity\ViewerTest
+  ✓ password reset email origin does not trust request host              0.25s
+  ✓ registration uses fortify and cannot create staff                    0.05s
+  ✓ email resend is limited with retry after                             0.02s
+  ✓ password recovery does not enumerate accounts                        0.44s
+
+   PASS  Tests\Feature\Identity\RegistrationTermsTest
+  ✓ observer or mail failure keeps the account and shows separate notic… 0.05s
+  ✓ r1 never sends through a real transport and normal mode remains unc… 0.03s
+
+  Tests:    14 passed (99 assertions)
+  Duration: 2.82s
