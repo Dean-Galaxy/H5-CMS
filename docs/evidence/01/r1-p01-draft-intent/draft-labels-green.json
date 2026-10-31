@@ -1,0 +1,62 @@
+{
+  "status": "passed",
+  "boundary": "Real identity.js and complete bilingual PHP translations; intercepted HTTP and in-memory synthetic states only, no database/site/provider",
+  "outcomes": [
+    {
+      "locale": "en",
+      "desired": "allow",
+      "status": "passed",
+      "expectedIntent": "Allow",
+      "registrationPosts": 1,
+      "purposeCommands": 3,
+      "operationRetained": true,
+      "observations": {
+        "beforeSubmit": "Advertising preference: No saved choice\nCurrently off — No change was requested for this purpose. · Will save: Allow",
+        "partial": "Advertising preference: No saved choice\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Allow",
+        "saved": "Advertising preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+      }
+    },
+    {
+      "locale": "en",
+      "desired": "deny",
+      "status": "passed",
+      "expectedIntent": "Deny",
+      "registrationPosts": 1,
+      "purposeCommands": 3,
+      "operationRetained": true,
+      "observations": {
+        "beforeSubmit": "Advertising preference: Permission saved\nCurrently off — No change was requested for this purpose. · Will save: Deny",
+        "partial": "Advertising preference: Permission saved\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Deny",
+        "saved": "Advertising preference: Refusal saved\nCurrently off — This choice was saved. It is not running."
+      }
+    },
+    {
+      "locale": "zh_CN",
+      "desired": "allow",
+      "status": "passed",
+      "expectedIntent": "允许",
+      "registrationPosts": 1,
+      "purposeCommands": 3,
+      "operationRetained": true,
+      "observations": {
+        "beforeSubmit": "广告偏好: 尚无选择\n当前未运行 — 本项未请求变更。 · 本项将保存: 允许",
+        "partial": "广告偏好: 尚无选择\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 允许",
+        "saved": "广告偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+      }
+    },
+    {
+      "locale": "zh_CN",
+      "desired": "deny",
+      "status": "passed",
+      "expectedIntent": "拒绝",
+      "registrationPosts": 1,
+      "purposeCommands": 3,
+      "operationRetained": true,
+      "observations": {
+        "beforeSubmit": "广告偏好: 已保存允许\n当前未运行 — 本项未请求变更。 · 本项将保存: 拒绝",
+        "partial": "广告偏好: 已保存允许\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 拒绝",
+        "saved": "广告偏好: 已保存拒绝\n当前未运行 — 本项已保存，当前未运行。"
+      }
+    }
+  ]
+}

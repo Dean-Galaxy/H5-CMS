@@ -1,0 +1,54 @@
+{
+  "status": "failed",
+  "boundary": "Real identity.js and complete bilingual PHP translations; intercepted HTTP and in-memory synthetic states only, no database/site/provider",
+  "outcomes": [
+    {
+      "locale": "en",
+      "desired": "allow",
+      "status": "failed",
+      "expectedIntent": "Allow",
+      "registrationPosts": 0,
+      "purposeCommands": 0,
+      "observations": {
+        "beforeSubmit": "Advertising preference: No saved choice\nCurrently off — No change was requested for this purpose. · Will save: Permission saved"
+      },
+      "error": "expect(locator).toContainText(expected) failed\n\nLocator: locator('[data-purpose-state=\"advertising\"]')\nTimeout: 5000ms\n- Expected substring  - 1\n+ Received string     + 2\n\n- Will save: Allow\n+ Advertising preference: No saved choice\n+ Currently off — No change was requested for this purpose. · Will save: Permission saved\n\nCall log:\n  - Expect \"to.have.text\" with timeout 5000ms\n  - waiting for locator('[data-purpose-state=\"advertising\"]')\n    14 × locator resolved to <p role=\"status\" data-status=\"not_requested\" data-purpose-state=\"advertising\">Advertising preference: No saved choice↵Currently…</p>\n       - unexpected value \"Advertising preference: No saved choice\nCurrently off — No change was requested for this purpose. · Will save: Permission saved\"\n"
+    },
+    {
+      "locale": "en",
+      "desired": "deny",
+      "status": "failed",
+      "expectedIntent": "Deny",
+      "registrationPosts": 0,
+      "purposeCommands": 0,
+      "observations": {
+        "beforeSubmit": "Advertising preference: Permission saved\nCurrently off — No change was requested for this purpose. · Will save: Refusal saved"
+      },
+      "error": "expect(locator).toContainText(expected) failed\n\nLocator: locator('[data-purpose-state=\"advertising\"]')\nTimeout: 5000ms\n- Expected substring  - 1\n+ Received string     + 2\n\n- Will save: Deny\n+ Advertising preference: Permission saved\n+ Currently off — No change was requested for this purpose. · Will save: Refusal saved\n\nCall log:\n  - Expect \"to.have.text\" with timeout 5000ms\n  - waiting for locator('[data-purpose-state=\"advertising\"]')\n    14 × locator resolved to <p role=\"status\" data-status=\"not_requested\" data-purpose-state=\"advertising\">Advertising preference: Permission saved↵Currentl…</p>\n       - unexpected value \"Advertising preference: Permission saved\nCurrently off — No change was requested for this purpose. · Will save: Refusal saved\"\n"
+    },
+    {
+      "locale": "zh_CN",
+      "desired": "allow",
+      "status": "failed",
+      "expectedIntent": "允许",
+      "registrationPosts": 0,
+      "purposeCommands": 0,
+      "observations": {
+        "beforeSubmit": "广告偏好: 尚无选择\n当前未运行 — 本项未请求变更。 · 本项将保存: 已保存允许"
+      },
+      "error": "expect(locator).toContainText(expected) failed\n\nLocator: locator('[data-purpose-state=\"advertising\"]')\nTimeout: 5000ms\n- Expected substring  - 1\n+ Received string     + 2\n\n- 本项将保存: 允许\n+ 广告偏好: 尚无选择\n+ 当前未运行 — 本项未请求变更。 · 本项将保存: 已保存允许\n\nCall log:\n  - Expect \"to.have.text\" with timeout 5000ms\n  - waiting for locator('[data-purpose-state=\"advertising\"]')\n    14 × locator resolved to <p role=\"status\" data-status=\"not_requested\" data-purpose-state=\"advertising\">广告偏好: 尚无选择↵当前未运行 — 本项未请求变更。 · 本项将保存: 已保存允许</p>\n       - unexpected value \"广告偏好: 尚无选择\n当前未运行 — 本项未请求变更。 · 本项将保存: 已保存允许\"\n"
+    },
+    {
+      "locale": "zh_CN",
+      "desired": "deny",
+      "status": "failed",
+      "expectedIntent": "拒绝",
+      "registrationPosts": 0,
+      "purposeCommands": 0,
+      "observations": {
+        "beforeSubmit": "广告偏好: 已保存允许\n当前未运行 — 本项未请求变更。 · 本项将保存: 已保存拒绝"
+      },
+      "error": "expect(locator).toContainText(expected) failed\n\nLocator: locator('[data-purpose-state=\"advertising\"]')\nTimeout: 5000ms\n- Expected substring  - 1\n+ Received string     + 2\n\n- 本项将保存: 拒绝\n+ 广告偏好: 已保存允许\n+ 当前未运行 — 本项未请求变更。 · 本项将保存: 已保存拒绝\n\nCall log:\n  - Expect \"to.have.text\" with timeout 5000ms\n  - waiting for locator('[data-purpose-state=\"advertising\"]')\n    14 × locator resolved to <p role=\"status\" data-status=\"not_requested\" data-purpose-state=\"advertising\">广告偏好: 已保存允许↵当前未运行 — 本项未请求变更。 · 本项将保存: 已保存拒绝</p>\n       - unexpected value \"广告偏好: 已保存允许\n当前未运行 — 本项未请求变更。 · 本项将保存: 已保存拒绝\"\n"
+    }
+  ]
+}

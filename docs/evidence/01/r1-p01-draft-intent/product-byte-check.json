@@ -1,0 +1,37 @@
+{
+  "base": "240e2548a189cbac92a94612c4c3723aadf08d7d",
+  "identity_js_single_required_replacement": true,
+  "products": {
+    "h5-platform/public/identity.js": {
+      "old_sha256": "dbb7948eb403ceb72df689c4b496edcf4a8f9282fd7b9b9a55e50f28af100391",
+      "new_sha256": "cf008cf103bbd50d1e882056ef34b34c7dc25bf4cfe81c901157d325179d491d"
+    },
+    "h5-platform/lang/en/identity.php": {
+      "old_sha256": "404619813ff98f99e4fbab3ac255e37cbe9638f7c2bef0f5e9a8ebdc5a34bf61",
+      "new_sha256": "0df2125e234468866bb69399ade2405255d02c70ece97ade0306a6bfc549a22b"
+    },
+    "h5-platform/lang/zh_CN/identity.php": {
+      "old_sha256": "325c1983a0440655dbae19e4a21e5baab872d5531b4280662149df0bb87faf20",
+      "new_sha256": "19a43888817cb97526c90f289f554319f749ebda0208d431de5bda3334acfa29"
+    }
+  },
+  "en": {
+    "only_added_translation_keys": {
+      "draft_allow": "Allow",
+      "draft_deny": "Deny"
+    },
+    "saved_allow_unchanged": "Permission saved",
+    "saved_deny_unchanged": "Refusal saved"
+  },
+  "zh_CN": {
+    "only_added_translation_keys": {
+      "draft_allow": "允许",
+      "draft_deny": "拒绝"
+    },
+    "saved_allow_unchanged": "已保存允许",
+    "saved_deny_unchanged": "已保存拒绝"
+  },
+  "h5-platform/resources/views/identity/register.blade.php_byte_unchanged": true,
+  "h5-platform/public/identity.css_byte_unchanged": true,
+  "h5-platform/composer.lock_byte_unchanged": true
+}
