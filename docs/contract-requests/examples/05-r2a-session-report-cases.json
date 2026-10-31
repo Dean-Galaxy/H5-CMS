@@ -1,0 +1,292 @@
+{
+  "status": "proposal_only_not_executed_not_a_runtime_fixture",
+  "source_ref": "d653335bc47a5ae2dcdce0e547fd64a6df2f1fd3",
+  "notation": "S/D/P/e aliases are explanatory synthetic symbols, not real identifiers, API payloads, seed rows or private data; times do not change any runtime policy deadline.",
+  "window_utc": {
+    "from_inclusive": "2026-10-31T00:00:00Z",
+    "until_exclusive": "2026-10-31T01:00:00Z",
+    "as_of": "2026-10-31T02:00:00Z"
+  },
+  "default_sample": {
+    "is_test": true,
+    "subject_policy": "c-core-1-synthetic-v1",
+    "notice_version": "c-notice-c-core-1",
+    "schema_version": 2
+  },
+  "future_common_checks": [
+    "Owner in isolated local/testing can read synthetic groups without enabling capture; non-Owner including asset-assigned Acquisition is denied server-side",
+    "Do not query Identity/Billing tables, join v1, expose raw measurement identifiers, or create new persistent rows",
+    "Keep is_test/policy/notice/schema groups distinct; do not treat unavailable or unauthorized responses as zero data"
+  ],
+  "cases": [
+    {
+      "id": "A_ordered_direct_entry_half_open",
+      "events": [
+        {
+          "session": "S1",
+          "sequence": 10,
+          "received_at": "00:00:00Z",
+          "name": "page_view",
+          "page_type": "home"
+        },
+        {
+          "session": "S1",
+          "sequence": 11,
+          "received_at": "00:01:00Z",
+          "name": "drama_view",
+          "drama": "D-A"
+        },
+        {
+          "session": "S1",
+          "sequence": 12,
+          "received_at": "00:02:00Z",
+          "name": "play_requested",
+          "drama": "D-A",
+          "play": "P1"
+        },
+        {
+          "session": "S1",
+          "sequence": 13,
+          "received_at": "00:03:00Z",
+          "name": "play_started",
+          "drama": "D-A",
+          "play": "P1",
+          "position_seconds": 0.25
+        },
+        {
+          "session": "S1",
+          "sequence": 14,
+          "received_at": "00:04:00Z",
+          "name": "registration_succeeded",
+          "producer": "R1_server_port",
+          "policy_version": "registration-purpose-r1",
+          "notice_version": "c-purpose-choice-only-r1-v1",
+          "properties": []
+        },
+        {
+          "session": "S2",
+          "sequence": 20,
+          "received_at": "00:59:50Z",
+          "name": "page_view",
+          "page_type": "player"
+        },
+        {
+          "session": "S2",
+          "sequence": 21,
+          "received_at": "00:59:55Z",
+          "name": "drama_view",
+          "drama": "D-C"
+        },
+        {
+          "session": "S2",
+          "sequence": 22,
+          "received_at": "01:01:00Z",
+          "name": "play_started",
+          "drama": "D-C",
+          "play": "P2",
+          "position_seconds": 0.4
+        },
+        {
+          "session": "S-at-until",
+          "sequence": 30,
+          "received_at": "01:00:00Z",
+          "name": "page_view",
+          "page_type": "home"
+        }
+      ],
+      "expected": {
+        "ordered_session_counts": {
+          "E": 2,
+          "D": 2,
+          "P": 2
+        },
+        "direct_player_entry_sessions": 1,
+        "excluded_at_until": 1,
+        "observed_step_ratios": {
+          "D/E": "2/2",
+          "P/D": "2/2"
+        },
+        "separate_trusted_result_sessions": {
+          "registration_succeeded": 1
+        },
+        "registration_funnel_rate": "not_applicable_missing_produced_front_stages_and_drama_link",
+        "payment": "not_applicable_no_mapping",
+        "no_claim": "The existing R1 result version is a separate card, not an account association or proof of a complete registration funnel.",
+        "different_policy_or_notice_or_schema": "Keep a separate labeled group or coverage-unknown exclusion; never merge into the default group silently.",
+        "S2_tail_after_until": "P at 01:01 stays in its admitted entry cohort until the session boundary/as_of; a new E exactly at until is excluded."
+      },
+      "ignored_legacy_partition": {
+        "table": "acquisition_behaviors",
+        "sample_is_test": true,
+        "name": "page_view",
+        "expected": "never contributes to C E denominator"
+      }
+    },
+    {
+      "id": "B_duplicates_out_of_order_target_and_zero_denominator",
+      "as_of_override": "2026-10-31T01:00:00Z",
+      "events": [
+        {
+          "session": "S3",
+          "sequence": 100,
+          "received_at": "00:01:00Z",
+          "name": "drama_view",
+          "drama": "D-A"
+        },
+        {
+          "session": "S3",
+          "sequence": 101,
+          "received_at": "00:02:00Z",
+          "name": "page_view",
+          "page_type": "home"
+        },
+        {
+          "session": "S3",
+          "sequence": 102,
+          "received_at": "00:03:00Z",
+          "name": "play_started",
+          "drama": "D-A",
+          "play": "P3",
+          "position_seconds": 0.3
+        },
+        {
+          "session": "S3",
+          "sequence": 103,
+          "received_at": "00:04:00Z",
+          "name": "page_view",
+          "page_type": "home",
+          "note": "refresh with a new page instance"
+        },
+        {
+          "session": "S3",
+          "sequence": 104,
+          "received_at": "00:05:00Z",
+          "name": "drama_view",
+          "drama": "D-A",
+          "sample_key": "e104"
+        },
+        {
+          "session": "S3",
+          "sequence": 105,
+          "received_at": "00:06:00Z",
+          "name": "drama_view",
+          "drama": "D-B"
+        },
+        {
+          "session": "S3",
+          "sequence": 106,
+          "received_at": "00:07:00Z",
+          "name": "play_started",
+          "drama": "D-B",
+          "play": "P4",
+          "position_seconds": 0.5
+        },
+        {
+          "session": "S4",
+          "sequence": 110,
+          "received_at": "00:59:00Z",
+          "name": "page_view",
+          "page_type": "home"
+        }
+      ],
+      "not_another_stored_event": {
+        "replay_of": "e104",
+        "same_envelope_or_semantic_duplicate": "accepted replay does not insert a new c_events row"
+      },
+      "expected": {
+        "ordered_session_counts": {
+          "E": 2,
+          "D": 1,
+          "P": 0
+        },
+        "S3_target": "D-A fixed by first session drama_view (100); only its later post-entry view (104) reaches ordered D.",
+        "S3_play_102": "unmatched_before_D_never_backfilled",
+        "S3_play_106": "wrong_target_not_ordered_P",
+        "S4_branch_step_P_denominator": 0,
+        "S4_branch_step_P_display": "—",
+        "aggregate_observed_step_ratios": {
+          "D/E": "1/2",
+          "P/D": "0/1"
+        },
+        "S4_status": "observing_not_proof_of_online_or_policy_eligibility",
+        "filter_D-B": "does_not_retarget_S3_or_select_its_later_play",
+        "no_claim": "Sequence is receipt order; gaps and delayed stage order do not prove actual human order or loss."
+      }
+    },
+    {
+      "id": "C_known_end_no_cross_session_or_necessary_log_backfill",
+      "session_metadata": [
+        {
+          "session": "S-close",
+          "created_at": "00:00:00Z",
+          "last_seen_at": "00:02:00Z",
+          "expires_at": "2026-11-01T00:00:00Z",
+          "ended_at": "00:03:00Z",
+          "end_reason": "not_stored_do_not_infer"
+        },
+        {
+          "session": "S-new",
+          "created_at": "00:05:00Z",
+          "last_seen_at": "00:06:00Z",
+          "expires_at": "2026-11-01T00:05:00Z",
+          "ended_at": null
+        }
+      ],
+      "events": [
+        {
+          "session": "S-close",
+          "sequence": 200,
+          "received_at": "00:01:00Z",
+          "name": "page_view",
+          "page_type": "home"
+        },
+        {
+          "session": "S-close",
+          "sequence": 201,
+          "received_at": "00:02:00Z",
+          "name": "drama_view",
+          "drama": "D-A"
+        },
+        {
+          "session": "S-new",
+          "sequence": 210,
+          "received_at": "00:05:00Z",
+          "name": "page_view",
+          "page_type": "player"
+        },
+        {
+          "session": "S-new",
+          "sequence": 211,
+          "received_at": "00:06:00Z",
+          "name": "play_started",
+          "drama": "D-A",
+          "play": "P-new",
+          "position_seconds": 0.5
+        }
+      ],
+      "ignored_outside_C": [
+        {
+          "at": "00:04:00Z",
+          "kind": "necessary_free_media_start_after_close",
+          "not_a_C_event": true,
+          "expected": "do not query this log or add it to any stage/denominator"
+        }
+      ],
+      "expected": {
+        "ordered_session_counts": {
+          "E": 2,
+          "D": 1,
+          "P": 0
+        },
+        "known_truncated_sessions": 1,
+        "S-close_status": "known_early_end_reason_unproven",
+        "S-new_branch": "no_ordered_drama_stage_do_not_borrow_D_from_S-close",
+        "S-new_step_P_denominator": 0,
+        "S-new_step_P_display": "—",
+        "aggregate_P_D": "0/1 observed only; one known truncated predecessor, not a proven drop-off",
+        "historical_policy_end_or_data_loss": "not_reconstructable_from_available_fields",
+        "payment": "not_applicable"
+      }
+    }
+  ]
+}
