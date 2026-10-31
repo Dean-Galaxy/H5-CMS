@@ -82,6 +82,7 @@ function registrationPurposes(form) {
   const items = new Map();
   const proceed = form.querySelector('[data-registration-continue]');
   let context = null, expectedViewer = null, complete = false, stopped = false;
+  let accountSummary = null, identityPauseOwned = false; // This page's display source/ownership only.
   const validState = s => s && ['unknown','allow','deny'].includes(s.choice) && s.effective === false && ['choice_only','unavailable'].includes(s.capability)
     && s.choice_scope === 'current_browser' && Number.isInteger(s.revision) && s.revision >= 0 && s.revision < 2147483647
     && (s.reason === null || typeof s.reason === 'string' && /^[A-Z_]{1,80}$/.test(s.reason));
@@ -110,6 +111,7 @@ function registrationPurposes(form) {
   }
   function discard(message) {
     stopped = true; context = null; expectedViewer = null;
+    accountSummary = null; identityPauseOwned = false;
     for (const item of items.values()) { item.dirty = false; item.command = null; item.desired = null; item.state = null; item.status = 'not_requested'; render(item); }
     form.querySelector('[data-result]').textContent = message;
   }
@@ -145,12 +147,22 @@ function registrationPurposes(form) {
   async function sameAccount() {
     try {
       const {response,body} = await http('/api/v1/auth/me');
+      if (stopped) return false; // A late identity result cannot replace a terminal reason.
       if (response.status === 401 || (response.ok && body.viewer === null)) { discard(text.account_unknown); return false; }
       if (!response.ok || !body.viewer) throw new Error('Identity unavailable');
       if (!expectedViewer || body.viewer.id !== expectedViewer.id || body.viewer.email !== expectedViewer.email) { discard(text.account_changed); return false; }
+      if (!stopped && response.status === 200 && identityPauseOwned) {
+        const result = form.querySelector('[data-result]');
+        if (accountSummary !== null && result.textContent === text.account_unknown) result.textContent = accountSummary;
+        identityPauseOwned = false;
+      }
       return true;
     } catch (_) { // A temporary identity read failure pauses; it never authorizes a PATCH.
-      form.querySelector('[data-result]').textContent = text.account_unknown;
+      if (!stopped) {
+        const result = form.querySelector('[data-result]');
+        identityPauseOwned = result.textContent === accountSummary || (identityPauseOwned && result.textContent === text.account_unknown);
+        if (identityPauseOwned) result.textContent = text.account_unknown;
+      }
       return false;
     }
   }
@@ -196,7 +208,8 @@ function registrationPurposes(form) {
     expectedViewer = viewer && typeof viewer.id === 'string' && viewer.email === email ? {id:viewer.id,email:viewer.email} : null;
     proceed.hidden = false;
     form.querySelectorAll('input:not([data-registration-purpose])').forEach(input => { input.readOnly = true; if (input.type === 'checkbox') input.disabled = true; });
-    form.querySelector('[data-result]').textContent = creationConfirmed ? text.created : text.current_account;
+    accountSummary = creationConfirmed ? text.created : text.current_account;
+    form.querySelector('[data-result]').textContent = accountSummary;
     await ready;
     if (!expectedViewer) { discard(text.account_unknown); return; }
     if (!await sameAccount()) {
