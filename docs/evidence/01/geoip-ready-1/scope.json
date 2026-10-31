@@ -1,0 +1,29 @@
+{
+  "source": "a07c5ec57670de290069ad45d028e86e4ef9c1b9",
+  "protectedFiles": {
+    "h5-platform/app/Providers/AppServiceProvider.php": {
+      "byteIdentical": true,
+      "sha256": "df2c171819bf8da10790e9ed3f229f9ae6b7767c8a765ef50cac3977e2e7bad7"
+    },
+    "h5-platform/app/Support/RuntimeEnvironmentGuard.php": {
+      "byteIdentical": true,
+      "sha256": "37ac52fdeb7abeb0392f890d5d6d07e4f8d1de8760c317b3ff5189468b419193"
+    },
+    "h5-platform/config/h5.php": {
+      "byteIdentical": true,
+      "sha256": "e7c7e902992764439c59588cbfb28fb7ad0e0e78882204f5c5e5b185dbefb6f7"
+    },
+    "h5-platform/composer.json": {
+      "byteIdentical": true,
+      "sha256": "13d059e9fb272cc1d1cca36876fc2ed0d1807990530aab4f8d52ea1ec6311f0b"
+    },
+    "h5-platform/composer.lock": {
+      "byteIdentical": true,
+      "sha256": "d22bc1b2610d6d372da7fb512e81871397c8a56aac2936c40bb9aa3267af779f"
+    }
+  },
+  "dependencyInstall": "Existing lock only: maxmind-db/reader v1.14.0, 1 install, 0 updates/removals; no scripts. Audit already belongs to 00; not rerun here.",
+  "runtime": "No DB/Web/queue/scheduler started or real environment/state/DB queried; no production DB download, remote visitor lookup or enabling GeoIP. Tests run without RefreshDatabase/database connection.",
+  "verification": "8 new GeoIP tests + 2 existing local/production boundary tests + 1 existing direct-proxy test = 11/117. Pint/PHP syntax/diff passed.",
+  "fixture": "17,300-byte exact official synthetic Country fixture with Apache-2.0 selected, upstream commit/license/hash inside test fixture source.json; not DB-IP actual database."
+}

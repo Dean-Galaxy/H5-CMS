@@ -1,0 +1,10 @@
+PHPUnit 12.5.38 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.26
+Configuration: /Users/hejunxiang/.codex/worktrees/h5-01-identity-maintenance/H5/h5-platform/phpunit.xml
+
+...........                                                       11 / 11 (100%)
+
+Time: 00:00.253, Memory: 61.00 MB
+
+OK (11 tests, 117 assertions)
