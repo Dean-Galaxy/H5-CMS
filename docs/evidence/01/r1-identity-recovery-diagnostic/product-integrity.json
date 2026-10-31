@@ -1,0 +1,20 @@
+{
+  "base": "794520012266f7bdab72f32c93da4ed1d6996914",
+  "products": {
+    "h5-platform/public/identity.js": {
+      "baseline_sha256": "3603e00e5f732e4195fc77d22be4ef928e3992ba726de42251e7a416ec5aff1a",
+      "current_sha256": "3603e00e5f732e4195fc77d22be4ef928e3992ba726de42251e7a416ec5aff1a",
+      "byte_identical": true
+    },
+    "h5-platform/lang/en/identity.php": {
+      "baseline_sha256": "8981fd7db52c3ba147590d9e57439f765d87c9be956008646b466718e7c65450",
+      "current_sha256": "8981fd7db52c3ba147590d9e57439f765d87c9be956008646b466718e7c65450",
+      "byte_identical": true
+    },
+    "h5-platform/lang/zh_CN/identity.php": {
+      "baseline_sha256": "b58601b843e23d71fc1d3361a09583df6647ad302ab88bf2145259b48f6ab18e",
+      "current_sha256": "b58601b843e23d71fc1d3361a09583df6647ad302ab88bf2145259b48f6ab18e",
+      "byte_identical": true
+    }
+  }
+}

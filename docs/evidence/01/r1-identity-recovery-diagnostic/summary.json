@@ -1,0 +1,176 @@
+{
+  "result": "candidate-contradiction-observed",
+  "notProductAcceptance": true,
+  "wholeScriptFlows": 4,
+  "renderSnapshots": 0,
+  "cases": [
+    {
+      "locale": "en",
+      "creationSource": "explicit-registration-success",
+      "beforeFault": "Your account was created. Choices can be saved, but account association and advertising do not run.",
+      "paused": {
+        "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+        "account": {
+          "status": "unconfirmed",
+          "text": "Account-linking preference: Last confirmed choice: No saved choice\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Allow"
+        },
+        "advertising": {
+          "status": "unconfirmed",
+          "text": "Advertising preference: Last confirmed choice: No saved choice\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Allow"
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 0,
+        "identityReads": 1,
+        "csrfReads": 0
+      },
+      "afterBoth": {
+        "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+        "account": {
+          "status": "saved",
+          "text": "Account-linking preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+        },
+        "advertising": {
+          "status": "saved",
+          "text": "Advertising preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 2,
+        "identityReads": 3,
+        "csrfReads": 2
+      },
+      "apiCounts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "preferences": 2
+      }
+    },
+    {
+      "locale": "zh_CN",
+      "creationSource": "explicit-registration-success",
+      "beforeFault": "账号已创建。以下仅保存选择，不运行账户关联或广告。",
+      "paused": {
+        "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+        "account": {
+          "status": "unconfirmed",
+          "text": "账户关联偏好: 上次确认的选择: 尚无选择\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 允许"
+        },
+        "advertising": {
+          "status": "unconfirmed",
+          "text": "广告偏好: 上次确认的选择: 尚无选择\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 允许"
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 0,
+        "identityReads": 1,
+        "csrfReads": 0
+      },
+      "afterBoth": {
+        "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+        "account": {
+          "status": "saved",
+          "text": "账户关联偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+        },
+        "advertising": {
+          "status": "saved",
+          "text": "广告偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 2,
+        "identityReads": 3,
+        "csrfReads": 2
+      },
+      "apiCounts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "preferences": 2
+      }
+    },
+    {
+      "locale": "en",
+      "creationSource": "matching-current-account-only",
+      "beforeFault": "Your current account is signed in. Continue using the site or review your preferences. This does not confirm that this registration request created the account.",
+      "paused": {
+        "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+        "account": {
+          "status": "unconfirmed",
+          "text": "Account-linking preference: Last confirmed choice: No saved choice\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Allow"
+        },
+        "advertising": {
+          "status": "unconfirmed",
+          "text": "Advertising preference: Last confirmed choice: No saved choice\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Allow"
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 0,
+        "identityReads": 2,
+        "csrfReads": 0
+      },
+      "afterBoth": {
+        "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+        "account": {
+          "status": "saved",
+          "text": "Account-linking preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+        },
+        "advertising": {
+          "status": "saved",
+          "text": "Advertising preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 2,
+        "identityReads": 4,
+        "csrfReads": 2
+      },
+      "apiCounts": {
+        "context": 1,
+        "register": 1,
+        "me": 4,
+        "csrf": 2,
+        "preferences": 2
+      }
+    },
+    {
+      "locale": "zh_CN",
+      "creationSource": "matching-current-account-only",
+      "beforeFault": "已确认当前账号已登录。可继续使用或核对偏好；本次注册是否新建账号仍未确认。",
+      "paused": {
+        "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+        "account": {
+          "status": "unconfirmed",
+          "text": "账户关联偏好: 上次确认的选择: 尚无选择\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 允许"
+        },
+        "advertising": {
+          "status": "unconfirmed",
+          "text": "广告偏好: 上次确认的选择: 尚无选择\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 允许"
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 0,
+        "identityReads": 2,
+        "csrfReads": 0
+      },
+      "afterBoth": {
+        "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+        "account": {
+          "status": "saved",
+          "text": "账户关联偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+        },
+        "advertising": {
+          "status": "saved",
+          "text": "广告偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 2,
+        "identityReads": 4,
+        "csrfReads": 2
+      },
+      "apiCounts": {
+        "context": 1,
+        "register": 1,
+        "me": 4,
+        "csrf": 2,
+        "preferences": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+Diagnostic-only source: 4d6d42d8e5297f4840d1ba1ecfe0d79076681bdb
+Base: 794520012266f7bdab72f32c93da4ed1d6996914
+6c477b772e842a63694b0560ac99c20df2385c75a76f3b159df93155d482de78  h5-platform/tests/Feature/Identity/Support/registration-purposes.browser.cjs
