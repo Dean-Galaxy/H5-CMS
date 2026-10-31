@@ -8,6 +8,7 @@ use App\Contracts\BehaviorEventRecorder;
 use App\Contracts\BillingAnalyticsReader;
 use App\Contracts\BillingService;
 use App\Contracts\CatalogReader;
+use App\Contracts\CheckoutAttribution;
 use App\Contracts\MembershipReader;
 use App\Contracts\PlaybackAuthorizer;
 use App\Contracts\ProgressService;
@@ -16,6 +17,7 @@ use App\Contracts\RegionResolver;
 use App\Contracts\RegistrationMeasurement;
 use App\Support\DisabledAttribution;
 use App\Support\DisabledBehaviorEventRecorder;
+use App\Support\DisabledCheckoutAttribution;
 use App\Support\LocalModuleRegistry;
 use App\Support\RuntimeEnvironmentGuard;
 use App\Support\ServerRegionResolver;
@@ -38,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
             $this->app->bind($contract, UnavailableServices::class);
         }
         $this->app->bind(AttributionService::class, DisabledAttribution::class);
+        $this->app->bind(CheckoutAttribution::class, DisabledCheckoutAttribution::class);
         $this->app->bind(BehaviorEventRecorder::class, DisabledBehaviorEventRecorder::class);
         $this->app->bind(RegistrationMeasurement::class, UnavailableRegistrationMeasurement::class);
         $this->app->bind(BillingAnalyticsReader::class, UnavailableBillingAnalyticsReader::class);

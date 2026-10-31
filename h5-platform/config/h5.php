@@ -10,6 +10,7 @@ return [
     'contract' => '1.0.5',
     'workspace' => env('H5_WORKSPACE', 'unconfigured'),
     'controlled_staging' => env('H5_CONTROLLED_STAGING', false),
+    'acquisition_staging_test' => env('H5_ACQUISITION_STAGING_TEST', false),
     'simulation' => env('H5_SIMULATION', false),
     'local_modules' => env('H5_LOCAL_MODULES', ''),
     'local_module_providers' => [
@@ -28,6 +29,9 @@ return [
         'content' => ['provider' => ContentServiceProvider::class, 'ready' => true],
         'billing' => ['provider' => BillingServiceProvider::class, 'ready' => true],
         'audience' => ['provider' => AudienceServiceProvider::class, 'ready' => true],
-        'acquisition' => ['provider' => null, 'ready' => false],
+        'acquisition' => [
+            'provider' => env('H5_ACQUISITION_STAGING_TEST', false) === true ? AcquisitionServiceProvider::class : null,
+            'ready' => env('H5_ACQUISITION_STAGING_TEST', false) === true,
+        ],
     ],
 ];

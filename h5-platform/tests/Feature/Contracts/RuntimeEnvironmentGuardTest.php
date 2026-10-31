@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Contracts;
 
+use App\Modules\Acquisition\AcquisitionServiceProvider;
 use App\Support\DirectConnectionContext;
 use App\Support\RuntimeEnvironmentGuard;
 use App\Support\ServerRegionResolver;
@@ -389,5 +390,50 @@ class RuntimeEnvironmentGuardTest extends TestCase
         } finally {
             File::deleteDirectory($directory);
         }
+    }
+
+    public function test_acquisition_lane_requires_explicit_controlled_staging_and_exact_provider(): void
+    {
+        $module = ['provider' => AcquisitionServiceProvider::class, 'ready' => true];
+        $this->safeStaging(['h5.controlled_staging' => true, 'h5.acquisition_staging_test' => true, 'h5.modules.acquisition' => $module]);
+        app(RuntimeEnvironmentGuard::class)->assertSafeRuntime();
+        config(['h5.acquisition_staging_test' => false]);
+        $this->rejects(fn () => app(RuntimeEnvironmentGuard::class)->assertSafeRuntime());
+        config(['h5.acquisition_staging_test' => true, 'h5.controlled_staging' => false]);
+        $this->rejects(fn () => app(RuntimeEnvironmentGuard::class)->assertSafeRuntime());
+        foreach (['local', 'testing', 'production'] as $env) {
+            $this->environment($env);
+            config(['h5.controlled_staging' => false]);
+            $this->rejects(fn () => app(RuntimeEnvironmentGuard::class)->assertSafeRuntime());
+        }
+    }
+
+    public function test_advertising_test_origin_rejects_analysis_and_unreviewed_transport(): void
+    {
+        $this->safeStaging(['h5.controlled_staging' => true, 'h5.acquisition_staging_test' => true,
+            'h5.modules.acquisition' => ['provider' => AcquisitionServiceProvider::class, 'ready' => true]]);
+        config(['acquisition.analytics_enabled' => false, 'acquisition.measurement.enabled' => false,
+            'acquisition.measurement.synthetic_policy' => false, 'acquisition.registration.synthetic_policy' => false,
+            'acquisition.registration.observations_enabled' => false, 'acquisition.transport' => 'disabled',
+            'acquisition.external_enabled' => false, 'acquisition.platform_reviewed' => false]);
+        $guard = app(RuntimeEnvironmentGuard::class);
+        $this->assertSame('https://staging.example.test', $guard->controlledAcquisitionTestOrigin());
+        foreach (['analytics_enabled', 'measurement.enabled', 'measurement.synthetic_policy',
+            'registration.synthetic_policy', 'registration.observations_enabled'] as $key) {
+            config(['acquisition.'.$key => true]);
+            $this->rejects(fn () => $guard->controlledAcquisitionTestOrigin());
+            config(['acquisition.'.$key => false]);
+        }
+        config(['acquisition.transport' => 'http']);
+        $this->rejects(fn () => $guard->controlledAcquisitionTestOrigin());
+        config(['acquisition.external_enabled' => true]);
+        $this->rejects(fn () => $guard->controlledAcquisitionTestOrigin());
+        config(['acquisition.platform_reviewed' => true]);
+        $this->assertSame('https://staging.example.test', $guard->controlledAcquisitionTestOrigin());
+        config(['acquisition.transport' => 'local_simulation']);
+        $this->rejects(fn () => $guard->controlledAcquisitionTestOrigin());
+        config(['acquisition.transport' => 'disabled', 'acquisition.external_enabled' => false,
+            'acquisition.platform_reviewed' => 'true']);
+        $this->rejects(fn () => $guard->controlledAcquisitionTestOrigin());
     }
 }

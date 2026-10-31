@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Modules\Acquisition\AcquisitionServiceProvider;
 use Illuminate\Support\Env;
 use LogicException;
 
@@ -13,7 +14,7 @@ final class RuntimeEnvironmentGuard
         $environment = config('app.env');
         $this->require(in_array($environment, ['local', 'testing', 'staging', 'production'], true)
             && $environment === app()->environment() && $environment === Env::get('APP_ENV'), 'RUNTIME_ENVIRONMENT_INVALID');
-        foreach (['app.debug', 'h5.controlled_staging', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration'] as $key) {
+        foreach (['app.debug', 'h5.controlled_staging', 'h5.acquisition_staging_test', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration'] as $key) {
             $this->require(is_bool(config($key)), 'RUNTIME_BOOLEAN_INVALID');
         }
         $this->require(! config('h5.measurement_c_experience') || in_array($environment, ['local', 'testing'], true), 'RUNTIME_C_EXPERIENCE_FORBIDDEN');
@@ -21,6 +22,8 @@ final class RuntimeEnvironmentGuard
             && config('h5.measurement_c_experience') === true), 'RUNTIME_C_REGISTRATION_FORBIDDEN');
         $this->require(is_string(config('h5.local_modules')), 'RUNTIME_MODULES_INVALID');
         $this->require(! config('h5.controlled_staging') || $environment === 'staging', 'STAGING_ENVIRONMENT_REQUIRED');
+        $this->require(! config('h5.acquisition_staging_test') || ($environment === 'staging'
+            && config('h5.controlled_staging') === true), 'ACQUISITION_TEST_STAGING_REQUIRED');
         $this->paypal($environment);
         if (in_array($environment, ['local', 'testing'], true)) {
             return;
@@ -33,13 +36,35 @@ final class RuntimeEnvironmentGuard
         $this->require(config('session.secure') === true && config('session.http_only') === true
             && config('session.same_site') === 'lax', 'RUNTIME_COOKIE_UNSAFE');
         $this->require(in_array(config('trustedproxy.proxies'), [null, []], true), 'RUNTIME_PROXY_FORBIDDEN');
-        $this->require(config('h5.modules.acquisition.provider') === null
-            && config('h5.modules.acquisition.ready') === false, 'RUNTIME_ACQUISITION_NOT_RELEASED');
+        $test = config('h5.acquisition_staging_test');
+        $this->require($test
+            ? config('h5.modules.acquisition.provider') === AcquisitionServiceProvider::class && config('h5.modules.acquisition.ready') === true
+            : config('h5.modules.acquisition.provider') === null && config('h5.modules.acquisition.ready') === false,
+            'RUNTIME_ACQUISITION_NOT_RELEASED');
         $this->require(config('mail.driver') === null, 'RUNTIME_MAIL_LEGACY_FORBIDDEN');
         $visited = 0;
         $this->mailer(config('mail.default'), [], $visited);
         $from = config('mail.from.address');
         $this->require(is_string($from) && filter_var($from, FILTER_VALIDATE_EMAIL) !== false, 'RUNTIME_MAIL_FROM_INVALID');
+    }
+
+    /** Rechecked by the module and before outbound I/O; this is a test-only lane, not production release. */
+    public function controlledAcquisitionTestOrigin(): string
+    {
+        $origin = $this->controlledStagingOrigin();
+        $this->require(config('h5.acquisition_staging_test') === true, 'ACQUISITION_TEST_NOT_ENABLED');
+        foreach (['analytics_enabled', 'measurement.enabled', 'measurement.synthetic_policy',
+            'registration.synthetic_policy', 'registration.observations_enabled'] as $key) {
+            $this->require(config('acquisition.'.$key) === false, 'ACQUISITION_TEST_ANALYSIS_FORBIDDEN');
+        }
+        $mode = config('acquisition.transport');
+        $external = config('acquisition.external_enabled');
+        $reviewed = config('acquisition.platform_reviewed');
+        $this->require(is_bool($external) && is_bool($reviewed)
+            && in_array($mode, ['disabled', 'http'], true), 'ACQUISITION_TEST_TRANSPORT_INVALID');
+        $this->require($mode === 'http' ? $external && $reviewed : ! $external, 'ACQUISITION_TEST_EXTERNAL_NOT_READY');
+
+        return $origin;
     }
 
     /** Validate shape at boot; missing credentials remain unavailable to the adapter. */
