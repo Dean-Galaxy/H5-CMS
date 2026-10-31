@@ -1,0 +1,343 @@
+{
+  "status": "failed",
+  "identityScriptSha256": "cf008cf103bbd50d1e882056ef34b34c7dc25bf4cfe81c901157d325179d491d",
+  "boundary": "Public real JS/full translations only: 16 verbatim render snapshots including null, 8 unchanged/saved render checks, 8 full-script intercepted HTTP flows. No actual site or database.",
+  "outcomes": [
+    {
+      "kind": "verbatim-render",
+      "locale": "en",
+      "prior": "unknown",
+      "desired": "allow",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: No saved choice\"\nReceived: \"Account-linking preference: No saved choice\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "en",
+      "prior": "unknown",
+      "desired": "deny",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: No saved choice\"\nReceived: \"Account-linking preference: No saved choice\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "en",
+      "prior": "allow",
+      "desired": "allow",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: Permission saved\"\nReceived: \"Account-linking preference: Permission saved\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "en",
+      "prior": "allow",
+      "desired": "deny",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: Permission saved\"\nReceived: \"Account-linking preference: Permission saved\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "en",
+      "prior": "deny",
+      "desired": "allow",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: Refusal saved\"\nReceived: \"Account-linking preference: Refusal saved\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "en",
+      "prior": "deny",
+      "desired": "deny",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: Refusal saved\"\nReceived: \"Account-linking preference: Refusal saved\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "en",
+      "prior": null,
+      "desired": "allow",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Saved choice unconfirmed\"\nReceived: \"Account-linking preference: Choices are temporarily unavailable. Registration and necessary services still work. — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Allow\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "en",
+      "prior": null,
+      "desired": "deny",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Saved choice unconfirmed\"\nReceived: \"Account-linking preference: Choices are temporarily unavailable. Registration and necessary services still work. — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Deny\""
+    },
+    {
+      "kind": "normal-render",
+      "locale": "en",
+      "choice": "allow",
+      "status": "passed",
+      "responseStatus": "saved",
+      "text": "Account-linking preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+    },
+    {
+      "kind": "normal-render",
+      "locale": "en",
+      "choice": "deny",
+      "status": "passed",
+      "responseStatus": "saved",
+      "text": "Account-linking preference: Refusal saved\nCurrently off — This choice was saved. It is not running."
+    },
+    {
+      "kind": "normal-render",
+      "locale": "en",
+      "choice": "allow",
+      "status": "passed",
+      "responseStatus": "unchanged",
+      "text": "Account-linking preference: Permission saved\nCurrently off — This choice is unchanged. It is not running."
+    },
+    {
+      "kind": "normal-render",
+      "locale": "en",
+      "choice": "deny",
+      "status": "passed",
+      "responseStatus": "unchanged",
+      "text": "Account-linking preference: Refusal saved\nCurrently off — This choice is unchanged. It is not running."
+    },
+    {
+      "kind": "full-script-http",
+      "locale": "en",
+      "prior": "unknown",
+      "desired": "allow",
+      "status": "failed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "observations": {
+        "unconfirmed": "Account-linking preference: No saved choice\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Allow"
+      },
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: No saved choice\"\nReceived: \"Account-linking preference: No saved choice\""
+    },
+    {
+      "kind": "full-script-http",
+      "locale": "en",
+      "prior": "unknown",
+      "desired": "deny",
+      "status": "failed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "observations": {
+        "unconfirmed": "Account-linking preference: No saved choice\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Deny"
+      },
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: No saved choice\"\nReceived: \"Account-linking preference: No saved choice\""
+    },
+    {
+      "kind": "full-script-http",
+      "locale": "en",
+      "prior": "allow",
+      "desired": "deny",
+      "status": "failed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "observations": {
+        "unconfirmed": "Account-linking preference: Permission saved\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Deny"
+      },
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: Permission saved\"\nReceived: \"Account-linking preference: Permission saved\""
+    },
+    {
+      "kind": "full-script-http",
+      "locale": "en",
+      "prior": "deny",
+      "desired": "allow",
+      "status": "failed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "observations": {
+        "unconfirmed": "Account-linking preference: Refusal saved\nCurrently off — This choice could not be confirmed. Keep using the site or retry only this choice. · Will save: Allow"
+      },
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"Account-linking preference: Last confirmed choice: Refusal saved\"\nReceived: \"Account-linking preference: Refusal saved\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "zh_CN",
+      "prior": "unknown",
+      "desired": "allow",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 尚无选择\"\nReceived: \"账户关联偏好: 尚无选择\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "zh_CN",
+      "prior": "unknown",
+      "desired": "deny",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 尚无选择\"\nReceived: \"账户关联偏好: 尚无选择\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "zh_CN",
+      "prior": "allow",
+      "desired": "allow",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 已保存允许\"\nReceived: \"账户关联偏好: 已保存允许\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "zh_CN",
+      "prior": "allow",
+      "desired": "deny",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 已保存允许\"\nReceived: \"账户关联偏好: 已保存允许\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "zh_CN",
+      "prior": "deny",
+      "desired": "allow",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 已保存拒绝\"\nReceived: \"账户关联偏好: 已保存拒绝\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "zh_CN",
+      "prior": "deny",
+      "desired": "deny",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 已保存拒绝\"\nReceived: \"账户关联偏好: 已保存拒绝\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "zh_CN",
+      "prior": null,
+      "desired": "allow",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 已保存选择未确认\"\nReceived: \"账户关联偏好: 用途暂不可用。注册和必要服务不受影响。 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 允许\""
+    },
+    {
+      "kind": "verbatim-render",
+      "locale": "zh_CN",
+      "prior": null,
+      "desired": "deny",
+      "status": "failed",
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 已保存选择未确认\"\nReceived: \"账户关联偏好: 用途暂不可用。注册和必要服务不受影响。 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 拒绝\""
+    },
+    {
+      "kind": "normal-render",
+      "locale": "zh_CN",
+      "choice": "allow",
+      "status": "passed",
+      "responseStatus": "saved",
+      "text": "账户关联偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+    },
+    {
+      "kind": "normal-render",
+      "locale": "zh_CN",
+      "choice": "deny",
+      "status": "passed",
+      "responseStatus": "saved",
+      "text": "账户关联偏好: 已保存拒绝\n当前未运行 — 本项已保存，当前未运行。"
+    },
+    {
+      "kind": "normal-render",
+      "locale": "zh_CN",
+      "choice": "allow",
+      "status": "passed",
+      "responseStatus": "unchanged",
+      "text": "账户关联偏好: 已保存允许\n当前未运行 — 本项确认未变化，当前未运行。"
+    },
+    {
+      "kind": "normal-render",
+      "locale": "zh_CN",
+      "choice": "deny",
+      "status": "passed",
+      "responseStatus": "unchanged",
+      "text": "账户关联偏好: 已保存拒绝\n当前未运行 — 本项确认未变化，当前未运行。"
+    },
+    {
+      "kind": "full-script-http",
+      "locale": "zh_CN",
+      "prior": "unknown",
+      "desired": "allow",
+      "status": "failed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "observations": {
+        "unconfirmed": "账户关联偏好: 尚无选择\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 允许"
+      },
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 尚无选择\"\nReceived: \"账户关联偏好: 尚无选择\""
+    },
+    {
+      "kind": "full-script-http",
+      "locale": "zh_CN",
+      "prior": "unknown",
+      "desired": "deny",
+      "status": "failed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "observations": {
+        "unconfirmed": "账户关联偏好: 尚无选择\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 拒绝"
+      },
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 尚无选择\"\nReceived: \"账户关联偏好: 尚无选择\""
+    },
+    {
+      "kind": "full-script-http",
+      "locale": "zh_CN",
+      "prior": "allow",
+      "desired": "deny",
+      "status": "failed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "observations": {
+        "unconfirmed": "账户关联偏好: 已保存允许\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 拒绝"
+      },
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 已保存允许\"\nReceived: \"账户关联偏好: 已保存允许\""
+    },
+    {
+      "kind": "full-script-http",
+      "locale": "zh_CN",
+      "prior": "deny",
+      "desired": "allow",
+      "status": "failed",
+      "counts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "patch": 2
+      },
+      "observations": {
+        "unconfirmed": "账户关联偏好: 已保存拒绝\n当前未运行 — 本项保存未确认。草稿保留，可继续使用或单独重试。 · 本项将保存: 允许"
+      },
+      "error": "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"账户关联偏好: 上次确认的选择: 已保存拒绝\"\nReceived: \"账户关联偏好: 已保存拒绝\""
+    }
+  ]
+}

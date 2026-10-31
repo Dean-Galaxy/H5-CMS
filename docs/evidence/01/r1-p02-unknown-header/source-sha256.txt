@@ -1,0 +1,7 @@
+Source commit: 59ff02d3667171e1991a5b3a19a91ddb514a73a5
+Base: e2dc870bfae74ce4d27fb5e4f9069cbe15559210
+8981fd7db52c3ba147590d9e57439f765d87c9be956008646b466718e7c65450  h5-platform/lang/en/identity.php
+b58601b843e23d71fc1d3361a09583df6647ad302ab88bf2145259b48f6ab18e  h5-platform/lang/zh_CN/identity.php
+3603e00e5f732e4195fc77d22be4ef928e3992ba726de42251e7a416ec5aff1a  h5-platform/public/identity.js
+358aa1fb721f21059e3fc993c5f795e3edc883e1e547c96fa190a05f13f6fe71  h5-platform/tests/Feature/Identity/Support/registration-purposes.browser.cjs
+0d58e05418b2818c9c9b88b49252034b97744ae4fde64e6701f4ed9013bfc3a3  h5-platform/tests/Feature/Identity/Support/registration-unconfirmed-labels.browser.cjs

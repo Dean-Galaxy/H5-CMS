@@ -1,0 +1,36 @@
+{
+  "base": "e2dc870bfae74ce4d27fb5e4f9069cbe15559210",
+  "js_outside_display_label_byte_identical": true,
+  "original_choice_validator_byte_identical": true,
+  "products": {
+    "h5-platform/public/identity.js": {
+      "old_sha256": "cf008cf103bbd50d1e882056ef34b34c7dc25bf4cfe81c901157d325179d491d",
+      "new_sha256": "3603e00e5f732e4195fc77d22be4ef928e3992ba726de42251e7a416ec5aff1a"
+    },
+    "h5-platform/lang/en/identity.php": {
+      "old_sha256": "0df2125e234468866bb69399ade2405255d02c70ece97ade0306a6bfc549a22b",
+      "new_sha256": "8981fd7db52c3ba147590d9e57439f765d87c9be956008646b466718e7c65450"
+    },
+    "h5-platform/lang/zh_CN/identity.php": {
+      "old_sha256": "19a43888817cb97526c90f289f554319f749ebda0208d431de5bda3334acfa29",
+      "new_sha256": "b58601b843e23d71fc1d3361a09583df6647ad302ab88bf2145259b48f6ab18e"
+    }
+  },
+  "en": {
+    "only_added_keys": {
+      "last_confirmed_choice": "Last confirmed choice",
+      "saved_choice_unconfirmed": "Saved choice unconfirmed"
+    },
+    "all_old_values_unchanged": true
+  },
+  "zh_CN": {
+    "only_added_keys": {
+      "last_confirmed_choice": "上次确认的选择",
+      "saved_choice_unconfirmed": "已保存选择未确认"
+    },
+    "all_old_values_unchanged": true
+  },
+  "h5-platform/resources/views/identity/register.blade.php_byte_identical": true,
+  "h5-platform/public/identity.css_byte_identical": true,
+  "h5-platform/composer.lock_byte_identical": true
+}
