@@ -94,7 +94,7 @@ function registrationPurposes(form) {
   }
   function render(item) {
     const label = item.state ? `${text[item.state.choice]}\n${text.off}` : text.unavailable;
-    item.output.textContent = `${item.title}: ${label} — ${text[item.problem || item.status] || text.unconfirmed}` + (item.dirty ? ` · ${text.draft}: ${text[item.desired]}` : '');
+    item.output.textContent = `${item.title}: ${label} — ${text[item.problem || item.status] || text.unconfirmed}` + (item.dirty ? ` · ${text.draft}: ${text['draft_' + item.desired]}` : '');
     item.output.dataset.status = item.status;
     item.retry.hidden = !complete || stopped || !['unconfirmed','conflict'].includes(item.status);
     item.retry.disabled = item.busy || Date.now() < item.retryAfter;
