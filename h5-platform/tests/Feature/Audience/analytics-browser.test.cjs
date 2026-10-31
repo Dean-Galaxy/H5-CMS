@@ -21,9 +21,9 @@ async function eventually(predicate, timeout = 8000) {
 }
 
 async function fixture({consent = 'unknown', advertising = 'unknown', locale = 'en', media = false, hidden = false, enabled = true,
-  clickQuery = '', cookieProbe = null, pendingLanding = true, landingDelay = 0, landingConfirmed = true, consentResponse = null, contextDelay = 0} = {}) {
+  clickQuery = '', cookieProbe = null, pendingLanding = true, landingDelay = 0, landingConfirmed = true, consentResponse = null, contextDelay = 0, advertisingTestOnly = false} = {}) {
   const ctx = await browser.newContext({viewport: {width: 390, height: 844}});
-  let server = {enabled, policy_version: 'analytics-v1', consent: {analytics: consent, advertising}, pending_landing: pendingLanding};
+  let server = {...(advertisingTestOnly ? {advertising_test_only: true, analytics_available: false} : {}), enabled, policy_version: 'analytics-v1', consent: {analytics: consent, advertising}, pending_landing: pendingLanding};
   const observations = {posts: [], events: new Map(), landing: [], consent: [], external: [], errors: [], playback: 0, timeline: [], referrers: [], contextStarted: 0, contextFinished: 0};
   const fault = {events: 0, status: 503, consent: 0, contextDelay, contextStatus: 200, consentDelay: 0};
   let scope = 'synthetic-browser-scope', member = true;
@@ -534,4 +534,33 @@ test('320 by 500 short-screen dialogs scroll to reject, withdraw and close in bo
       assert.deepEqual(f.observations.errors, []);
     } finally { await f.ctx.close(); }
   }
+});
+
+for (const locale of ['en', 'zh_CN']) test('controlled advertising test disables analytics and preserves independent advertising '+locale, async () => {
+  const f = await fixture({locale, advertisingTestOnly: true, consent: 'granted', pendingLanding: false});
+  try {
+    await eventually(() => f.observations.contextFinished > 0);
+    await f.page.locator('[data-privacy-open]').click();
+    const analytics = f.page.locator('[name=analytics]'), advertising = f.page.locator('[name=advertising]');
+    assert.equal(await analytics.isDisabled(), true); assert.equal(await analytics.isChecked(), false);
+    assert.equal(await advertising.isChecked(), false); assert.equal(await advertising.isEnabled(), true);
+    assert.equal(await f.page.locator('[data-privacy-advertising-test]').isVisible(), true);
+    assert.match(await f.page.locator('[data-privacy-advertising-test]').textContent(), locale === 'en' ? /Controlled advertising test only/ : /仅限受控广告测试/);
+    await f.page.evaluate(() => window.H5AudienceAnalytics.emit('page_view'));
+    await f.page.waitForTimeout(1200);
+    assert.equal(f.observations.posts.length, 0);
+    await advertising.check();
+    await f.page.locator('[data-privacy-form]').evaluate(form => { form.elements.analytics.checked = true; });
+    await f.page.locator('[data-privacy-form] button[type=submit]').click();
+    await eventually(() => f.observations.consent.length === 1);
+    assert.deepEqual(f.observations.consent[0], {analytics: false, advertising: true, policy_version: 'analytics-v1'});
+    await f.page.waitForFunction(() => !document.querySelector('[data-privacy-dialog]').open);
+    await f.page.locator('[data-privacy-open]').click();
+    assert.equal(await analytics.isDisabled(), true); assert.equal(await analytics.isChecked(), false);
+    await f.page.locator('[data-privacy-withdraw]').click();
+    await eventually(() => f.observations.consent.length === 2);
+    assert.deepEqual(f.observations.consent[1], {analytics: false, advertising: false, policy_version: 'analytics-v1'});
+    await f.page.waitForFunction(() => !document.querySelector('[data-privacy-dialog]').open);
+    assert.equal(f.observations.posts.length, 0); assert.deepEqual(f.observations.errors, []);
+  } finally { await f.ctx.close(); }
 });

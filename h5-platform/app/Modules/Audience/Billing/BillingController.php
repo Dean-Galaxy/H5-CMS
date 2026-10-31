@@ -4,10 +4,12 @@ namespace App\Modules\Audience\Billing;
 
 use App\Contracts\AttributionService;
 use App\Contracts\BillingService;
+use App\Contracts\CheckoutAttribution;
 use App\Contracts\IdentityContext;
 use App\Contracts\MembershipReader;
 use App\Data\AttributionSnapshot;
 use App\Data\CheckoutInput;
+use App\Data\CheckoutPageContext;
 use App\Data\ResumeInput;
 use App\Enums\SubscriptionAction;
 use App\Modules\Audience\Analytics\BillingBehavior;
@@ -40,6 +42,10 @@ final class BillingController
                     $drafts = $request->session()->get('audience.billing.offers', []);
                     $drafts[$offer->offer_id] = ['viewer_id' => $viewer->id, 'price_version' => $offer->price_version,
                         'key' => (string) Str::uuid(), 'return_to' => $this->playback($request), 'expires_at' => $offer->expires_at];
+                    if ($viewer->emailVerified && $request->isMethod('GET')) {
+                        $drafts[$offer->offer_id]['checkout_page'] = ['path' => '/membership',
+                            'rendered_at' => now()->utc()->toIso8601String()];
+                    }
                     $request->session()->put('audience.billing.offers', array_slice($drafts, -10, null, true));
                 }
             }
@@ -90,11 +96,22 @@ final class BillingController
             if (! $draft || $draft['viewer_id'] !== $viewer->id || $draft['price_version'] !== (int) $input['price_version']) {
                 return $this->redirect('/membership?purchase=1', 'stale');
             }
+            if (! is_string($draft['expires_at'] ?? null) || CarbonImmutable::parse($draft['expires_at'])->lessThanOrEqualTo(now())) {
+                return $this->redirect('/membership?purchase=1', 'stale');
+            }
             $source = null;
             try {
                 $attribution = app(AttributionService::class);
                 if ($attribution->enabled()) {
-                    $source = $attribution->snapshot(null)?->toArray();
+                    $snapshot = $attribution->snapshot(null);
+                    $source = $snapshot?->toArray();
+                    $page = $draft['checkout_page'] ?? null;
+                    if ($snapshot && is_array($page) && ($page['path'] ?? null) === '/membership'
+                        && is_string($page['rendered_at'] ?? null) && $this->sameOriginCapture($request)) {
+                        $captured = app(CheckoutAttribution::class)->capture($snapshot,
+                            new CheckoutPageContext('/membership', $page['rendered_at']));
+                        $source = $captured?->toArray() ?? $source;
+                    }
                 }
             } catch (\Throwable $e) {
                 // Attribution availability must not prevent a viewer from buying.
@@ -252,6 +269,21 @@ final class BillingController
             // Redirect is a fresh read and a new user confirmation, never an automatic resume retry.
             return $this->redirect($e->errorCode === 'STALE_VERSION' ? '/membership?resume=1' : '/membership', $this->problemKey($e));
         }
+    }
+
+    private function sameOriginCapture(Request $request): bool
+    {
+        $site = $request->header('Sec-Fetch-Site');
+        $origin = $request->header('Origin');
+        if ($site !== null && $site !== 'same-origin') {
+            return false;
+        }
+        if ($origin !== null && $origin !== $request->getSchemeAndHttpHost()) {
+            return false;
+        }
+
+        // Missing headers are not evidence; never substitute Referer or a submitted URL.
+        return $site === 'same-origin' || $origin === $request->getSchemeAndHttpHost();
     }
 
     private function rememberPlayback(Request $request): void

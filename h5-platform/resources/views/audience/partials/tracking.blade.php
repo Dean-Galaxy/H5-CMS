@@ -5,6 +5,7 @@
         <form data-privacy-form>
             <h2 id="privacy-heading">{{ __('audience::messages.privacy_choices') }}</h2>
             <p>{{ __('audience::messages.privacy_intro') }}</p>
+            <p data-privacy-advertising-test hidden>{{ __('audience::messages.privacy_advertising_test') }}</p>
             <label><input type="checkbox" name="analytics"> {{ __('audience::messages.privacy_analytics') }}</label>
             <label><input type="checkbox" name="advertising"> {{ __('audience::messages.privacy_advertising') }}</label>
             <p class="fine-print">{{ __('audience::messages.privacy_retention') }}</p>

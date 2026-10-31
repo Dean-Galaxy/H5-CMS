@@ -2,6 +2,7 @@
 
 return [
     'privacy_choices' => 'Privacy choices',
+    'privacy_advertising_test' => 'Controlled advertising test only. Site analytics is unavailable and does not run. Advertising measurement is a separate optional choice; saving it does not start site analytics.',
     'privacy_intro' => 'Choose separately. You can use the site without optional tracking and reopen these choices at any time.',
     'privacy_analytics' => 'Site analytics: understand page visits, playback and purchase journeys.',
     'privacy_advertising' => 'Advertising measurement: associate eligible promotion visits and conversions with advertising services.',

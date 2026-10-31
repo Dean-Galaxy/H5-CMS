@@ -2,6 +2,7 @@
 
 return [
     'privacy_choices' => '隐私选择',
+    'privacy_advertising_test' => '仅限受控广告测试。网站分析不可用且不运行。广告衡量仍需单独自愿选择；保存广告选择不会开启网站分析。',
     'privacy_intro' => '两种用途分别选择。不接受可选跟踪也可正常使用网站，随时可重开修改。',
     'privacy_analytics' => '网站分析：了解页面访问、播放及购买流程。',
     'privacy_advertising' => '广告衡量：将符合条件的推广访问和转化关联到广告服务。',

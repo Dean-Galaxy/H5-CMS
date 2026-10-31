@@ -35,18 +35,22 @@
   let context = null, queue = [], timer = null, sending = false, contextPromise = null, disposed = false, consentBusy = false;
   let generation = 0, retryRound = 0, requests = [], requestTotal = 0, locallyPaused = false, choiceVersion = 0;
   let landingBusy = false, landingConfirmed = false, landingAttempts = 0, landingPromise = null;
+  let advertisingTestOnly = false;
   let draftDirty = false, draftVersion = 0, reading = false, readFailed = false, saveFailed = false, saved = false;
   const once = new Set();
   const dialog = mount.querySelector('[data-privacy-dialog]'), form = mount.querySelector('[data-privacy-form]');
   const status = mount.querySelector('[data-privacy-status]');
   let savedBuffer = read(sessionStorage, KEY);
   const blocked = () => locallyPaused || read(localStorage, BLOCK) !== null;
-  const granted = () => context?.enabled === true && context?.policy_version === POLICY && context?.consent?.analytics === 'granted' && !blocked();
+  const granted = () => !advertisingTestOnly && context?.analytics_available !== false && context?.enabled === true && context?.policy_version === POLICY && context?.consent?.analytics === 'granted' && !blocked();
   const landingGranted = () => context?.enabled === true && context?.policy_version === POLICY && context?.consent?.advertising === 'granted' && !blocked();
   const canSend = granted;
   function privacyStatus() {
     form.setAttribute('aria-busy', consentBusy ? 'true' : 'false');
     form.querySelectorAll('input[type=checkbox], button[type=submit], [data-privacy-reject], [data-privacy-withdraw]').forEach(control => { control.disabled = consentBusy; });
+    form.elements.analytics.disabled = consentBusy || advertisingTestOnly;
+    if (advertisingTestOnly) form.elements.analytics.checked = false;
+    mount.querySelector('[data-privacy-advertising-test]').hidden = !advertisingTestOnly;
     const state = consentBusy ? 'saving' : saveFailed || blocked() ? 'unavailable' : reading ? 'reading'
       : readFailed ? 'readFailed' : context?.enabled === false ? 'disabled' : saved ? 'saved' : 'ready';
     status.dataset.state = state;
@@ -77,11 +81,13 @@
   }
   function validContext(value) {
     return value && typeof value.enabled === 'boolean' && typeof value.pending_landing === 'boolean' && value.policy_version === POLICY
+      && (value.advertising_test_only === undefined || value.advertising_test_only === true && value.analytics_available === false)
       && ['unknown', 'granted', 'denied'].includes(value.consent?.analytics) && ['unknown', 'granted', 'denied'].includes(value.consent?.advertising);
   }
   async function applyContext(value) {
     if (!validContext(value)) throw new Error('tracking_unavailable');
     context = value;
+    advertisingTestOnly = value.advertising_test_only === true;
     if (!canSend()) clear();
     if (savedBuffer && canSend()) {
       if (savedBuffer.scope === scope && Array.isArray(savedBuffer.queue)) {
@@ -97,6 +103,7 @@
       form.elements.analytics.checked = typeof pendingChoice?.analytics === 'boolean' ? pendingChoice.analytics : value.consent.analytics === 'granted';
       form.elements.advertising.checked = typeof pendingChoice?.advertising === 'boolean' ? pendingChoice.advertising : value.consent.advertising === 'granted';
     }
+    if (advertisingTestOnly) form.elements.analytics.checked = false;
     privacyStatus();
     if (value.enabled && value.consent.analytics === 'unknown' && value.consent.advertising === 'unknown' && !blocked() && !dialog.open) dialog.showModal();
     const epoch = generation;
@@ -269,6 +276,7 @@
   }
   async function saveChoices(analytics, advertising) {
     if (consentBusy) return;
+    if (advertisingTestOnly) analytics = false;
     const version = ++choiceVersion;
     if (form.elements.analytics.checked !== analytics || form.elements.advertising.checked !== advertising) {
       form.elements.analytics.checked = analytics; form.elements.advertising.checked = advertising;

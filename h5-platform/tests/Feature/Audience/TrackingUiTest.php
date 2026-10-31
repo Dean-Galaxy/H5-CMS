@@ -30,4 +30,21 @@ final class TrackingUiTest extends BillingTestCase
         config(['h5.modules.acquisition.ready' => false]);
         $this->get('/membership')->assertOk()->assertDontSee('/audience/analytics.js', false)->assertDontSee('data-privacy-form', false);
     }
+
+    public function test_dbip_attribution_is_a_fixed_plain_footer_link_only_for_enabled_driver(): void
+    {
+        config(['h5.modules.audience.ready' => true]);
+        $this->app->register(AudienceServiceProvider::class);
+        Route::middleware('web')->group(base_path('routes/modules/audience.php'));
+        foreach (['disabled', null, 'dbip_lite'] as $driver) {
+            config(['geoip.driver' => $driver]);
+            $html = $this->get('/membership')->assertOk()->getContent();
+            if ($driver === 'dbip_lite') {
+                $this->assertStringContainsString('<small><a href="https://db-ip.com">IP Geolocation by DB-IP</a></small>', $html);
+                $this->assertSame(1, substr_count($html, 'https://db-ip.com'));
+            } else {
+                $this->assertStringNotContainsString('https://db-ip.com', $html);
+            }
+        }
+    }
 }

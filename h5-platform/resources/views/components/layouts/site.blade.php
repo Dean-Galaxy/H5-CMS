@@ -20,7 +20,8 @@
 @endif
 <main id="main">{{ $slot }}
 @if($audience && request()->is('identity/account'))<p><a class="button" href="/membership">{{ __('audience::messages.membership') }}</a></p>@endif
-</main><footer>@if($audience)<strong>{{ __('audience::messages.brand') }}</strong><p>{{ __('audience::messages.footer') }}</p>@if(app()->environment('local'))<small>{{ __('audience::messages.local_detail') }}</small>@endif @else{{ __('identity.local_boundary') }}@endif</footer>
+</main><footer>@if($audience)<strong>{{ __('audience::messages.brand') }}</strong><p>{{ __('audience::messages.footer') }}</p>@if(app()->environment('local'))<small>{{ __('audience::messages.local_detail') }}</small>@endif @else{{ __('identity.local_boundary') }}@endif
+@if(config('geoip.driver') === 'dbip_lite')<small><a href="https://db-ip.com">IP Geolocation by DB-IP</a></small>@endif</footer>
 @if($audience && config('h5.modules.acquisition.ready'))
     @if(config('h5.measurement_c_experience'))
         @includeIf('audience.partials.measurement-c')
