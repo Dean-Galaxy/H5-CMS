@@ -21,6 +21,9 @@ final class AuthResponse implements LoginResponse, RegisterResponse
             // purpose submission is not ready and must never be inferred from this redirect.
             $target = '/identity/account';
         }
+        if ($request->routeIs('register.store') && $request->attributes->get('identity.registration_mail_unconfirmed') === true) {
+            $target = '/identity/account'; // Keep the original safe return in session for later use.
+        }
         if (! $request->expectsJson()) {
             return redirect($target);
         }

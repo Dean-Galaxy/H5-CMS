@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 final class Verification
 {
@@ -20,15 +21,31 @@ final class Verification
             && ! (app()->environment('testing') && config('mail.default') === 'array')) {
             throw new ApiProblem('DEPENDENCY_NOT_READY', 503, '本机注册测试只提供私密邮件预览');
         }
-        DB::transaction(function () use ($viewer) {
-            $user = Viewer::query()->lockForUpdate()->findOrFail($viewer->id);
-            if ($user->hasVerifiedEmail()) {
+        try {
+            DB::transaction(function () use ($viewer) {
+                $user = Viewer::query()->lockForUpdate()->findOrFail($viewer->id);
+                if ($user->hasVerifiedEmail()) {
+                    return;
+                }
+                $user->forceFill(['verification_nonce' => (string) Str::uuid7()])->save();
+                try {
+                    $user->notify(new VerifyEmail);
+                } catch (TransportExceptionInterface) {
+                    throw new MailDeliveryUnconfirmed;
+                }
+                app(AuditRecorder::class)->record('verification.sent', 'viewer', $user->id, 'success', ['mail_mode' => config('mail.default')]);
+            });
+        } catch (MailDeliveryUnconfirmed $exception) {
+            if (! RegistrationTerms::enabled() && request()->routeIs('register.store')
+                && request()->attributes->get('identity.created_viewer') === $viewer->id) {
+                // The required account already committed. Continue Registered listeners and Fortify login.
+                request()->attributes->set('identity.registration_mail_unconfirmed', true);
+                request()->session()->flash('identity.ordinary_registration_mail_unconfirmed', true);
+
                 return;
             }
-            $user->forceFill(['verification_nonce' => (string) Str::uuid7()])->save();
-            $user->notify(new VerifyEmail);
-            app(AuditRecorder::class)->record('verification.sent', 'viewer', $user->id, 'success', ['mail_mode' => config('mail.default')]);
-        });
+            throw $exception;
+        }
     }
 
     public function url(Viewer $viewer): string

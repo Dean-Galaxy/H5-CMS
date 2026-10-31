@@ -5,6 +5,7 @@ namespace App\Modules\Identity\Http;
 use App\Contracts\AuditRecorder;
 use App\Contracts\IdentityContext;
 use App\Modules\Identity\Models\Viewer;
+use App\Modules\Identity\Services\MailDeliveryUnconfirmed;
 use App\Modules\Identity\Services\Verification;
 use App\Modules\Identity\Services\ViewerBehavior;
 use App\Support\ApiProblem;
@@ -52,9 +53,13 @@ final class IdentityController
     {
         $input = $request->validate(['email' => ['required', 'email', 'max:254']]);
         // Identical public response for missing, throttled and existing accounts.
-        Password::broker('viewers')->sendResetLink(['email' => mb_strtolower(trim($input['email']))]);
+        try {
+            Password::broker('viewers')->sendResetLink(['email' => mb_strtolower(trim($input['email']))]);
+        } catch (MailDeliveryUnconfirmed) {
+            // Same public response for an unknown address, throttling and uncertain transport delivery.
+        }
 
-        return $this->accepted($request, '如果邮箱可用，重设邮件已准备。请稍后查看收件箱或本地邮件预览。');
+        return $this->accepted($request, __('identity.reset_mail_neutral'));
     }
 
     public function reset(Request $request)

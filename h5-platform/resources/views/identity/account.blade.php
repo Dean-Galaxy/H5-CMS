@@ -1,4 +1,5 @@
 <x-layouts.site><section class="card"><p class="eyebrow">{{ __('identity.account') }}</p><h1>{{ auth('web')->user()->name }}</h1><p>{{ auth('web')->user()->email }}</p><p class="badge">{{ auth('web')->user()->hasVerifiedEmail() ? __('identity.verified') : __('identity.unverified') }}</p>
+@if(session('identity.ordinary_registration_mail_unconfirmed'))<p role="alert">{{ __('identity.registration_mail_unconfirmed') }}</p>@endif
 @if(\App\Modules\Identity\Services\RegistrationTerms::enabled())
 <p role="note"><strong>{{ __('identity.r1_title') }}</strong></p>
 @if(session('identity.registration_created'))<p role="status">{{ __('identity.r1_created') }}</p>@endif
