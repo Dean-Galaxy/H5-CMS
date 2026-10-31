@@ -1,0 +1,2 @@
+Diagnostic supplement source: c925f2cdf5bee2f0c6b73acac838a6197080f43c
+487dea58b1a2c3768063eebac2051dfa18190368a9952e3774313a43ef3a7ecc  h5-platform/tests/Feature/Identity/Support/registration-purposes.browser.cjs

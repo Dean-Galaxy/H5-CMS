@@ -1,0 +1,149 @@
+{
+  "result": "diagnostic-observed",
+  "diagnosticSource": "c925f2cdf5bee2f0c6b73acac838a6197080f43c",
+  "sameFourCasesRerun": true,
+  "productChanged": false,
+  "boundary": "Entire actual JS, full translations, all HTTP intercepted. Snapshot captured at first PATCH interception after matching me was consumed, before this purpose response was fulfilled. No actual API or database.",
+  "cases": [
+    {
+      "scenario": "identity-recovery-observe-created-en",
+      "locale": "en",
+      "creationSource": "explicit-registration-success",
+      "firstMatchingIdentityBeforePurposeResponse": {
+        "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+        "accountStatus": "unconfirmed",
+        "advertisingStatus": "unconfirmed",
+        "identityReads": 2,
+        "purposeResponsesDelivered": 0,
+        "matchingMe": true
+      },
+      "afterBoth": {
+        "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+        "account": {
+          "status": "saved",
+          "text": "Account-linking preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+        },
+        "advertising": {
+          "status": "saved",
+          "text": "Advertising preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 2,
+        "identityReads": 3,
+        "csrfReads": 2
+      },
+      "apiCounts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "preferences": 2
+      }
+    },
+    {
+      "scenario": "identity-recovery-observe-created-zh",
+      "locale": "zh_CN",
+      "creationSource": "explicit-registration-success",
+      "firstMatchingIdentityBeforePurposeResponse": {
+        "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+        "accountStatus": "unconfirmed",
+        "advertisingStatus": "unconfirmed",
+        "identityReads": 2,
+        "purposeResponsesDelivered": 0,
+        "matchingMe": true
+      },
+      "afterBoth": {
+        "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+        "account": {
+          "status": "saved",
+          "text": "账户关联偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+        },
+        "advertising": {
+          "status": "saved",
+          "text": "广告偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 2,
+        "identityReads": 3,
+        "csrfReads": 2
+      },
+      "apiCounts": {
+        "context": 1,
+        "register": 1,
+        "me": 3,
+        "csrf": 2,
+        "preferences": 2
+      }
+    },
+    {
+      "scenario": "identity-recovery-observe-recovered-en",
+      "locale": "en",
+      "creationSource": "matching-current-account-only",
+      "firstMatchingIdentityBeforePurposeResponse": {
+        "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+        "accountStatus": "unconfirmed",
+        "advertisingStatus": "unconfirmed",
+        "identityReads": 3,
+        "purposeResponsesDelivered": 0,
+        "matchingMe": true
+      },
+      "afterBoth": {
+        "global": "Optional submissions are paused because account identity is unconfirmed. Check your sign-in or keep using the site.",
+        "account": {
+          "status": "saved",
+          "text": "Account-linking preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+        },
+        "advertising": {
+          "status": "saved",
+          "text": "Advertising preference: Permission saved\nCurrently off — This choice was saved. It is not running."
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 2,
+        "identityReads": 4,
+        "csrfReads": 2
+      },
+      "apiCounts": {
+        "context": 1,
+        "register": 1,
+        "me": 4,
+        "csrf": 2,
+        "preferences": 2
+      }
+    },
+    {
+      "scenario": "identity-recovery-observe-recovered-zh",
+      "locale": "zh_CN",
+      "creationSource": "matching-current-account-only",
+      "firstMatchingIdentityBeforePurposeResponse": {
+        "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+        "accountStatus": "unconfirmed",
+        "advertisingStatus": "unconfirmed",
+        "identityReads": 3,
+        "purposeResponsesDelivered": 0,
+        "matchingMe": true
+      },
+      "afterBoth": {
+        "global": "账号身份未确认，本页可选提交已暂停；请核对登录或继续使用。",
+        "account": {
+          "status": "saved",
+          "text": "账户关联偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+        },
+        "advertising": {
+          "status": "saved",
+          "text": "广告偏好: 已保存允许\n当前未运行 — 本项已保存，当前未运行。"
+        },
+        "registrationPosts": 1,
+        "purposeCommands": 2,
+        "identityReads": 4,
+        "csrfReads": 2
+      },
+      "apiCounts": {
+        "context": 1,
+        "register": 1,
+        "me": 4,
+        "csrf": 2,
+        "preferences": 2
+      }
+    }
+  ]
+}
