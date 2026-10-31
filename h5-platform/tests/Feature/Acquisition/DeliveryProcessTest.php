@@ -28,7 +28,7 @@ final class DeliveryProcessTest extends TestCase
     {
         parent::setUp();
         $this->assertSame(0, DB::transactionLevel());
-        $this->directory = base_path('../.runtime/f07-workers/'.AcquisitionStore::id());
+        $this->directory = realpath(sys_get_temp_dir()).'/h5-acq-worker-'.AcquisitionStore::id();
         mkdir($this->directory, 0700, true);
         File::ensureDirectoryExists(base_path('../.runtime/f07'), 0700);
     }

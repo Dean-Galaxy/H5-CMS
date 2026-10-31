@@ -2,30 +2,68 @@
 
 namespace App\Modules\Acquisition\Sending;
 
+use Illuminate\Support\Str;
+
 final class Credentials
 {
-    /** Credentials are never rendered in Filament, accepted in a browser form, or written to delivery logs. */
+    /** Only the worker receives a secret. Neither readiness nor a CLI response includes one. */
     public function forDelivery(object $delivery): ?array
     {
-        $path = config('acquisition.credentials_file');
-        if (! is_string($path) || $path === '' || ! is_file($path) || ! is_readable($path)) {
-            return null;
+        return $this->resolve($delivery)['value'];
+    }
+
+    public function readiness(object $asset): array
+    {
+        $code = $this->resolve($asset)['code'];
+
+        return ['code' => $code, 'label' => match ($code) {
+            'CONFIGURED_UNVERIFIED' => '配置可读取；待官方联调', 'VERSION_MISMATCH' => '配置版本不匹配',
+            'ASSET_MISMATCH' => '平台、编号或环境不匹配', 'TOKEN_MISSING' => '凭据配置无效', 'TEST_CODE_MISSING' => '缺测试码',
+            'FILE_UNSAFE' => '私密文件位置或权限不安全', 'FILE_INVALID' => '私密配置不可读取', default => '配置缺失',
+        }, 'platform_confirmation' => 'pending'];
+    }
+
+    private function resolve(object $asset): array
+    {
+        $no = static fn ($code) => ['code' => $code, 'value' => null];
+        if (config('acquisition.credentials_file', '') === '') {
+            return $no('CONFIG_MISSING');
         }
-        $real = realpath($path);
-        if (! $real || str_starts_with($real, public_path().DIRECTORY_SEPARATOR) || (fileperms($real) & 0077) !== 0 || filesize($real) > 65536) {
-            return null;
+        try {
+            $map = app(PrivateCredentialFile::class)->read();
+        } catch (CredentialFileException $e) {
+            return $no(match ($e->reason) {
+                'FILE_MISSING' => 'CONFIG_MISSING', 'PATH_UNSAFE', 'FILE_UNSAFE', 'PATH_CHANGED' => 'FILE_UNSAFE', default => 'FILE_INVALID',
+            });
+        } catch (\Throwable) {
+            return $no('FILE_INVALID');
         }
-        $map = json_decode(file_get_contents($real), true);
-        $value = is_array($map) ? ($map[$delivery->pixel_id.':'.$delivery->pixel_version] ?? null) : null;
-        if (! is_array($value) || ($value['environment'] ?? null) !== $delivery->environment
-            || ($value['external_id'] ?? null) !== $delivery->external_id || ($value['platform'] ?? null) !== $delivery->platform
-            || ! is_string($value['token'] ?? null) || $value['token'] === '' || strlen($value['token']) > 4096) {
-            return null;
+        $id = $asset->pixel_id ?? $asset->id ?? '';
+        $version = $asset->pixel_version ?? $asset->version ?? 0;
+        if (! Str::isUuid($id) || ! is_numeric($version) || (int) $version < 1) {
+            return $no('ASSET_MISMATCH');
         }
-        if ($delivery->environment === 'test' && (! is_string($value['test_event_code'] ?? null) || $value['test_event_code'] === '')) {
-            return null;
+        $value = $map[$id.':'.$version] ?? null;
+        if ($value === null) {
+            foreach (array_keys($map) as $key) {
+                if (str_starts_with((string) $key, $id.':')) {
+                    return $no('VERSION_MISMATCH');
+                }
+            }
+
+            return $no('CONFIG_MISSING');
+        }
+        if (! is_array($value) || ($value['environment'] ?? null) !== $asset->environment
+            || ($value['external_id'] ?? null) !== $asset->external_id || ($value['platform'] ?? null) !== $asset->platform) {
+            return $no('ASSET_MISMATCH');
+        }
+        if (! PrivateCredentialFile::secretValid($value['token'] ?? null, 4096)) {
+            return $no('TOKEN_MISSING');
+        }
+        if ($asset->environment === 'test' && ! PrivateCredentialFile::secretValid($value['test_event_code'] ?? null, 256)) {
+            return $no('TEST_CODE_MISSING');
         }
 
-        return $value;
+        return ['code' => 'CONFIGURED_UNVERIFIED', 'value' => $value];
     }
 }

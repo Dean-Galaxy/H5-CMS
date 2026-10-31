@@ -9,6 +9,7 @@ use App\Contracts\PromotableCatalog;
 use App\Enums\Permission;
 use App\Enums\Role;
 use App\Modules\Acquisition\Analytics\TrackingContext;
+use App\Modules\Acquisition\Sending\Credentials;
 use App\Modules\Acquisition\Sending\LocalSimulator;
 use App\Modules\Acquisition\Sending\MetaAdapter;
 use App\Modules\Acquisition\Sending\TikTokAdapter;
@@ -290,6 +291,7 @@ final class AssetManager
         $result['assigned_staff_ids'] = DB::table('acquisition_assignments')->where('resource_type', 'pixel')->where('resource_id', $r->id)->pluck('staff_id')->all();
         $result['affected_links'] = $this->access->query('link')->where('pixel_id', $r->id)->count();
         $result['external_status'] = '待账号持有人联调';
+        $result['credential_readiness'] = app(Credentials::class)->readiness($r);
 
         return $result;
     }

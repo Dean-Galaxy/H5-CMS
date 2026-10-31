@@ -71,6 +71,9 @@ abstract class AcquisitionTestCase extends TestCase
     {
         foreach ($this->privateFiles as $path) {
             @unlink($path);
+            if (preg_match('~/h5-acq-secret-[a-f0-9]{16}$~', dirname($path))) {
+                @rmdir(dirname($path));
+            }
         }
         parent::tearDown();
     }
@@ -152,7 +155,9 @@ abstract class AcquisitionTestCase extends TestCase
     {
         config(['acquisition.transport' => 'http', 'acquisition.external_enabled' => true, 'acquisition.platform_reviewed' => true,
             'app.url' => 'https://localhost']);
-        $path = tempnam(base_path('../.runtime'), 'acq-test-');
+        $directory = realpath(sys_get_temp_dir()).'/h5-acq-secret-'.bin2hex(random_bytes(8));
+        mkdir($directory, 0700);
+        $path = $directory.'/credentials.json';
         file_put_contents($path, json_encode([$delivery->pixel_id.':'.$delivery->pixel_version => ['platform' => $delivery->platform,
             'external_id' => $delivery->external_id, 'environment' => $delivery->environment, 'token' => 'UNIT-TEST-NOT-A-REAL-SECRET', 'test_event_code' => 'UNIT_TEST']], JSON_THROW_ON_ERROR));
         chmod($path, 0600);
