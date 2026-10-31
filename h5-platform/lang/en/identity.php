@@ -34,7 +34,7 @@ return [
     'logout' => 'Sign out',
     'mail_delivery_unconfirmed' => 'Email delivery could not be confirmed. Wait before retrying; the message may already have been submitted.',
     'registration_mail_unconfirmed' => 'Your account was created, but verification email delivery is unconfirmed. You can resend it later; do not register again.',
-    'reset_mail_neutral' => 'If this account is eligible, check your email for password reset instructions. If nothing arrives, wait before trying again. Local test mail is available only in its preview.',
+    'reset_mail_neutral' => 'If this account is eligible, check your email for password reset instructions. If nothing arrives, wait before trying again.',
     'r1_title' => 'Local registration test example — not formal terms or a privacy policy; not for real-user launch',
     'r1_terms_title' => 'Local Registration Test Terms',
     'r1_privacy_title' => 'Local Privacy Test Notice',

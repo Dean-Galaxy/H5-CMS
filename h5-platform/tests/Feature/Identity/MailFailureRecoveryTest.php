@@ -156,7 +156,7 @@ class MailFailureRecoveryTest extends TestCase
         $this->assertSame(array_fill(0, 4, $responses[0]), $responses);
         $this->assertStringContainsString('If this account is eligible', $responses[0]['message']);
         $this->postJson('/api/v1/auth/forgot-password?lang=zh_CN', ['email' => 'another@example.test'])->assertOk()
-            ->assertJsonPath('message', '如果该账号适用，请查看密码重设邮件；未收到可稍后重试。本机测试邮件仅在本地预览。');
+            ->assertJsonPath('message', '如果该账号适用，请查看密码重设邮件；未收到可稍后重试。');
         $this->postJson('/api/v1/auth/forgot-password', ['email' => 'another@example.test'])->assertStatus(429);
     }
 

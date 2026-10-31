@@ -34,7 +34,7 @@ return [
     'logout' => '退出观众账号',
     'mail_delivery_unconfirmed' => '邮件发送未确认，可能已提交发送，请稍后再试。',
     'registration_mail_unconfirmed' => '账号已创建，验证邮件发送未确认；可稍后重发，不必重新注册。',
-    'reset_mail_neutral' => '如果该账号适用，请查看密码重设邮件；未收到可稍后重试。本机测试邮件仅在本地预览。',
+    'reset_mail_neutral' => '如果该账号适用，请查看密码重设邮件；未收到可稍后重试。',
     'r1_title' => '本机注册测试示例，非正式服务协议/政策，不用于真实用户上线',
     'r1_terms_title' => '本机注册测试条款',
     'r1_privacy_title' => '本机隐私测试说明',
