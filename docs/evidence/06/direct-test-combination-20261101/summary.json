@@ -1,0 +1,94 @@
+{
+  "recorded_at_utc": "2026-10-31T19:05:24.575936+00:00",
+  "application_commit": "bc4e1a86adcb13abf86b5684892b02f199e9e5be",
+  "test_file": "h5-platform/tests/Integration/ControlledAcquisition/CheckoutDeliveryTest.php",
+  "test_source_sha256": "932e2827ba97c541fad15bb316057bdd28310452fcf0a89a4b57735370bc8245",
+  "contract": [
+    "1.0.5",
+    "direct-test-1"
+  ],
+  "result": {
+    "passed": 7,
+    "failed": 0,
+    "assertions": 337
+  },
+  "cases": [
+    {
+      "name": "test_purchase_real_capture_minimal_http_retry_and_replay with data set \"Meta\"",
+      "assertions": 71
+    },
+    {
+      "name": "test_purchase_real_capture_minimal_http_retry_and_replay with data set \"TikTok\"",
+      "assertions": 71
+    },
+    {
+      "name": "test_withdrawal_stops_already_queued_retry with data set \"Meta\"",
+      "assertions": 43
+    },
+    {
+      "name": "test_withdrawal_stops_already_queued_retry with data set \"TikTok\"",
+      "assertions": 43
+    },
+    {
+      "name": "test_missing_capture_preserves_purchase_but_blocks_ad_delivery with data set \"Meta\"",
+      "assertions": 41
+    },
+    {
+      "name": "test_missing_capture_preserves_purchase_but_blocks_ad_delivery with data set \"TikTok\"",
+      "assertions": 41
+    },
+    {
+      "name": "test_production_default_cannot_use_the_staging_test_lane",
+      "assertions": 27
+    }
+  ],
+  "actual_modules": [
+    "IdentityContext/session middleware",
+    "Audience GET /membership + POST /membership/checkout",
+    "Acquisition AttributionRecorder + CheckoutContextStore (not replaced)",
+    "real PaymentSettled listener, DeliveryGate, DeliveryWorker, MetaAdapter, TikTokAdapter",
+    "RuntimeEnvironmentGuard in synthetic staging/production configurations"
+  ],
+  "explicit_fixtures": [
+    "BillingService + MembershipReader via Mockery; no real ledger writes",
+    "AcquisitionTestCase synthetic staff, catalog, pixel/test version and eligible-source rows",
+    "verified synthetic viewer; no registration/email operation",
+    "trusted synthetic PaymentSettled FirstSubscription 300 USD-minor-unit fact; not browser-derived",
+    "synthetic temporary credential file + scoped Http::fake success/503; Http::preventStrayRequests"
+  ],
+  "boundaries": [
+    "Laravel in-process HTTP client, no browser/TLS/site deployment",
+    "no PayPal/Stripe payment, official webhook, Test Events receipt or ad attribution evidence",
+    "no external SMTP/cloud/GeoIP test",
+    "no old R1/refund/whole-product suites"
+  ],
+  "new_workspace": {
+    "web_port_reserved_not_started": 8496,
+    "postgres_port": 5996,
+    "dedicated_test_database": true,
+    "dependencies_copied_from_matching_lock_only": true,
+    "configuration_data_accounts_media_not_copied": true,
+    "stopped_and_ports_released": true
+  },
+  "first_run": {
+    "base": "bc4e1a86adcb13abf86b5684892b02f199e9e5be",
+    "test_source_sha256": "66220da438c49639d0a31eb02a8ef3c7871d6fce8ad97d9f54decf8083627ad1",
+    "phase": "04 GET membership after synthetic consent before capture",
+    "status": 401,
+    "tests": {
+      "failed": 1,
+      "pending": 6,
+      "assertions": 9
+    },
+    "product_defect_established": false
+  },
+  "fixture_correction": "Explicit viewer cookie, JSON withCredentials and save synthetic session version/token/source before StartSession reload; no middleware/Guard/CSRF bypass",
+  "private_artifact_sha256": {
+    "final-junit.xml": "a18fd2294cd7bef19d25d765862c08f97a25f6e357a0edac332d24de8ea8c7cb",
+    "final-output-private.txt": "495d2122e5aff11772328e4d358be82de342cd79d10c9b24ac5eb00431072c52",
+    "first-failure.json": "372ff2dd05b645b548a53baae01e266caf2676cce8e0977db023a3971d6a9bad",
+    "first-run-source.php": "66220da438c49639d0a31eb02a8ef3c7871d6fce8ad97d9f54decf8083627ad1",
+    "shutdown-private.json": "adbfce749ca8213ad180fdc3448865247ff17c7563ea3dcb41141e91d507d4de"
+  },
+  "rerun_command": "python3 -B h5-platform/tests/Feature/Acquisition/Support/run.py tests/Integration/ControlledAcquisition/CheckoutDeliveryTest.php --stop-on-failure"
+}
