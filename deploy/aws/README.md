@@ -64,7 +64,7 @@ python3 -B -m unittest scripts.ops.tests.test_aws_preflight.OfflineDeploymentTes
 
 ## 2026-11-01 受限HTTPS入口候选（尚无实际Nginx证据）
 
-基线`4e22ef39819b878ab3a8e5546a6f109b171dba6c`。本人已在07接受us-east-1/4GB及$26.52示例费用；Root MFA当前失败不推定所有工作停，也不冒报项目IAM/STS可用。空机/系统准备可由本人既有获准控制台及SSH推进，先不发布应用、不放用户数据、支付或采集外发；未使用的备份角色不是该阶段的前置条件。
+基线`4e22ef39819b878ab3a8e5546a6f109b171dba6c`。本人已在07接受us-east-1/4GB及$26.52示例费用；本人当前MFA设备绑定失败不推定所有工作停，账号具体身份类型仍未核准，也不冒报项目IAM/STS可用。空机/系统准备可由本人既有获准控制台及SSH推进，先不发布应用、不放用户数据、支付或采集外发；未使用的备份角色不是该阶段的前置条件。
 
 TLS模板仅加Nginx原生HTTP Basic：server层统一要求`/etc/nginx/h5-staging.htpasswd`，静态资源与`/index.php`均继承；只把**原始POST** `/webhooks/paypal`和`/webhooks/stripe`（可带query、无尾斜杠或子路径）列为例外。map采用原始`$request_method:$request_uri`，而非会被try_files改写的`$uri`，防止回调内部到index.php后重新被登录墙挡住。业务验签/方法/幂等仍由原模块执行；Basic的Authorization不进入FastCGI白名单。80仅ACME文件，其余503；未知Host/其他PHP/点文件及私有媒体不新增放行或alias。[Basic官方指令](https://nginx.org/en/docs/http/ngx_http_auth_basic_module.html)、[原始request_uri语义](https://nginx.org/en/docs/http/ngx_http_core_module.html#var_request_uri)
 
