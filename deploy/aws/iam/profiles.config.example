@@ -1,0 +1,8 @@
+# UNBOUND: 00 fills only a private copy after account/principal approval.
+# AWS_CONFIG_FILE, AWS_SHARED_CREDENTIALS_FILE and AWS_LOGIN_CACHE_DIRECTORY
+# must all point to project-private paths; do not change HOME.
+# No role_arn/source_profile: avoid the default ~/.aws/cli/cache role cache.
+[profile h5-operator]
+region = us-east-1
+output = json
+# aws login writes login_session after selecting the approved non-root user.

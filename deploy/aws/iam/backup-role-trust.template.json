@@ -1,0 +1,18 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "OnlyNamedProjectUserWithMfa",
+      "Effect": "Allow",
+      "Principal": {"AWS": "arn:aws:iam::__ACCOUNT_ID__:user/h5-sparklingshort-operator"},
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {"aws:RequestedRegion": "us-east-1"},
+        "Bool": {
+          "aws:MultiFactorAuthPresent": "true",
+          "aws:SecureTransport": "true"
+        }
+      }
+    }
+  ]
+}

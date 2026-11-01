@@ -1,0 +1,36 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadOnlyTargetBucketRegion",
+      "Effect": "Allow",
+      "Action": "s3:GetBucketLocation",
+      "Resource": "arn:aws:s3:::__BUCKET_NAME__",
+      "Condition": {
+        "StringEquals": {"aws:RequestedRegion": "us-east-1", "s3:ResourceAccount": "__ACCOUNT_ID__"},
+        "Bool": {"aws:SecureTransport": "true"}
+      }
+    },
+    {
+      "Sid": "ListOnlyProjectPrefix",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::__BUCKET_NAME__",
+      "Condition": {
+        "StringLike": {"s3:prefix": ["h5-staging/", "h5-staging/*"]},
+        "StringEquals": {"aws:RequestedRegion": "us-east-1", "s3:ResourceAccount": "__ACCOUNT_ID__"},
+        "Bool": {"aws:SecureTransport": "true"}
+      }
+    },
+    {
+      "Sid": "WriteAndManageOnlyProjectPrefixUploads",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:AbortMultipartUpload", "s3:ListMultipartUploadParts"],
+      "Resource": "arn:aws:s3:::__BUCKET_NAME__/h5-staging/*",
+      "Condition": {
+        "StringEquals": {"aws:RequestedRegion": "us-east-1", "s3:ResourceAccount": "__ACCOUNT_ID__"},
+        "Bool": {"aws:SecureTransport": "true"}
+      }
+    }
+  ]
+}
