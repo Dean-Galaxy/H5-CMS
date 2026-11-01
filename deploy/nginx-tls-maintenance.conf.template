@@ -1,0 +1,47 @@
+# Offline first-certificate candidate. Install ONLY after separate host/DNS authorization.
+# http{} context; no PHP, application, private media, or HTTPS before certificate exists.
+server {
+    listen 80 default_server;
+    server_name _;
+    access_log off;
+    error_log /dev/null crit;
+    server_tokens off;
+    return 444;
+}
+server {
+    listen 80;
+    server_name __DOMAIN__;
+    access_log off;
+    error_log /dev/null crit;
+    server_tokens off;
+    if ($host != __DOMAIN__) { return 444; }
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/lib/letsencrypt;
+        default_type text/plain;
+        try_files $uri =404;
+    }
+    location / { return 503; }
+}
+
+# Maintenance TLS only: no application/PHP/upstream. Install in a separately approved window.
+server {
+    listen 443 ssl default_server;
+    server_name _;
+    access_log off;
+    error_log /dev/null crit;
+    server_tokens off;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_reject_handshake on;
+}
+server {
+    listen 443 ssl;
+    server_name __DOMAIN__;
+    access_log off;
+    error_log /dev/null crit;
+    server_tokens off;
+    ssl_certificate /etc/letsencrypt/live/__DOMAIN__/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/__DOMAIN__/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    if ($host != __DOMAIN__) { return 444; }
+    location / { return 503; }
+}
