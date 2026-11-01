@@ -184,6 +184,19 @@ class OfflineDeploymentTests(unittest.TestCase):
                 self.assertFalse(target.exists())
                 self.assertEqual('DOMAIN_INVALID', json.loads(output.getvalue())['error'])
 
+    def test_tls_preserves_checkout_request_evidence_without_forwarding_empty_headers(self):
+        text = renderer.render('staging.example.com', 'tls')
+        # Capture must see actual conflicting/prefetch evidence. Missing Fetch Metadata
+        # must stay absent: an empty FastCGI value would fail the optional-header check.
+        for name in ['SEC_FETCH_SITE', 'PURPOSE', 'SEC_PURPOSE']:
+            with self.subTest(header=name):
+                directive = f'fastcgi_param HTTP_{name} $http_{name.lower()} if_not_empty;'
+                self.assertIn(directive, text)
+                self.assertEqual(1, text.count(f'fastcgi_param HTTP_{name} '))
+        self.assertIn('fastcgi_pass_request_headers off;', text)
+        self.assertIn('fastcgi_param HTTP_ORIGIN $http_origin;', text)
+        self.assertNotIn('fastcgi_param HTTP_X_FORWARDED_', text)
+
     def test_tls_preserves_exact_paypal_allowlist_and_direct_peer_and_private_media(self):
         text = renderer.render('staging.example.com')
         names = ['AUTH_ALGO', 'CERT_URL', 'TRANSMISSION_ID', 'TRANSMISSION_SIG', 'TRANSMISSION_TIME']

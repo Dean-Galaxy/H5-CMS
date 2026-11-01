@@ -70,6 +70,9 @@ server {
         fastcgi_param HTTP_COOKIE $http_cookie;
         fastcgi_param HTTP_USER_AGENT $http_user_agent;
         fastcgi_param HTTP_ORIGIN $http_origin;
+        fastcgi_param HTTP_SEC_FETCH_SITE $http_sec_fetch_site if_not_empty;
+        fastcgi_param HTTP_PURPOSE $http_purpose if_not_empty;
+        fastcgi_param HTTP_SEC_PURPOSE $http_sec_purpose if_not_empty;
         fastcgi_param HTTP_REFERER $http_referer;
         fastcgi_param HTTP_X_CSRF_TOKEN $http_x_csrf_token;
         fastcgi_param HTTP_X_XSRF_TOKEN $http_x_xsrf_token;

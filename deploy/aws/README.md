@@ -50,3 +50,13 @@ python3 -B -m unittest discover -s scripts/ops/tests -p test_aws_preflight.py -v
 ```
 
 launch-prep-1原首步12项定向离线测试覆盖默认不联网/不执行子进程、不读取真实.env、保护项与输入拒绝、私有新文件/链接和覆盖拒绝、PayPal五头白名单、首张证书阶段及静态状态不会报部署通过。本轮direct-test/GeoIP只执行新增2项定向验证，原12未受影响项复用。未跑旧全套、本地服务/数据库、Linux nginx -t、真实TLS/DNS/SES/平台回调；后四类必须在受权环境另取实际证据。
+
+## 首批部署前的请求信息补齐（2026-11-01）
+
+00复核发现TLS模板关闭默认头透传后，未给新购买上下文传递`Sec-Fetch-Site`、`Purpose`与`Sec-Purpose`，会丢失跨站冲突/预加载证据。本轮只新增这三项FastCGI白名单；采用`if_not_empty`，使未发送Fetch Metadata的浏览器仍保留“缺省”语义，不变成空字符串而误阻断。Origin、真实TCP地址、CSRF与支付五头规则保持。[Nginx参数官方语义](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_param)。
+
+新增渲染契约在旧模板失败，修后新1项及直接受影响原支付/直连白名单1项通过；仅纯离线渲染，不运行Nginx、数据库或网络。原05消费者拒绝/捕获与7/337组合证据复用，没有重跑旧全套；实际Linux的`nginx -t`及Nginx→FPM请求检查仍须获批主机后执行。
+
+```sh
+python3 -B -m unittest scripts.ops.tests.test_aws_preflight.OfflineDeploymentTests.test_tls_preserves_checkout_request_evidence_without_forwarding_empty_headers scripts.ops.tests.test_aws_preflight.OfflineDeploymentTests.test_tls_preserves_exact_paypal_allowlist_and_direct_peer_and_private_media -v
+```
