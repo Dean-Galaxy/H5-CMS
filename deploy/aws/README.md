@@ -79,3 +79,6 @@ python3 -B -m unittest scripts.ops.tests.test_aws_preflight.OfflineDeploymentTes
 ```
 
 新体验现场判断：官方说明Builder ID在**新体验**可作为控制台及临时凭据身份，且当前新体验Free服务列表包含Lightsail/S3/SES/SNS；不把Free与新体验等同，也不把列入服务当实际账户有权限/指定套餐可创建。优先本人已有原生项目/角色控制台与Lightsail浏览器SSH；若IAM用户登录路径不适配，不为复用本包而迫其启用advanced或新建角色体系。实际登录身份/项目区域/创建权限、指定镜像套餐与SSH连通仍由现场确认，错误或升级提示交00。首轮有人维护时可另准备本机加密备份文件、本人通过获准控制台手动上传私有S3，再独立恢复验收；此处未实施、不称自动备份。严格MFA模板不改、不冒报STS；数据上线前必须补真正可用的备份恢复证据。[新体验Builder ID](https://docs.aws.amazon.com/signin/latest/userguide/differences-builder-id.html)、[当前支持服务](https://docs.aws.amazon.com/accounts/latest/reference/supported-services-sign-up-new.html)、[Lightsail原生SSH](https://docs.aws.amazon.com/lightsail/latest/userguide/lightsail-how-to-connect-to-your-instance-virtual-private-server.html)
+
+
+原生续期部署钩子使用[已与实机字节核对的源码](../letsencrypt-renew-deploy-hook.sh)，由工程以root:root/0755安装至`/etc/letsencrypt/renewal-hooks/deploy/h5-nginx`；2026-11-01实机`renew --dry-run --run-deploy-hooks`已验证检查后reload且正式证书不变、原生定时器已启用，仅回环TLS通过，公网443与告警仍待验。
