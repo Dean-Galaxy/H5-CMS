@@ -32,6 +32,7 @@ server {
     server_tokens off;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_reject_handshake on;
+    return 444;
 }
 server {
     listen 443 ssl;

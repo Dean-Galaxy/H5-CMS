@@ -20,6 +20,7 @@ server {
     listen 443 ssl default_server;
     server_name _;
     ssl_reject_handshake on;
+    return 444;
 }
 server {
     access_log off;

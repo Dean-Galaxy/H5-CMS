@@ -82,3 +82,6 @@ python3 -B -m unittest scripts.ops.tests.test_aws_preflight.OfflineDeploymentTes
 
 
 原生续期采用[实机同字节钩子](../letsencrypt-renew-deploy-hook.sh)，以root:root/0755安装至`/etc/letsencrypt/renewal-hooks/deploy/h5-nginx`，实机续期dry-run已触发检查后reload且正式证书不变、原生timer已启；[TLS维护候选](../nginx-tls-maintenance.conf.template)保留原ACME HTTP逻辑、所有HTTPS路径仅503且不接业务，00已核新候选的原生nginx-t、正常系统CA与主机名校验下的回环503及未知SNI拒绝；候选已安装但未启用，当前enabled仍为HTTP引导。公网443/TLS与业务未验，告警外发尚未配置。
+
+
+00在真实Nginx复现正确SNI配错误HTTP Host可落入默认欢迎页（200），本次仅为维护与应用模板的443默认服务器补显式HTTP `return 444`、保留握手拒绝及其余边界，原渲染检查不代替00将执行的真实Host回归，旧失败与标签保留。
