@@ -184,6 +184,39 @@ class OfflineDeploymentTests(unittest.TestCase):
                 self.assertFalse(target.exists())
                 self.assertEqual('DOMAIN_INVALID', json.loads(output.getvalue())['error'])
 
+    def test_tls_basic_wall_uses_original_post_callback_identity_across_rewrite(self):
+        text = renderer.render('staging.example.com', 'tls')
+        # Render contract only: actual access-phase/rewrite behavior needs nginx on Linux.
+        self.assertIn('map "$request_method:$request_uri" $h5_staging_realm {', text)
+        self.assertIn('default "H5 restricted staging";', text)
+        self.assertIn(r'~^POST:/webhooks/(paypal|stripe)(?:\?.*)?$ off;', text)
+        self.assertEqual(1, text.count(' off;\n}'))
+        self.assertEqual(1, text.count('auth_basic $h5_staging_realm;'))
+        self.assertIn('auth_basic_user_file /etc/nginx/h5-staging.htpasswd;', text)
+        tls_app = text[text.index('ssl_certificate /etc/letsencrypt/'):]
+        self.assertLess(tls_app.index('auth_basic $h5_staging_realm;'),
+                        tls_app.index('location / { try_files'))
+        self.assertIn('location = /index.php {', tls_app)
+        self.assertNotIn('auth_basic off;', text)
+        self.assertNotIn('HTTP_AUTHORIZATION', text)
+        self.assertNotIn('satisfy any', text)
+        self.assertNotIn('error_page 401', text)
+        self.assertIn('fastcgi_param REQUEST_URI $request_uri;', text)
+
+    def test_tls_port_80_only_serves_acme_and_rejects_other_hosts(self):
+        text = renderer.render('staging.example.com', 'tls')
+        http = text.split('listen 80;')[1].split('listen 443 ssl;')[0]
+        self.assertIn('if ($host != staging.example.com) { return 444; }', http)
+        self.assertIn('location ^~ /.well-known/acme-challenge/', http)
+        self.assertIn('root /var/lib/letsencrypt;', http)
+        self.assertIn('try_files $uri =404;', http)
+        self.assertIn('location / { return 503; }', http)
+        for forbidden in ['return 308', 'return 301', 'auth_basic', 'fastcgi_pass']:
+            self.assertNotIn(forbidden, http)
+        self.assertIn('ssl_reject_handshake on;', text)
+        self.assertIn(r'location ~ /\. { deny all; }', text)
+        self.assertIn(r'location ~ \.php$ { return 404; }', text)
+
     def test_tls_preserves_checkout_request_evidence_without_forwarding_empty_headers(self):
         text = renderer.render('staging.example.com', 'tls')
         # Capture must see actual conflicting/prefetch evidence. Missing Fetch Metadata

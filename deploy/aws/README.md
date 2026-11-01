@@ -60,3 +60,22 @@ launch-prep-1原首步12项定向离线测试覆盖默认不联网/不执行子�
 ```sh
 python3 -B -m unittest scripts.ops.tests.test_aws_preflight.OfflineDeploymentTests.test_tls_preserves_checkout_request_evidence_without_forwarding_empty_headers scripts.ops.tests.test_aws_preflight.OfflineDeploymentTests.test_tls_preserves_exact_paypal_allowlist_and_direct_peer_and_private_media -v
 ```
+
+
+## 2026-11-01 受限HTTPS入口候选（尚无实际Nginx证据）
+
+基线`4e22ef39819b878ab3a8e5546a6f109b171dba6c`。本人已在07接受us-east-1/4GB及$26.52示例费用；Root MFA当前失败不推定所有工作停，也不冒报项目IAM/STS可用。空机/系统准备可由本人既有获准控制台及SSH推进，先不发布应用、不放用户数据、支付或采集外发；未使用的备份角色不是该阶段的前置条件。
+
+TLS模板仅加Nginx原生HTTP Basic：server层统一要求`/etc/nginx/h5-staging.htpasswd`，静态资源与`/index.php`均继承；只把**原始POST** `/webhooks/paypal`和`/webhooks/stripe`（可带query、无尾斜杠或子路径）列为例外。map采用原始`$request_method:$request_uri`，而非会被try_files改写的`$uri`，防止回调内部到index.php后重新被登录墙挡住。业务验签/方法/幂等仍由原模块执行；Basic的Authorization不进入FastCGI白名单。80仅ACME文件，其余503；未知Host/其他PHP/点文件及私有媒体不新增放行或alias。[Basic官方指令](https://nginx.org/en/docs/http/ngx_http_auth_basic_module.html)、[原始request_uri语义](https://nginx.org/en/docs/http/ngx_http_core_module.html#var_request_uri)
+
+00接收后在授权空机准备独立团队口令，使用系统`htpasswd`交互生成bcrypt文件（不带`-b`，不把明文或散列放命令行/仓库/截图），仅在新文件首次创建时用`-cB`；不覆盖既有凭据。文件在public外，root拥有、仅实际Nginx worker组可读（Debian现场核www-data），目录受控、文件0640，口令另行私密交团队；退出浏览器的Basic认证缓存需关闭独立浏览器会话。团队密码只是一层入口保护，应用账号/角色/MFA仍另验。保持auth_basic配置：密码文件缺失/空/不可读或口令错误时不得降级公开；禁止以auth_basic off解决故障。
+
+空机上首次启用前由00串行验证：`nginx -t`；无凭据/错凭据访问主页、静态资源、后台、直接index.php及媒体入口均不得获得应用内容；正确凭据可抵达应用；临时缺失/空/不可读口令文件仍关闭式拒绝。两个精确POST回调须实际经过try_files→FPM且不出现Basic 401挑战，保留原始body/URI及Stripe签名/PayPal五头；未配置或错误签名应在业务层拒绝，不能把取消登录墙当官方验签通过。相邻路径、尾斜杠、大小写、编码变体、GET和伪造来源头均不享回调例外。再核80 ACME与非ACME、未知Host/SNI、其他PHP/私有媒体，以及Authorization未到FPM。关闭/回退只停本新站或恢复前一受限配置；不得用公开旧模板临时顶替。
+
+本机Darwin未找到现成nginx、Docker/Podman/Colima或常见Nginx安装路径；未安装新工具/启动旧站。仅新增2项渲染契约旧败新过＋直接受影响2项白名单检查通过，共4项；**没有nginx -t、真实请求、证书或云部署通过结论**。上面访问/重写/缺文件行为均为待空机执行的验收条件，渲染检查不模拟或替代Nginx。
+
+```sh
+python3 -B -m unittest scripts.ops.tests.test_aws_preflight.OfflineDeploymentTests.test_tls_basic_wall_uses_original_post_callback_identity_across_rewrite scripts.ops.tests.test_aws_preflight.OfflineDeploymentTests.test_tls_port_80_only_serves_acme_and_rejects_other_hosts scripts.ops.tests.test_aws_preflight.OfflineDeploymentTests.test_tls_preserves_checkout_request_evidence_without_forwarding_empty_headers scripts.ops.tests.test_aws_preflight.OfflineDeploymentTests.test_tls_preserves_exact_paypal_allowlist_and_direct_peer_and_private_media -v
+```
+
+新体验现场判断：官方说明Builder ID在**新体验**可作为控制台及临时凭据身份，且当前新体验Free服务列表包含Lightsail/S3/SES/SNS；不把Free与新体验等同，也不把列入服务当实际账户有权限/指定套餐可创建。优先本人已有原生项目/角色控制台与Lightsail浏览器SSH；若IAM用户登录路径不适配，不为复用本包而迫其启用advanced或新建角色体系。实际登录身份/项目区域/创建权限、指定镜像套餐与SSH连通仍由现场确认，错误或升级提示交00。首轮有人维护时可另准备本机加密备份文件、本人通过获准控制台手动上传私有S3，再独立恢复验收；此处未实施、不称自动备份。严格MFA模板不改、不冒报STS；数据上线前必须补真正可用的备份恢复证据。[新体验Builder ID](https://docs.aws.amazon.com/signin/latest/userguide/differences-builder-id.html)、[当前支持服务](https://docs.aws.amazon.com/accounts/latest/reference/supported-services-sign-up-new.html)、[Lightsail原生SSH](https://docs.aws.amazon.com/lightsail/latest/userguide/lightsail-how-to-connect-to-your-instance-virtual-private-server.html)
