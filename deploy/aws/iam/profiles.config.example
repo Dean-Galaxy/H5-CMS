@@ -5,4 +5,6 @@
 [profile h5-operator]
 region = us-east-1
 output = json
-# aws login writes login_session after selecting the approved non-root user.
+# 00 binds this expected identity in a private copy before aws login.
+# Reject any login-session overwrite/mismatch; never switch this profile to root.
+login_session = arn:aws:iam::__ACCOUNT_ID__:user/h5-sparklingshort-operator

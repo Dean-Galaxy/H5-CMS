@@ -1,5 +1,7 @@
 # H5 多任务开发共同规则
 
+- 2026-11-01 AWS不收费访问准备接收：本人确认能进控制台/Free，MFA仍未知，费用创建未批准。00官方CLI2.39.3包Apple签名核过、只项目私有展开，version/login-help离线过，无login/API；06 43c+b59已合，3份未绑定IAM策略/源profile/显式MFA-STS步骤经00独立JSON、范围及默认无调用检查过。仅一项目非root用户+一限定同桶前缀写入角色，实际登录/MFA/STS/S3未验；本人控制台创建权另核，不新增工程部署role。原域名3/3与26.52费用单不变，未建身份/资源/改DNS或旧环境，见deploy/aws/iam/README.md。
+
 - 2026-11-01 域名3/3由本人在07确认：Cloudflare账户内sparklingshort.com、付款与联系人邮箱验证完成，11.17USD首年/续费；不重复购。06首批资源单ee8+c727串行接收，单一us-east-1/Debian13/4GB/80GB/4TB Lightsail24USD＋100GB全代S3/SES/SNS小量合计参考26.52USD月未税超额，费用/创建尚未批准，MFA/Free-Paid及非root短时登录链由07先核。00独立发现FastCGI漏传Sec-Fetch-Site/Purpose/Sec-Purpose，ace51f1窄修/旧败新过与直接原1项共2离线过，无新进程/云/DNS/外发；实际Nginx、受限入口、备份恢复等待接，见首批资源单。
 
 - 2026-11-01 直连测试工程接收：direct-test-1/geoip-ready-1；00公共17/415、04新8/74、05新13/191、01新8/95及06离线新2项独立过；06真实04→05窄组合c13接4fe，00另独立7/337过（付款/来源显式合成、HTTP假件，无官方外发）。测试位仅staging默认关/production拒绝，真实购买页固定上下文、最小Purchase/去重重试/撤回停发，ad-only无分析/C/R1身份新增。GeoIP程序与公开合成MMDB过，实际DB-IP下载403/未启用。原R1/C2/周四关闭及期限保持，未建云资源/改DNS/邮件或广告外发；R2A UI保留，最终GitHub留存后07只收真正权限/测试资产/私密录入及域名AWS条件，见00-90。
