@@ -230,6 +230,18 @@ class OfflineDeploymentTests(unittest.TestCase):
         self.assertIn('fastcgi_param HTTP_ORIGIN $http_origin;', text)
         self.assertNotIn('fastcgi_param HTTP_X_FORWARDED_', text)
 
+    def test_tls_preserves_chunk_upload_offset_in_front_controller_allowlist(self):
+        text = renderer.render('staging.example.com', 'tls')
+        # Content's chunk endpoint requires this header, including offset "0".
+        # Test the rendered PHP location; a directive outside it would not suffice.
+        php = text.split('location = /index.php {', 1)[1].split('\n    }', 1)[0]
+        offset = [line.strip().rstrip(';').split() for line in php.splitlines()
+                  if line.strip().startswith('fastcgi_param HTTP_UPLOAD_OFFSET ')]
+        self.assertEqual([['fastcgi_param', 'HTTP_UPLOAD_OFFSET',
+                           '$http_upload_offset', 'if_not_empty']], offset)
+        self.assertEqual(1, text.count('fastcgi_param HTTP_UPLOAD_OFFSET '))
+        self.assertIn('fastcgi_pass_request_headers off;', php)
+
     def test_tls_preserves_exact_paypal_allowlist_and_direct_peer_and_private_media(self):
         text = renderer.render('staging.example.com')
         names = ['AUTH_ALGO', 'CERT_URL', 'TRANSMISSION_ID', 'TRANSMISSION_SIG', 'TRANSMISSION_TIME']
