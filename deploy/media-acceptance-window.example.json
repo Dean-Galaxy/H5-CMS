@@ -1,0 +1,46 @@
+{
+  "schema": "h5-media-acceptance-v1",
+  "approved": false,
+  "approval_reference": "",
+  "window_id": "",
+  "owner_id": "",
+  "not_before": "",
+  "expires_at": "",
+  "max_assets": 6,
+  "source_sha": "57a658ef0c8f29842047aca94572bec784bfae37",
+  "release_root": "/srv/h5/releases/57a658ef0c8f29842047aca94572bec784bfae37",
+  "workspace": "h5_cloud_staging",
+  "database": "h5_staging",
+  "media_root": "/srv/h5/shared/media",
+  "fixtures": [
+    {
+      "kind": "video",
+      "extension": "mp4",
+      "filename": "synthetic.mp4",
+      "bytes": 0,
+      "sha256": ""
+    },
+    {
+      "kind": "subtitle",
+      "extension": "srt",
+      "filename": "synthetic.srt",
+      "bytes": 0,
+      "sha256": ""
+    },
+    {
+      "kind": "cover",
+      "extension": "png",
+      "filename": "synthetic.png",
+      "bytes": 0,
+      "sha256": ""
+    }
+  ],
+  "frozen_sha256": {
+    "env": "",
+    "config": "",
+    "lock": "",
+    "media_store": "",
+    "runner": "",
+    "bridge": ""
+  }
+}

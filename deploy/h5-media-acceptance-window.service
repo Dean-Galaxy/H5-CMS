@@ -1,0 +1,27 @@
+# OFFLINE CANDIDATE ONLY. Install/start requires the new concrete direct permission.
+# This IS a continuous process for at most 45 minutes, despite having no timer.
+[Unit]
+Description=H5 bounded media acceptance window (manual permission required)
+After=postgresql@17-main.service
+
+[Service]
+Type=exec
+User=h5
+Group=h5
+WorkingDirectory=/srv/h5/releases/57a658ef0c8f29842047aca94572bec784bfae37/h5-platform
+Environment=APP_ENV=staging
+ExecStart=/usr/bin/python3 /srv/h5/ops/media-acceptance/media_acceptance_window.py --binding /etc/h5/media-acceptance-window.json --run
+Restart=no
+RuntimeMaxSec=45min
+KillMode=control-group
+TimeoutStopSec=5s
+SendSIGKILL=yes
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/h5/shared/media /srv/h5/shared/ops/media-acceptance
+IPAddressDeny=any
+IPAddressAllow=127.0.0.1
+# Deliberately no [Install], timer, queue worker, scheduler, or boot activation.
