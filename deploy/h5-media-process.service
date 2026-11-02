@@ -1,0 +1,54 @@
+# DEFAULT CLOSED CANDIDATE: not installed/enabled; ENABLED must be absent.
+# The actual current release must include 02's accepted non-ready -> nonzero fix before arming.
+# Marker directory: root:root 0755, marker files root:root 0600; never h5-writable.
+[Unit]
+Description=H5 single-item media processing (explicit long-term permission required)
+ConditionPathExists=/srv/h5/ops/media-process/ENABLED
+ConditionPathExists=!/srv/h5/ops/media-process/RUNNING
+After=postgresql@17-main.service
+OnFailure=h5-media-stop-on-failure.service
+
+[Service]
+Type=oneshot
+User=h5
+Group=h5
+WorkingDirectory=/srv/h5/current/h5-platform
+Environment=APP_ENV=staging
+ExecCondition=/usr/bin/systemctl --quiet is-active postgresql@17-main.service
+# Check actual access inside the RW mount: h5 must not write, owner must be root.
+ExecStartPre=/usr/bin/test ! -w /srv/h5/ops/media-process
+ExecStartPre=!/usr/bin/test -O /srv/h5/ops/media-process
+ExecStartPre=/usr/bin/php8.4 -d memory_limit=128M /srv/h5/current/scripts/ops/check_runtime.php --expect-env=staging --require-cache
+# '!' changes credentials only; unlike '+', it retains the filesystem sandbox.
+ExecStartPre=!/usr/bin/touch -- /srv/h5/ops/media-process/RUNNING
+# GNU sync with operands fsyncs both the marker and its parent before the CLI.
+ExecStartPre=!/usr/bin/sync -- /srv/h5/ops/media-process/RUNNING /srv/h5/ops/media-process
+ExecStart=/usr/bin/php8.4 -d memory_limit=128M artisan content:process-media --limit=1
+# For oneshot this runs only after ExecStart exits successfully. Never clear on stop.
+ExecStartPost=!/usr/bin/rm -- /srv/h5/ops/media-process/RUNNING
+ExecStartPost=!/usr/bin/sync -- /srv/h5/ops/media-process
+Restart=no
+RemainAfterExit=no
+TimeoutStartSec=15min
+TimeoutStopSec=5s
+KillMode=control-group
+SendSIGKILL=yes
+OOMPolicy=kill
+# Initial capacity hypotheses, not acceptance for arbitrary real videos.
+CPUQuota=50%
+MemoryMax=384M
+UMask=0077
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+# The RW mount does not grant DAC permissions: h5 cannot write root's marker dir.
+ReadWritePaths=/srv/h5/shared/media /srv/h5/shared/storage/logs /srv/h5/ops/media-process
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=127.0.0.1
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=h5-media-process
+# No [Install], Restart loop, queue, scheduler, sudo, shell, or automatic PG/FPM start.

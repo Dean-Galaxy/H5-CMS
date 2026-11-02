@@ -1,0 +1,14 @@
+# DEFAULT CLOSED CANDIDATE: never enable/install without a new concrete permission.
+[Unit]
+Description=H5 media-only polling (disabled by default)
+ConditionPathExists=/srv/h5/ops/media-process/ENABLED
+ConditionPathExists=!/srv/h5/ops/media-process/RUNNING
+
+[Timer]
+OnCalendar=*-*-* *:*:00 UTC
+AccuracySec=1s
+Persistent=false
+Unit=h5-media-process.service
+
+[Install]
+WantedBy=timers.target

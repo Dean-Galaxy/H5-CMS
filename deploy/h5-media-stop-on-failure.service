@@ -1,0 +1,29 @@
+# Fixed failure actions only. Deliberately preserve RUNNING and all business data.
+[Unit]
+Description=Disarm only the H5 media timer on failure
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/
+ExecStart=/usr/bin/rm -f -- /srv/h5/ops/media-process/ENABLED
+ExecStart=/usr/bin/sync -- /srv/h5/ops/media-process
+ExecStart=/usr/bin/systemctl --no-block stop h5-media-process.timer
+Restart=no
+TimeoutStartSec=15s
+TimeoutStopSec=5s
+KillMode=control-group
+SendSIGKILL=yes
+UMask=0077
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/srv/h5/ops/media-process
+RestrictAddressFamilies=AF_UNIX
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=h5-media-stop-on-failure
+# No [Install], automatic re-arm, RUNNING cleanup, sudo, shell, PG/FPM or network.
