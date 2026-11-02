@@ -16,21 +16,18 @@
     {
       "kind": "video",
       "extension": "mp4",
-      "filename": "synthetic.mp4",
       "bytes": 0,
       "sha256": ""
     },
     {
       "kind": "subtitle",
       "extension": "srt",
-      "filename": "synthetic.srt",
       "bytes": 0,
       "sha256": ""
     },
     {
       "kind": "cover",
       "extension": "png",
-      "filename": "synthetic.png",
       "bytes": 0,
       "sha256": ""
     }

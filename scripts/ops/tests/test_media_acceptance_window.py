@@ -36,7 +36,7 @@ def binding():
             'expires_at': '2026-11-02T04:45:00Z', 'max_assets': 6, 'source_sha': m.SOURCE,
             'release_root': str(m.RELEASE), 'workspace': 'h5_cloud_staging', 'database': 'h5_staging',
             'media_root': '/srv/h5/shared/media', 'fixtures': [
-                {'kind': k, 'extension': ext, 'filename': 'synthetic.'+ext,
+                {'kind': k, 'extension': ext,
                  'bytes': len(SYNTHETIC), 'sha256': DIGEST}
                 for k, ext in [('video', 'mp4'), ('subtitle', 'srt'), ('cover', 'png')]],
             'frozen_sha256': {k: 'a'*64 for k in m.FILES}}
@@ -119,7 +119,7 @@ class MediaWindowOfflineTests(unittest.TestCase):
     def test_unknown_hash_type_size_and_actual_source_tamper_refuse(self):
         for key, value in [('sha256', 'b'*64), ('observed_sha256', hashlib.sha256(b'tampered').hexdigest()),
                            ('observed_bytes', 1), ('expected_bytes', 1), ('kind', 'banner'),
-                           ('filename', 'unapproved.mp4'), ('source_key', '../outside')]:
+                           ('source_key', '../outside')]:
             with self.subTest(field=key):
                 a = {**asset(), key: value}
                 adapter = FakeBridge([a], self.ledger)
@@ -143,7 +143,8 @@ class MediaWindowOfflineTests(unittest.TestCase):
         self.assertEqual([], adapter.processed)
 
     def test_six_reuploads_each_consume_one_and_seventh_never_runs(self):
-        rows = [asset(i) for i in range(1, 7)]  # Same content; six independent asset IDs.
+        rows = [{**asset(i), 'filename': 'renamed-'+str(i)+'.mp4'} for i in range(1, 7)]
+        # Same content, including renamed copies: each independent ID consumes one.
         adapter = FakeBridge(rows, self.ledger)
         for n in range(6):
             self.assertEqual('quota' if n == 5 else 'processed',

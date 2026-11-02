@@ -44,9 +44,7 @@ function bindingPolicy(array $b, int $now): void
     $kinds = [];
     foreach ($b['fixtures'] as $f) {
         ensure(is_array($f) && in_array($f['kind'] ?? null, ['video', 'subtitle', 'cover'], true)
-            && is_string($f['extension'] ?? null) && is_string($f['filename'] ?? null)
-            && preg_match('/\A[A-Za-z0-9_.-]{1,100}\z/D', $f['filename']) === 1
-            && str_ends_with($f['filename'], '.'.$f['extension'])
+            && is_string($f['extension'] ?? null)
             && is_int($f['bytes'] ?? null) && $f['bytes'] > 0 && $f['bytes'] <= 16777216
             && is_string($f['sha256'] ?? null) && preg_match('/\A[0-9a-f]{64}\z/D', $f['sha256']) === 1, 'FIXTURE_BINDING_INVALID');
         ensure(in_array($f['extension'], match ($f['kind']) {
@@ -65,8 +63,8 @@ function assetPolicy(array $b, array $a, int $now, bool $forProcess = false, boo
     $created = instant($a['created_at'] ?? null);
     ensure(instant($b['not_before']) < $created && $created <= $now && $created < instant($b['expires_at']), 'OLD_OR_OUTSIDE_WINDOW_ASSET');
     ensure(($a['created_by'] ?? null) === $b['owner_id'], 'OTHER_OWNER_ASSET');
-    $matches = array_values(array_filter($b['fixtures'], fn ($f) => [$f['kind'], $f['extension'], $f['filename'], $f['bytes']]
-        === [$a['kind'] ?? null, $a['extension'] ?? null, $a['filename'] ?? null, $a['expected_bytes'] ?? null]));
+    $matches = array_values(array_filter($b['fixtures'], fn ($f) => [$f['kind'], $f['extension'], $f['bytes']]
+        === [$a['kind'] ?? null, $a['extension'] ?? null, $a['expected_bytes'] ?? null]));
     ensure(count($matches) === 1, 'UNKNOWN_FILE_SCOPE');
     $f = $matches[0];
     ensure(($a['source_key'] ?? null) === 'assets/'.$a['id'].'/source.'.$f['extension'], 'ASSET_PATH_INVALID');
@@ -127,7 +125,7 @@ function supervisor(array $b, string $raw, string $action, mixed $id): void
 function snapshot(array $b, object $asset, object $media): array
 {
     $a = ['id' => $asset->id, 'created_by' => $asset->created_by, 'kind' => $asset->kind,
-        'extension' => $asset->extension, 'filename' => ($asset->metadata ?? [])['original_filename'] ?? null,
+        'extension' => $asset->extension,
         'created_at' => $asset->created_at->utc()->format('Y-m-d\TH:i:s\Z'), 'state' => $asset->state,
         'expected_bytes' => (int) $asset->expected_bytes, 'received_bytes' => (int) $asset->received_bytes,
         'attempts' => (int) $asset->attempts, 'source_key' => $asset->source_key, 'sha256' => $asset->sha256];

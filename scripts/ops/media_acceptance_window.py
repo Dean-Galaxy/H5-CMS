@@ -63,8 +63,7 @@ def binding_policy(b):
                 {('video', 'mp4'), ('subtitle', 'srt'), ('cover', 'jpg')},
                 {('video', 'mp4'), ('subtitle', 'srt'), ('cover', 'jpeg')}), 'FIXTURE_BINDING_INVALID')
     for f in fixtures:
-        require(isinstance(f.get('filename'), str) and re.fullmatch(r'[A-Za-z0-9_.-]{1,100}', f['filename'])
-                and f['filename'].endswith('.'+f['extension']) and type(f.get('bytes')) is int
+        require(type(f.get('bytes')) is int
                 and 0 < f['bytes'] <= 16*1024*1024 and isinstance(f.get('sha256'), str)
                 and SHA.fullmatch(f['sha256']), 'FIXTURE_BINDING_INVALID')
     hashes = b.get('frozen_sha256')
@@ -80,8 +79,8 @@ def candidate_policy(b, a, now, completed=()):
     created = stamp(a.get('created_at'))
     require(start < created < end and created <= now, 'OLD_OR_OUTSIDE_WINDOW_ASSET')
     require(a.get('created_by') == b['owner_id'], 'OTHER_OWNER_ASSET')
-    match = [f for f in b['fixtures'] if (f['kind'], f['extension'], f['filename'], f['bytes']) ==
-             (a.get('kind'), a.get('extension'), a.get('filename'), a.get('expected_bytes'))]
+    match = [f for f in b['fixtures'] if (f['kind'], f['extension'], f['bytes']) ==
+             (a.get('kind'), a.get('extension'), a.get('expected_bytes'))]
     require(len(match) == 1, 'UNKNOWN_FILE_SCOPE')
     fixture = match[0]
     require(a.get('source_key') == 'assets/'+a['id']+'/source.'+a['extension'], 'ASSET_PATH_INVALID')
