@@ -141,6 +141,37 @@ function snapshot(array $b, object $asset, object $media): array
     return $a;
 }
 
+function verifyOutput(object $asset, object $media): void
+{
+    if ($asset->kind === 'video') {
+        ensure($media->playable($asset), 'MEDIA_OUTPUT_INVALID');
+        return;
+    }
+    ensure(is_string($asset->output_key) && $asset->output_key !== '', 'MEDIA_OUTPUT_INVALID');
+    $name = match ($asset->kind) {
+        'cover' => 'image.png', 'subtitle' => 'subtitles.vtt',
+        default => throw new \LogicException('MEDIA_OUTPUT_INVALID'),
+    };
+    $path = $media->path($asset->output_key.'/'.$name);
+    clearstatcache(true, $path);
+    ensure(is_file($path) && ! is_link($path) && filesize($path) > 0, 'MEDIA_OUTPUT_INVALID');
+    if ($asset->kind === 'cover') {
+        $info = @getimagesize($path);
+        ensure($info !== false && ($info[2] ?? null) === IMAGETYPE_PNG
+            && $info[0] > 0 && $info[1] > 0, 'MEDIA_OUTPUT_INVALID');
+        return;
+    }
+    // Check the emitted header only; MediaStore remains the sole cue parser.
+    $stream = fopen($path, 'rb');
+    ensure($stream !== false, 'MEDIA_OUTPUT_INVALID');
+    try {
+        $header = fgets($stream, 1024);
+    } finally {
+        fclose($stream);
+    }
+    ensure(is_string($header) && preg_match('/\AWEBVTT(?:[ \t][^\r\n]*)?\r?\n\z/D', $header) === 1, 'MEDIA_OUTPUT_INVALID');
+}
+
 function main(array $argv): int
 {
     if ($argv !== [__FILE__, '--execute']) {
@@ -215,7 +246,7 @@ function main(array $argv): int
         ensure(file_get_contents(BINDING) === $raw, 'BINDING_CHANGED');
         $result = $media->process($id);
         ensure($result->state === 'ready' && (int) $result->attempts === 1, 'MEDIA_NOT_READY_REVIEW_REQUIRED');
-        ensure($result->kind !== 'video' || $media->playable($result), 'MEDIA_OUTPUT_INVALID');
+        verifyOutput($result, $media);
         echo json_encode(['ok' => true, 'asset_id' => $id, 'state' => $result->state, 'attempts' => (int) $result->attempts], JSON_THROW_ON_ERROR), "\n";
         return 0;
     } catch (\Throwable $error) {

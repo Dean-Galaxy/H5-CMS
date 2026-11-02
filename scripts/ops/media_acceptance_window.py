@@ -212,12 +212,17 @@ class Bridge:
                     break
                 except subprocess.TimeoutExpired:
                     payload = None
-            require(process.returncode == 0 and len(stdout) <= 32768, 'BRIDGE_REJECTED_REVIEW_PRIVATE_STATE')
+            require(len(stdout) <= 32768, 'BRIDGE_REJECTED_REVIEW_PRIVATE_STATE')
             try:
                 result = json.loads(stdout)
             except (ValueError, UnicodeDecodeError):
-                raise Refused('BRIDGE_INVALID_RESPONSE') from None
-            require(isinstance(result, dict) and result.get('ok') is True, 'BRIDGE_INVALID_RESPONSE')
+                raise Refused('BRIDGE_REJECTED_REVIEW_PRIVATE_STATE') from None
+            if isinstance(result, dict) and result.get('ok') is False:
+                reason = result.get('reason')
+                if isinstance(reason, str) and re.fullmatch(r'[A-Z][A-Z0-9_]{1,95}', reason):
+                    raise Refused(reason)
+            require(process.returncode == 0 and isinstance(result, dict) and result.get('ok') is True,
+                    'BRIDGE_REJECTED_REVIEW_PRIVATE_STATE')
             return result
         finally:
             terminate_group(process)

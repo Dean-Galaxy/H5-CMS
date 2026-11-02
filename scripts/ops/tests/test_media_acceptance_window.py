@@ -128,6 +128,36 @@ class MediaWindowOfflineTests(unittest.TestCase):
                 self.assertEqual([], adapter.processed)
                 self.assertEqual([], self.ledger.doc['claimed'])
 
+    def test_chinese_or_renamed_content_is_not_a_filename_gate(self):
+        for kind, ext, name in [('video', 'mp4', '1.mp4'), ('subtitle', 'srt', '1.srt'),
+                                ('cover', 'png', '封面.png'), ('cover', 'png', '改名后的封面.png')]:
+            with self.subTest(name=name):
+                a = {**asset(), 'kind': kind, 'extension': ext, 'filename': name}
+                a['source_key'] = 'assets/'+a['id']+'/source.'+ext
+                self.assertEqual('pending', m.candidate_policy(self.b, a, BASE+10))
+                a['observed_sha256'] = hashlib.sha256(b'different actual bytes').hexdigest()
+                self.rejects('UNKNOWN_FILE_HASH_OR_SIZE', m.candidate_policy, self.b, a, BASE+10)
+
+    def test_bridge_keeps_only_bounded_json_uppercase_refusal_codes(self):
+        cases = [(b'{"ok":false,"reason":"MEDIA_OUTPUT_INVALID"}', 42, 'MEDIA_OUTPUT_INVALID'),
+                 (b'{"ok":false,"reason":"owner abc / private identity"}', 42, 'BRIDGE_REJECTED_REVIEW_PRIVATE_STATE'),
+                 (b'not JSON / private output', 42, 'BRIDGE_REJECTED_REVIEW_PRIVATE_STATE'),
+                 (b'{"ok":false,"reason":123}', 42, 'BRIDGE_REJECTED_REVIEW_PRIVATE_STATE'),
+                 (b'x'*32769, 42, 'BRIDGE_REJECTED_REVIEW_PRIVATE_STATE'),
+                 (b'{"ok":true}', 42, 'BRIDGE_REJECTED_REVIEW_PRIVATE_STATE')]
+        for body, code, reason in cases:
+            with self.subTest(reason=reason, bytes=len(body)):
+                process = unittest.mock.Mock()
+                process.communicate.return_value = (body, b'RAW PRIVATE STDERR NEVER EMIT')
+                process.returncode = code
+                with patch.object(m.time, 'time', return_value=BASE+10), \
+                     patch.object(m.subprocess, 'Popen', return_value=process), \
+                     patch.object(m, 'terminate_group') as cleanup, \
+                     contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.rejects('^'+reason+'$', m.Bridge(self.b, lambda: False).call, 'process', asset()['id'])
+                self.assertEqual('', output.getvalue())
+                cleanup.assert_called_once_with(process)
+
     def test_old_record_boundary_future_and_expired_do_not_process(self):
         for created, now in [('2026-11-02T03:59:59Z', BASE+10),
                              ('2026-11-02T04:00:00Z', BASE+10),
@@ -162,7 +192,7 @@ class MediaWindowOfflineTests(unittest.TestCase):
         self.assertEqual([], self.ledger.doc['claimed'])
 
     def test_timeout_failure_and_unknown_result_never_replenish_claim(self):
-        for reason in ['CHILD_TIMEOUT_OR_WINDOW_EXPIRED', 'MEDIA_NOT_READY', 'UNKNOWN_RESULT']:
+        for reason in ['CHILD_TIMEOUT_OR_WINDOW_EXPIRED', 'MEDIA_NOT_READY', 'UNKNOWN_RESULT', 'MEDIA_OUTPUT_INVALID']:
             with self.subTest(reason=reason):
                 ledger = m.Ledger(self.root/(reason+'.json'), 'f'*64, WINDOW)
                 adapter = FakeBridge([asset()], ledger, failure=reason)
@@ -331,6 +361,67 @@ echo 'OK';}catch(Throwable $e){echo $e->getMessage();exit(42);}'''
             payload['a']['created_by'] = WINDOW
             # Scope rejection wins before any source access.
             check('OTHER_OWNER_ASSET')
+
+    def test_chinese_renamed_file_passes_but_changed_content_fails(self):
+        for kind, ext, name in [('video', 'mp4', '1.mp4'), ('subtitle', 'srt', '1.srt'),
+                                ('cover', 'png', '封面.png'), ('cover', 'png', '改名后的封面.png')]:
+            with self.subTest(name=name):
+                a = {**asset(), 'kind': kind, 'extension': ext, 'filename': name}
+                a['source_key'] = 'assets/'+a['id']+'/source.'+ext
+                self.assertEqual(0, self.call_policy('asset', a=a, process=True).returncode)
+                a['observed_sha256'] = hashlib.sha256(b'different actual bytes').hexdigest()
+                r = self.call_policy('asset', a=a, process=True)
+                self.assertEqual(42, r.returncode)
+                self.assertEqual('UNKNOWN_FILE_HASH_OR_SIZE', r.stdout)
+
+    def output_check(self, root, kind):
+        # Real existing MediaStore::path(), with only pure config/public_path stubs.
+        # No vendor/autoload, Laravel kernel, DB, identity or processing is invoked.
+        code = "$d=json_decode(stream_get_contents(STDIN),true,flags:JSON_THROW_ON_ERROR);\n$GLOBALS['syntheticRoot']=$d['root'];\nfunction config($key){return $GLOBALS['syntheticRoot'].'/media';}\nfunction public_path($path=''){return $GLOBALS['syntheticRoot'].'/public';}\nrequire $argv[1];require $argv[2];\n$media=new App\\Modules\\Content\\Services\\MediaStore;\n$asset=(object)['kind'=>$d['kind'],'output_key'=>'assets/synthetic/processed-synthetic'];\ntry{H5MediaAcceptance\\verifyOutput($asset,$media);echo 'OK';}\ncatch(Throwable $e){$s=$e->getMessage();echo preg_match('/\\A[A-Z0-9_]+\\z/D',$s)?$s:'MEDIA_WINDOW_REJECTED';exit(42);}"
+        source = OPS.parents[1]/'h5-platform/app/Modules/Content/Services/MediaStore.php'
+        return subprocess.run([PHP, '-r', code, str(BRIDGE), str(source)],
+                              input=json.dumps({'root': str(root), 'kind': kind}),
+                              text=True, capture_output=True, timeout=5)
+
+    def output_cases(self, kind, valid, invalid):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root/'public').mkdir()
+            target = root/'media/assets/synthetic/processed-synthetic'
+            target.mkdir(parents=True)
+            file = target/('image.png' if kind == 'cover' else 'subtitles.vtt')
+            def refused():
+                r = self.output_check(root, kind)
+                self.assertEqual(42, r.returncode, r.stderr)
+                self.assertNotEqual('OK', r.stdout)
+                self.assertEqual('', r.stderr)
+            refused()  # Missing output despite a caller potentially claiming ready.
+            for data in [b'', *invalid]:
+                file.write_bytes(data)
+                refused()
+            file.write_bytes(valid)
+            r = self.output_check(root, kind)
+            self.assertEqual((0, 'OK', ''), (r.returncode, r.stdout, r.stderr))
+            # A valid file behind either a leaf or ancestor symlink must still fail.
+            other = root/'other';other.write_bytes(valid)
+            file.unlink();file.symlink_to(other);refused()
+            file.unlink();file.write_bytes(valid)
+            moved = root/'moved-output';target.rename(moved)
+            target.symlink_to(moved, target_is_directory=True);refused()
+
+    def test_cover_requires_nonempty_real_png_and_rejects_links(self):
+        import struct,zlib
+        def chunk(tag, data):
+            return struct.pack('>I', len(data))+tag+data+struct.pack('>I', zlib.crc32(tag+data))
+        png = (b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR', struct.pack('>IIBBBBB',16,16,8,2,0,0,0))
+               +chunk(b'IDAT', zlib.compress((b'\x00'+b'\x00'*48)*16))+chunk(b'IEND', b''))
+        import base64
+        gif = base64.b64decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')
+        self.output_cases('cover', png, [b'not a PNG', gif])
+
+    def test_subtitle_requires_nonempty_webvtt_header_and_rejects_links(self):
+        self.output_cases('subtitle', b'WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nSynthetic\n',
+                          [b'NOTVTT\n\n', b'WEBVTTgarbage\n', b'WEBVTT'])
 
     def test_adapter_rechecks_fresh_owner_hash_size_and_attempt_before_process(self):
         self.assertEqual(0, self.call_policy('asset', process=True).returncode)
