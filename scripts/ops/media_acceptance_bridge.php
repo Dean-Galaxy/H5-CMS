@@ -8,7 +8,7 @@ const RELEASE = '/srv/h5/releases/'.SOURCE;
 const APP = RELEASE.'/h5-platform';
 const OPS = '/srv/h5/ops/media-acceptance';
 const STATE = '/srv/h5/shared/ops/media-acceptance';
-const BINDING = '/etc/h5/media-acceptance-window.json';
+const BINDING = '/srv/h5/ops/media-acceptance/window.json';
 
 function ensure(bool $ok, string $code): void
 {

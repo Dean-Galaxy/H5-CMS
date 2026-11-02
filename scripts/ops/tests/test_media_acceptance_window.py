@@ -294,6 +294,13 @@ class MediaWindowOfflineTests(unittest.TestCase):
         self.assertLess(spawned[0].returncode, 0)
         spawned[0].communicate(timeout=2)  # No descendant remains holding a pipe.
 
+    def test_binding_uses_dedicated_ops_file_without_weakening_etc_permissions(self):
+        self.assertEqual(m.OPS/'window.json', m.BINDING)
+        self.assertIn("const BINDING = '/srv/h5/ops/media-acceptance/window.json';", BRIDGE.read_text())
+        unit = (OPS.parents[1]/'deploy/h5-media-acceptance-window.service').read_text()
+        self.assertIn('--binding /srv/h5/ops/media-acceptance/window.json --run', unit)
+        self.assertNotIn('/etc/h5/media-acceptance-window.json', unit)
+
     def test_service_is_manual_bounded_and_excludes_other_schedulers(self):
         unit = (OPS.parents[1]/'deploy/h5-media-acceptance-window.service').read_text()
         active = '\n'.join(l for l in unit.splitlines() if not l.lstrip().startswith('#'))

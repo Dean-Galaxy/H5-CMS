@@ -20,7 +20,7 @@ RELEASE = Path('/srv/h5/releases') / SOURCE
 APP = RELEASE / 'h5-platform'
 OPS = Path('/srv/h5/ops/media-acceptance')
 STATE = Path('/srv/h5/shared/ops/media-acceptance')
-BINDING = Path('/etc/h5/media-acceptance-window.json')
+BINDING = Path('/srv/h5/ops/media-acceptance/window.json')
 FILES = {'env': Path('/srv/h5/shared/.env'), 'config': APP/'bootstrap/cache/config.php',
          'lock': APP/'composer.lock', 'media_store': APP/'app/Modules/Content/Services/MediaStore.php',
          'runner': OPS/'media_acceptance_window.py', 'bridge': OPS/'media_acceptance_bridge.php'}

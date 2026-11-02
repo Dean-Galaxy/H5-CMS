@@ -10,7 +10,7 @@ User=h5
 Group=h5
 WorkingDirectory=/srv/h5/releases/57a658ef0c8f29842047aca94572bec784bfae37/h5-platform
 Environment=APP_ENV=staging
-ExecStart=/usr/bin/python3 /srv/h5/ops/media-acceptance/media_acceptance_window.py --binding /etc/h5/media-acceptance-window.json --run
+ExecStart=/usr/bin/python3 /srv/h5/ops/media-acceptance/media_acceptance_window.py --binding /srv/h5/ops/media-acceptance/window.json --run
 Restart=no
 RuntimeMaxSec=45min
 KillMode=control-group
