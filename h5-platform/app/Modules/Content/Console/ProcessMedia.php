@@ -23,6 +23,9 @@ final class ProcessMedia extends Command
                 break;
             }
             $this->line($asset->id.' '.$asset->state.($asset->error_code ? ' '.$asset->error_code : ''));
+            if ($asset->state !== 'ready') {
+                return self::FAILURE;
+            }
         }
 
         return self::SUCCESS;
