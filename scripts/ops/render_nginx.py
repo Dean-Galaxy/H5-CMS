@@ -12,7 +12,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES = {'tls': 'nginx-staging.conf.template',
              'acme-bootstrap': 'nginx-acme-bootstrap.conf.template',
-             'staff-admin': 'nginx-staff-admin.conf.template'}
+             'staff-admin': 'nginx-staff-admin.conf.template',
+             'viewer-preview': 'nginx-viewer-preview.conf.template'}
 
 
 class InputRefused(ValueError):
