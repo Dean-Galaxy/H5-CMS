@@ -1,6 +1,6 @@
 <x-filament-panels::page>
-    <x-admin.workspace id="billing-workspace" title="订单与会员" description="测试环境 · 全部金额以美元（USD）展示">
-        <x-slot:actions><span class="h5-badge h5-warn" role="status">{{ $stripe_configured ? 'Stripe 测试配置齐备；官方测试未验证' : 'Stripe 未配置；官方测试未验证' }} · 不开放真实收费</span></x-slot:actions>
+    <x-admin.workspace id="billing-workspace" title="订单与会员" :description="$live_price_mode ? '正式环境 · 全部金额以美元（USD）展示' : '测试环境 · 全部金额以美元（USD）展示'">
+        <x-slot:actions><span class="h5-badge h5-warn" role="status">@if ($live_price_mode) 正式收费配置 · 保存价格前核验收款条件 @else {{ $stripe_configured ? 'Stripe 测试配置齐备；官方测试未验证' : 'Stripe 未配置；官方测试未验证' }} · 不开放真实收费 @endif</span></x-slot:actions>
         <div class="billing-workspace" data-billing-workspace>
             <style>
                 .billing-workspace{display:grid;gap:1.25rem}.billing-workspace>.h5-tabs{margin-bottom:2px}.billing-workspace p{margin:.5rem 0}.billing-workspace h3{margin-top:1rem}.billing-workspace .billing-form{display:flex;align-items:end;flex-wrap:wrap;gap:1rem;margin:1rem 0}.billing-workspace .billing-form>.h5-field{flex:1 1 16rem}.billing-workspace .billing-check{display:flex;align-items:start;gap:.55rem}.billing-workspace .billing-check input{margin-top:.2rem}.billing-workspace .billing-id{font-family:monospace;overflow-wrap:anywhere}.billing-workspace .billing-amount{font-variant-numeric:tabular-nums;white-space:nowrap}.billing-workspace .billing-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1rem 0}.billing-workspace .billing-facts dt{font-size:.85rem;color:var(--h5-muted)}.billing-workspace .billing-facts dd{margin-top:.25rem;overflow-wrap:anywhere}.billing-workspace .billing-stack{display:grid;gap:1rem}.billing-workspace .billing-note{border-top:1px solid var(--h5-line);padding-top:.8rem;white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:640px){.billing-workspace .billing-form{align-items:stretch}.billing-workspace .billing-form button{width:100%}.billing-workspace .billing-facts{grid-template-columns:1fr}}
@@ -60,7 +60,7 @@
                         }
                     }">
                     <div class="billing-price-head">
-                        <div><h2>全站周会员</h2><p class="h5-muted billing-price-rules">测试价格 · 尚非正式售价 · 当前版本 {{ $price['version'] }}</p></div>
+                        <div><h2>全站周会员</h2><p class="h5-muted billing-price-rules">{{ $live_price_mode ? '正式价格 · 真钱收费' : '测试价格 · 尚非正式售价' }} · 当前版本 {{ $price['version'] }}</p></div>
                         <span class="h5-badge">每周自动续费</span>
                     </div>
                     <div class="h5-form-grid billing-price-fields">
@@ -73,12 +73,12 @@
                     <div class="billing-price-preview">
                         <h3>订阅页将这样展示</h3>
                         <p data-billing-price-preview aria-live="polite" x-text="preview">请输入有效美元金额。</p>
-                        <p class="h5-muted billing-price-rules">输入预览，不代表已保存或服务端报价。{{ $price['version'] ? '' : '尚未配置生效价格。' }}</p>
+                        <p class="h5-muted billing-price-rules">输入预览，不代表已保存或服务端报价。{{ ($savedPrice['regular_amount_usd'] ?? '') !== '' ? '' : '尚未配置生效价格。' }}</p>
                     </div>
                     <p class="h5-muted billing-price-rules">新价格适用于后续新订阅；已有持续订阅及可恢复的原订阅按原约定价格续费。结束后再订阅用当前常规价，已用首周优惠不恢复。</p>
                     <div class="billing-price-actions">
-                        <div><span class="h5-muted billing-price-rules">最多两位小数，至少 $0.01 USD</span><label class="billing-check"><input wire:model="price.is_test" type="checkbox" required>明确保存为测试价格</label></div>
-                        <button class="h5-button h5-primary" type="submit" wire:loading.attr="disabled">保存测试价格</button>
+                        <div><span class="h5-muted billing-price-rules">最多两位小数，至少 $0.01 USD</span><label class="billing-check">@if ($live_price_mode)<input wire:model="price.confirm_live_price" type="checkbox" required>确认真实美元收费：首周优惠后，按常规周价每周自动续费@else<input wire:model="price.is_test" type="checkbox" required>明确保存为测试价格@endif</label></div>
+                        <button class="h5-button h5-primary" type="submit" wire:loading.attr="disabled">{{ $live_price_mode ? '保存正式价格' : '保存测试价格' }}</button>
                     </div>
                 </form>
                 </x-admin.panel>
@@ -139,7 +139,7 @@
         const price = $wire.$get('price');
         const saved = $wire.$get('savedPrice');
         const verification = $wire.$get('savedVerification');
-        return ['version', 'regular_amount_usd', 'first_week_amount_usd', 'is_test'].some(key => price[key] !== saved[key])
+        return ['version', 'regular_amount_usd', 'first_week_amount_usd', 'is_test', 'confirm_live_price'].some(key => price[key] !== saved[key])
             || $wire.$get('note') !== ''
             || $wire.$get('identityVerified') !== verification.identity_verified
             || $wire.$get('cancelRequested') !== verification.cancel_requested;

@@ -6,6 +6,7 @@ use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Billing\Gateway\PayPal\LiveApi;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Services\BillingEngine;
+use App\Modules\Billing\Services\BillingStore;
 use App\Modules\Billing\Services\PaymentLedger;
 use App\Modules\Billing\Support\CheckoutSafety;
 use App\Modules\Billing\Support\ProviderActivity;
@@ -196,6 +197,15 @@ class PayPalLiveSafetyTest extends TestCase
         $this->postJson('https://billing.example.test/api/v1/billing/subscription/cancel', [])->assertStatus(419);
         $this->postJson('https://billing.example.test/webhooks/paypal/live', [])->assertStatus(503);
         $this->postJson('https://billing.example.test/webhooks/paypal/live/anything', [])->assertNotFound();
+    }
+
+    public function test_production_never_quotes_test_samples_even_while_new_purchases_are_closed(): void
+    {
+        DB::table('billing_prices')->insert(['id' => BillingStore::id(), 'version' => 1,
+            'regular_amount_minor' => 1200, 'first_week_amount_minor' => 300, 'currency' => 'USD', 'is_test' => true, 'created_at' => now()]);
+        $this->production();
+        $this->expectException(DependencyNotReady::class);
+        app(BillingEngine::class)->offer(null);
     }
 
     public function test_live_price_requires_explicit_production_confirmation_and_appends_without_network(): void

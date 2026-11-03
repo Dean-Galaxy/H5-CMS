@@ -34,10 +34,10 @@ final class PayPalRuntime
         }
     }
 
-    public function assertPurchaseReady(string $environment = 'sandbox'): ProviderScope
+    public function assertPurchaseReady(string $environment = 'sandbox', bool $requirePrice = true): ProviderScope
     {
         $scope = $this->scope($environment);
-        if (! $scope->isTest() && ! DB::table('billing_prices')->where('is_test', false)->where('currency', 'USD')->exists()) {
+        if ($requirePrice && ! $scope->isTest() && ! DB::table('billing_prices')->where('is_test', false)->where('currency', 'USD')->exists()) {
             throw new DependencyNotReady('Billing / explicit Live price');
         }
         $stamp = $this->api->forScope($scope)->configurationStamp($scope);

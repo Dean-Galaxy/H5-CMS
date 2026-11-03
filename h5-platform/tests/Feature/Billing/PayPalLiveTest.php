@@ -7,26 +7,32 @@ use App\Data\CheckoutInput;
 use App\Data\PaymentSettled;
 use App\Data\ResolvedRegion;
 use App\Data\ViewerIdentity;
+use App\Enums\Role;
 use App\Modules\Billing\BillingServiceProvider;
+use App\Modules\Billing\Filament\Pages\BillingDesk;
 use App\Modules\Billing\Gateway\PayPal\LiveApi;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
 use App\Modules\Billing\Gateway\ProviderScope;
+use App\Modules\Billing\Services\BillingAdministration;
 use App\Modules\Billing\Services\BillingEngine;
 use App\Modules\Billing\Services\BillingStore;
 use App\Modules\Billing\Services\OutboxService;
 use App\Modules\Billing\Services\PayPalReconciliation;
 use App\Modules\Billing\Services\ProviderInboxStore;
 use App\Modules\Billing\Services\WebhookService;
+use App\Modules\Identity\Models\Staff;
 use App\Modules\Identity\Models\Viewer;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
 use Carbon\CarbonImmutable;
+use Filament\Facades\Filament;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
+use Livewire\Livewire;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -358,6 +364,88 @@ final class PayPalLiveTest extends TestCase
         $intent = DB::table('billing_provider_intents')->where('operation', 'create_product')->first();
         self::assertSame('live', $intent->provider_environment);
         self::assertSame('H5 weekly membership', BillingStore::json($intent->request_payload)['name']);
+    }
+
+    private function liveStaff(Role $role = Role::Owner): Staff
+    {
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        $session = app('session.store');
+        $this->app->rebinding('request', static function ($app, $request) use ($session): void {
+            $request->setLaravelSession($session);
+        });
+        $staff = Staff::create(['name' => 'Live price fixture', 'email' => BillingStore::id().'@example.test', 'password' => 'TestPassword1234', 'role' => $role]);
+        $staff->saveAppAuthenticationSecret('JBSWY3DPEHPK3PXP');
+        $staff->refresh();
+        $this->actingAs($staff, 'staff')->withSession(['identity.version.staff' => $staff->session_version, 'identity.mfa_staff' => $staff->id]);
+        $session->put('identity.version.staff', $staff->session_version);
+        $session->put('identity.mfa_staff', $staff->id);
+        $session->save();
+        request()->setLaravelSession($session);
+
+        return $staff;
+    }
+
+    public function test_live_owner_configures_first_price_in_existing_form_without_inheriting_test_samples(): void
+    {
+        $staff = $this->liveStaff();
+        DB::table('billing_prices')->delete();
+        DB::table('billing_prices')->insert(['id' => BillingStore::id(), 'version' => 9, 'regular_amount_minor' => 1200,
+            'first_week_amount_minor' => 300, 'currency' => 'USD', 'is_test' => true, 'created_at' => now()]);
+        $page = Livewire::test(BillingDesk::class)->call('selectTab', 'prices')
+            ->assertSet('price.regular_amount_usd', '')->assertSet('price.first_week_amount_usd', '')
+            ->assertSet('price.is_test', false)->assertSet('price.confirm_live_price', false)->assertSet('price.version', 9)
+            ->assertSee('正式价格 · 真钱收费')->assertSee('保存正式价格')->assertDontSee('保存测试价格');
+        self::assertSame([], $this->calls, 'Merely viewing the price form performs no provider I/O');
+        $page->set('price.regular_amount_usd', '14.25')->set('price.first_week_amount_usd', '4.75')
+            ->call('savePrice')->assertReturned(false)->assertHasErrors('price.confirm_live_price');
+        self::assertSame([], $this->calls);
+        $page->set('price.confirm_live_price', true)->call('savePrice')->assertReturned(true)
+            ->assertSet('price.version', 10)->assertSet('price.confirm_live_price', false);
+        self::assertDatabaseHas('billing_prices', ['version' => 10, 'regular_amount_minor' => 1425, 'first_week_amount_minor' => 475, 'is_test' => false]);
+        self::assertDatabaseHas('billing_prices', ['version' => 9, 'regular_amount_minor' => 1200, 'is_test' => true]);
+        self::assertDatabaseHas('identity_audit_events', ['action' => 'billing.price.created', 'actor_kind' => 'staff', 'actor_id' => $staff->id]);
+        Livewire::test(BillingDesk::class)
+            ->assertSet('price.regular_amount_usd', '14.25')->assertSet('price.first_week_amount_usd', '4.75')->assertSet('price.is_test', false);
+        self::assertDatabaseCount('billing_orders', 0);
+    }
+
+    public function test_live_form_keeps_draft_on_admission_failure_or_stale_version_and_cannot_save_a_test_price(): void
+    {
+        $this->liveStaff();
+        $page = Livewire::test(BillingDesk::class)->call('selectTab', 'prices')
+            ->set('price.regular_amount_usd', '18.00')->set('price.first_week_amount_usd', '6.00')->set('price.confirm_live_price', true);
+        $page->set('price.is_test', true)->call('savePrice')->assertReturned(false)->assertHasErrors('price.is_test');
+        $this->missingWebhookEvents = true;
+        $page->set('price.is_test', false)->call('savePrice')->assertReturned(false)->assertHasErrors('billing')
+            ->assertSet('price.regular_amount_usd', '18.00')->assertSet('price.confirm_live_price', true);
+        self::assertDatabaseCount('billing_prices', 1);
+        $this->missingWebhookEvents = false;
+        DB::table('billing_prices')->insert(['id' => BillingStore::id(), 'version' => 2, 'regular_amount_minor' => 1500,
+            'first_week_amount_minor' => 500, 'currency' => 'USD', 'is_test' => false, 'created_at' => now()]);
+        $page->call('savePrice')->assertReturned(false)->assertHasErrors('billing')->assertSet('price.regular_amount_usd', '18.00')->assertSet('price.version', 1);
+        self::assertDatabaseCount('billing_prices', 2);
+    }
+
+    public function test_support_and_owner_without_mfa_cannot_save_live_price(): void
+    {
+        $this->liveStaff(Role::Support);
+        $input = ['version' => 1, 'regular_amount_usd' => '15.00', 'first_week_amount_usd' => '5.00', 'is_test' => false, 'confirm_live_price' => true];
+        try {
+            app(BillingAdministration::class)->savePriceUsd($input);
+            self::fail('Support cannot change prices');
+        } catch (ApiProblem $e) {
+            self::assertSame('NOT_AUTHORIZED', $e->errorCode);
+        }
+        $staff = $this->liveStaff();
+        app('session.store')->forget('identity.mfa_staff');
+        try {
+            app(BillingAdministration::class)->savePriceUsd($input);
+            self::fail('Owner MFA required');
+        } catch (ApiProblem $e) {
+            self::assertSame('MFA_REQUIRED', $e->errorCode);
+        }
+        self::assertDatabaseCount('billing_prices', 1);
+        self::assertSame([], $this->calls);
     }
 
     private function checkout(): object

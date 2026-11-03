@@ -11,6 +11,7 @@ use App\Data\ResourceScope;
 use App\Data\StaffIdentity;
 use App\Enums\Permission;
 use App\Enums\Role;
+use App\Modules\Billing\Support\BillingPriceMode;
 use App\Support\Admin\UsdAmount;
 use App\Support\ApiProblem;
 use Carbon\CarbonImmutable;
@@ -41,16 +42,23 @@ final class BillingAdministration
     public function currentPrice(): ?array
     {
         app(IdentityContext::class)->requireStaff(Permission::PriceManage);
-        $price = DB::table('billing_prices')->orderByDesc('version')->first();
+        $test = ! app(BillingPriceMode::class)->live();
+        $price = DB::table('billing_prices')->where('is_test', $test)->orderByDesc('version')->first();
+        if (! $price && $test) {
+            return null;
+        }
 
-        return $price ? (array) $price : null;
+        // The shared append-only table has one edit version across both isolated price pools.
+        return array_replace($price ? (array) $price : ['regular_amount_minor' => null, 'first_week_amount_minor' => null, 'is_test' => false],
+            ['version' => (int) (DB::table('billing_prices')->max('version') ?? 0)]);
     }
 
     /** Staff presentation boundary only; all stored prices remain integer USD minor units. */
     public function savePriceUsd(array $input): array
     {
         app(IdentityContext::class)->requireStaff(Permission::PriceManage);
-        $data = ['version' => $input['version'] ?? null, 'is_test' => $input['is_test'] ?? null];
+        $data = ['version' => $input['version'] ?? null, 'is_test' => $input['is_test'] ?? null,
+            'confirm_live_price' => $input['confirm_live_price'] ?? false];
         $fields = ['regular_amount_usd' => 'regular_amount_minor', 'first_week_amount_usd' => 'first_week_amount_minor'];
         $errors = [];
         foreach ($fields as $usd => $minor) {
@@ -75,7 +83,8 @@ final class BillingAdministration
                     'regular_amount_minor' => '常规周价须为 $0.01 至 $999999.99。',
                     'first_week_amount_minor' => '首周优惠价须至少为 $0.01，且不能高于常规周价。',
                     'version' => '价格版本无效，请刷新后重新确认。',
-                    'is_test' => '请明确勾选保存为测试价格。',
+                    'is_test' => app(BillingPriceMode::class)->live() ? '正式价格不能保存为测试价格，请刷新后确认。' : '请明确勾选保存为测试价格。',
+                    'confirm_live_price' => '请确认这是真实美元收费，首周后按常规周价自动续费。',
                     default => $messages,
                 };
             }
@@ -88,14 +97,26 @@ final class BillingAdministration
     public function savePrice(array $input): array
     {
         app(IdentityContext::class)->requireStaff(Permission::PriceManage);
+        $live = app(BillingPriceMode::class)->live();
         $data = Validator::make($input, [
             'version' => ['required', 'integer', 'min:0'],
             'regular_amount_minor' => ['required', 'integer', 'min:1', 'max:99999999'],
             'first_week_amount_minor' => ['required', 'integer', 'min:1', 'lte:regular_amount_minor'],
-            'is_test' => ['required', 'accepted'],
+            'is_test' => $live ? ['required', function ($attribute, $value, $fail) {
+                if ($value !== false) {
+                    $fail('正式价格不能保存为测试价格。');
+                }
+            }] : ['required', 'accepted'],
+            'confirm_live_price' => $live ? ['required', 'accepted'] : ['sometimes', 'boolean'],
         ])->validate();
 
-        return DB::transaction(function () use ($data) {
+        if ($live) {
+            // No first-price deadlock: official admission is checked without requiring a saved price.
+            // A timeout leaves the editor intact and never saves an unverified formal price.
+            app(PayPalRuntime::class)->assertPurchaseReady('live', requirePrice: false);
+        }
+
+        return DB::transaction(function () use ($data, $live) {
             // Serializes even the empty-price-table case; independent of viewer locks.
             DB::select('SELECT pg_advisory_xact_lock(30420301)');
             $version = (int) (DB::table('billing_prices')->max('version') ?? 0);
@@ -106,7 +127,7 @@ final class BillingAdministration
                 'id' => BillingStore::id(), 'version' => $version + 1,
                 'regular_amount_minor' => (int) $data['regular_amount_minor'],
                 'first_week_amount_minor' => (int) $data['first_week_amount_minor'],
-                'currency' => 'USD', 'is_test' => true, 'created_at' => now(),
+                'currency' => 'USD', 'is_test' => ! $live, 'created_at' => now(),
             ];
             DB::table('billing_prices')->insert($price);
             app(AuditRecorder::class)->record('billing.price.created', 'billing_price', $price['id'], 'success', ['version' => $price['version']]);
@@ -163,6 +184,7 @@ final class BillingAdministration
     public function recordVerification(string $caseId, array $input): void
     {
         $this->scopedCase($caseId, Permission::SupportNote);
+        $live = app(BillingPriceMode::class)->live();
         $data = Validator::make($input, [
             'identity_verified' => ['required', 'boolean'],
             'cancel_requested' => ['required', 'boolean'],

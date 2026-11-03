@@ -28,6 +28,7 @@ use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
 use App\Modules\Billing\Gateway\ProviderGatewayRouter;
 use App\Modules\Billing\Gateway\ProviderScope;
+use App\Modules\Billing\Support\BillingPriceMode;
 use App\Modules\Billing\Support\CheckoutSafety;
 use App\Modules\Billing\Support\ProviderActivity;
 use App\Modules\Identity\Services\SafeReturn;
@@ -44,7 +45,7 @@ final class BillingEngine implements BillingService, MembershipReader
 
     public function offer(?ViewerIdentity $viewer): Offer
     {
-        $price = DB::table('billing_prices')->where('is_test', config('billing.new_purchase_provider') !== 'paypal_live')->orderByDesc('version')->first() ?? throw new DependencyNotReady('Billing price');
+        $price = DB::table('billing_prices')->where('is_test', ! app(BillingPriceMode::class)->live())->orderByDesc('version')->first() ?? throw new DependencyNotReady('Billing price');
         $account = $viewer ? DB::table('billing_accounts')->where('viewer_id', $viewer->id)->first() : null;
         $eligible = $viewer ? $account?->first_paid_at === null : null;
         $id = BillingStore::id();

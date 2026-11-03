@@ -4,6 +4,7 @@ namespace App\Modules\Billing\Filament\Pages;
 
 use App\Enums\Role;
 use App\Modules\Billing\Services\BillingAdministration;
+use App\Modules\Billing\Support\BillingPriceMode;
 use App\Modules\Billing\Support\BillingRuntimePolicy;
 use App\Support\Admin\UsdAmount;
 use App\Support\ApiProblem;
@@ -77,7 +78,7 @@ final class BillingDesk extends Page
     {
         return $this->attempt(function () {
             $this->fillPrice(app(BillingAdministration::class)->savePriceUsd($this->price));
-            Notification::make()->title('测试价格新版本已保存，原订阅约定价保留')->success()->send();
+            Notification::make()->title(app(BillingPriceMode::class)->live() ? '正式价格新版本已保存，原订阅约定价保留' : '测试价格新版本已保存，原订阅约定价保留')->success()->send();
         });
     }
 
@@ -179,6 +180,7 @@ final class BillingDesk extends Page
     {
         $data = app(BillingAdministration::class)->dashboard();
         $activeTab = $this->tabAllowed($this->tab, $data['is_owner']) ? $this->tab : 'orders';
+        $data['live_price_mode'] = app(BillingPriceMode::class)->live();
         $data['activeTab'] = $activeTab;
         $data['tabs'] = [
             ['id' => 'orders', 'label' => '订单查询'],
@@ -223,9 +225,10 @@ final class BillingDesk extends Page
     {
         $this->price = $price ? [
             'version' => $price['version'],
-            'regular_amount_usd' => UsdAmount::toDecimal($price['regular_amount_minor']),
-            'first_week_amount_usd' => UsdAmount::toDecimal($price['first_week_amount_minor']),
+            'regular_amount_usd' => $price['regular_amount_minor'] === null ? '' : UsdAmount::toDecimal($price['regular_amount_minor']),
+            'first_week_amount_usd' => $price['first_week_amount_minor'] === null ? '' : UsdAmount::toDecimal($price['first_week_amount_minor']),
             'is_test' => (bool) $price['is_test'],
+            ...(! (bool) $price['is_test'] ? ['confirm_live_price' => false] : []),
         ] : ['version' => 0, 'regular_amount_usd' => '', 'first_week_amount_usd' => '', 'is_test' => true];
         $this->savedPrice = $this->price;
     }
@@ -246,7 +249,7 @@ final class BillingDesk extends Page
             return true;
         } catch (ValidationException $error) {
             foreach ($error->errors() as $key => $messages) {
-                $field = in_array($key, ['version', 'regular_amount_usd', 'first_week_amount_usd', 'is_test'], true) ? 'price.'.$key : $key;
+                $field = in_array($key, ['version', 'regular_amount_usd', 'first_week_amount_usd', 'is_test', 'confirm_live_price'], true) ? 'price.'.$key : $key;
                 foreach ($messages as $message) {
                     $this->addError($field, $message);
                 }
