@@ -1,0 +1,13 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Billing\PayPalLiveTest
+  ✓ explicit live preparation uses only live product and readiness       0.29s  
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ setup checks existing binding and creates one product without webho… 0.16s  
+
+  Tests:    2 passed (30 assertions)
+  Duration: 0.58s
+

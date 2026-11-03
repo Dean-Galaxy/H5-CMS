@@ -1,0 +1,20 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Integration\EntitlementPlaybackTest
+  ✓ audience progress survives refund but media and renewal are revoked  0.43s  
+  ✓ original price resume and unpaid expiry reach audience authorizatio… 0.07s  
+
+   PASS  Tests\Security\CrossModuleBoundaryTest
+  ✓ viewer cannot use another order or bypass media after signout        0.13s  
+  ✓ content staff has no billing authority even with mfa                 0.03s  
+
+   PASS  Tests\Integration\Analytics\DisabledConsumerBusinessTest
+  ✓ unavailable analytics does not block payment entitlement or refund   0.05s  
+  ✓ missing recorder never claims accepted or skipped reliable facts     0.02s  
+  ✓ disabled collection does not turn an unpaid viewer into a member     0.04s  
+
+  Tests:    7 passed (71 assertions)
+  Duration: 0.90s
+

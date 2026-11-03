@@ -1,0 +1,59 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Billing\PayPalLiveTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.34s  
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.20s  
+  ✓ renewal uses original price and original period when delivery is la… 0.15s  
+  ✓ failed renewal never adds access and blocks second purchase          0.16s  
+  ✓ partial then full refund only revokes its payment and stops renewal  0.17s  
+  ✓ wrong sale binding amount or currency cannot grant access            0.15s  
+  ✓ live flags are persisted atomically and consumer failure cannot und… 0.15s  
+  ✓ prices bind the environment and cannot reuse a stale test offer      0.13s  
+  ✓ new purchase switch does not reroute an original live order or canc… 0.15s  
+  ✓ default live transport is unavailable without an explicit http fake  0.13s  
+  ✓ callback environment and signature are checked before inbox creatio… 0.13s  
+  ✓ wrong environment binding cannot be used as live admission           0.13s  
+  ✓ live webhook cannot settle an order in another persisted scope       0.14s  
+  ✓ explicit live preparation uses only live product and readiness       0.15s  
+  ✓ live owner configures first price in existing form without inheriti… 0.20s  
+  ✓ live form keeps draft on admission failure or stale version and can… 0.16s  
+  ✓ support and owner without mfa cannot save live price                 0.13s  
+
+   PASS  Tests\Feature\Billing\PayPalLiveSafetyTest
+  ✓ live defaults off and does not inherit any sandbox credentials       0.13s  
+  ✓ real live enablement is rejected in testing local and staging        0.13s  
+  ✓ production live guard requires closed local and ad flags and exact…  0.13s  
+  ✓ http fake cannot be used in production and sandbox bindings are not… 0.13s  
+  ✓ production access never comes from sandbox and survives api pause    0.13s  
+  ✓ live pause filters before limit without pausing sandbox              0.13s  
+  ✓ only the exact live callback is csrf exempt                          0.13s  
+  ✓ production never quotes test samples even while new purchases are c… 0.13s  
+  ✓ live price requires explicit production confirmation and appends wi… 0.13s  
+
+   PASS  Tests\Feature\Billing\BillingDeskTest
+  ✓ owner uses dollar inputs and exact saved price survives refresh      0.11s  
+  ✓ support can open exact order without price controls or payment cred… 0.04s  
+  ✓ invalid dollars keep the form and save pending refuses navigation    0.03s  
+  ✓ stale price editor keeps entered dollars until explicit discard      0.04s  
+  ✓ refresh context and forged tabs or cases do not bypass scope         0.03s  
+  ✓ unsaved support note requires real validation and discard does not…  0.05s  
+  ✓ payment refund and next renewal amounts render as precise dollars    0.03s  
+  ✓ unauthed page does not bootstrap owner or prices                     0.02s  
+  ✓ staff without mfa proof cannot render billing data                   0.02s  
+  ✓ other roles cannot render the billing page                           0.02s  
+  ✓ unknown support cancellation clears consumed verification but keeps… 0.05s  
+
+   PASS  Tests\Feature\Billing\BillingAdministrationTest
+  ✓ prices append versions and never overwrite prior terms               0.02s  
+  ✓ invalid amounts and non test prices cannot be saved                  0.02s  
+  ✓ every administration action requires allowed staff and mfa           0.02s  
+  ✓ case scope is derived from order and cannot be replaced with anothe… 0.02s  
+  ✓ support view and notes use minimal scoped fields and safe audit      0.02s  
+  ✓ verified cancel dispatches only persisted identity and returns proc… 0.02s  
+  ✓ owner still needs verified request and malformed case link is rejec… 0.02s  
+
+  Tests:    44 passed (629 assertions)
+  Duration: 4.66s
+

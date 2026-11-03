@@ -1,0 +1,102 @@
+
+   INFO  Configuration cache cleared successfully.  
+
+
+   PASS  Tests\Feature\Billing\PayPalRuntimeTest
+  ✓ checkout webhook reconciliation membership and duplicate delivery s… 0.41s  
+  ✓ cancel requires observed stop preserves paid period and disables re… 0.20s  
+  ✓ renewal uses original price and original period when delivery is la… 0.16s  
+  ✓ failed renewal never adds access and blocks second purchase          0.17s  
+  ✓ partial then full refund only revokes its payment and stops renewal  0.18s  
+  ✓ two distinct refund notifications accumulate only their completed a… 0.18s  
+  ✓ confirmed refund stop survives repeated full reconciliation without… 0.21s  
+  ✓ confirmed refund stop survives repeated full reconciliation without… 0.22s  
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.16s  
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.16s  
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.15s  
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.15s  
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.15s  
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.16s  
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.15s  
+  ✓ refund reader preserves only confirmed stop without clearing existi… 0.15s  
+  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.17s  
+  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.17s  
+  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.18s  
+  ✓ refund replay cannot create another cancel to clear an unrelated re… 0.17s  
+  ✓ refund replay completes the original pending stop after provider su… 0.20s  
+  ✓ partial refund stop failure keeps payment fact and retries only its… 0.16s  
+  ✓ paypal behavior facts use confirmed reads and refund correction ver… 0.18s  
+  ✓ wrong merchant blocks creation and empty unconfigured cannot buy     0.13s  
+  ✓ incomplete transaction page or ambiguous cycle never settles         0.15s  
+  ✓ expired unapproved checkout is hard cancelled before occupancy is r… 0.15s  
+  ✓ setup checks existing binding and creates one product without webho… 0.14s  
+  ✓ unconfigured new purchase stays disabled even after setup            0.14s  
+  ✓ refund correction restores only original interval without restoring… 0.18s  
+  ✓ terminal without proof of no payment retains unique occupancy        0.16s  
+  ✓ late cancel event rereads current provider state and cannot extend…  0.16s  
+  ✓ unavailable app authentication is a safe diagnostic and cannot crea… 0.14s  
+  ✓ wrong sale binding amount or currency cannot grant access            0.18s  
+  ✓ pending failed and cancelled refunds do not stop or revoke a comple… 0.18s  
+  ✓ lagging transaction history cannot release a terminal subscription   0.16s  
+  ✓ reversal stop intent survives failed read transaction                0.16s  
+  ✓ incomplete webhook events cannot create checkout                     0.15s  
+  ✓ actual response shape settles one original order and recheck never…  0.16s  
+  ✓ observed first boundary is preserved when the next week is paid      0.17s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.27s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.22s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.37s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.21s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.18s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.18s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.16s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.20s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.18s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.16s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.16s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ optional metadata does not weaken payment or period evidence with d… 0.15s  
+  ✓ unobserved short first period cannot be backfilled from multiple pa… 0.15s  
+  ✓ changed historical anchor cannot rewrite or extend paid access       0.15s  
+  ✓ active without payment or unavailable read never returns stored app… 0.16s  
+  ✓ explicit recheck reads only and never cancels an expired approval    0.15s  
+  ✓ protected suspended subscription expires locally without remote lif… 0.17s  
+  ✓ explicitly disabled paypal reconciliation preserves confirmed cance… 0.16s  
+  ✓ disabled direct calls and callback report unavailable without modif… 0.17s  
+  ✓ disabled retry preserves pending cancel and resumes only after api…  0.17s  
+  ✓ disabled checkout retry keeps its original intent untouched          0.15s  
+  ✓ enabled network failure is not silently treated as an operator paus… 0.16s  
+  ✓ invalid or missing enablement is not an operator pause with data se… 0.15s  
+  ✓ invalid or missing enablement is not an operator pause with data se… 0.16s  
+  ✓ invalid or missing enablement is not an operator pause with data se… 0.15s  
+  ✓ disabled paypal does not starve stripe at limit one and pending wor… 0.18s  
+
+   PASS  Tests\Feature\Billing\BillingEngineTest
+  ✓ verified account snapshot and idempotency control checkout           0.11s  
+  ✓ checkout unknown is persisted and retry keeps same order             0.02s  
+  ✓ expired offer and another accounts offer cannot create orders        0.02s  
+  ✓ cancel resume uses original price and old retry cannot undo later c… 0.04s  
+  ✓ unexecuted resume expires at boundary and cancel timeout reconciles  0.03s  
+  ✓ paid interval is half open and pending original blocks repurchase    0.03s  
+  ✓ http rejects client money and preserves order ownership              0.02s  
+  ✓ http enforces frozen idempotency key bounds before creating orders   0.03s  
+  ✓ guest offer requires new personal offer and changed eligibility req… 0.02s  
+  ✓ checkout creation intent survives unknown result with fixed paramet… 0.02s  
+  ✓ testing gateway does not hide conflicting coupon parameters          0.02s  
+
+   PASS  Tests\Integration\EntitlementPlaybackTest
+  ✓ audience progress survives refund but media and renewal are revoked  0.11s  
+  ✓ original price resume and unpaid expiry reach audience authorizatio… 0.06s  
+
+   PASS  Tests\Security\CrossModuleBoundaryTest
+  ✓ viewer cannot use another order or bypass media after signout        0.11s  
+  ✓ content staff has no billing authority even with mfa                 0.03s  
+
+  Tests:    87 passed (2249 assertions)
+  Duration: 13.25s
+
