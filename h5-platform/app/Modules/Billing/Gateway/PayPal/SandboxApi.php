@@ -16,9 +16,15 @@ use RuntimeException;
 use Throwable;
 
 /** Sandbox protocol transport used by the PayPal-native runtime. */
-final class SandboxApi
+class SandboxApi
 {
     public const ORIGIN = 'https://api-m.sandbox.paypal.com';
+
+    public const ENVIRONMENT = 'sandbox';
+
+    public const CONFIG = 'billing.paypal';
+
+    public const CALLBACK_PATH = '/webhooks/paypal';
 
     public const REQUIRED_WEBHOOK_EVENTS = [
         'PAYMENT.SALE.COMPLETED', 'PAYMENT.SALE.REFUNDED', 'PAYMENT.SALE.REVERSED',
@@ -49,8 +55,8 @@ final class SandboxApi
     public function configurationStamp(ProviderScope $scope): string
     {
         $this->assertAvailable();
-        if ($scope->provider !== 'paypal' || $scope->environment !== 'sandbox'
-            || $scope->merchantScope !== config('billing.paypal.merchant_scope')) {
+        if ($scope->provider !== 'paypal' || $scope->environment !== static::ENVIRONMENT
+            || $scope->merchantScope !== config(static::CONFIG.'.merchant_scope')) {
             throw new DependencyNotReady('Billing / PayPal persisted merchant scope');
         }
 
@@ -74,7 +80,7 @@ final class SandboxApi
 
     public function createProduct(string $requestId): array
     {
-        return $this->call('POST', '/v1/catalogs/products', json_encode(self::productRequest(), JSON_THROW_ON_ERROR), $requestId, credentialsOnly: true);
+        return $this->call('POST', '/v1/catalogs/products', json_encode(static::productRequest(), JSON_THROW_ON_ERROR), $requestId, credentialsOnly: true);
     }
 
     public static function productRequest(): array
@@ -97,7 +103,7 @@ final class SandboxApi
     {
         $this->assertAvailable(credentialsOnly: true);
 
-        return hash('sha256', config('billing.paypal.client_id'));
+        return hash('sha256', config(static::CONFIG.'.client_id'));
     }
 
     /** Does not expose the token or treat OAuth app_id as merchant identity. */
@@ -119,11 +125,11 @@ final class SandboxApi
     {
         $this->assertMerchant($scope);
         $stamp = $this->configurationStamp($scope);
-        $id = config('billing.paypal.webhook_id');
-        $url = config('billing.paypal.webhook_url');
+        $id = config(static::CONFIG.'.webhook_id');
+        $url = config(static::CONFIG.'.webhook_url');
         $parts = is_string($url) ? parse_url($url) : false;
         if (! is_array($parts) || ($parts['scheme'] ?? null) !== 'https' || empty($parts['host'])
-            || ($parts['path'] ?? null) !== '/webhooks/paypal'
+            || ($parts['path'] ?? null) !== static::CALLBACK_PATH
             || isset($parts['query']) || isset($parts['fragment']) || isset($parts['user']) || isset($parts['pass'])
             || (isset($parts['port']) && $parts['port'] !== 443)) {
             throw new RuntimeException('PAYPAL_WEBHOOK_REGISTRATION_MISMATCH');
@@ -186,7 +192,7 @@ final class SandboxApi
     public function verify(SandboxWebhookEnvelope $envelope): bool
     {
         $this->assertAvailable();
-        if (! $envelope->belongsToWebhook(config('billing.paypal.webhook_id'))) {
+        if (! $envelope->belongsToWebhook(config(static::CONFIG.'.webhook_id'))) {
             throw new InvalidArgumentException('PAYPAL_WEBHOOK_SCOPE_MISMATCH');
         }
         $reply = $this->call('POST', '/v1/notifications/verify-webhook-signature', $envelope->verificationRequestBody());
@@ -219,7 +225,7 @@ final class SandboxApi
             return $this->token;
         }
         $data = $this->send('POST', '/v1/oauth2/token', [
-            'auth' => [config('billing.paypal.client_id'), config('billing.paypal.client_secret')],
+            'auth' => [config(static::CONFIG.'.client_id'), config(static::CONFIG.'.client_secret')],
             'headers' => ['Accept' => 'application/json'], 'form_params' => ['grant_type' => 'client_credentials'],
         ]);
         if (! is_string($data['access_token'] ?? null) || preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $data['access_token']) !== 1
@@ -271,7 +277,7 @@ final class SandboxApi
         $providerCode = 'unknown';
         try {
             $client = $this->testingTransport ?? new Client;
-            $response = $client->request($method, self::ORIGIN.$path, $options + [
+            $response = $client->request($method, static::ORIGIN.$path, $options + [
                 'verify' => true, 'allow_redirects' => false, 'http_errors' => false,
                 'connect_timeout' => 5, 'timeout' => 15, 'proxy' => '',
             ]);
@@ -314,8 +320,8 @@ final class SandboxApi
         try {
             app(RuntimeEnvironmentGuard::class)->assertSafeRuntime();
             $environment = app()->environment();
-            if (! in_array($environment, ['local', 'testing', 'staging'], true)
-                || config('billing.paypal.enabled') !== true
+            if (! $this->runtimeAllowed($environment)
+                || (config(static::CONFIG.'.enabled') !== true && ! $this->offlineFake())
                 || ($this->testingTransport !== null && $environment !== 'testing')
                 || ($this->testingTransport === null && $environment === 'testing')) {
                 throw new RuntimeException;
@@ -328,7 +334,7 @@ final class SandboxApi
             }
             $configuration = [];
             foreach (['client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope', 'webhook_url'] as $key) {
-                $value = config('billing.paypal.'.$key);
+                $value = config(static::CONFIG.'.'.$key);
                 if ($key !== 'webhook_url' && (! $credentialsOnly || in_array($key, ['client_id', 'client_secret'], true))
                     && (! is_string($value) || preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $value) !== 1)) {
                     throw new RuntimeException;
@@ -348,6 +354,27 @@ final class SandboxApi
         }
     }
 
+    public function offlineFake(): bool
+    {
+        return false;
+    }
+
+    protected function runtimeAllowed(string $environment): bool
+    {
+        return in_array($environment, ['local', 'testing', 'staging'], true);
+    }
+
+    /** Route using persisted scope, never the current new-purchase selector. */
+    public function forScope(ProviderScope $scope): self
+    {
+        if ($scope->provider !== 'paypal') {
+            throw new InvalidArgumentException('PAYPAL_SCOPE_REQUIRED');
+        }
+
+        return $scope->environment === static::ENVIRONMENT ? $this
+            : app($scope->environment === 'live' ? LiveApi::class : self::class);
+    }
+
     private function identifier(string $value, string $prefix): string
     {
         if (preg_match('/\A'.preg_quote($prefix, '/').'[A-Z0-9]{1,126}\z/D', $value) !== 1) {
@@ -359,6 +386,6 @@ final class SandboxApi
 
     public function __debugInfo(): array
     {
-        return ['provider' => 'paypal', 'environment' => 'sandbox', 'official_verification' => 'not_performed'];
+        return ['provider' => 'paypal', 'environment' => static::ENVIRONMENT, 'official_verification' => 'not_performed'];
     }
 }

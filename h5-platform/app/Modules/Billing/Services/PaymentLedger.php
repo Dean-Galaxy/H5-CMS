@@ -27,7 +27,7 @@ final class PaymentLedger
                 && $firstOrder->currency === $sub->currency
                 && $fact->firstOrderId === $firstOrder->id && ($sub->provider_id === null || $fact->externalSubscriptionId === $sub->provider_id)
                 && ($sub->customer_id === null || $fact->customerId === $sub->customer_id) && $fact->regularAmountMinor === $sub->regular_amount_minor
-                && $fact->currency === $sub->currency && (bool) $sub->is_test && (bool) $firstOrder->is_test);
+                && $fact->currency === $sub->currency && (bool) $sub->is_test === $fact->scope->isTest() && (bool) $firstOrder->is_test === $fact->scope->isTest());
             if ($sub->provider_id === null || $sub->customer_id === null) {
                 DB::table('billing_subscriptions')->where('id', $sub->id)->update([
                     'provider_id' => $fact->externalSubscriptionId, 'customer_id' => $fact->customerId, 'updated_at' => now(),
@@ -57,7 +57,7 @@ final class PaymentLedger
                 'id' => $paymentId, 'order_id' => $order->id, 'subscription_id' => $sub->id, 'viewer_id' => $sub->viewer_id,
                 // Historical column name retained for compatibility: PayPal uses a Sale reference, not an invoice.
                 'provider_invoice_id' => $fact->reference, 'provider_charge_id' => $fact->chargeId,
-                'amount_minor' => $expected, 'currency' => $fact->currency, 'is_test' => true,
+                'amount_minor' => $expected, 'currency' => $fact->currency, 'is_test' => $fact->scope->isTest(),
                 'period_start' => $fact->periodStart, 'period_end' => $fact->periodEnd, 'paid_at' => $fact->paidAt, 'created_at' => now(),
             ]);
             DB::table('billing_entitlements')->insert([
@@ -84,7 +84,7 @@ final class PaymentLedger
                     'event_id' => $eventId, 'schema_version' => 'PaymentSettled.v1', 'payment_id' => $paymentId,
                     'order_id' => $order->id, 'subscription_id' => $sub->id, 'transaction_kind' => $order->transaction_kind,
                     'discount_applied' => (bool) $order->discount_applied, 'amount_minor' => $expected,
-                    'currency' => $fact->currency, 'occurred_at' => BillingStore::iso($fact->paidAt), 'is_test' => true,
+                    'currency' => $fact->currency, 'occurred_at' => BillingStore::iso($fact->paidAt), 'is_test' => $fact->scope->isTest(),
                     'attribution_snapshot' => BillingStore::json($order->attribution_snapshot),
                 ], JSON_THROW_ON_ERROR), 'created_at' => now(),
             ]);

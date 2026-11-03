@@ -3,13 +3,15 @@
 namespace App\Modules\Billing\Support;
 
 use App\Modules\Identity\Services\SafeReturn;
+use App\Support\RuntimeEnvironmentGuard;
 
 /** One policy for new, reconciled and already-persisted Checkout links. */
 final class CheckoutSafety
 {
     public function expectedReturnUrl(object $order): string
     {
-        $origin = app(BillingRuntimePolicy::class)->checkoutOrigin();
+        $origin = (($order->provider ?? null) === 'paypal' && ($order->provider_environment ?? null) === 'live' && app()->environment('production')
+            ? app(RuntimeEnvironmentGuard::class)->paypalLiveOrigin() : app(BillingRuntimePolicy::class)->checkoutOrigin());
         $return = parse_url(app(SafeReturn::class)->path($order->return_to ?? null));
         parse_str($return['query'] ?? '', $query);
         // The caller's query never supplies the authoritative order reference.

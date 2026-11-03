@@ -11,7 +11,7 @@ final class ProviderInboxStore
 {
     public function receive(ProviderScope $scope, array $event): string
     {
-        if (($event['is_test'] ?? null) !== true) {
+        if (($event['is_test'] ?? null) !== $scope->isTest()) {
             throw new RuntimeException('LIVE_PAYMENTS_DISABLED');
         }
         $identity = $scope->columns() + ['provider_event_id' => $event['id']];
@@ -19,14 +19,14 @@ final class ProviderInboxStore
         // Truncate once before SQL: PostgreSQL timestamp(0) would otherwise round .5+ up.
         $occurredAt = BillingStore::iso($event['created']);
 
-        return DB::transaction(function () use ($identity, $event, $occurredAt) {
+        return DB::transaction(function () use ($identity, $event, $occurredAt, $scope) {
             DB::table('billing_inbox')->insertOrIgnore($identity + [
                 'id' => BillingStore::id(), 'event_type' => $event['type'], 'object_id' => $event['object_id'],
-                'related_object_id' => $event['related_object_id'] ?? null, 'is_test' => true,
+                'related_object_id' => $event['related_object_id'] ?? null, 'is_test' => $scope->isTest(),
                 'occurred_at' => $occurredAt, 'created_at' => now(),
             ]);
             $row = DB::table('billing_inbox')->where($identity)->lockForUpdate()->first();
-            if (! $row || $row->event_type !== $event['type'] || $row->object_id !== $event['object_id']
+            if (! $row || (bool) $row->is_test !== $scope->isTest() || $row->event_type !== $event['type'] || $row->object_id !== $event['object_id']
                 || $row->related_object_id !== ($event['related_object_id'] ?? null)
                 || BillingStore::iso($row->occurred_at) !== $occurredAt) {
                 throw new RuntimeException('BILLING_PROVIDER_EVENT_CONFLICT');

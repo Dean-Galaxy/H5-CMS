@@ -20,8 +20,9 @@ final class OutboxService
             try {
                 $delivered = DB::transaction(function () use ($id) {
                     $row = DB::table('billing_outbox')->where('id', $id)->lockForUpdate()->first();
+                    $payment = $row ? DB::table('billing_payments')->find($row->payment_id) : null;
                     if (! $row || $row->delivered_at
-                        || ProviderActivity::disabled(DB::table('billing_payments')->where('id', $row->payment_id)->value('provider') ?? '')) {
+                        || ! $payment || ProviderActivity::disabled($payment->provider, $payment->provider_environment)) {
                         return false;
                     }
                     if (! $this->events->hasListeners(PaymentSettled::class)) {

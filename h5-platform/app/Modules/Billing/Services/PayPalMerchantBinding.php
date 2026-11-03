@@ -19,28 +19,28 @@ final class PayPalMerchantBinding
     public function offlineContext(): array
     {
         app(RuntimeEnvironmentGuard::class)->assertSafeRuntime();
-        $client = config('billing.paypal.client_id');
+        $client = config($this->api::CONFIG.'.client_id');
 
-        return ['environment' => 'sandbox', 'merchant_scope' => config('billing.paypal.merchant_scope') ?: null,
-            'merchant_id' => config('billing.paypal.merchant_id') ?: null,
+        return ['environment' => $this->api::ENVIRONMENT, 'merchant_scope' => config($this->api::CONFIG.'.merchant_scope') ?: null,
+            'merchant_id' => config($this->api::CONFIG.'.merchant_id') ?: null,
             'client_id_sha256' => is_string($client) && $client !== '' ? hash('sha256', $client) : null];
     }
 
     public function context(): array
     {
         $fingerprint = $this->api->appFingerprint();
-        $scope = new ProviderScope('paypal', 'sandbox', config('billing.paypal.merchant_scope', ''));
-        $merchant = config('billing.paypal.merchant_id');
+        $scope = new ProviderScope('paypal', $this->api::ENVIRONMENT, config($this->api::CONFIG.'.merchant_scope', ''));
+        $merchant = config($this->api::CONFIG.'.merchant_id');
         $this->require(is_string($merchant) && preg_match('/\A[A-Z0-9]{1,64}\z/D', $merchant) === 1);
 
-        return ['environment' => 'sandbox', 'merchant_scope' => $scope->merchantScope,
+        return ['environment' => $this->api::ENVIRONMENT, 'merchant_scope' => $scope->merchantScope,
             'merchant_id' => $merchant, 'client_id_sha256' => $fingerprint];
     }
 
     public function assertBound(ProviderScope $scope): object
     {
         $context = $this->context();
-        $this->require($scope->provider === 'paypal' && $scope->environment === 'sandbox' && $scope->merchantScope === $context['merchant_scope']);
+        $this->require($scope->provider === 'paypal' && $scope->environment === $this->api::ENVIRONMENT && $scope->merchantScope === $context['merchant_scope']);
         $binding = DB::table('billing_paypal_merchant_bindings')->where('merchant_scope', $scope->merchantScope)->first();
         $this->require($binding !== null && $binding->binding_source === 'operator_dashboard');
         foreach ($context as $field => $value) {

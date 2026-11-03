@@ -10,6 +10,7 @@ use App\Modules\Billing\Services\PayPalWebhookReceiver;
 use App\Modules\Billing\Services\WebhookService;
 use App\Support\DependencyNotReady;
 use App\Support\UnavailableServices;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
@@ -81,3 +82,10 @@ Route::post('/webhooks/paypal', function (Request $request) use ($ready) {
 
     return response()->json(['status' => 'accepted', 'message' => '通知已接收，付款事实需核对', 'request_id' => $request->attributes->get('request_id')]);
 });
+
+Route::post('/webhooks/paypal/live', function (Request $request) use ($ready) {
+    $ready();
+    app(PayPalWebhookReceiver::class)->receive($request->getContent(), $request->headers->all(), 'live');
+
+    return response()->json(['status' => 'accepted', 'message' => '通知已接收，付款事实需核对', 'request_id' => $request->attributes->get('request_id')]);
+})->withoutMiddleware(PreventRequestForgery::class);

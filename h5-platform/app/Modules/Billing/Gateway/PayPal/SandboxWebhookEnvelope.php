@@ -15,11 +15,14 @@ final readonly class SandboxWebhookEnvelope
     private function __construct(private string $body, private array $verificationFields, private stdClass $event) {}
 
     /** Header arrays are accepted only when single-valued; duplicate names are rejected. */
-    public static function fromRequest(string $body, array $headers, string $configuredWebhookId): self
+    public static function fromRequest(string $body, array $headers, string $configuredWebhookId, string $environment = 'sandbox'): self
     {
         if (strlen($body) > 262144 || preg_match('/\A[A-Z0-9-]{1,128}\z/D', $configuredWebhookId) !== 1) {
             throw new InvalidArgumentException('PAYPAL_WEBHOOK_INPUT_INVALID');
         }
+        $certHost = match ($environment) {
+            'sandbox' => '(?:api|api-m)\\.sandbox\\.paypal\\.com', 'live' => '(?:api|api-m)\\.paypal\\.com', default => throw new InvalidArgumentException('PAYPAL_ENVIRONMENT_INVALID')
+        };
         $names = [
             'paypal-auth-algo' => 'auth_algo',
             'paypal-cert-url' => 'cert_url',
@@ -44,7 +47,7 @@ final readonly class SandboxWebhookEnvelope
         }
         if (count($fields) !== 5 || $fields['auth_algo'] !== 'SHA256withRSA'
             || preg_match('/\A[A-Za-z0-9-]{1,128}\z/D', $fields['transmission_id']) !== 1
-            || preg_match('~\Ahttps://(?:api|api-m)\.sandbox\.paypal\.com/v1/notifications/certs/CERT-[A-Za-z0-9-]+\z~D', $fields['cert_url']) !== 1
+            || preg_match('~\Ahttps://'.$certHost.'/v1/notifications/certs/CERT-[A-Za-z0-9-]+\z~D', $fields['cert_url']) !== 1
             || base64_decode($fields['transmission_sig'], true) === false
             || base64_encode(base64_decode($fields['transmission_sig'], true)) !== $fields['transmission_sig']) {
             throw new InvalidArgumentException('PAYPAL_WEBHOOK_HEADERS_INVALID');

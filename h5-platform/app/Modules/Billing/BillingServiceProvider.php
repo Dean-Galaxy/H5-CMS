@@ -7,9 +7,11 @@ use App\Contracts\BillingService;
 use App\Contracts\MembershipReader;
 use App\Modules\Billing\Console\BillingConfigurationCheck;
 use App\Modules\Billing\Console\DispatchBillingBehavior;
+use App\Modules\Billing\Console\PayPalLivePrice;
 use App\Modules\Billing\Console\PayPalPrepare;
 use App\Modules\Billing\Console\ReconcileBilling;
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\PayPal\LiveApi;
 use App\Modules\Billing\Gateway\StripeGateway;
 use App\Modules\Billing\Gateway\UnconfiguredGateway;
 use App\Modules\Billing\Services\BillingEngine;
@@ -27,6 +29,7 @@ final class BillingServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/config.php', 'billing');
         $this->app->singleton(BillingRuntimePolicy::class);
+        $this->app->singleton(LiveApi::class);
         $this->app->bind(BillingService::class, BillingEngine::class);
         $this->app->bind(BillingAnalyticsReader::class, FinancialAnalyticsReader::class);
         $this->app->bind(MembershipReader::class, BillingEngine::class);
@@ -51,7 +54,7 @@ final class BillingServiceProvider extends ServiceProvider
         }
         // instance() bypasses afterResolving; reject a later replacement as well.
         $this->app->rebinding(PaymentGateway::class, fn ($app, mixed $gateway) => $this->assertGatewayBinding($gateway));
-        $this->commands([ReconcileBilling::class, BillingConfigurationCheck::class, PayPalPrepare::class, DispatchBillingBehavior::class]);
+        $this->commands([ReconcileBilling::class, BillingConfigurationCheck::class, PayPalPrepare::class, PayPalLivePrice::class, DispatchBillingBehavior::class]);
         $this->app->afterResolving(Schedule::class, function (Schedule $schedule) {
             $schedule->command('billing:reconcile')->everyMinute()->withoutOverlapping(5);
             $schedule->command('billing:behavior-dispatch')->everyMinute()->withoutOverlapping(5);

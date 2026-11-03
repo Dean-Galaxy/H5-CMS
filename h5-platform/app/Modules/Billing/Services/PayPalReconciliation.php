@@ -24,12 +24,14 @@ final class PayPalReconciliation
 
     public function assertAvailable(object $sub): void
     {
-        $this->api->configurationStamp(ProviderScope::fromRecord($sub));
+        $scope = ProviderScope::fromRecord($sub);
+        $this->api->forScope($scope)->configurationStamp(ProviderScope::fromRecord($sub));
     }
 
     public function sync(string $subscriptionId, bool $allowLifecycleChanges = true): void
     {
-        ProviderActivity::assertEnabled('paypal');
+        $initial = DB::table('billing_subscriptions')->find($subscriptionId) ?? throw new RuntimeException('PAYPAL_SUBSCRIPTION_UNKNOWN');
+        ProviderActivity::assertEnabled('paypal', $initial->provider_environment);
         $stage = 'IDENTITY';
         try {
             DB::transaction(function () use ($subscriptionId, $allowLifecycleChanges, &$stage) {
@@ -44,7 +46,7 @@ final class PayPalReconciliation
                 $expiredSuspension = $status === 'SUSPENDED' && $sub->desired_renewal === false
                     && ($paidUntil === null || now()->gte(CarbonImmutable::parse($paidUntil)));
                 if ($allowLifecycleChanges && ($expiredApproval || $expiredSuspension)) {
-                    $this->api->cancel($sub->provider_id);
+                    $this->api->forScope($scope)->cancel($sub->provider_id);
                     [$order, $remote, $scope, $stamp] = $this->read($sub);
                     $this->require(in_array($remote['status'], ['CANCELLED', 'EXPIRED'], true));
                     $status = $remote['status'];
@@ -62,11 +64,11 @@ final class PayPalReconciliation
                     foreach ($transactions as $transaction) {
                         $id = $transaction['id'] ?? null;
                         $this->require(is_string($id));
-                        $sales[$id] = $this->api->sale($id);
+                        $sales[$id] = $this->api->forScope($scope)->sale($id);
                     }
                     $stage = 'STABLE_READ';
                     // Detect state/cycle changes across the multi-read observation.
-                    $again = $this->api->subscription($sub->provider_id);
+                    $again = $this->api->forScope($scope)->subscription($sub->provider_id);
                     $this->sameConfiguration($scope, $stamp);
                     foreach (['id', 'custom_id', 'plan_id', 'start_time', 'status', 'billing_info', 'subscriber', 'plan_overridden'] as $key) {
                         $this->require(($again[$key] ?? null) === ($remote[$key] ?? null));
@@ -97,7 +99,7 @@ final class PayPalReconciliation
                     }
                 }
                 // A lagging transaction list must not release occupancy after a newer payment.
-                $again = $this->api->subscription($sub->provider_id);
+                $again = $this->api->forScope($scope)->subscription($sub->provider_id);
                 $this->sameConfiguration($scope, $stamp);
                 foreach (['id', 'custom_id', 'plan_id', 'start_time', 'status', 'billing_info', 'subscriber'] as $key) {
                     $this->require(($again[$key] ?? null) === ($remote[$key] ?? null));
@@ -158,7 +160,7 @@ final class PayPalReconciliation
             $this->verifyPlan($sub, $order, $remote);
             $this->sameConfiguration($scope, $stamp);
 
-            return SandboxSubscriptionRequest::approvalUrl($remote);
+            return SandboxSubscriptionRequest::approvalUrl($remote, $scope->environment);
         });
     }
 
@@ -168,9 +170,9 @@ final class PayPalReconciliation
         [, $remote, $scope, $stamp] = $this->read($sub);
         if (! in_array($remote['status'], ['SUSPENDED', 'CANCELLED', 'EXPIRED'], true)) {
             if ($remote['status'] === 'ACTIVE') {
-                $this->api->suspend($sub->provider_id);
+                $this->api->forScope($scope)->suspend($sub->provider_id);
             } else {
-                $this->api->cancel($sub->provider_id);
+                $this->api->forScope($scope)->cancel($sub->provider_id);
             }
             [, $remote] = $this->read($sub);
         }
@@ -184,9 +186,9 @@ final class PayPalReconciliation
 
     public function process(object $event): bool
     {
-        ProviderActivity::assertEnabled('paypal');
         $scope = ProviderScope::fromRecord($event);
-        $this->api->configurationStamp($scope);
+        ProviderActivity::assertEnabled('paypal', $scope->environment);
+        $this->api->forScope($scope)->configurationStamp($scope);
         if (str_starts_with($event->event_type, 'BILLING.SUBSCRIPTION.')) {
             $sub = DB::table('billing_subscriptions')->where($scope->columns())->where('provider_id', $event->object_id)->first();
             $this->require($sub !== null);
@@ -194,7 +196,7 @@ final class PayPalReconciliation
         } elseif ($event->event_type === 'PAYMENT.SALE.REFUNDED') {
             $this->refund($scope, $event->object_id);
         } elseif (in_array($event->event_type, ['PAYMENT.SALE.COMPLETED', 'PAYMENT.SALE.REVERSED'], true)) {
-            $sale = $this->api->sale($event->object_id);
+            $sale = $this->api->forScope($scope)->sale($event->object_id);
             $this->require(($sale['id'] ?? null) === $event->object_id);
             $sub = DB::table('billing_subscriptions')->where($scope->columns())->where('provider_id', $sale['billing_agreement_id'] ?? '')->first();
             $this->require($sub !== null);
@@ -212,10 +214,10 @@ final class PayPalReconciliation
 
     public function refund(ProviderScope $scope, string $refundId): void
     {
-        ProviderActivity::assertEnabled('paypal');
-        $stamp = $this->api->configurationStamp($scope);
-        $this->api->assertMerchant($scope);
-        $refund = $this->api->refund($refundId);
+        ProviderActivity::assertEnabled('paypal', $scope->environment);
+        $stamp = $this->api->forScope($scope)->configurationStamp($scope);
+        $this->api->forScope($scope)->assertMerchant($scope);
+        $refund = $this->api->forScope($scope)->refund($refundId);
         $this->sameConfiguration($scope, $stamp);
         $payment = DB::table('billing_payments')->where($scope->columns())->where('provider_charge_id', $refund['sale_id'] ?? '')->first();
         $this->require($payment !== null && ($refund['id'] ?? null) === $refundId);
@@ -238,20 +240,20 @@ final class PayPalReconciliation
 
     public function syncRefunds(string $paymentId): void
     {
-        ProviderActivity::assertEnabled('paypal');
         $payment = DB::table('billing_payments')->find($paymentId) ?? throw new RuntimeException('PAYPAL_PAYMENT_UNKNOWN');
         $scope = ProviderScope::fromRecord($payment);
-        $stamp = $this->api->configurationStamp($scope);
-        $this->api->assertMerchant($scope);
+        ProviderActivity::assertEnabled('paypal', $scope->environment);
+        $stamp = $this->api->forScope($scope)->configurationStamp($scope);
+        $this->api->forScope($scope)->assertMerchant($scope);
         $refunds = [];
         foreach (DB::table('billing_refunds')->where('payment_id', $paymentId)->get() as $knownRefund) {
-            $current = $this->api->refund($knownRefund->provider_refund_id);
+            $current = $this->api->forScope($scope)->refund($knownRefund->provider_refund_id);
             $this->require(($current['id'] ?? null) === $knownRefund->provider_refund_id && ($current['sale_id'] ?? null) === $payment->provider_charge_id
                 && PayPalAmount::minor($current['amount']['total'] ?? null, $current['amount']['currency'] ?? null) === $knownRefund->amount_minor
                 && in_array($current['state'] ?? null, ['pending', 'completed', 'failed', 'cancelled'], true));
             $refunds[$knownRefund->provider_refund_id] = $current['state'] === 'completed' ? 'succeeded' : $current['state'];
         }
-        $sale = $this->api->sale($payment->provider_charge_id);
+        $sale = $this->api->forScope($scope)->sale($payment->provider_charge_id);
         $sub = DB::table('billing_subscriptions')->find($payment->subscription_id);
         $this->sameConfiguration($scope, $stamp);
         $this->require(($sale['id'] ?? null) === $payment->provider_charge_id && ($sale['billing_agreement_id'] ?? null) === $sub->provider_id
@@ -323,10 +325,11 @@ final class PayPalReconciliation
     private function read(object $sub): array
     {
         $scope = ProviderScope::fromRecord($sub);
-        $stamp = $this->api->configurationStamp($scope);
+        ProviderActivity::assertEnabled('paypal', $scope->environment);
+        $stamp = $this->api->forScope($scope)->configurationStamp($scope);
         $order = DB::table('billing_orders')->find($sub->first_order_id);
-        $this->api->assertMerchant($scope);
-        $remote = $this->api->subscription($sub->provider_id);
+        $this->api->forScope($scope)->assertMerchant($scope);
+        $remote = $this->api->forScope($scope)->subscription($sub->provider_id);
         $this->sameConfiguration($scope, $stamp);
         $request = BillingStore::json($order?->checkout_request);
         $this->require($order !== null && $scope->matches($order) && $order->viewer_id === $sub->viewer_id && $order->subscription_id === $sub->id
@@ -340,25 +343,27 @@ final class PayPalReconciliation
 
     private function verifyPlan(object $sub, object $order, array $remote): void
     {
+        $scope = ProviderScope::fromRecord($sub);
         $this->require(($remote['plan_overridden'] ?? null) === false && ($remote['quantity'] ?? null) === '1'
             && (! isset($remote['shipping_amount']) || PayPalAmount::minor($remote['shipping_amount']['value'] ?? null, $remote['shipping_amount']['currency_code'] ?? null) === 0));
         $prepared = BillingStore::json($order->checkout_request);
         $intent = DB::table('billing_provider_intents')->where(ProviderScope::fromRecord($sub)->columns())->where(['operation' => 'create_plan', 'owner_id' => $prepared['plan_owner_id'], 'state' => 'succeeded'])->first();
         $this->require($intent !== null && $intent->external_id === $remote['plan_id']);
         $payload = BillingStore::json($intent->request_payload);
-        (new WeeklyPlanVerifier)->assertMatches($this->api->plan($remote['plan_id']), $remote['plan_id'],
-            new SandboxWeeklyPlan($sub->price_version, $sub->regular_amount_minor, $sub->first_week_amount_minor, $order->discount_applied), $payload['product_id']);
+        (new WeeklyPlanVerifier)->assertMatches($this->api->forScope($scope)->plan($remote['plan_id']), $remote['plan_id'],
+            new SandboxWeeklyPlan($sub->price_version, $sub->regular_amount_minor, $sub->first_week_amount_minor, $order->discount_applied, $scope->isTest()), $payload['product_id']);
     }
 
     private function transactions(object $sub, object $order): array
     {
+        $scope = ProviderScope::fromRecord($sub);
         $from = CarbonImmutable::parse($order->created_at)->utc()->startOfSecond();
         $until = CarbonImmutable::now('UTC')->startOfSecond()->addSecond();
         $this->require($until->getTimestamp() - $from->getTimestamp() <= 2 * 366 * 86400);
         $rows = [];
         while ($from->lt($until)) {
             $end = $from->addDays(30)->min($until);
-            $page = $this->api->transactions($sub->provider_id, $from->toDateTimeImmutable(), $end->toDateTimeImmutable());
+            $page = $this->api->forScope($scope)->transactions($sub->provider_id, $from->toDateTimeImmutable(), $end->toDateTimeImmutable());
             $items = $page['transactions'] ?? null;
             $this->require(is_array($items) && array_is_list($items)
                 && (! array_key_exists('total_items', $page) || $page['total_items'] === count($items))
@@ -408,7 +413,7 @@ final class PayPalReconciliation
 
     private function sameConfiguration(ProviderScope $scope, string $stamp): void
     {
-        $this->require(hash_equals($stamp, $this->api->configurationStamp($scope)));
+        $this->require(hash_equals($stamp, $this->api->forScope($scope)->configurationStamp($scope)));
     }
 
     private function require(bool $valid): void

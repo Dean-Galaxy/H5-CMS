@@ -29,7 +29,7 @@ final readonly class SandboxSubscriptionRequest
     }
 
     /** Only a server-read approve relation, for this sandbox flow, may be displayed. */
-    public static function approvalUrl(array $subscription): ?string
+    public static function approvalUrl(array $subscription, string $environment = 'sandbox'): ?string
     {
         if (($subscription['status'] ?? null) !== 'APPROVAL_PENDING' || ! is_array($subscription['links'] ?? null)) {
             return null;
@@ -40,6 +40,10 @@ final readonly class SandboxSubscriptionRequest
         }
         $url = $links[0]['href'];
 
-        return preg_match('~\Ahttps://www\.sandbox\.paypal\.com/webapps/billing/subscriptions\?ba_token=BA-[A-Z0-9]{1,128}\z~D', $url) === 1 ? $url : null;
+        $host = match ($environment) {
+            'sandbox' => 'www.sandbox.paypal.com', 'live' => 'www.paypal.com', default => throw new InvalidArgumentException('PAYPAL_ENVIRONMENT_INVALID')
+        };
+
+        return preg_match('~\Ahttps://'.preg_quote($host, '~').'/webapps/billing/subscriptions\?ba_token=BA-[A-Z0-9]{1,128}\z~D', $url) === 1 ? $url : null;
     }
 }

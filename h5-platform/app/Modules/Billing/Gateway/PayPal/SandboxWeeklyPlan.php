@@ -14,6 +14,7 @@ final readonly class SandboxWeeklyPlan
         public int $regularAmountMinor,
         public int $firstWeekAmountMinor,
         public bool $discountApplied,
+        public bool $isTest = true,
     ) {
         if ($priceVersion < 1 || $regularAmountMinor < 1 || $regularAmountMinor > PayPalAmount::MAX_MINOR
             || $firstWeekAmountMinor < 1 || $firstWeekAmountMinor > $regularAmountMinor) {
@@ -35,7 +36,7 @@ final readonly class SandboxWeeklyPlan
 
         return [
             'product_id' => $productId,
-            'name' => 'TEST H5 weekly v'.$this->priceVersion.($this->discountApplied ? ' first-week' : ' regular'),
+            'name' => ($this->isTest ? 'TEST H5 weekly v' : 'H5 weekly v').$this->priceVersion.($this->discountApplied ? ' first-week' : ' regular'),
             'status' => 'ACTIVE',
             'quantity_supported' => false,
             'billing_cycles' => $cycles,

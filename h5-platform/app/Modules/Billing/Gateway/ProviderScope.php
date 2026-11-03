@@ -11,7 +11,7 @@ final readonly class ProviderScope
 {
     public function __construct(public string $provider, public string $environment, public string $merchantScope)
     {
-        if (! in_array([$provider, $environment], [['stripe', 'test'], ['paypal', 'sandbox']], true)
+        if (! in_array([$provider, $environment], [['stripe', 'test'], ['paypal', 'sandbox'], ['paypal', 'live']], true)
             || preg_match('/\A[a-z0-9][a-z0-9_-]{0,63}\z/D', $merchantScope) !== 1) {
             throw new InvalidArgumentException('BILLING_PROVIDER_SCOPE_INVALID');
         }
@@ -20,6 +20,20 @@ final readonly class ProviderScope
     public static function legacyStripe(): self
     {
         return new self('stripe', 'test', 'legacy-stripe-test');
+    }
+
+    public function isTest(): bool
+    {
+        return $this->environment !== 'live';
+    }
+
+    public function paypalConfig(): string
+    {
+        if ($this->provider !== 'paypal') {
+            throw new InvalidArgumentException('PAYPAL_SCOPE_REQUIRED');
+        }
+
+        return $this->environment === 'live' ? 'billing.paypal_live' : 'billing.paypal';
     }
 
     public function matches(object $record): bool

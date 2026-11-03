@@ -30,7 +30,7 @@ final class WebhookService
         foreach ($ids as $id) {
             $event = DB::transaction(function () use ($id) {
                 $event = DB::table('billing_inbox')->where('id', $id)->lockForUpdate()->first();
-                if (! $event || ProviderActivity::disabled($event->provider) || $event->state === 'processed' || $event->state === 'ignored'
+                if (! $event || ProviderActivity::disabled($event->provider, $event->provider_environment) || $event->state === 'processed' || $event->state === 'ignored'
                     || ($event->state === 'processing' && $event->processed_at > now()->subMinutes(5)->toDateTimeString())) {
                     return null;
                 }
@@ -56,7 +56,7 @@ final class WebhookService
 
     private function process(object $event): bool
     {
-        if (! $event->is_test) {
+        if ((bool) $event->is_test !== ProviderScope::fromRecord($event)->isTest()) {
             throw new RuntimeException('LIVE_PAYMENTS_DISABLED');
         }
         if ($event->provider === 'paypal') {

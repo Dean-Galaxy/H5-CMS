@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Modules\Acquisition\AcquisitionServiceProvider;
+use App\Modules\Billing\Gateway\PayPal\LiveApi;
 use Illuminate\Support\Env;
 use LogicException;
 
@@ -25,6 +26,7 @@ final class RuntimeEnvironmentGuard
         $this->require(! config('h5.acquisition_staging_test') || ($environment === 'staging'
             && config('h5.controlled_staging') === true), 'ACQUISITION_TEST_STAGING_REQUIRED');
         $this->paypal($environment);
+        $this->paypalLive($environment);
         if (in_array($environment, ['local', 'testing'], true)) {
             return;
         }
@@ -71,7 +73,7 @@ final class RuntimeEnvironmentGuard
     private function paypal(string $environment): void
     {
         $provider = config('billing.new_purchase_provider', 'unconfigured');
-        $this->require(in_array($provider, ['unconfigured', 'stripe', 'paypal'], true), 'BILLING_PURCHASE_PROVIDER_INVALID');
+        $this->require(in_array($provider, ['unconfigured', 'stripe', 'paypal', 'paypal_live'], true), 'BILLING_PURCHASE_PROVIDER_INVALID');
         $paypal = config('billing.paypal', ['enabled' => false]);
         $this->require(is_array($paypal) && is_bool($paypal['enabled'] ?? null), 'PAYPAL_ENABLED_INVALID');
         $keys = ['enabled', 'client_id', 'client_secret', 'webhook_id', 'merchant_id', 'merchant_scope', 'product_id', 'webhook_url'];
@@ -95,6 +97,49 @@ final class RuntimeEnvironmentGuard
             $this->require(in_array($environment, ['local', 'testing', 'staging'], true), 'PAYPAL_PRODUCTION_FORBIDDEN');
             $this->require($environment !== 'staging' || config('h5.controlled_staging') === true, 'PAYPAL_STAGING_NOT_ENABLED');
         }
+    }
+
+    private function paypalLive(string $environment): void
+    {
+        $live = config('billing.paypal_live', ['enabled' => false]);
+        $this->require(is_array($live) && is_bool($live['enabled'] ?? null), 'PAYPAL_LIVE_ENABLED_INVALID');
+        $keys = ['enabled', 'client_id', 'client_secret', 'webhook_id', 'webhook_url', 'merchant_id', 'merchant_scope', 'product_id'];
+        $this->require(array_diff(array_keys($live), $keys) === [], 'PAYPAL_LIVE_CONFIGURATION_INVALID');
+        foreach (array_slice($keys, 1) as $key) {
+            $value = $live[$key] ?? null;
+            $this->require($value === null || $value === '' || (is_string($value)
+                && preg_match('/\A[\x21-\x7e]{1,4096}\z/D', $value) === 1), 'PAYPAL_LIVE_CONFIGURATION_INVALID');
+        }
+        $url = $live['webhook_url'] ?? null;
+        $this->require($url === null || $url === '' || (strlen($url) <= 2048
+            && preg_match('~\Ahttps://([a-zA-Z0-9.-]+)(?::443)?/webhooks/paypal/live\z~D', $url, $match) === 1
+            && $this->hostname($match[1])), 'PAYPAL_LIVE_WEBHOOK_URL_INVALID');
+        $scope = $live['merchant_scope'] ?? null;
+        $this->require($scope === null || $scope === '' || preg_match('/\A[a-z0-9][a-z0-9_-]{0,63}\z/D', $scope) === 1, 'PAYPAL_LIVE_SCOPE_INVALID');
+        $this->require(($live['webhook_id'] ?? null) !== 'WEBHOOK_ID', 'PAYPAL_SIMULATOR_WEBHOOK_FORBIDDEN');
+        foreach (['merchant_scope', 'client_id', 'webhook_id', 'product_id'] as $key) {
+            $value = $live[$key] ?? null;
+            $this->require($value === null || $value === '' || $value !== config('billing.paypal.'.$key), 'PAYPAL_ENVIRONMENT_BINDING_REUSED');
+        }
+        $offlineFake = $environment === 'testing' && app()->resolved(LiveApi::class)
+            && app(LiveApi::class)->offlineFake();
+        $this->require(config('billing.new_purchase_provider') !== 'paypal_live' || $live['enabled'] || $offlineFake, 'PAYPAL_LIVE_PURCHASE_NOT_ENABLED');
+        if ($live['enabled']) {
+            $this->require($environment === 'production' && config('h5.controlled_staging') === false
+                && config('h5.simulation') === false && config('h5.local_us_test_region') === false
+                && config('h5.local_modules') === '' && config('h5.acquisition_staging_test') === false
+                && config('h5.measurement_c_experience') === false && config('h5.measurement_c_registration') === false,
+                'PAYPAL_LIVE_PRODUCTION_REQUIRED');
+        }
+    }
+
+    /** Trusted production origin for the separately enabled PayPal Live adapter. */
+    public function paypalLiveOrigin(): string
+    {
+        $this->assertSafeRuntime();
+        $this->require(app()->environment('production') && config('billing.paypal_live.enabled') === true, 'PAYPAL_LIVE_NOT_ENABLED');
+
+        return $this->origin();
     }
 
     public function controlledStagingOrigin(): string

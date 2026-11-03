@@ -4,28 +4,43 @@ declare(strict_types=1);
 
 namespace App\Modules\Billing\Support;
 
+use App\Modules\Billing\Gateway\PayPal\LiveApi;
 use App\Support\DependencyNotReady;
 use Illuminate\Database\Query\Builder;
 
-/** Explicit operator pause only. Missing/invalid config and enabled-provider failures are not pauses. */
+/** Pauses are scoped by persisted environment, independently of new-purchase selection. */
 final class ProviderActivity
 {
-    public static function disabled(string $provider): bool
+    public static function disabled(string $provider, string $environment = 'sandbox'): bool
     {
-        return $provider === 'paypal' && config('billing.paypal.enabled') === false;
+        if ($provider !== 'paypal') {
+            return false;
+        }
+        if ($environment === 'live') {
+            return config('billing.paypal_live.enabled') !== true && ! app(LiveApi::class)->offlineFake();
+        }
+
+        return config('billing.paypal.enabled') === false;
     }
 
-    /** Explicit callers must not mistake a pause for a successful provider observation. */
-    public static function assertEnabled(string $provider): void
+    public static function assertEnabled(string $provider, string $environment = 'sandbox'): void
     {
-        if (self::disabled($provider)) {
+        if (self::disabled($provider, $environment)) {
             throw new DependencyNotReady('Billing / PayPal API explicitly disabled');
         }
     }
 
-    /** Apply before LIMIT so paused records cannot starve another provider. */
+    /** Filter before LIMIT, preserving fairness and never turning an operator pause into pending. */
     public static function eligible(Builder $query, string $providerColumn = 'provider'): Builder
     {
-        return self::disabled('paypal') ? $query->where($providerColumn, '<>', 'paypal') : $query;
+        $environmentColumn = str_contains($providerColumn, '.')
+            ? substr($providerColumn, 0, strrpos($providerColumn, '.') + 1).'provider_environment' : 'provider_environment';
+        foreach (['sandbox', 'live'] as $environment) {
+            if (self::disabled('paypal', $environment)) {
+                $query->where(fn ($q) => $q->where($providerColumn, '<>', 'paypal')->orWhere($environmentColumn, '<>', $environment));
+            }
+        }
+
+        return $query;
     }
 }
