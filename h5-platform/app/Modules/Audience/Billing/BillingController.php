@@ -13,8 +13,10 @@ use App\Data\CheckoutPageContext;
 use App\Data\ResumeInput;
 use App\Enums\SubscriptionAction;
 use App\Modules\Audience\Analytics\BillingBehavior;
+use App\Modules\Billing\Gateway\PayPal\LiveApi;
 use App\Modules\Identity\Services\SafeReturn;
 use App\Support\ApiProblem;
+use App\Support\RuntimeEnvironmentGuard;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -131,8 +133,8 @@ final class BillingController
             $attempt['state'] = 'completed';
             $request->session()->put($attemptKey, $attempt);
             $checkoutData = $checkout->toArray();
-            $paypalApprovalUrl = $this->isPaypalSandboxUrl($checkoutData['checkout_url'] ?? null) ? $checkoutData['checkout_url'] : null;
-            if ($paypalApprovalUrl !== null) {
+            $paypalApprovalUrl = $this->isPaypalApprovalUrl($checkoutData['checkout_url'] ?? null) ? $checkoutData['checkout_url'] : null;
+            if ($this->isPaypalApprovalHost($checkoutData['checkout_url'] ?? null)) {
                 // PayPal approval URLs are one-time navigation data. Never cache them in the browser session.
                 $checkoutData['checkout_url'] = null;
             }
@@ -177,6 +179,12 @@ final class BillingController
             $membership = $this->memberships->membership($viewer->id, now()->toDateTimeImmutable());
             $saved = $request->session()->get('audience.billing.checkouts.'.$orderId);
             $checkout = $saved && $saved['viewer_id'] === $viewer->id ? $saved['checkout'] : null;
+            if ($checkout && $this->isPaypalApprovalHost($checkout['checkout_url'] ?? null)) {
+                // Remove approval data cached by older clients; an explicit recheck asks Billing for a fresh link.
+                $checkout['checkout_url'] = null;
+                $saved['checkout'] = $checkout;
+                $request->session()->put('audience.billing.checkouts.'.$orderId, $saved);
+            }
             $returnTo = $saved && $saved['viewer_id'] === $viewer->id ? $saved['return_to'] : $this->playback($request);
             $checkoutLinkSafe = $checkout && $this->checkoutUrlIsSafe($checkout['checkout_url'] ?? null);
             $checkoutDeadline = is_string($checkout['expires_at'] ?? null) ? $checkout['expires_at'] : null;
@@ -225,10 +233,10 @@ final class BillingController
                 return redirect($returnPath)->with('audience.billing.notice', 'pending')->header('Cache-Control', 'private, no-store');
             }
             app(BillingBehavior::class)->checkout($checkout, $viewer, false);
-            $paypalApprovalUrl = $this->isPaypalSandboxUrl($checkout->checkout_url) ? $checkout->checkout_url : null;
+            $paypalApprovalUrl = $this->isPaypalApprovalUrl($checkout->checkout_url) ? $checkout->checkout_url : null;
             // Keep the original session identity; only Billing can refresh the Checkout facts.
             $saved['checkout'] = $checkout->toArray();
-            if ($paypalApprovalUrl !== null) {
+            if ($this->isPaypalApprovalHost($saved['checkout']['checkout_url'] ?? null)) {
                 $saved['checkout']['checkout_url'] = null;
             }
             $request->session()->put($savedKey, $saved);
@@ -317,11 +325,32 @@ final class BillingController
             && ($attempt['checkout_return_to'] ?? null) === '/billing/return';
     }
 
-    private function isPaypalSandboxUrl(mixed $url): bool
+    private function isPaypalApprovalHost(mixed $url): bool
     {
-        return is_string($url) && parse_url($url, PHP_URL_SCHEME) === 'https'
-            && strtolower((string) parse_url($url, PHP_URL_HOST)) === 'www.sandbox.paypal.com'
-            && $this->checkoutUrlIsSafe($url);
+        return is_string($url) && in_array(strtolower((string) parse_url($url, PHP_URL_HOST)),
+            ['www.sandbox.paypal.com', 'www.paypal.com'], true);
+    }
+
+    private function isPaypalApprovalUrl(mixed $url): bool
+    {
+        // Match the exact server-validated approve format used by Billing, never browser environment flags.
+        if (! is_string($url) || preg_match('~\Ahttps://(www\.sandbox\.paypal\.com|www\.paypal\.com)/webapps/billing/subscriptions\?ba_token=BA-[A-Z0-9]{1,128}\z~D', $url, $match) !== 1) {
+            return false;
+        }
+        if ($match[1] === 'www.sandbox.paypal.com') {
+            return true;
+        }
+        if (app()->environment('testing')) {
+            // Same explicit offline transport admission as Billing; never usable in production/local/staging.
+            return app(LiveApi::class)->offlineFake();
+        }
+        try {
+            app(RuntimeEnvironmentGuard::class)->paypalLiveOrigin();
+
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     private function checkoutUrlIsSafe(mixed $url): bool
@@ -341,12 +370,12 @@ final class BillingController
         }
         $parts = parse_url($url);
         if (! is_array($parts) || strtolower($parts['scheme'] ?? '') !== 'https'
-            || ! in_array(strtolower($parts['host'] ?? ''), ['checkout.stripe.com', 'www.sandbox.paypal.com'], true)
+            || ! in_array(strtolower($parts['host'] ?? ''), ['checkout.stripe.com', 'www.sandbox.paypal.com', 'www.paypal.com'], true)
             || isset($parts['user']) || isset($parts['pass']) || (isset($parts['port']) && $parts['port'] !== 443)) {
             return false;
         }
 
-        return true;
+        return ! $this->isPaypalApprovalHost($url) || $this->isPaypalApprovalUrl($url);
     }
 
     private function problemKey(ApiProblem $problem): string
