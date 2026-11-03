@@ -1,0 +1,67 @@
+{
+  "recorded_at": "2026-11-03T08:55:17.202087+00:00",
+  "source_base": "4d78c9d40f57967c9606c3991d856d8d509e080b",
+  "branch": "codex/06-paypal-live-credentials",
+  "candidate_code_sha256": {
+    "scripts/ops/paypal_live_credentials.py": "4005e33f534b416f030b843fe5ffef42993240712e6cc3fffc351d8d75727972",
+    "scripts/ops/paypal_sandbox_credentials.py": "af284f682c3927302514affb1ed584500f12bfc5f1b0bb3ab24b53dd2b91f778",
+    "scripts/ops/tests/test_paypal_live_credentials.py": "1c6cbef657ad0bb696d07828e9907ff0f047f76821917fba5208013f48abce89"
+  },
+  "initial_run": {
+    "command": "python3 -m unittest discover -s scripts/ops/tests -p 'test_paypal_*credentials.py' -v",
+    "exit_code": 0,
+    "tests": 47,
+    "seconds": 4.895,
+    "live_new": 16,
+    "sandbox_affected": 13,
+    "apply_ancillary_matched_by_glob": 18,
+    "code_sha256": {
+      "scripts/ops/paypal_live_credentials.py": "2dd02db7b1642735d596e245ea9326a14801e7f1c15c09a45792b5bc872daee8",
+      "scripts/ops/paypal_sandbox_credentials.py": "af284f682c3927302514affb1ed584500f12bfc5f1b0bb3ab24b53dd2b91f778",
+      "scripts/ops/tests/test_paypal_live_credentials.py": "acb630894149357c2b0e447ae108d571fc13bf27aa9829011aa204cc0f4da635"
+    },
+    "snapshot_note": "Initial source hashes reconstructed from the exact two subsequent edits; final candidate hashes are separate."
+  },
+  "final_affected_run": {
+    "reason": "Reject non-object workspace JSON; simplify stop-test call",
+    "command": "PYTHONPATH=scripts/ops/tests python3 -m unittest -v test_paypal_live_credentials.LiveCredentialTests.test_workspace_binding_rejects_missing_foreign_and_symlink test_paypal_live_credentials.LiveCredentialTests.test_stop_requires_csrf_and_only_stops_own_server",
+    "exit_code": 0,
+    "tests": 2,
+    "seconds": 1.013,
+    "code_sha256": {
+      "scripts/ops/paypal_live_credentials.py": "4005e33f534b416f030b843fe5ffef42993240712e6cc3fffc351d8d75727972",
+      "scripts/ops/paypal_sandbox_credentials.py": "af284f682c3927302514affb1ed584500f12bfc5f1b0bb3ab24b53dd2b91f778",
+      "scripts/ops/tests/test_paypal_live_credentials.py": "1c6cbef657ad0bb696d07828e9907ff0f047f76821917fba5208013f48abce89"
+    },
+    "other_passed_tests": "Reused only for unchanged behavior; not a new 47-test full run."
+  },
+  "live_test_methods": [
+    "test_form_no_prefill_and_only_three_inputs_and_confirmation",
+    "test_save_fixes_live_scope_and_writes_private_file_only",
+    "test_save_does_not_log_or_echo_any_credentials",
+    "test_missing_confirmation_or_merchant_preserves_previous",
+    "test_environment_scope_path_and_enable_injection_rejected",
+    "test_host_and_origin_checks",
+    "test_missing_duplicate_host_origin_and_content_length_rejected",
+    "test_csrf_and_duplicate_fields_rejected",
+    "test_body_type_size_and_transfer_encoding_rejected",
+    "test_no_file_query_or_other_path_served",
+    "test_symlink_runtime_live_directory_and_destination_rejected",
+    "test_failed_atomic_replace_preserves_previous_and_cleans_temp",
+    "test_workspace_binding_rejects_missing_foreign_and_symlink",
+    "test_listener_is_loopback_and_existing_port_is_not_replaced",
+    "test_synthetic_post_makes_only_loopback_connections",
+    "test_stop_requires_csrf_and_only_stops_own_server"
+  ],
+  "evidence_kind": "observed tool execution summary, not a raw test transcript",
+  "synthetic_only": true,
+  "temporary_roots_and_ephemeral_loopback_listeners_only": true,
+  "operator_entry_point_started": false,
+  "application_started": false,
+  "old_credentials_read": false,
+  "paypal_or_aws_api_called": false,
+  "ssh_or_deploy_or_env_changes": false,
+  "browser_ui_tested": false,
+  "live_credentials_verified": false,
+  "official_live_payment_tested": false
+}

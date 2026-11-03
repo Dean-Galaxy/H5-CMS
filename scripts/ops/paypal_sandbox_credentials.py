@@ -71,11 +71,14 @@ class Server(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True  # Reuse TIME_WAIT only; never set SO_REUSEPORT.
 
-    def __init__(self, root, port):
+    def __init__(self, root, port, handler=None):
         self.root = root
         self.csrf = secrets.token_urlsafe(32)
-        super().__init__(('127.0.0.1', port), Handler)
+        super().__init__(('127.0.0.1', port), handler or Handler)
         self.origin = f'http://127.0.0.1:{self.server_port}'
+
+    def save(self, values):
+        save(self.root, values)
 
     def handle_error(self, request, client_address):
         # Never print request data, credentials or a traceback.
@@ -146,7 +149,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.reply(200, '录入服务已关闭。私密文件保留，未启用付款。')
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
                 return
-            save(self.server.root, {k: v[0] for k, v in form.items()})
+            self.server.save({k: v[0] for k, v in form.items()})
         except (ValueError, OSError, UnicodeError):
             return self.reply(400, '保存失败。请核对字段、格式和本机私密目录；原文件保留。')
         self.reply(200, '已保存到本工作区私密文件，仅离线格式检查通过。未连接 PayPal、未启用付款。关闭此页后在运行窗口按 Control+C 停止服务。')
