@@ -26,7 +26,7 @@ final class ContentCatalog implements CatalogReader
     private function region(): string
     {
         $region = $this->regions->resolve()->country_code;
-        if ($region === 'ZZ' || ! preg_match('/^[A-Z]{2}$/D', $region)) {
+        if (! Availability::acceptsRegion($region)) {
             throw new ApiProblem('REGION_BLOCKED', 403, '无法核实地区，当前内容不可用');
         }
 

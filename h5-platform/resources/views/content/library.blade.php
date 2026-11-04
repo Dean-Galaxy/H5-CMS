@@ -1,6 +1,6 @@
 <x-filament-panels::page>
 <link rel="stylesheet" href="{{ asset('content/admin.css') }}?v={{ substr(hash_file('sha256', public_path('content/admin.css')), 0, 12) }}">
-<x-admin.workspace id="content-app" title="内容管理" description="剧目内管理视频、字幕与封面；首页横图在 Banner 中管理。" data-owner="{{ $isOwner ? '1' : '0' }}" wire:ignore>
+<x-admin.workspace id="content-app" title="内容管理" description="剧目内管理视频、字幕与封面；首页横图在 Banner 中管理。" data-worldwide="{{ \App\Modules\Content\Services\Availability::worldwide() ? '1' : '0' }}" data-owner="{{ $isOwner ? '1' : '0' }}" wire:ignore>
     <x-slot:actions><div id="content-list-actions" class="h5-toolbar"></div></x-slot:actions>
     <div id="content-crumb" class="ct-crumb" hidden><button type="button" class="h5-link" data-action="back">剧目库</button><span>/</span><span id="content-crumb-title"></span></div>
     <div id="content-list-screen">
@@ -10,7 +10,7 @@
         @endforeach
     </div>
     <div id="content-detail-screen" hidden>
-        <x-admin.tabs id="content-detail-tabs" :items="[['id'=>'basics','label'=>'基本资料'],['id'=>'episodes','label'=>'分集与字幕'],['id'=>'rights','label'=>'授权与试看'],['id'=>'release','label'=>'发布设置'],['id'=>'history','label'=>'操作记录']]" active="episodes" />
+        <x-admin.tabs id="content-detail-tabs" :items="[['id'=>'basics','label'=>'基本资料'],['id'=>'episodes','label'=>'分集与字幕'],['id'=>'rights','label'=>\App\Modules\Content\Services\Availability::worldwide() ? '试看设置' : '授权与试看'],['id'=>'release','label'=>'发布设置'],['id'=>'history','label'=>'操作记录']]" active="episodes" />
         @foreach(['basics','episodes','rights','release','history'] as $section)
             <x-admin.panel group="content-detail-tabs" :name="$section" active="episodes"><div id="content-detail-{{ $section }}"></div></x-admin.panel>
         @endforeach

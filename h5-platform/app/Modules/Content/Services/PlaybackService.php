@@ -25,7 +25,7 @@ final class PlaybackService implements PlaybackAuthorizer
         ContentGuard::validate(['episode' => $episodeId, 'session' => $playSessionId], ['episode' => 'required|uuid', 'session' => 'nullable|uuid']);
 
         return ContentGuard::mutate(function () use ($viewer, $episodeId, $region, $playSessionId) {
-            if ($region === 'ZZ' || ! preg_match('/^[A-Z]{2}$/D', $region)) {
+            if (! Availability::acceptsRegion($region)) {
                 return $this->denied($episodeId, PlaybackReason::RegionBlocked);
             }
             $ep = EpisodeRecord::with(['drama', 'video', 'subtitle'])->find($episodeId);
@@ -48,7 +48,7 @@ final class PlaybackService implements PlaybackAuthorizer
             } elseif (! $session->started_at) {
                 $session->update(['basis' => $basis]);
             }
-            $expires = $this->earliest(now()->addSeconds(120), $session->until, $ep->drama->license_until, $memberUntil);
+            $expires = $this->earliest(now()->addSeconds(120), $session->until, Availability::worldwide() ? null : $ep->drama->license_until, $memberUntil);
             $grant = Grant::create(['session_id' => $session->id, 'asset_id' => $ep->video_asset_id, 'expires_at' => $expires]);
 
             return new PlaybackGrant($grant->id, $episodeId, true, $basis === 'free' ? PlaybackReason::AllowedFree : PlaybackReason::AllowedMember,
@@ -77,7 +77,7 @@ final class PlaybackService implements PlaybackAuthorizer
             if ($reason = $this->restriction($ep, $region)) {
                 throw new ApiProblem($reason->value, 403, '当前内容不能继续读取');
             }
-            if ($session->region !== $region) {
+            if (! Availability::worldwide() && $session->region !== $region) {
                 throw new ApiProblem('REGION_BLOCKED', 403, '播放地区已变化，请重新申请');
             }
             [$basis] = $this->entitlement($ep, $session, $viewer);

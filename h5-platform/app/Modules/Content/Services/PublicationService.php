@@ -468,7 +468,8 @@ final class PublicationService
         if (! $drama->cover || $drama->cover->state !== 'ready') {
             return 'COVER_NOT_READY';
         }
-        if (! $drama->regions || ! $drama->license_from || ! $drama->license_until || $at < $drama->license_from || $at >= $drama->license_until || ! trim($drama->rights_note)) {
+        if (! Availability::worldwide() && (! $drama->regions || ! $drama->license_from || ! $drama->license_until
+            || $at < $drama->license_from || $at >= $drama->license_until || ! trim($drama->rights_note))) {
             return 'LICENSE_RECORD_REQUIRED_OR_EXPIRED';
         }
         if ($through < $from || $through < 1) {

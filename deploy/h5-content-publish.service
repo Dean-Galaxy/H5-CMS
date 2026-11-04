@@ -1,0 +1,20 @@
+[Unit]
+Description=Sparkling Short content publication
+After=postgresql@17-main.service
+ConditionPathExists=/srv/h5/current/h5-platform/artisan
+
+[Service]
+Type=oneshot
+User=h5
+Group=h5
+WorkingDirectory=/srv/h5/current/h5-platform
+Environment=APP_ENV=production
+ExecStartPre=/usr/bin/php8.4 /srv/h5/current/scripts/ops/check_runtime.php --expect-env=production --require-cache
+ExecStart=/usr/bin/php8.4 artisan content:publish-due
+TimeoutStartSec=45s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/h5/shared/storage/logs

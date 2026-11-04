@@ -73,6 +73,27 @@ final class PlaybackTest extends ContentTestCase
         $this->grant($eps[5]->id)->assertStatus(503)->assertJsonPath('error.code', 'DEPENDENCY_NOT_READY');
     }
 
+    public function test_self_produced_title_can_publish_and_play_without_per_title_rights(): void
+    {
+        config(['h5.content_worldwide_self_produced' => true]);
+        $drama = $this->fixture(6, 6);
+        $drama->update(['regions' => [], 'license_from' => null, 'license_until' => null, 'rights_note' => '']);
+        $this->publish($drama, 6)->assertOk();
+        $episodes = $drama->episodes;
+        $this->app->instance(RegionResolver::class, new class implements RegionResolver
+        {
+            public function resolve(): ResolvedRegion
+            {
+                return new ResolvedRegion('ZZ', 'unresolved');
+            }
+        });
+
+        $this->getJson('/api/v1/dramas/'.$drama->id)->assertOk();
+        $grant = $this->grant($episodes[4]->id)->assertOk()->assertJsonPath('reason', 'allowed_free')->json();
+        $this->get($grant['short_lived_url'])->assertOk()->assertSee('#EXTM3U', false);
+        $this->grant($episodes[5]->id)->assertOk()->assertJsonPath('reason', 'MEMBERSHIP_REQUIRED');
+    }
+
     public function test_hls_subtitle_map_and_every_caption_request_are_protected(): void
     {
         $d = $this->fixture(1, 1, true);

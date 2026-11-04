@@ -37,7 +37,7 @@ final class MediaController
     public function image(string $id)
     {
         $region = app(RegionResolver::class)->resolve()->country_code;
-        if ($region === 'ZZ') {
+        if (! Availability::acceptsRegion($region)) {
             throw new ApiProblem('REGION_BLOCKED', 403, '无法核实地区');
         }
         $visible = $this->availability->query($region);

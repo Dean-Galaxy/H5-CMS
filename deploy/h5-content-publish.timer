@@ -1,0 +1,8 @@
+[Unit]
+Description=Check Sparkling Short publication schedules every minute
+[Timer]
+OnCalendar=*-*-* *:*:00 UTC
+AccuracySec=1s
+Persistent=false
+[Install]
+WantedBy=timers.target
