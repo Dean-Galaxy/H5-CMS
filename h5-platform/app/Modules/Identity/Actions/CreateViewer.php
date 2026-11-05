@@ -4,10 +4,10 @@ namespace App\Modules\Identity\Actions;
 
 use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\RegistrationTerms;
+use App\Modules\Identity\Services\ViewerPassword;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 final class CreateViewer implements CreatesNewUsers
@@ -23,7 +23,7 @@ final class CreateViewer implements CreatesNewUsers
         $rules = [
             'name' => ['required', 'string', 'max:80'],
             'email' => ['required', 'email', 'max:254', 'unique:identity_viewers,email'],
-            'password' => ['required', 'string', Password::min(12)->letters()->numbers(), 'max:128', 'confirmed'],
+            'password' => ViewerPassword::rules(),
         ];
         if ($terms) {
             $rules += [

@@ -135,23 +135,23 @@ class StaffPasswordTest extends TestCase
         $this->assertSame(1, $staff->fresh()->session_version);
     }
 
-    public function test_viewer_registration_and_reset_keep_twelve_character_minimum(): void
+    public function test_viewer_registration_and_reset_require_eight_characters(): void
     {
         Notification::fake();
         $viewer = Viewer::create(['name' => 'Viewer', 'email' => 'viewer@example.test', 'password' => 'ViewerPassword123']);
-        foreach (['abcdefg1', 'abcdefghij1'] as $password) {
+        foreach (['abcdefg', '1234567'] as $password) {
             foreach (['create', 'reset'] as $action) {
                 try {
                     $input = ['name' => 'New viewer', 'email' => 'newviewer@example.test', 'password' => $password, 'password_confirmation' => $password];
                     $action === 'create' ? app(CreateViewer::class)->create($input) : app(ResetViewerPassword::class)->reset($viewer, $input);
-                    $this->fail('Viewer must reject passwords shorter than 12 characters.');
+                    $this->fail('Viewer must reject passwords shorter than 8 characters.');
                 } catch (ValidationException $exception) {
                     $this->assertArrayHasKey('password', $exception->errors());
                 }
             }
         }
         $this->assertTrue(Hash::check('ViewerPassword123', $viewer->fresh()->password));
-        $password = 'abcdefghijk1';
+        $password = 'abcdefgh';
         $input = ['name' => 'New viewer', 'email' => 'newviewer@example.test', 'password' => $password, 'password_confirmation' => $password];
         $created = app(CreateViewer::class)->create($input);
         app(ResetViewerPassword::class)->reset($viewer, $input);

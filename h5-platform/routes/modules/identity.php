@@ -37,14 +37,27 @@ Route::prefix('identity')->group(function () {
     }
     Route::get('login', fn () => view('identity.login'))->middleware(RememberReturn::class)->name('login');
     Route::get('register', function (Request $request) {
+        if (! config('h5.viewer_email_pages_enabled')) {
+            return response()->view('identity.email-unavailable', [
+                'title' => __('identity.register'),
+                'message' => __('identity.registration_unavailable'),
+            ]);
+        }
+
         // Build/render the real page first; POST/hidden notice versions cannot create this proof.
         $response = response()->view('identity.register');
         RegistrationObservation::delivered($request);
 
         return $response;
     })->middleware(RememberReturn::class)->name('register');
-    Route::get('forgot-password', fn () => view('identity.forgot'))->name('password.request');
-    Route::get('reset-password', fn () => view('identity.reset'))->name('password.reset');
+    foreach (['forgot' => 'password.request', 'reset' => 'password.reset'] as $page => $name) {
+        Route::get($page.'-password', fn () => config('h5.viewer_email_pages_enabled')
+            ? view('identity.'.$page)
+            : view('identity.email-unavailable', [
+                'title' => __('identity.'.$page),
+                'message' => __('identity.password_recovery_unavailable'),
+            ]))->name($name);
+    }
     Route::get('account', fn () => view('identity.account'))->middleware('auth:web')->name('verification.notice');
 });
 Route::prefix('api/v1/admin')->middleware(StaffMfa::class)->group(function () {

@@ -79,12 +79,12 @@ class ViewerBehaviorTest extends TestCase
     public function test_real_registration_validation_failure_has_only_safe_error_enum(): void
     {
         $this->consent()->postJson('/api/v1/auth/register', ['name' => 'Private name', 'email' => 'private@example.test',
-            'password' => 'private-token', 'password_confirmation' => 'private-token'])->assertUnprocessable();
+            'password' => 'badpass', 'password_confirmation' => 'badpass'])->assertUnprocessable();
         $this->assertSame(0, Viewer::count());
         $this->assertSame(['registration_failed'], $this->recorder->names());
         $this->assertSame(['error_code' => 'VALIDATION_FAILED'], array_values($this->recorder->accepted)[0]['properties']);
         $payload = json_encode($this->recorder->accepted);
-        foreach (['private@example.test', 'Private name', 'private-token'] as $secret) {
+        foreach (['private@example.test', 'Private name', 'badpass'] as $secret) {
             $this->assertStringNotContainsString($secret, $payload);
         }
         app(ViewerBehavior::class)->failed('registration', 'VALIDATION_FAILED', request());

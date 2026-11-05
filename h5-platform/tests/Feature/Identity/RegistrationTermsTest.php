@@ -145,9 +145,9 @@ class RegistrationTermsTest extends TestCase
         $this->assertDatabaseCount('identity_registration_receipts', 0);
     }
 
-    public function test_viewer_password_rules_and_staff_isolation_are_not_relaxed(): void
+    public function test_registration_enforces_viewer_password_minimum_and_staff_isolation(): void
     {
-        $this->postJson('/api/v1/auth/register', $this->input(['password' => 'Abcdef12345', 'password_confirmation' => 'Abcdef12345']))->assertUnprocessable();
+        $this->postJson('/api/v1/auth/register', $this->input(['password' => 'abcdefg', 'password_confirmation' => 'abcdefg']))->assertUnprocessable();
         $this->postJson('/api/v1/auth/register', $this->input(['role' => 'owner', 'email_verified_at' => now(), 'account_link' => true, 'advertising' => true]))
             ->assertOk()->assertJsonPath('identity.staff', null)->assertJsonPath('identity.viewer.email_verified', false);
         $this->assertSame(0, Staff::count());

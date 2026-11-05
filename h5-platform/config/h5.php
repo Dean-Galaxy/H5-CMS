@@ -21,6 +21,8 @@ return [
     ],
     'local_us_test_region' => env('H5_LOCAL_US_TEST_REGION', false),
     'measurement_c_experience' => env('H5_C_EXPERIENCE_ENABLED', false),
+    // Enable production forms only after public endpoints and ordinary-recipient mail are ready.
+    'viewer_email_pages_enabled' => env('H5_VIEWER_EMAIL_PAGES_ENABLED', env('APP_ENV', 'production') !== 'production'),
     'measurement_c_registration' => env('H5_C_REGISTRATION_ENABLED', false),
     'content_worldwide_self_produced' => env('H5_CONTENT_WORLDWIDE_SELF_PRODUCED', false),
     'media_root' => env('H5_MEDIA_ROOT', storage_path('app/private/media')),

@@ -48,13 +48,34 @@ class ViewerTest extends TestCase
         $this->postJson('/api/v1/billing/checkout')->assertUnauthorized();
     }
 
+    public function test_email_forms_match_the_release_state(): void
+    {
+        config(['h5.viewer_email_pages_enabled' => false]);
+        foreach (['register', 'forgot-password', 'reset-password'] as $page) {
+            $this->get('/identity/'.$page.'?lang=en')->assertOk()
+                ->assertSee('currently unavailable')
+                ->assertSee('href="/identity/login"', false)
+                ->assertDontSee('action="/api/v1/auth/'.$page.'"', false);
+        }
+        $this->get('/identity/login')->assertOk()->assertSee('action="/api/v1/auth/login"', false);
+
+        config(['h5.viewer_email_pages_enabled' => true]);
+        foreach (['register', 'reset-password'] as $page) {
+            $this->get('/identity/'.$page.'?lang=en')->assertOk()
+                ->assertSee('at least 8 characters')
+                ->assertSee('minlength="8"', false);
+            $this->get('/identity/'.$page.'?lang=zh_CN')->assertOk()
+                ->assertSee('至少 8 位');
+        }
+    }
+
     public function test_registration_uses_fortify_and_cannot_create_staff(): void
     {
         Notification::fake();
-        $this->postJson('/api/v1/auth/register', ['name' => 'A', 'email' => 'NEW@EXAMPLE.TEST', 'password' => 'LongPassword1234', 'password_confirmation' => 'LongPassword1234', 'role' => 'owner', 'active' => true, 'email_verified_at' => now(), 'return_to' => 'https://evil.example/'])
+        $this->postJson('/api/v1/auth/register', ['name' => 'A', 'email' => 'NEW@EXAMPLE.TEST', 'password' => 'abcdefgh', 'password_confirmation' => 'abcdefgh', 'role' => 'owner', 'active' => true, 'email_verified_at' => now(), 'return_to' => 'https://evil.example/'])
             ->assertOk()->assertJsonPath('identity.viewer.email_verified', false)->assertJsonPath('identity.staff', null)->assertJsonPath('redirect_to', '/identity/account');
         $viewer = Viewer::firstOrFail();
-        $this->assertTrue(Hash::check('LongPassword1234', $viewer->password));
+        $this->assertTrue(Hash::check('abcdefgh', $viewer->password));
         $this->assertSame('new@example.test', $viewer->email);
         $this->assertSame(0, Staff::count());
         Notification::assertSentTo($viewer, VerifyEmail::class);
@@ -120,11 +141,11 @@ class ViewerTest extends TestCase
         $v = $this->viewer();
         $token = Password::broker('viewers')->createToken($v);
         $this->signIn($v);
-        $body = ['email' => $v->email, 'token' => $token, 'password' => 'NewPassword1234', 'password_confirmation' => 'NewPassword1234'];
+        $body = ['email' => $v->email, 'token' => $token, 'password' => '87654321', 'password_confirmation' => '87654321'];
         $this->postJson('/api/v1/auth/reset-password', $body)->assertOk();
         $this->getJson('/api/v1/auth/me')->assertUnauthorized()->assertJsonPath('error.code', 'SESSION_REVOKED');
         $this->postJson('/api/v1/auth/reset-password', $body)->assertStatus(422)->assertJsonPath('error.code', 'TOKEN_INVALID');
-        $this->assertTrue(Hash::check('NewPassword1234', $v->fresh()->password));
+        $this->assertTrue(Hash::check('87654321', $v->fresh()->password));
     }
 
     public function test_expired_reset_does_not_change_password(): void

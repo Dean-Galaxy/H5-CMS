@@ -10,7 +10,7 @@
             @csrf
             <label>{{ __('identity.name') }}<input name="name" maxlength="80" autocomplete="nickname" required></label>
             <label>{{ __('identity.email') }}<input type="email" name="email" autocomplete="username" required></label>
-            <label>{{ __('identity.password_hint') }}<input type="password" name="password" autocomplete="new-password" minlength="12" maxlength="128" required></label>
+            <label>{{ __('identity.password_hint', ['min' => \App\Modules\Identity\Services\ViewerPassword::MIN_LENGTH]) }}<input type="password" name="password" autocomplete="new-password" minlength="{{ \App\Modules\Identity\Services\ViewerPassword::MIN_LENGTH }}" maxlength="128" required></label>
             <label>{{ __('identity.confirm_password') }}<input type="password" name="password_confirmation" autocomplete="new-password" required></label>
             @if($r1)
                 <input type="hidden" name="terms_version" value="{{ \App\Modules\Identity\Services\RegistrationTerms::TERMS }}">
