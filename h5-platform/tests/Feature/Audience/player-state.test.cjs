@@ -91,7 +91,7 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
       return [];
     },
     getElementById() { return {textContent: JSON.stringify({
-      play: 'play', retry: 'retry', loading: 'loading', playing: 'playing', paused: 'paused',
+      play: 'play', retry: 'retry', loading: 'loading', playing: 'playing', buffering: 'buffering', paused: 'paused',
       guest_progress: 'guest_saved', account_progress: 'account_saved', progress_conflict: 'progress_conflict',
       save_failed: 'save_failed', media_error: 'media_error', network: 'network', timeout: 'timeout',
       MEMBERSHIP_REQUIRED: 'membership_required',

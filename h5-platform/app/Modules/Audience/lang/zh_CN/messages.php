@@ -50,6 +50,7 @@ return [
     'play' => '播放本集',
     'retry' => '重新尝试',
     'loading' => '正在核对播放权限…',
+    'buffering' => '正在缓冲视频…',
     'playing' => '正在播放',
     'paused' => '已暂停',
     'subtitle_note' => '字幕仅使用本视频实际提供的版本。切换网站语言不会翻译字幕。',

@@ -360,14 +360,15 @@ final class MediaStore
         if ($asset->state !== 'ready' || $asset->kind !== 'video' || ! $this->playable($asset)) {
             throw new \RuntimeException('MEDIA_NOT_READY');
         }
-        if (! empty($asset->metadata['mobile_key']) && ! empty($asset->metadata['web_key'])) {
-            return $asset;
-        }
         $metadata = [];
-        foreach (['mobile', 'web'] as $name) {
-            if (empty($asset->metadata[$name.'_key'])) {
+        foreach (['mobile' => 2, 'web' => 1] as $name => $version) {
+            if (empty($asset->metadata[$name.'_key']) || ($asset->metadata[$name.'_profile_version'] ?? 1) !== $version) {
                 $metadata += $this->rendition($this->path($asset->output_key.'/media.mp4'), $this->path($asset->output_key), $name);
             }
+        }
+
+        if (! $metadata) {
+            return $asset;
         }
 
         return ContentGuard::mutate(function () use ($asset, $metadata): Asset {
@@ -375,9 +376,7 @@ final class MediaStore
             if ($current->state !== 'ready' || $current->output_key !== $asset->output_key) {
                 throw new \RuntimeException('MEDIA_CHANGED');
             }
-            if (array_diff_key($metadata, $current->metadata)) {
-                $current->update(['metadata' => [...$current->metadata, ...$metadata]]);
-            }
+            $current->update(['metadata' => [...$current->metadata, ...$metadata]]);
 
             return $current->fresh();
         });
@@ -386,8 +385,8 @@ final class MediaStore
     private function rendition(string $source, string $out, string $name): array
     {
         $profiles = [
-            'mobile' => ['edge' => 240, 'video' => '96k', 'max' => '112k', 'buffer' => '224k', 'audio' => '32k', 'bandwidth' => 176000],
-            'web' => ['edge' => 720, 'video' => '1200k', 'max' => '1500k', 'buffer' => '3000k', 'audio' => '96k', 'bandwidth' => 1800000],
+            'mobile' => ['edge' => 240, 'video' => '64k', 'max' => '72k', 'buffer' => '144k', 'audio' => '24k', 'bandwidth' => 128000, 'version' => 2],
+            'web' => ['edge' => 720, 'video' => '1200k', 'max' => '1500k', 'buffer' => '3000k', 'audio' => '96k', 'bandwidth' => 1800000, 'version' => 1],
         ];
         $profile = $profiles[$name];
         $probe = config('content.ffprobe', '/opt/homebrew/bin/ffprobe');
@@ -416,7 +415,7 @@ final class MediaStore
         }
 
         return [$name.'_key' => $key, $name.'_width' => $width, $name.'_height' => $height,
-            $name.'_bandwidth' => $profile['bandwidth'],
+            $name.'_bandwidth' => $profile['bandwidth'], $name.'_profile_version' => $profile['version'],
             $name.'_timestamp_base' => ((int) round(($timestamp - (float) ($info['start_time'] ?? 0)) * 90000) + 8589934592) % 8589934592];
     }
 

@@ -50,6 +50,7 @@ return [
     'play' => 'Play episode',
     'retry' => 'Try again',
     'loading' => 'Checking playback access…',
+    'buffering' => 'Buffering video…',
     'playing' => 'Playing',
     'paused' => 'Paused',
     'subtitle_note' => 'Subtitles appear only when supplied for this video. Changing the site language does not translate subtitles.',

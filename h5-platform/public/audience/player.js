@@ -152,7 +152,7 @@
       const grant = await response.json();
       if (!active()) return;
       if (!response.ok || !grant.allowed) { halt([401,419].includes(response.status) ? 'AUTHENTICATION_REQUIRED' : grant.error?.code || grant.reason); if (response.status === 409) session = null; return; }
-      session = grant.play_session_id; stopped = false; const run = ++generation;
+      session = grant.play_session_id; message('buffering'); stopped = false; const run = ++generation;
       // Keep the returned short-lived URL only in this player. Never derive a signature or persist it.
       const url = new URL(grant.short_lived_url, location.href);
       if (!['http:', 'https:'].includes(url.protocol)) { halt('media_error'); return; }
@@ -195,7 +195,7 @@
     else { session = null; authorize(); }
   });
   video.addEventListener('playing', () => { playingEventSeen = true; playingFrom = video.currentTime; button.hidden = true; message('playing'); });
-  video.addEventListener('waiting', () => { playingEventSeen = false; playingFrom = video.currentTime; });
+  video.addEventListener('waiting', () => { if (!stopped) message('buffering'); playingEventSeen = false; playingFrom = video.currentTime; });
   video.addEventListener('seeking', () => { playingEventSeen = false; playingFrom = video.currentTime; });
   video.addEventListener('pause', () => { playingEventSeen = false; if (!stopped && !busy) { message('paused'); saveProgress(); } });
   video.addEventListener('timeupdate', () => {
