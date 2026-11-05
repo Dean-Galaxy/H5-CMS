@@ -52,6 +52,7 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
   const video = Object.assign(new Events(), {
     currentTime: 0, currentSrc: '', paused: true, seeking: false, ended: false,
     readyState: 0, duration: 100, textTracks: [],
+    buffered: {length:1, start() { return 0; }, end() { return 100; }},
     canPlayType() { return nativeHls ? 'probably' : ''; },
     play() { effects.playCalls++; this.paused = false; return Promise.resolve(); },
     pause() { this.paused = true; this.emit('pause'); },
@@ -104,7 +105,7 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
   // This records the non-native adapter boundary, not real hls.js decoding or
   // browser compatibility. Event callbacks can outlive destroy() in a race.
   class Hls {
-    static Events = {ERROR: 'error'};
+    static Events = {ERROR: 'error', BUFFER_APPENDED: 'buffer-appended'};
     static isSupported() { return mseHls; }
     constructor(options) {
       this.options = options; this.calls = []; this.callbacks = new Map(); this.destroyed = false;
@@ -388,6 +389,21 @@ test('MSE-capable browsers start at the lowest level even when native HLS is adv
   await page.authorize(sessionA);
   assert.equal(page.hlsInstances.length, 1);
   assert.equal(page.hlsInstances[0].options.startLevel, 0);
+});
+
+test('initial MSE playback reserves six buffered seconds and never resumes a user pause', async () => {
+  const page = browser();
+  let bufferedUntil = 2;
+  page.video.buffered = {length:1, start() { return 0; }, end() { return bufferedUntil; }};
+  await page.authorize(sessionA);
+  assert.equal(page.effects.playCalls, 0);
+  bufferedUntil = 6;
+  page.hlsInstances[0].emit('buffer-appended');
+  assert.equal(page.effects.playCalls, 1);
+  page.video.pause();
+  bufferedUntil = 8;
+  page.hlsInstances[0].emit('buffer-appended');
+  assert.equal(page.effects.playCalls, 1);
 });
 
 test('a fatal non-native HLS error destroys the loader, clears the source and stops renewal', async () => {

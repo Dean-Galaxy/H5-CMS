@@ -161,6 +161,22 @@
       position = resumeAt; mediaPending = true;
       if (hls) { hls.destroy(); hls = null; }
       video.querySelectorAll('track').forEach(track => track.remove());
+      let startRequested = false;
+      const playWhenBuffered = () => {
+        if (!active() || !resumePlaying || mediaPending || startRequested) return;
+        if (hls) {
+          let bufferedUntil = video.currentTime;
+          for (let i = 0; i < video.buffered.length; i++) {
+            if (video.buffered.start(i) <= video.currentTime + 0.1 && video.buffered.end(i) > video.currentTime) {
+              bufferedUntil = video.buffered.end(i);
+            }
+          }
+          const remaining = Math.max(0, (Number.isFinite(video.duration) ? video.duration : duration) - video.currentTime);
+          if (bufferedUntil - video.currentTime < Math.min(6, remaining)) return;
+        }
+        startRequested = true;
+        video.play().catch(() => { if (active()) { button.hidden = false; button.textContent = text.play; } });
+      };
       const ready = () => {
         if (!active()) return;
         video.currentTime = Math.min(resumeAt, Number.isFinite(video.duration) ? video.duration : duration);
@@ -168,7 +184,7 @@
         // The return position is a one-time handoff. Future reloads use the latest saved bookmark.
         const currentUrl = new URL(location.href); currentUrl.searchParams.delete('position');
         window.history?.replaceState(null, '', currentUrl.pathname + currentUrl.search);
-        if (resumePlaying) video.play().catch(() => { if (active()) { button.hidden = false; button.textContent = text.play; } });
+        playWhenBuffered();
       };
       if (metadataListener) video.removeEventListener('loadedmetadata', metadataListener);
       metadataListener = ready;
@@ -176,6 +192,7 @@
       if (window.Hls?.isSupported()) {
         hls = new Hls({autoStartLoad:false, startLevel:0}); hls.loadSource(url.href); hls.attachMedia(video);
         hls.startLoad();
+        hls.on(Hls.Events.BUFFER_APPENDED, playWhenBuffered);
         hls.on(Hls.Events.ERROR, (_, data) => { if (active() && data.fatal) halt(navigator.onLine ? 'media_error' : 'network'); });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = url.href;
