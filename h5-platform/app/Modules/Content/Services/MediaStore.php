@@ -351,7 +351,63 @@ final class MediaStore
             chmod($p, 0600);
         }
 
-        return ['duration' => $duration, 'duration_seconds' => (int) ceil($duration), 'width' => $videos[0]['width'], 'height' => $videos[0]['height'], 'video_codec' => 'h264', 'audio_codec' => $audios ? 'aac' : null, 'decode_checked' => true, 'hls_timestamp_base' => $timestampBase];
+        return [...$this->mobile($out.'/media.mp4', $out), 'duration' => $duration, 'duration_seconds' => (int) ceil($duration), 'width' => $videos[0]['width'], 'height' => $videos[0]['height'], 'video_codec' => 'h264', 'audio_codec' => $audios ? 'aac' : null, 'decode_checked' => true, 'hls_timestamp_base' => $timestampBase];
+    }
+
+    public function addMobileRendition(string $id): Asset
+    {
+        $asset = Asset::findOrFail($id);
+        if ($asset->state !== 'ready' || $asset->kind !== 'video' || ! $this->playable($asset)) {
+            throw new \RuntimeException('MEDIA_NOT_READY');
+        }
+        if (! empty($asset->metadata['mobile_key'])) {
+            return $asset;
+        }
+        $metadata = $this->mobile($this->path($asset->output_key.'/media.mp4'), $this->path($asset->output_key));
+
+        return ContentGuard::mutate(function () use ($asset, $metadata): Asset {
+            $current = Asset::findOrFail($asset->id);
+            if ($current->state !== 'ready' || $current->output_key !== $asset->output_key) {
+                throw new \RuntimeException('MEDIA_CHANGED');
+            }
+            if (empty($current->metadata['mobile_key'])) {
+                $current->update(['metadata' => [...$current->metadata, ...$metadata]]);
+            }
+
+            return $current->fresh();
+        });
+    }
+
+    private function mobile(string $source, string $out): array
+    {
+        $probe = config('content.ffprobe', '/opt/homebrew/bin/ffprobe');
+        $info = json_decode($this->command([$probe, '-v', 'error', '-select_streams', 'v:0',
+            '-show_entries', 'stream=width,height,start_time', '-of', 'json', $source], 120), true, flags: JSON_THROW_ON_ERROR)['streams'][0];
+        $ratio = min(1, 240 / min($info['width'], $info['height']));
+        $width = max(2, (int) floor($info['width'] * $ratio / 2) * 2);
+        $height = max(2, (int) floor($info['height'] * $ratio / 2) * 2);
+        $key = 'mobile-'.Str::uuid7();
+        $directory = $out.'/'.$key;
+        if (! mkdir($directory, 0700)) {
+            throw new \RuntimeException('MEDIA_PROCESS_FAILED');
+        }
+        $this->command([config('content.ffmpeg', '/opt/homebrew/bin/ffmpeg'), '-nostdin', '-v', 'error',
+            '-protocol_whitelist', 'file,pipe', '-i', $source, '-map', '0:v:0', '-map', '0:a:0?', '-map_metadata', '-1',
+            '-vf', 'scale='.$width.':'.$height, '-c:v', 'libx264', '-threads', '2', '-preset', 'veryfast',
+            '-profile:v', 'baseline', '-pix_fmt', 'yuv420p', '-bf', '0', '-b:v', '96k', '-maxrate', '112k', '-bufsize', '224k',
+            '-force_key_frames', 'expr:gte(t,n_forced*2)', '-c:a', 'aac', '-b:a', '32k', '-ac', '1', '-ar', '24000',
+            '-hls_time', '2', '-hls_playlist_type', 'vod', '-hls_flags', 'independent_segments',
+            '-hls_segment_filename', $directory.'/segment-%05d.ts', $directory.'/index.m3u8']);
+        $timing = json_decode($this->command([$probe, '-v', 'error', '-select_streams', 'v:0',
+            '-show_entries', 'stream=start_time', '-of', 'json', $directory.'/segment-00000.ts'], 120), true, flags: JSON_THROW_ON_ERROR);
+        $timestamp = (float) ($timing['streams'][0]['start_time'] ?? throw new \RuntimeException('MEDIA_PROCESS_FAILED'));
+        foreach (glob($directory.'/*') as $file) {
+            chmod($file, 0600);
+        }
+
+        return ['mobile_key' => $key, 'mobile_width' => $width, 'mobile_height' => $height,
+            'mobile_bandwidth' => 176000,
+            'mobile_timestamp_base' => ((int) round(($timestamp - (float) ($info['start_time'] ?? 0)) * 90000) + 8589934592) % 8589934592];
     }
 
     private function image(string $source, string $out): array

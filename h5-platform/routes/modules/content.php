@@ -13,9 +13,9 @@ Route::middleware(ContentEnabled::class)->group(function () {
     Route::get('/api/v1/dramas/{id}', [PublicController::class, 'drama']);
     Route::post('/api/v1/episodes/{id}/playback-grants', [PublicController::class, 'grant'])->middleware('throttle:120,1');
     Route::get('/api/v1/content/images/{id}', [MediaController::class, 'image'])->whereUuid('id');
-    Route::get('/api/v1/content/playback/{id}/{file}', [MediaController::class, 'playback'])->whereUuid('id')->where('file', 'media\.mp4|master\.m3u8|captions\.m3u8|index\.m3u8|segment-[0-9]{5}\.ts|subtitles\.vtt')->name('content.media');
+    Route::get('/api/v1/content/playback/{id}/{file}', [MediaController::class, 'playback'])->whereUuid('id')->where('file', 'media\.mp4|master\.m3u8|(?:mobile-)?(?:captions\.m3u8|index\.m3u8|segment-[0-9]{5}\.ts|subtitles\.vtt)')->name('content.media');
     Route::get('/admin/content/episodes/{id}/preview', [MediaController::class, 'preview'])->whereUuid('id');
-    Route::get('/api/v1/admin/content/preview/{id}/{file}', [MediaController::class, 'previewMedia'])->whereUuid('id')->where('file', 'media\.mp4|master\.m3u8|captions\.m3u8|index\.m3u8|segment-[0-9]{5}\.ts|subtitles\.vtt')->name('content.preview-media');
+    Route::get('/api/v1/admin/content/preview/{id}/{file}', [MediaController::class, 'previewMedia'])->whereUuid('id')->where('file', 'media\.mp4|master\.m3u8|(?:mobile-)?(?:captions\.m3u8|index\.m3u8|segment-[0-9]{5}\.ts|subtitles\.vtt)')->name('content.preview-media');
     Route::prefix('/api/v1/admin/content')->group(function () {
         Route::get('/', [AdminController::class, 'index']);
         Route::get('/assets/{id}/preview', [MediaController::class, 'assetPreview'])->whereUuid('id');

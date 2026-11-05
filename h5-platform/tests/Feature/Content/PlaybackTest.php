@@ -111,6 +111,36 @@ final class PlaybackTest extends ContentTestCase
         $this->get($this->signed($g['grant_id'], 'captions.m3u8'))->assertNotFound();
     }
 
+    public function test_mobile_rendition_and_subtitles_use_the_same_guest_and_paid_guards(): void
+    {
+        $drama = $this->fixture(6, 6, true);
+        $ep = $drama->episodes[0];
+        $video = $ep->video;
+        $key = 'mobile-019a2b3c-1234-7000-8000-000000000001';
+        $video->update(['metadata' => [...$video->metadata, 'mobile_key' => $key,
+            'mobile_width' => 240, 'mobile_height' => 420, 'mobile_bandwidth' => 176000, 'mobile_timestamp_base' => 126000]]);
+        $path = app(MediaStore::class)->path($video->output_key.'/'.$key);
+        mkdir($path, 0700);
+        file_put_contents($path.'/index.m3u8', "#EXTM3U\n#EXTINF:2,\nsegment-00000.ts\n#EXT-X-ENDLIST\n");
+        file_put_contents($path.'/segment-00000.ts', str_repeat('v', 1024));
+        $sub = $this->readyAsset('subtitle');
+        $ep->update(['subtitle_asset_id' => $sub->id, 'subtitle_language' => 'en']);
+        $grant = $this->grant($ep->id)->assertOk()->assertJsonPath('reason', 'allowed_free')->json();
+        $this->get($grant['short_lived_url'])->assertOk()->assertSee('BANDWIDTH=176000', false)
+            ->assertSee('mobile-index.m3u8', false)->assertSee('mobile-subs', false);
+        $index = $this->signed($grant['grant_id'], 'mobile-index.m3u8');
+        $this->get($index)->assertOk()->assertSee('mobile-segment-00000.ts', false);
+        $segment = $this->signed($grant['grant_id'], 'mobile-segment-00000.ts');
+        $this->get($segment, ['Range' => 'bytes=0-9'])->assertStatus(206)->assertHeader('Content-Length', '10');
+        $this->get($this->signed($grant['grant_id'], 'mobile-captions.m3u8'))->assertOk()->assertSee('mobile-subtitles.vtt', false);
+        $this->get($this->signed($grant['grant_id'], 'mobile-subtitles.vtt'))->assertOk()
+            ->assertSee('X-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:126000', false);
+        $this->get('/api/v1/content/playback/'.$grant['grant_id'].'/mobile-segment-00000.ts')->assertForbidden();
+        $this->grant($drama->episodes[5]->id)->assertOk()->assertJsonPath('reason', 'MEMBERSHIP_REQUIRED');
+        $this->viewer();
+        $this->get($segment)->assertNotFound();
+    }
+
     public function test_head_and_invalid_range_do_not_start_a_session_and_missing_hls_blocks_grants(): void
     {
         $d = $this->fixture(1, 1, true);

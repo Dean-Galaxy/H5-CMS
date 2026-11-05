@@ -79,6 +79,23 @@ final class MediaTest extends ContentTestCase
         $a = $this->upload('video', '1.mp4', file_get_contents($source));
         $this->assertSame('ready', $a->state);
         $this->assertTrue($a->metadata['decode_checked']);
+        $this->assertLessThanOrEqual(240, min($a->metadata['mobile_width'], $a->metadata['mobile_height']));
+        $mobile = app(MediaStore::class)->path($a->output_key.'/'.$a->metadata['mobile_key']);
+        $this->assertFileExists($mobile.'/index.m3u8');
+        $this->assertFileExists($mobile.'/segment-00000.ts');
+        $this->assertStringContainsString('#EXT-X-INDEPENDENT-SEGMENTS', file_get_contents($mobile.'/index.m3u8'));
+        $this->assertSame(0, fileperms($mobile.'/segment-00000.ts') & 0077);
+        $this->assertSame($a->metadata['mobile_key'], app(MediaStore::class)->addMobileRendition($a->id)->metadata['mobile_key']);
+        $originalKey = $a->output_key;
+        $originalHash = hash_file('sha256', app(MediaStore::class)->path($originalKey.'/segment-00000.ts'));
+        $originalMobile = $a->metadata['mobile_key'];
+        $a->update(['metadata' => array_filter($a->metadata, fn ($key) => ! str_starts_with($key, 'mobile_'), ARRAY_FILTER_USE_KEY)]);
+        $upgraded = app(MediaStore::class)->addMobileRendition($a->id);
+        $this->assertNotSame($originalMobile, $upgraded->metadata['mobile_key']);
+        $this->assertSame($originalKey, $upgraded->output_key);
+        $this->assertSame($originalHash, hash_file('sha256', app(MediaStore::class)->path($originalKey.'/segment-00000.ts')));
+
+
         $this->assertGreaterThan(0, $a->metadata['hls_timestamp_base']);
         $this->assertFileExists(app(MediaStore::class)->path($a->output_key.'/index.m3u8'));
         $this->assertFileExists(app(MediaStore::class)->path($a->output_key.'/segment-00000.ts'));

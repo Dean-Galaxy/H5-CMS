@@ -62,7 +62,7 @@ final class MediaController
         $url = fn ($part) => $playback->url($grant, $part);
         $response = $this->serve($ep, $file, $url, true);
         // A manifest/HEAD/failed Range does not earn the free-N continuation exception.
-        if ($r->isMethod('GET') && ($file === 'media.mp4' || str_starts_with($file, 'segment-'))) {
+        if ($r->isMethod('GET') && ($file === 'media.mp4' || preg_match('/^(?:mobile-)?segment-\d{5}\.ts$/D', $file))) {
             $response->prepare($r);
             if (in_array($response->getStatusCode(), [200, 206], true) && (int) $response->headers->get('Content-Length') > 0) {
                 $playback->readGrant($id, $region, true);
@@ -95,6 +95,9 @@ final class MediaController
         if (! $ep->video || $ep->video->state !== 'ready') {
             throw new ApiProblem('MEDIA_NOT_READY', 409, '视频尚未就绪');
         }
+        if (str_starts_with($file, 'mobile-')) {
+            $this->mobileKey($ep->video);
+        }
         $headers = ['Cache-Control' => 'no-store, private', 'Referrer-Policy' => 'no-referrer', 'X-Content-Type-Options' => 'nosniff'];
         if ($file === 'master.m3u8') {
             $hasSub = $ep->subtitle_asset_id && $ep->subtitle?->state === 'ready';
@@ -102,21 +105,31 @@ final class MediaController
             if ($hasSub) {
                 $text .= '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="'.($ep->subtitle_language === 'zh_CN' ? 'Chinese' : 'English').'",LANGUAGE="'.($ep->subtitle_language === 'zh_CN' ? 'zh-Hans' : 'en').'",AUTOSELECT=YES,DEFAULT=YES,URI="'.$url('captions.m3u8')."\"\n";
             }
+            if (! empty($ep->video->metadata['mobile_key'])) {
+                if ($hasSub) {
+                    $text .= '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="mobile-subs",NAME="'.($ep->subtitle_language === 'zh_CN' ? 'Chinese' : 'English').'",LANGUAGE="'.($ep->subtitle_language === 'zh_CN' ? 'zh-Hans' : 'en').'",AUTOSELECT=YES,DEFAULT=YES,URI="'.$url('mobile-captions.m3u8')."\"\n";
+                }
+                $text .= '#EXT-X-STREAM-INF:BANDWIDTH='.$ep->video->metadata['mobile_bandwidth']
+                    .',RESOLUTION='.$ep->video->metadata['mobile_width'].'x'.$ep->video->metadata['mobile_height']
+                    .($hasSub ? ',SUBTITLES="mobile-subs"' : '')."\n".$url('mobile-index.m3u8')."\n";
+            }
             $text .= '#EXT-X-STREAM-INF:BANDWIDTH=12000000'.($hasSub ? ',SUBTITLES="subs"' : '')."\n".$url('index.m3u8')."\n";
 
             return response($text, 200, ['Content-Type' => 'application/vnd.apple.mpegurl', ...$headers]);
         }
-        if ($file === 'captions.m3u8') {
+        if (in_array($file, ['captions.m3u8', 'mobile-captions.m3u8'], true)) {
             if (! $ep->subtitle || $ep->subtitle->state !== 'ready') {
                 throw new ApiProblem('NOT_FOUND', 404, '字幕不可用');
             }
             $duration = (int) $ep->video->metadata['duration_seconds'];
-            $text = "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:".$duration."\n#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-PLAYLIST-TYPE:VOD\n#EXTINF:".$duration.",\n".$url('subtitles.vtt')."\n#EXT-X-ENDLIST\n";
+            $text = "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:".$duration."\n#EXT-X-MEDIA-SEQUENCE:0\n#EXT-X-PLAYLIST-TYPE:VOD\n#EXTINF:".$duration.",\n".$url($file === 'mobile-captions.m3u8' ? 'mobile-subtitles.vtt' : 'subtitles.vtt')."\n#EXT-X-ENDLIST\n";
 
             return response($text, 200, ['Content-Type' => 'application/vnd.apple.mpegurl', ...$headers]);
         }
-        if ($file === 'index.m3u8') {
-            $path = $this->store->path($ep->video->output_key.'/index.m3u8');
+        if (in_array($file, ['index.m3u8', 'mobile-index.m3u8'], true)) {
+            $mobile = $file === 'mobile-index.m3u8';
+            $key = $mobile ? $this->mobileKey($ep->video) : $ep->video->output_key;
+            $path = $this->store->path($key.'/index.m3u8');
             if (! is_file($path)) {
                 throw new ApiProblem('MEDIA_NOT_READY', 409, '播放清单尚未就绪');
             }
@@ -126,35 +139,51 @@ final class MediaController
                     if (! preg_match('/^segment-\d{5}\.ts$/D', $line)) {
                         throw new ApiProblem('MEDIA_NOT_READY', 409, '播放清单无效');
                     }
-                    $line = $url($line);
+                    $line = $url(($mobile ? 'mobile-' : '').$line);
                 }
             }
 
             return response(implode("\n", $lines), 200, ['Content-Type' => 'application/vnd.apple.mpegurl', ...$headers]);
         }
-        if ($file === 'subtitles.vtt') {
+        if (in_array($file, ['subtitles.vtt', 'mobile-subtitles.vtt'], true)) {
             if (! $ep->subtitle || $ep->subtitle->state !== 'ready') {
                 throw new ApiProblem('MEDIA_NOT_READY', 409, '字幕尚未就绪');
             }
             if ($hls) {
-                $path = $this->store->path($ep->subtitle->output_key.'/'.$file);
+                $path = $this->store->path($ep->subtitle->output_key.'/subtitles.vtt');
                 if (! is_file($path)) {
                     throw new ApiProblem('MEDIA_NOT_READY', 409, '字幕文件不可用');
                 }
                 $text = file_get_contents($path);
-                $map = (int) ($ep->video->metadata['hls_timestamp_base'] ?? 0);
+                $map = (int) ($ep->video->metadata[$file === 'mobile-subtitles.vtt' ? 'mobile_timestamp_base' : 'hls_timestamp_base'] ?? 0);
                 $text = preg_replace('/^WEBVTT\n/', 'WEBVTT'."\nX-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:".$map."\n", $text, 1);
 
                 return response($text, 200, ['Content-Type' => 'text/vtt; charset=utf-8', ...$headers]);
             }
 
-            return $this->file($ep->subtitle, $file, 'text/vtt; charset=utf-8');
+            return $this->file($ep->subtitle, 'subtitles.vtt', 'text/vtt; charset=utf-8');
+        }
+        if (preg_match('/^mobile-segment-\d{5}\.ts$/D', $file)) {
+            $mobile = clone $ep->video;
+            $mobile->output_key = $this->mobileKey($ep->video);
+
+            return $this->file($mobile, substr($file, 7), 'video/mp2t');
         }
         if ($file !== 'media.mp4' && ! preg_match('/^segment-\d{5}\.ts$/D', $file)) {
             throw new ApiProblem('NOT_FOUND', 404, '媒体对象不存在');
         }
 
         return $this->file($ep->video, $file, $file === 'media.mp4' ? 'video/mp4' : 'video/mp2t');
+    }
+
+    private function mobileKey(Asset $asset): string
+    {
+        $key = $asset->metadata['mobile_key'] ?? '';
+        if (! preg_match('/^mobile-[0-9a-f-]{36}$/D', $key)) {
+            throw new ApiProblem('NOT_FOUND', 404, '当前视频没有低带宽版本');
+        }
+
+        return $asset->output_key.'/'.$key;
     }
 
     private function file(Asset $asset, string $file, string $type)
