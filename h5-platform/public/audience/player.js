@@ -189,12 +189,14 @@
       if (metadataListener) video.removeEventListener('loadedmetadata', metadataListener);
       metadataListener = ready;
       video.addEventListener('loadedmetadata', ready, {once:true});
-      if (window.Hls?.isSupported()) {
+      const nativeHls = video.canPlayType('application/vnd.apple.mpegurl');
+      const preferNative = nativeHls && 'ManagedMediaSource' in window;
+      if (window.Hls?.isSupported() && !preferNative) {
         hls = new Hls({autoStartLoad:false, startLevel:0}); hls.loadSource(url.href); hls.attachMedia(video);
         hls.startLoad();
         hls.on(Hls.Events.BUFFER_APPENDED, playWhenBuffered);
         hls.on(Hls.Events.ERROR, (_, data) => { if (active() && data.fatal) halt(navigator.onLine ? 'media_error' : 'network'); });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (nativeHls) {
         video.src = url.href;
         nativeCaptions(url.href, run);
         if (resumePlaying) video.play().catch(() => { if (active()) { button.hidden = false; button.textContent = text.play; } });

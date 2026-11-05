@@ -43,7 +43,7 @@ async function settle() {
   for (let turn = 0; turn < 4; turn++) await new Promise(resolve => setImmediate(resolve));
 }
 
-function browser({viewer = true, episode = firstEpisode, position = 0, storage = new Map(), clock = 1800000000000, deferProgressRead = false, nativeHls = false, mseHls = true} = {}) {
+function browser({viewer = true, episode = firstEpisode, position = 0, storage = new Map(), clock = 1800000000000, deferProgressRead = false, nativeHls = false, mseHls = true, managedMediaSource = false} = {}) {
   let now = clock;
   const requests = [], timers = new Map(), hlsInstances = [];
   const effects = {attachedSources: 0, playCalls: 0, mediaLoads: 0};
@@ -119,6 +119,7 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
     destroy() { this.calls.push('destroy'); this.destroyed = true; }
   }
   const window = Object.assign(new Events(), {Hls});
+  if (managedMediaSource) window.ManagedMediaSource = class {};
   const location = {
     href: `http://127.0.0.1/dramas/${dramaId}/episodes/${episode}${position === null ? '' : '?position=' + position}`,
     pathname: `/dramas/${dramaId}/episodes/${episode}`, reload() {},
@@ -411,6 +412,13 @@ test('a resume near the end tolerates fractional encoder padding', async () => {
   page.video.buffered = {length:1, start() { return 98; }, end() { return 99.96; }};
   await page.authorize(sessionA);
   assert.equal(page.effects.playCalls, 1);
+});
+
+test('ManagedMediaSource browsers retain native HLS when available', async () => {
+  const page = browser({nativeHls: true, managedMediaSource: true});
+  await page.authorize(sessionA);
+  assert.equal(page.hlsInstances.length, 0);
+  assert.ok(page.effects.playCalls > 0);
 });
 
 test('a fatal non-native HLS error destroys the loader, clears the source and stops renewal', async () => {
