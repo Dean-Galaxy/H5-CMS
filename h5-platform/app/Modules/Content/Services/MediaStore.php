@@ -351,26 +351,31 @@ final class MediaStore
             chmod($p, 0600);
         }
 
-        return [...$this->mobile($out.'/media.mp4', $out), 'duration' => $duration, 'duration_seconds' => (int) ceil($duration), 'width' => $videos[0]['width'], 'height' => $videos[0]['height'], 'video_codec' => 'h264', 'audio_codec' => $audios ? 'aac' : null, 'decode_checked' => true, 'hls_timestamp_base' => $timestampBase];
+        return [...$this->rendition($out.'/media.mp4', $out, 'mobile'), ...$this->rendition($out.'/media.mp4', $out, 'web'), 'duration' => $duration, 'duration_seconds' => (int) ceil($duration), 'width' => $videos[0]['width'], 'height' => $videos[0]['height'], 'video_codec' => 'h264', 'audio_codec' => $audios ? 'aac' : null, 'decode_checked' => true, 'hls_timestamp_base' => $timestampBase];
     }
 
-    public function addMobileRendition(string $id): Asset
+    public function addWebRenditions(string $id): Asset
     {
         $asset = Asset::findOrFail($id);
         if ($asset->state !== 'ready' || $asset->kind !== 'video' || ! $this->playable($asset)) {
             throw new \RuntimeException('MEDIA_NOT_READY');
         }
-        if (! empty($asset->metadata['mobile_key'])) {
+        if (! empty($asset->metadata['mobile_key']) && ! empty($asset->metadata['web_key'])) {
             return $asset;
         }
-        $metadata = $this->mobile($this->path($asset->output_key.'/media.mp4'), $this->path($asset->output_key));
+        $metadata = [];
+        foreach (['mobile', 'web'] as $name) {
+            if (empty($asset->metadata[$name.'_key'])) {
+                $metadata += $this->rendition($this->path($asset->output_key.'/media.mp4'), $this->path($asset->output_key), $name);
+            }
+        }
 
         return ContentGuard::mutate(function () use ($asset, $metadata): Asset {
             $current = Asset::findOrFail($asset->id);
             if ($current->state !== 'ready' || $current->output_key !== $asset->output_key) {
                 throw new \RuntimeException('MEDIA_CHANGED');
             }
-            if (empty($current->metadata['mobile_key'])) {
+            if (array_diff_key($metadata, $current->metadata)) {
                 $current->update(['metadata' => [...$current->metadata, ...$metadata]]);
             }
 
@@ -378,15 +383,20 @@ final class MediaStore
         });
     }
 
-    private function mobile(string $source, string $out): array
+    private function rendition(string $source, string $out, string $name): array
     {
+        $profiles = [
+            'mobile' => ['edge' => 240, 'video' => '96k', 'max' => '112k', 'buffer' => '224k', 'audio' => '32k', 'bandwidth' => 176000],
+            'web' => ['edge' => 720, 'video' => '1200k', 'max' => '1500k', 'buffer' => '3000k', 'audio' => '96k', 'bandwidth' => 1800000],
+        ];
+        $profile = $profiles[$name];
         $probe = config('content.ffprobe', '/opt/homebrew/bin/ffprobe');
         $info = json_decode($this->command([$probe, '-v', 'error', '-select_streams', 'v:0',
             '-show_entries', 'stream=width,height,start_time', '-of', 'json', $source], 120), true, flags: JSON_THROW_ON_ERROR)['streams'][0];
-        $ratio = min(1, 240 / min($info['width'], $info['height']));
+        $ratio = min(1, $profile['edge'] / min($info['width'], $info['height']));
         $width = max(2, (int) floor($info['width'] * $ratio / 2) * 2);
         $height = max(2, (int) floor($info['height'] * $ratio / 2) * 2);
-        $key = 'mobile-'.Str::uuid7();
+        $key = $name.'-'.Str::uuid7();
         $directory = $out.'/'.$key;
         if (! mkdir($directory, 0700)) {
             throw new \RuntimeException('MEDIA_PROCESS_FAILED');
@@ -394,8 +404,8 @@ final class MediaStore
         $this->command([config('content.ffmpeg', '/opt/homebrew/bin/ffmpeg'), '-nostdin', '-v', 'error',
             '-protocol_whitelist', 'file,pipe', '-i', $source, '-map', '0:v:0', '-map', '0:a:0?', '-map_metadata', '-1',
             '-vf', 'scale='.$width.':'.$height, '-c:v', 'libx264', '-threads', '2', '-preset', 'veryfast',
-            '-profile:v', 'baseline', '-pix_fmt', 'yuv420p', '-bf', '0', '-b:v', '96k', '-maxrate', '112k', '-bufsize', '224k',
-            '-force_key_frames', 'expr:gte(t,n_forced*2)', '-c:a', 'aac', '-b:a', '32k', '-ac', '1', '-ar', '24000',
+            '-profile:v', 'baseline', '-pix_fmt', 'yuv420p', '-bf', '0', '-b:v', $profile['video'], '-maxrate', $profile['max'], '-bufsize', $profile['buffer'],
+            '-force_key_frames', 'expr:gte(t,n_forced*2)', '-c:a', 'aac', '-b:a', $profile['audio'], '-ac', '1', '-ar', '24000',
             '-hls_time', '2', '-hls_playlist_type', 'vod', '-hls_flags', 'independent_segments',
             '-hls_segment_filename', $directory.'/segment-%05d.ts', $directory.'/index.m3u8']);
         $timing = json_decode($this->command([$probe, '-v', 'error', '-select_streams', 'v:0',
@@ -405,9 +415,9 @@ final class MediaStore
             chmod($file, 0600);
         }
 
-        return ['mobile_key' => $key, 'mobile_width' => $width, 'mobile_height' => $height,
-            'mobile_bandwidth' => 176000,
-            'mobile_timestamp_base' => ((int) round(($timestamp - (float) ($info['start_time'] ?? 0)) * 90000) + 8589934592) % 8589934592];
+        return [$name.'_key' => $key, $name.'_width' => $width, $name.'_height' => $height,
+            $name.'_bandwidth' => $profile['bandwidth'],
+            $name.'_timestamp_base' => ((int) round(($timestamp - (float) ($info['start_time'] ?? 0)) * 90000) + 8589934592) % 8589934592];
     }
 
     private function image(string $source, string $out): array

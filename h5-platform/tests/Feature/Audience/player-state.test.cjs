@@ -43,7 +43,7 @@ async function settle() {
   for (let turn = 0; turn < 4; turn++) await new Promise(resolve => setImmediate(resolve));
 }
 
-function browser({viewer = true, episode = firstEpisode, position = 0, storage = new Map(), clock = 1800000000000, deferProgressRead = false, nativeHls = false} = {}) {
+function browser({viewer = true, episode = firstEpisode, position = 0, storage = new Map(), clock = 1800000000000, deferProgressRead = false, nativeHls = false, mseHls = true} = {}) {
   let now = clock;
   const requests = [], timers = new Map(), hlsInstances = [];
   const effects = {attachedSources: 0, playCalls: 0, mediaLoads: 0};
@@ -105,7 +105,7 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
   // browser compatibility. Event callbacks can outlive destroy() in a race.
   class Hls {
     static Events = {ERROR: 'error'};
-    static isSupported() { return true; }
+    static isSupported() { return mseHls; }
     constructor(options) {
       this.options = options; this.calls = []; this.callbacks = new Map(); this.destroyed = false;
       hlsInstances.push(this);
@@ -383,6 +383,13 @@ test('non-native HLS constructs and starts loading only after current Content au
   assert.equal(page.saves().length, 0, 'Loading media alone never records a real viewing point.');
 });
 
+test('MSE-capable browsers start at the lowest level even when native HLS is advertised', async () => {
+  const page = browser({nativeHls: true});
+  await page.authorize(sessionA);
+  assert.equal(page.hlsInstances.length, 1);
+  assert.equal(page.hlsInstances[0].options.startLevel, 0);
+});
+
 test('a fatal non-native HLS error destroys the loader, clears the source and stops renewal', async () => {
   const page = browser();
   await page.authorize(sessionA);
@@ -436,7 +443,7 @@ test('renewal denial clears non-native HLS and old callbacks cannot restore it',
 
 
 test('paused native HLS renewal preserves position and return links before metadata arrives', async () => {
-  const page = browser({nativeHls: true, position: 37});
+  const page = browser({nativeHls: true, mseHls: false, position: 37});
   await page.authorize(sessionA);
   assert.equal(page.hlsInstances.length, 0, 'Native playback must not instantiate the non-native adapter.');
   page.startPlaying(37); await page.advancePlayback(38);

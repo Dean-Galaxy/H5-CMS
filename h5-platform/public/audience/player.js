@@ -173,17 +173,14 @@
       if (metadataListener) video.removeEventListener('loadedmetadata', metadataListener);
       metadataListener = ready;
       video.addEventListener('loadedmetadata', ready, {once:true});
-      if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url.href;
-        nativeCaptions(url.href, run);
-        // preload=none intentionally waits for play(); waiting for metadata first would deadlock.
-        if (resumePlaying) video.play().catch(() => { if (active()) { button.hidden = false; button.textContent = text.play; } });
-      }
-      else if (window.Hls?.isSupported()) {
-        hls = new Hls({autoStartLoad:false}); hls.loadSource(url.href); hls.attachMedia(video);
-        // authorize() starts only after the Play click, or for this same continuous playback.
+      if (window.Hls?.isSupported()) {
+        hls = new Hls({autoStartLoad:false, startLevel:0}); hls.loadSource(url.href); hls.attachMedia(video);
         hls.startLoad();
         hls.on(Hls.Events.ERROR, (_, data) => { if (active() && data.fatal) halt(navigator.onLine ? 'media_error' : 'network'); });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = url.href;
+        nativeCaptions(url.href, run);
+        if (resumePlaying) video.play().catch(() => { if (active()) { button.hidden = false; button.textContent = text.play; } });
       } else { video.removeEventListener('loadedmetadata', ready); halt('unsupported'); return; }
       button.hidden = resumePlaying;
       if (!resumePlaying) { button.textContent = text.play; message('paused'); }
