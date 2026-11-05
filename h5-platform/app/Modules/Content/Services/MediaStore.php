@@ -361,9 +361,12 @@ final class MediaStore
             throw new \RuntimeException('MEDIA_NOT_READY');
         }
         $metadata = [];
-        foreach (['mobile' => 2, 'web' => 1] as $name => $version) {
+        foreach (['mobile' => 3, 'web' => 2] as $name => $version) {
             if (empty($asset->metadata[$name.'_key']) || ($asset->metadata[$name.'_profile_version'] ?? 1) !== $version) {
-                $metadata += $this->rendition($this->path($asset->output_key.'/media.mp4'), $this->path($asset->output_key), $name);
+                $previous = $asset->metadata[$name.'_profile_version'] ?? 1;
+                $metadata += ! empty($asset->metadata[$name.'_key']) && $previous === $version - 1
+                    ? $this->repackage($asset, $name, $version)
+                    : $this->rendition($this->path($asset->output_key.'/media.mp4'), $this->path($asset->output_key), $name);
             }
         }
 
@@ -377,16 +380,44 @@ final class MediaStore
                 throw new \RuntimeException('MEDIA_CHANGED');
             }
             $current->update(['metadata' => [...$current->metadata, ...$metadata]]);
+            // A new segment layout must never be mixed with an in-flight old manifest.
+            \App\Modules\Content\Models\Grant::where('asset_id', $current->id)->where('expires_at', '>', now())
+                ->update(['expires_at' => now()]);
 
             return $current->fresh();
         });
     }
 
+    private function repackage(Asset $asset, string $name, int $version): array
+    {
+        $old = $this->path($asset->output_key.'/'.$asset->metadata[$name.'_key']);
+        $key = $name.'-'.Str::uuid7();
+        $out = $this->directory($asset->output_key.'/'.$key);
+        $this->command([config('content.ffmpeg', '/opt/homebrew/bin/ffmpeg'), '-nostdin', '-v', 'error',
+            '-protocol_whitelist', 'file,pipe', '-i', $old.'/index.m3u8', '-map', '0:v:0', '-map', '0:a:0?',
+            '-c', 'copy', '-hls_time', '4', '-hls_playlist_type', 'vod', '-hls_flags', 'independent_segments',
+            '-hls_segment_filename', $out.'/segment-%05d.ts', $out.'/index.m3u8']);
+        $times = [];
+        foreach ([$old, $out] as $directory) {
+            $probe = json_decode($this->command([config('content.ffprobe', '/opt/homebrew/bin/ffprobe'),
+                '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=start_time',
+                '-of', 'json', $directory.'/segment-00000.ts'], 120), true, flags: JSON_THROW_ON_ERROR);
+            $times[] = (float) ($probe['streams'][0]['start_time'] ?? throw new \RuntimeException('MEDIA_PROCESS_FAILED'));
+        }
+        foreach (glob($out.'/*') as $file) {
+            chmod($file, 0600);
+        }
+
+        return [$name.'_key' => $key, $name.'_profile_version' => $version,
+            $name.'_timestamp_base' => ((int) $asset->metadata[$name.'_timestamp_base']
+                + (int) round(($times[1] - $times[0]) * 90000) + 8589934592) % 8589934592];
+    }
+
     private function rendition(string $source, string $out, string $name): array
     {
         $profiles = [
-            'mobile' => ['edge' => 240, 'video' => '64k', 'max' => '72k', 'buffer' => '144k', 'audio' => '24k', 'bandwidth' => 128000, 'version' => 2],
-            'web' => ['edge' => 720, 'video' => '1200k', 'max' => '1500k', 'buffer' => '3000k', 'audio' => '96k', 'bandwidth' => 1800000, 'version' => 1],
+            'mobile' => ['edge' => 240, 'video' => '64k', 'max' => '72k', 'buffer' => '144k', 'audio' => '24k', 'bandwidth' => 128000, 'version' => 3],
+            'web' => ['edge' => 720, 'video' => '1200k', 'max' => '1500k', 'buffer' => '3000k', 'audio' => '96k', 'bandwidth' => 1800000, 'version' => 2],
         ];
         $profile = $profiles[$name];
         $probe = config('content.ffprobe', '/opt/homebrew/bin/ffprobe');
@@ -405,7 +436,7 @@ final class MediaStore
             '-vf', 'scale='.$width.':'.$height, '-c:v', 'libx264', '-threads', '2', '-preset', 'veryfast',
             '-profile:v', 'baseline', '-pix_fmt', 'yuv420p', '-bf', '0', '-b:v', $profile['video'], '-maxrate', $profile['max'], '-bufsize', $profile['buffer'],
             '-force_key_frames', 'expr:gte(t,n_forced*2)', '-c:a', 'aac', '-b:a', $profile['audio'], '-ac', '1', '-ar', '24000',
-            '-hls_time', '2', '-hls_playlist_type', 'vod', '-hls_flags', 'independent_segments',
+            '-hls_time', '4', '-hls_playlist_type', 'vod', '-hls_flags', 'independent_segments',
             '-hls_segment_filename', $directory.'/segment-%05d.ts', $directory.'/index.m3u8']);
         $timing = json_decode($this->command([$probe, '-v', 'error', '-select_streams', 'v:0',
             '-show_entries', 'stream=start_time', '-of', 'json', $directory.'/segment-00000.ts'], 120), true, flags: JSON_THROW_ON_ERROR);

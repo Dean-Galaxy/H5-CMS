@@ -172,7 +172,7 @@
             }
           }
           const remaining = Math.max(0, (Number.isFinite(video.duration) ? video.duration : duration) - video.currentTime);
-          if (bufferedUntil - video.currentTime < Math.min(6, remaining)) return;
+          if (bufferedUntil - video.currentTime < Math.min(6, Math.max(0, remaining - 0.5))) return;
         }
         startRequested = true;
         video.play().catch(() => { if (active()) { button.hidden = false; button.textContent = text.play; } });

@@ -406,6 +406,13 @@ test('initial MSE playback reserves six buffered seconds and never resumes a use
   assert.equal(page.effects.playCalls, 1);
 });
 
+test('a resume near the end tolerates fractional encoder padding', async () => {
+  const page = browser({position: 99});
+  page.video.buffered = {length:1, start() { return 98; }, end() { return 99.96; }};
+  await page.authorize(sessionA);
+  assert.equal(page.effects.playCalls, 1);
+});
+
 test('a fatal non-native HLS error destroys the loader, clears the source and stops renewal', async () => {
   const page = browser();
   await page.authorize(sessionA);

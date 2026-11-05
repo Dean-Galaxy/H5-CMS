@@ -99,6 +99,12 @@ final class MediaTest extends ContentTestCase
         $this->assertNotSame($originalMobile, $upgraded->metadata['mobile_key']);
         $this->assertSame($originalKey, $upgraded->output_key);
         $this->assertSame($originalHash, hash_file('sha256', app(MediaStore::class)->path($originalKey.'/segment-00000.ts')));
+        $upgraded->update(['metadata' => [...$upgraded->metadata, 'mobile_profile_version' => 2, 'web_profile_version' => 1]]);
+        $repacked = app(MediaStore::class)->addWebRenditions($upgraded->id);
+        $this->assertSame(3, $repacked->metadata['mobile_profile_version']);
+        $this->assertSame(2, $repacked->metadata['web_profile_version']);
+        $this->assertSame($originalHash, hash_file('sha256', app(MediaStore::class)->path($originalKey.'/segment-00000.ts')));
+
 
 
         $this->assertGreaterThan(0, $a->metadata['hls_timestamp_base']);
