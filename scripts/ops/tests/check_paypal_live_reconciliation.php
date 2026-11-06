@@ -48,14 +48,22 @@ $env['APP_ENV'] = 'production';
 $env['APP_CONFIG_CACHE'] = $cache;
 $passed = [];
 try {
-    foreach (['empty', 'module_absent', 'ignored_live', 'legacy_rejected', 'api_disabled', 'pending_error'] as $case) {
+    foreach (['empty', 'module_absent', 'ignored_live', 'legacy_rejected', 'api_disabled', 'pending_error',
+        'consumer_deferred', 'consumer_error'] as $case) {
         DB::table('billing_inbox')->delete();
+        DB::table('billing_outbox')->delete();
         config()->set($production);
         if ($case === 'api_disabled') {
             config(['billing.paypal_live.enabled' => false]);
         }
         if ($case === 'module_absent') {
             config(['acquisition' => []]);
+        }
+        if (in_array($case, ['consumer_deferred', 'consumer_error'], true)) {
+            // Reporting-only fixture, deliberately no payment/entitlement or dispatchable paid event.
+            DB::table('billing_outbox')->insert(['id' => (string) Illuminate\Support\Str::uuid(),
+                'payment_id' => (string) Illuminate\Support\Str::uuid(), 'payload' => '[]', 'created_at' => now(),
+                'last_error' => $case === 'consumer_deferred' ? 'CONSUMER_NOT_READY' : 'CONSUMER_RETRY_REQUIRED']);
         }
         if (in_array($case, ['ignored_live', 'legacy_rejected', 'pending_error'], true)) {
             $scope = $case === 'legacy_rejected' ? ProviderScope::legacyStripe()
@@ -77,7 +85,7 @@ try {
         fclose($pipes[2]);
         $exit = proc_close($process);
         unlink($cache);
-        $expected = in_array($case, ['empty', 'module_absent', 'ignored_live'], true) ? 0 : 1;
+        $expected = in_array($case, ['empty', 'module_absent', 'ignored_live', 'consumer_deferred'], true) ? 0 : 1;
         check($exit === $expected, 'Unexpected exit for '.$case.': '.$stdout.$stderr);
         $event = DB::table('billing_inbox')->first();
         if ($case === 'ignored_live') {
@@ -87,6 +95,12 @@ try {
         } elseif ($case === 'pending_error') {
             check($event->state === 'pending' && $event->last_error === 'RECONCILIATION_REQUIRED', 'Error was lost');
             check((json_decode($stdout, true)['inbox_errors'] ?? 0) === 1, 'Pending error not reported');
+        } elseif ($case === 'consumer_deferred') {
+            $report = json_decode($stdout, true);
+            check($report['outbox_deferred'] === 1 && $report['outbox_errors'] === 0, 'Expected defer marked as error');
+            check(DB::table('billing_outbox')->whereNull('delivered_at')->count() === 1, 'Deferred event was lost');
+        } elseif ($case === 'consumer_error') {
+            check((json_decode($stdout, true)['outbox_errors'] ?? 0) === 1, 'Real consumer error was hidden');
         }
         check(DB::table('billing_orders')->count() === 0 && DB::table('billing_payments')->count() === 0
             && DB::table('billing_entitlements')->count() === 0, 'Unexpected financial facts');
@@ -98,5 +112,6 @@ try {
         unlink($cache);
     }
     DB::table('billing_inbox')->delete();
+    DB::table('billing_outbox')->delete();
     config()->set($original);
 }
