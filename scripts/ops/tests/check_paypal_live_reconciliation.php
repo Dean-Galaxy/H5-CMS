@@ -48,11 +48,14 @@ $env['APP_ENV'] = 'production';
 $env['APP_CONFIG_CACHE'] = $cache;
 $passed = [];
 try {
-    foreach (['empty', 'ignored_live', 'legacy_rejected', 'api_disabled', 'pending_error'] as $case) {
+    foreach (['empty', 'module_absent', 'ignored_live', 'legacy_rejected', 'api_disabled', 'pending_error'] as $case) {
         DB::table('billing_inbox')->delete();
         config()->set($production);
         if ($case === 'api_disabled') {
             config(['billing.paypal_live.enabled' => false]);
+        }
+        if ($case === 'module_absent') {
+            config(['acquisition' => []]);
         }
         if (in_array($case, ['ignored_live', 'legacy_rejected', 'pending_error'], true)) {
             $scope = $case === 'legacy_rejected' ? ProviderScope::legacyStripe()
@@ -74,7 +77,7 @@ try {
         fclose($pipes[2]);
         $exit = proc_close($process);
         unlink($cache);
-        $expected = in_array($case, ['empty', 'ignored_live'], true) ? 0 : 1;
+        $expected = in_array($case, ['empty', 'module_absent', 'ignored_live'], true) ? 0 : 1;
         check($exit === $expected, 'Unexpected exit for '.$case.': '.$stdout.$stderr);
         $event = DB::table('billing_inbox')->first();
         if ($case === 'ignored_live') {

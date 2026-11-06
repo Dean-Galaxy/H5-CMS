@@ -17,7 +17,9 @@ try {
         || config('billing.paypal_live.enabled') !== true
         || config('billing.paypal.enabled') !== false
         || config('billing.driver') !== 'unconfigured'
-        || config('acquisition.external_enabled') !== false) {
+        // The disabled acquisition module has no merged configuration namespace.
+        // RuntimeEnvironmentGuard above already requires it to be disabled in production.
+        || config('acquisition.external_enabled', false) !== false) {
         throw new RuntimeException('LIVE_RECONCILIATION_SCOPE_UNAVAILABLE');
     }
     // Fail before the generic command can touch another provider or environment.
@@ -40,9 +42,12 @@ try {
     echo json_encode(['ok' => $ok, 'scope' => 'paypal_live', 'command_exit' => $exit,
         'inbox_errors' => $inbox, 'outbox_errors' => $outbox], JSON_THROW_ON_ERROR).PHP_EOL;
     $exit = $ok ? 0 : 1;
-} catch (Throwable) {
+} catch (Throwable $error) {
     // Never print provider responses, account data, secrets or exception messages.
-    fwrite(STDERR, "PAYPAL_LIVE_RECONCILIATION_FAILED\n");
+    $known = ['LIVE_RECONCILIATION_SCOPE_UNAVAILABLE', 'LIVE_RECONCILIATION_SCOPE_CONFLICT',
+        'LIVE_RECONCILIATION_ALREADY_RUNNING'];
+    $code = in_array($error->getMessage(), $known, true) ? $error->getMessage() : 'PAYPAL_LIVE_RECONCILIATION_FAILED';
+    fwrite(STDERR, json_encode(['ok' => false, 'diagnostic_code' => $code], JSON_THROW_ON_ERROR).PHP_EOL);
     $exit = 1;
 } finally {
     if ($locked) {
