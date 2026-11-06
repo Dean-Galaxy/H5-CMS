@@ -1,0 +1,32 @@
+# Disabled until the operator installs a root-owned ENABLED marker and starts the timer.
+[Unit]
+Description=Sparkling Short PayPal Live reconciliation
+After=postgresql@17-main.service
+ConditionPathExists=/srv/h5/ops/billing-reconcile/ENABLED
+
+[Service]
+Type=oneshot
+User=h5
+Group=h5
+WorkingDirectory=/srv/h5/current/h5-platform
+Environment=APP_ENV=production
+ExecCondition=/usr/bin/systemctl --quiet is-active postgresql@17-main.service
+ExecStartPre=/usr/bin/php8.4 -d memory_limit=128M /srv/h5/current/scripts/ops/check_runtime.php --expect-env=production --require-cache
+ExecStart=/usr/bin/php8.4 -d memory_limit=128M /srv/h5/current/scripts/ops/reconcile_paypal_live.php
+TimeoutStartSec=90s
+TimeoutStopSec=5s
+KillMode=control-group
+Restart=no
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/srv/h5/shared/storage/logs
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=192M
+CPUQuota=25%
+StandardOutput=journal
+StandardError=journal
+
