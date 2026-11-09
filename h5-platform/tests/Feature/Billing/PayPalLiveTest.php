@@ -144,6 +144,45 @@ final class PayPalLiveTest extends TestCase
         self::assertSame('2026-11-03T06:00:00Z', BillingStore::iso($fact->period_end));
     }
 
+    public function test_live_first_billing_boundary_accepts_a_later_time_on_the_weekly_date(): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $paidAt = '2026-10-27T06:00:58Z';
+        $this->transactions[0]['time'] = '2026-10-27T06:00:58.000Z';
+        $this->sales[self::SALE]['create_time'] = $this->remote['billing_info']['last_payment']['time'] = $paidAt;
+        $this->travel(2)->minutes();
+        $this->remote['billing_info']['next_billing_time'] = '2026-11-04T00:00:00Z';
+        try {
+            $this->sync($order);
+            self::fail('An extra billing date must be rejected');
+        } catch (RuntimeException $error) {
+            self::assertSame('PAYPAL_RECONCILIATION_REQUIRED', $error->getMessage());
+        }
+        self::assertDatabaseCount('billing_payments', 0);
+        self::assertDatabaseCount('billing_entitlements', 0);
+
+        $firstBoundary = '2026-11-03T07:41:13Z';
+        $this->remote['billing_info']['next_billing_time'] = $firstBoundary;
+        $this->sync($order);
+        $this->sync($order);
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertDatabaseCount('billing_entitlements', 1);
+        self::assertSame($firstBoundary, $this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_until);
+
+        $this->travel(8)->days();
+        $this->paid(2);
+        $this->transactions[0]['time'] = $this->sales[self::SALE]['create_time'] = $paidAt;
+        $this->transactions[1]['time'] = $this->sales['RENEWAL1']['create_time'] = $firstBoundary;
+        $this->remote['billing_info']['last_payment']['time'] = $firstBoundary;
+        $this->remote['billing_info']['next_billing_time'] = '2026-11-10T07:41:13Z';
+        $this->sync($order);
+        self::assertDatabaseCount('billing_payments', 2);
+        $renewal = DB::table('billing_payments')->orderByDesc('period_start')->first();
+        self::assertSame($firstBoundary, BillingStore::iso($renewal->period_start));
+        self::assertSame('2026-11-10T07:41:13Z', BillingStore::iso($renewal->period_end));
+    }
+
     public function test_cancel_requires_observed_stop_preserves_paid_period_and_disables_resume(): void
     {
         $order = $this->checkout();

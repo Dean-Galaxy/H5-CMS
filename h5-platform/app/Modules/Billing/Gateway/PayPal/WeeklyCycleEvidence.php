@@ -15,6 +15,7 @@ final class WeeklyCycleEvidence
     public function payments(object $local, object $order, array $remote, array $transactions, array $sales, array $known = []): array
     {
         $info = $remote['billing_info'] ?? [];
+        $scope = ProviderScope::fromRecord($local);
         $this->check(($info['failed_payments_count'] ?? null) === 0 && ! isset($info['last_failed_payment'])
             && $this->money($info['outstanding_balance'] ?? []) === 0);
         $start = self::time($remote['start_time'] ?? null);
@@ -43,7 +44,7 @@ final class WeeklyCycleEvidence
             // Without a first-cycle observation, only the original exact WEEK sequence is provable.
             $firstEnd = $start->addSeconds(604800);
         }
-        $this->check($firstEnd->gt($start) && $firstEnd->lte($start->addSeconds(604800))
+        $this->check(ExternalPayment::validPeriod($scope, true, $start, $firstEnd)
             && $end->equalTo($firstEnd->addSeconds(($executed - 1) * 604800)));
         $facts = [];
         $ids = [];
@@ -65,7 +66,7 @@ final class WeeklyCycleEvidence
             // Time alone NEVER chooses a period: execution counts, anchor, next boundary,
             // complete history and an independently read Sale must all agree first.
             $this->check($paid->gte($from) && $paid->lt($until));
-            $facts[] = new ExternalPayment(ProviderScope::fromRecord($local), $id, $id, $local->provider_id,
+            $facts[] = new ExternalPayment($scope, $id, $id, $local->provider_id,
                 $remote['subscriber']['payer_id'] ?? '', $order->id, $i === 0, $amount, $local->regular_amount_minor, 'USD',
                 $from->toDateTimeImmutable(), $until->toDateTimeImmutable(), $paid->toDateTimeImmutable());
         }

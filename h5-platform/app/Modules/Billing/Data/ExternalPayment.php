@@ -6,6 +6,7 @@ namespace App\Modules\Billing\Data;
 
 use App\Modules\Billing\Gateway\ProviderScope;
 use DateTimeImmutable;
+use DateTimeZone;
 use InvalidArgumentException;
 
 /** Internal normalized paid fact. Only a server-side provider verifier may construct it. */
@@ -31,14 +32,26 @@ final readonly class ExternalPayment
                 throw new InvalidArgumentException('BILLING_PAYMENT_FACT_INVALID');
             }
         }
-        $seconds = $periodEnd->getTimestamp() - $periodStart->getTimestamp();
-        // PayPal's observed first next-billing boundary may be shorter than 168 hours.
-        // Only its evidence verifier may produce this fact; Stripe and renewals stay exact WEEK.
-        $validPeriod = $scope->provider === 'paypal' && $firstCycle
-            ? $seconds > 0 && $seconds <= 604800 : $seconds === 604800;
         if ($currency !== 'USD' || $amountMinor < 1 || $regularAmountMinor < $amountMinor
-            || $regularAmountMinor > 99999999 || ! $validPeriod) {
+            || $regularAmountMinor > 99999999 || ! self::validPeriod($scope, $firstCycle, $periodStart, $periodEnd)) {
             throw new InvalidArgumentException('BILLING_PAYMENT_FACT_INVALID');
         }
+    }
+
+    public static function validPeriod(ProviderScope $scope, bool $firstCycle, DateTimeImmutable $start, DateTimeImmutable $end): bool
+    {
+        $seconds = $end->getTimestamp() - $start->getTimestamp();
+        if ($scope->provider !== 'paypal' || ! $firstCycle) {
+            return $seconds === 604800;
+        }
+        $utc = new DateTimeZone('UTC');
+        $weeklyBoundary = $start->setTimezone($utc)->modify('+7 days');
+        if ($seconds > 0 && $end <= $weeklyBoundary) {
+            return true;
+        }
+
+        // Live can report a later time on the original weekly billing date.
+        return $scope->environment === 'live' && $seconds > 604800
+            && $end->setTimezone($utc)->format('Y-m-d') === $weeklyBoundary->format('Y-m-d');
     }
 }
