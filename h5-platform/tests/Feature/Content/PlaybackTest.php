@@ -141,6 +141,52 @@ final class PlaybackTest extends ContentTestCase
         $this->get($segment)->assertNotFound();
     }
 
+    public function test_pilot_renditions_are_limited_to_configured_media_and_require_paid_access(): void
+    {
+        $drama = $this->fixture(6, 6, true);
+        $ep = $drama->episodes[5];
+        $video = $this->readyAsset('video');
+        $ep->update(['video_asset_id' => $video->id]);
+        $metadata = $video->metadata;
+        foreach (['mobile' => [240, 418, 128000, 126000], 'efficient' => [240, 418, 150000, 133500],
+            'balanced' => [360, 628, 295000, 133500], 'web' => [720, 1254, 1800000, 126000]] as $name => [$width, $height, $bitrate, $timestamp]) {
+            $key = $name.'-019a2b3c-1234-7000-8000-000000000001';
+            $metadata += ["{$name}_key" => $key, "{$name}_width" => $width, "{$name}_height" => $height,
+                "{$name}_bandwidth" => $bitrate, "{$name}_timestamp_base" => $timestamp];
+            $path = app(MediaStore::class)->path($video->output_key.'/'.$key);
+            mkdir($path, 0700);
+            file_put_contents($path.'/index.m3u8', "#EXTM3U\n#EXTINF:2,\nsegment-00000.ts\n#EXT-X-ENDLIST\n");
+            file_put_contents($path.'/segment-00000.ts', str_repeat('v', 1024));
+        }
+        $video->update(['metadata' => $metadata]);
+        $ep->update(['subtitle_asset_id' => $this->readyAsset('subtitle')->id, 'subtitle_language' => 'en']);
+
+        $free = $this->grant($drama->episodes[4]->id)->assertOk()->json();
+        $this->get($free['short_lived_url'])->assertOk()->assertDontSee('efficient-index.m3u8', false)
+            ->assertDontSee('balanced-index.m3u8', false);
+        $this->get($this->signed($free['grant_id'], 'balanced-segment-00000.ts'))->assertNotFound();
+        $this->grant($ep->id)->assertOk()->assertJsonPath('reason', 'MEMBERSHIP_REQUIRED');
+
+        $this->viewer();
+        $membership = $this->membership();
+        $paid = $this->grant($ep->id)->assertOk()->assertJsonPath('allowed', true)->json();
+        $this->get($paid['short_lived_url'])->assertOk()->assertSeeInOrder(['efficient-index.m3u8', 'balanced-index.m3u8', 'web-index.m3u8'], false)
+            ->assertDontSee('mobile-index.m3u8', false);
+        foreach (['efficient', 'balanced'] as $name) {
+            $this->get($this->signed($paid['grant_id'], $name.'-index.m3u8'))->assertOk()->assertSee($name.'-segment-00000.ts', false);
+            $this->get($this->signed($paid['grant_id'], $name.'-captions.m3u8'))->assertOk()->assertSee($name.'-subtitles.vtt', false);
+            $this->get($this->signed($paid['grant_id'], $name.'-subtitles.vtt'))->assertOk()->assertSee('MPEGTS:133500', false);
+        }
+        $this->assertNull(PlaySession::find($paid['play_session_id'])->started_at);
+        $segment = $this->signed($paid['grant_id'], 'balanced-segment-00000.ts');
+        $this->get($segment, ['Range' => 'bytes=0-9'])->assertStatus(206)->assertHeader('Content-Length', '10');
+        $this->assertNotNull(PlaySession::find($paid['play_session_id'])->started_at);
+        $this->get($this->signed($paid['grant_id'], 'mobile-segment-00000.ts'))->assertOk();
+        $this->get('/api/v1/content/playback/'.$paid['grant_id'].'/balanced-segment-00000.ts')->assertForbidden();
+        $membership->active = false;
+        $this->get($segment)->assertForbidden();
+    }
+
     public function test_head_and_invalid_range_do_not_start_a_session_and_missing_hls_blocks_grants(): void
     {
         $d = $this->fixture(1, 1, true);

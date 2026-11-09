@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 
 final class MediaController
 {
+    public const RENDITION_PATTERN = 'mobile|efficient|balanced|web';
+
     public function __construct(private MediaStore $store, private Availability $availability) {}
 
     public function assetPreview(string $id)
@@ -62,7 +64,7 @@ final class MediaController
         $url = fn ($part) => $playback->url($grant, $part);
         $response = $this->serve($ep, $file, $url, true);
         // A manifest/HEAD/failed Range does not earn the free-N continuation exception.
-        if ($r->isMethod('GET') && ($file === 'media.mp4' || preg_match('/^(?:(?:mobile|web)-)?segment-\d{5}\.ts$/D', $file))) {
+        if ($r->isMethod('GET') && ($file === 'media.mp4' || preg_match('/^(?:(?:'.self::RENDITION_PATTERN.')-)?segment-\d{5}\.ts$/D', $file))) {
             $response->prepare($r);
             if (in_array($response->getStatusCode(), [200, 206], true) && (int) $response->headers->get('Content-Length') > 0) {
                 $playback->readGrant($id, $region, true);
@@ -95,7 +97,7 @@ final class MediaController
         if (! $ep->video || $ep->video->state !== 'ready') {
             throw new ApiProblem('MEDIA_NOT_READY', 409, '视频尚未就绪');
         }
-        $variant = preg_match('/^(mobile|web)-(.+)$/D', $file, $match) ? $match[1] : null;
+        $variant = preg_match('/^('.self::RENDITION_PATTERN.')-(.+)$/D', $file, $match) ? $match[1] : null;
         $part = $variant ? $match[2] : $file;
         if ($variant) {
             $this->renditionKey($ep->video, $variant);
@@ -104,7 +106,9 @@ final class MediaController
         if ($file === 'master.m3u8') {
             $hasSub = $ep->subtitle_asset_id && $ep->subtitle?->state === 'ready';
             $text = "#EXTM3U\n#EXT-X-VERSION:3\n";
-            $variants = array_filter(['mobile', 'web'], fn ($name) => ! empty($ep->video->metadata[$name.'_key']));
+            // Keep previously signed mobile URLs usable while new manifests select the improved low tier.
+            $low = empty($ep->video->metadata['efficient_key']) ? 'mobile' : 'efficient';
+            $variants = array_filter([$low, 'balanced', 'web'], fn ($name) => ! empty($ep->video->metadata[$name.'_key']));
             if ($hasSub && ! $variants) {
                 $text .= '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="'.($ep->subtitle_language === 'zh_CN' ? 'Chinese' : 'English').'",LANGUAGE="'.($ep->subtitle_language === 'zh_CN' ? 'zh-Hans' : 'en').'",AUTOSELECT=YES,DEFAULT=YES,URI="'.$url('captions.m3u8')."\"\n";
             }
