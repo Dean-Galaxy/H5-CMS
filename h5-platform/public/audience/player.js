@@ -7,6 +7,21 @@
   const csrf = document.querySelector('meta[name=csrf-token]').content;
   const duration = Number(root.dataset.duration), viewer = root.dataset.viewer;
   const progressStatus = root.querySelector('[data-progress-status]');
+  const quality = root.querySelector('[data-watch-quality]'), resolution = root.querySelector('[data-watch-resolution]');
+  const hdOption = quality?.querySelector('option[value=hd]');
+  function displayResolution() {
+    if (!resolution) return;
+    const {videoWidth, videoHeight} = video;
+    const label = videoWidth && videoHeight && !stopped && !mediaPending
+      ? text.quality_resolution.replace(':width', videoWidth).replace(':height', videoHeight)
+      : text.quality_waiting;
+    if (resolution.textContent !== label) resolution.textContent = label;
+  }
+  function setHdAvailable(available) {
+    if (!hdOption) return;
+    hdOption.disabled = !available;
+    if (!available) quality.value = 'auto';
+  }
   const storageKey = 'audience.progress.' + root.dataset.drama;
   const clamp = value => Math.max(0, Math.min(duration, Number.isFinite(Number(value)) ? Number(value) : 0));
   const observe = detail => {
@@ -86,13 +101,38 @@
     } catch (error) { if (epoch === progressEpoch) progressStatus.textContent = text[error.message] || text.save_failed; }
     finally { if (epoch === progressEpoch) saveBusy = false; }
   }
-  async function nativeCaptions(url, run) {
+  async function nativeHd(url, signal) {
+    const response = await fetch(url, {credentials:'same-origin', cache:'no-store', signal});
+    if (!response.ok) return null;
+    const master = await response.text();
+    const lines = master.split(/\r?\n/);
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
+      if (!line.startsWith('#EXT-X-STREAM-INF:')) continue;
+      const dimensions = line.match(/(?:^|,)RESOLUTION=(\d+)x(\d+)/);
+      if (!dimensions || Math.min(Number(dimensions[1]), Number(dimensions[2])) < 720) continue;
+      const uri = lines[index + 1]?.trim();
+      if (!uri || uri.startsWith('#')) continue;
+      const source = new URL(uri, url);
+      if (source.origin === url.origin && source.pathname === url.pathname.replace(/master\.m3u8$/, 'web-index.m3u8')
+        && source.searchParams.has('signature')) {
+        return {source, master, group: line.match(/(?:^|,)SUBTITLES="([^"]+)"/)?.[1]};
+      }
+    }
+    return null;
+  }
+  async function nativeCaptions(url, run, selected = null) {
     // Some native HLS implementations play video but omit its WebVTT rendition.
     // Follow only the actual, signed rendition URLs supplied in Content's manifests.
     try {
-      const master = await fetch(url, {credentials:'same-origin', cache:'no-store', signal:AbortSignal.timeout(15000)});
-      if (!master.ok) return;
-      const line = (await master.text()).split('\n').find(line => line.startsWith('#EXT-X-MEDIA:') && line.includes('TYPE=SUBTITLES'));
+      let master = selected?.master;
+      if (!master) {
+        const response = await fetch(url, {credentials:'same-origin', cache:'no-store', signal:AbortSignal.timeout(15000)});
+        if (!response.ok) return;
+        master = await response.text();
+      }
+      const line = master.split('\n').find(line => line.startsWith('#EXT-X-MEDIA:') && line.includes('TYPE=SUBTITLES')
+        && (!selected || line.includes('GROUP-ID="' + selected.group + '"')));
       if (!line) return;
       const uri = line.match(/URI="([^"]+)"/)?.[1];
       if (!uri) return;
@@ -128,6 +168,8 @@
     stopped = true; mediaPending = false; generation++; progressEpoch++; saveBusy = false; hasPlayed = false; playingEventSeen = false; clearTimeout(timer); video.pause();
     if (metadataListener) { video.removeEventListener('loadedmetadata', metadataListener); metadataListener = null; }
     if (hls) { hls.destroy(); hls = null; }
+    if (quality) quality.disabled = false;
+    displayResolution();
     video.querySelectorAll('track').forEach(track => track.remove()); video.removeAttribute('src'); video.load();
     needsRefresh = ['AUTHENTICATION_REQUIRED', 'CSRF_MISMATCH'].includes(code);
     button.hidden = false; button.textContent = needsRefresh ? text.refresh : text.retry; if (code) message(code);
@@ -139,6 +181,7 @@
     const active = () => attempt === requestEpoch && !disposed;
     const abort = new AbortController(); requestController = abort;
     busy = true; button.disabled = true; message('loading');
+    if (quality) quality.disabled = true;
     const deadline = setTimeout(() => { if (active()) halt('network'); }, 15000);
     requestTimeout = deadline;
     try {
@@ -147,7 +190,6 @@
       if (!renew) { progressEpoch++; progressSequence = 0; progressStopped = false; hasPlayed = false; playingEventSeen = false; saveBusy = false; lastSavedPosition = -1; if (!viewer) await reserveGuest(); }
       if (!active()) return;
       const target = '/audience/dramas/' + root.dataset.drama + '/episodes/' + root.dataset.episode + '/playback';
-      const resumeAt = currentPosition(), resumePlaying = !renew || !video.paused;
       const response = await fetch(target, {method:'POST', credentials:'same-origin', cache:'no-store', signal:abort.signal, headers:{Accept:'application/json','Content-Type':'application/json','X-CSRF-TOKEN':csrf},body:JSON.stringify({play_session_id:renew ? session : null})});
       const grant = await response.json();
       if (!active()) return;
@@ -156,9 +198,16 @@
       // Keep the returned short-lived URL only in this player. Never derive a signature or persist it.
       const url = new URL(grant.short_lived_url, location.href);
       if (!['http:', 'https:'].includes(url.protocol)) { halt('media_error'); return; }
+      const nativeHls = video.canPlayType('application/vnd.apple.mpegurl');
+      const useHlsJs = window.Hls?.isSupported() && !(nativeHls && 'ManagedMediaSource' in window);
+      const selected = nativeHls && !useHlsJs && quality?.value === 'hd' ? await nativeHd(url, abort.signal) : null;
+      if (!active()) return;
+      if (nativeHls && !useHlsJs && quality?.value === 'hd' && !selected) setHdAvailable(false);
+      const resumeAt = currentPosition(), resumePlaying = !renew || !video.paused;
       // A paused native player with preload=none has no metadata after a source
       // renewal. Preserve its handoff until the next explicit Play loads it.
       position = resumeAt; mediaPending = true;
+      displayResolution();
       if (hls) { hls.destroy(); hls = null; }
       video.querySelectorAll('track').forEach(track => track.remove());
       let startRequested = false;
@@ -181,6 +230,7 @@
         if (!active()) return;
         video.currentTime = Math.min(resumeAt, Number.isFinite(video.duration) ? video.duration : duration);
         position = clamp(video.currentTime); mediaPending = false;
+        displayResolution();
         // The return position is a one-time handoff. Future reloads use the latest saved bookmark.
         const currentUrl = new URL(location.href); currentUrl.searchParams.delete('position');
         window.history?.replaceState(null, '', currentUrl.pathname + currentUrl.search);
@@ -189,16 +239,27 @@
       if (metadataListener) video.removeEventListener('loadedmetadata', metadataListener);
       metadataListener = ready;
       video.addEventListener('loadedmetadata', ready, {once:true});
-      const nativeHls = video.canPlayType('application/vnd.apple.mpegurl');
-      const preferNative = nativeHls && 'ManagedMediaSource' in window;
-      if (window.Hls?.isSupported() && !preferNative) {
-        hls = new Hls({autoStartLoad:false, startLevel:0}); hls.loadSource(url.href); hls.attachMedia(video);
-        hls.startLoad();
-        hls.on(Hls.Events.BUFFER_APPENDED, playWhenBuffered);
-        hls.on(Hls.Events.ERROR, (_, data) => { if (active() && data.fatal) halt(navigator.onLine ? 'media_error' : 'network'); });
+      if (useHlsJs) {
+        const engine = hls = new Hls({autoStartLoad:false, startLevel:0});
+        engine.on(Hls.Events.BUFFER_APPENDED, playWhenBuffered);
+        engine.on(Hls.Events.ERROR, (_, data) => { if (active() && data.fatal) halt(navigator.onLine ? 'media_error' : 'network'); });
+        if (quality) {
+          engine.on(Hls.Events.MANIFEST_PARSED, () => {
+            if (!active() || hls !== engine) return;
+            const hdLevel = engine.levels.findIndex(level => Math.min(level.width, level.height) >= 720);
+            setHdAvailable(hdLevel !== -1);
+            if (quality.value === 'hd') {
+              engine.startLevel = hdLevel;
+              engine.loadLevel = hdLevel;
+            }
+            engine.startLoad(resumeAt);
+          });
+        }
+        engine.loadSource(url.href); engine.attachMedia(video);
+        if (!quality) engine.startLoad();
       } else if (nativeHls) {
-        video.src = url.href;
-        nativeCaptions(url.href, run);
+        video.src = selected?.source.href ?? url.href;
+        nativeCaptions(url.href, run, selected);
         if (resumePlaying) video.play().catch(() => { if (active()) { button.hidden = false; button.textContent = text.play; } });
       } else { video.removeEventListener('loadedmetadata', ready); halt('unsupported'); return; }
       button.hidden = resumePlaying;
@@ -206,7 +267,21 @@
       clearTimeout(timer);
       timer = setTimeout(() => { if (active()) authorize(true); }, Math.max(1000, Date.parse(grant.expires_at) - Date.now() - 20000));
     } catch (_) { if (active()) halt('network'); }
-    finally { clearTimeout(deadline); if (active()) { requestController = null; busy = false; button.disabled = false; } }
+    finally {
+      clearTimeout(deadline);
+      if (active()) {
+        requestController = null; busy = false; button.disabled = false;
+        if (quality) quality.disabled = false;
+      }
+    }
+  }
+  quality?.addEventListener('change', () => {
+    if (busy || stopped || !session) return;
+    authorize(true);
+  });
+  if (resolution) {
+    video.addEventListener('resize', displayResolution);
+    video.addEventListener('loadeddata', displayResolution);
   }
   button.addEventListener('click', () => {
     if (needsRefresh) { location.assign(location.pathname + '?position=' + Math.floor(currentPosition())); return; }

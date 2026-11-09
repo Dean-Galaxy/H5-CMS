@@ -43,7 +43,7 @@ async function settle() {
   for (let turn = 0; turn < 4; turn++) await new Promise(resolve => setImmediate(resolve));
 }
 
-function browser({viewer = true, episode = firstEpisode, position = 0, storage = new Map(), clock = 1800000000000, deferProgressRead = false, nativeHls = false, mseHls = true, managedMediaSource = false} = {}) {
+function browser({viewer = true, episode = firstEpisode, position = 0, storage = new Map(), clock = 1800000000000, deferProgressRead = false, nativeHls = false, mseHls = true, managedMediaSource = false, qualityControl = false} = {}) {
   let now = clock;
   const requests = [], timers = new Map(), hlsInstances = [];
   const effects = {attachedSources: 0, playCalls: 0, mediaLoads: 0};
@@ -51,7 +51,7 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
   function setTimer(callback, delay = 0) { const id = ++nextTimer; timers.set(id, {callback, due: now + delay}); return id; }
   const video = Object.assign(new Events(), {
     currentTime: 0, currentSrc: '', paused: true, seeking: false, ended: false,
-    readyState: 0, duration: 100, textTracks: [],
+    readyState: 0, duration: 100, textTracks: [], videoWidth: 0, videoHeight: 0,
     buffered: {length:1, start() { return 0; }, end() { return 100; }},
     canPlayType() { return nativeHls ? 'probably' : ''; },
     play() { effects.playCalls++; this.paused = false; return Promise.resolve(); },
@@ -71,12 +71,19 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
   });
   const button = Object.assign(new Events(), {hidden: false, disabled: false, textContent: ''});
   const status = {textContent: ''}, progressStatus = {textContent: ''};
+  const hdOption = {disabled: false};
+  const quality = Object.assign(new Events(), {value: 'auto', disabled: false, querySelector: () => hdOption});
+  const resolution = {textContent: 'quality_waiting'};
   const membership = Object.assign(new Events(), {href: '/membership', dataset: {watchMembership: ''}});
   const login = Object.assign(new Events(), {href: '/identity/login', dataset: {watchLogin: ''}});
   const controls = new Map([
     ['video', video], ['[data-play]', button], ['[data-player-status]', status],
     ['[data-progress-status]', progressStatus], ['[data-watch-membership]', membership],
   ]);
+  if (qualityControl) {
+    controls.set('[data-watch-quality]', quality);
+    controls.set('[data-watch-resolution]', resolution);
+  }
   const root = {
     dataset: {drama: dramaId, episode, duration: '100', viewer: viewer ? 'local-test-viewer' : ''},
     querySelector(selector) { return controls.get(selector); },
@@ -95,7 +102,7 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
       play: 'play', retry: 'retry', loading: 'loading', playing: 'playing', buffering: 'buffering', paused: 'paused',
       guest_progress: 'guest_saved', account_progress: 'account_saved', progress_conflict: 'progress_conflict',
       save_failed: 'save_failed', media_error: 'media_error', network: 'network', timeout: 'timeout',
-      MEMBERSHIP_REQUIRED: 'membership_required',
+      MEMBERSHIP_REQUIRED: 'membership_required', quality_waiting: 'quality_waiting', quality_resolution: ':width × :height',
     })}; },
   });
   class FakeDate extends Date {
@@ -105,9 +112,10 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
   // This records the non-native adapter boundary, not real hls.js decoding or
   // browser compatibility. Event callbacks can outlive destroy() in a race.
   class Hls {
-    static Events = {ERROR: 'error', BUFFER_APPENDED: 'buffer-appended'};
+    static Events = {ERROR: 'error', BUFFER_APPENDED: 'buffer-appended', MANIFEST_PARSED: 'manifest-parsed'};
     static isSupported() { return mseHls; }
     constructor(options) {
+      this.levels = [{width:240,height:418}, {width:360,height:628}, {width:720,height:1254}];
       this.options = options; this.calls = []; this.callbacks = new Map(); this.destroyed = false;
       hlsInstances.push(this);
     }
@@ -138,7 +146,7 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
       };
       if (options.signal?.aborted) abort();
       else options.signal?.addEventListener('abort', abort, {once: true});
-      if ((!options.method || options.method === 'GET') && !deferProgressRead) pending.resolve({ok: true, status: 200, json: async () => null, text: async () => ''});
+      if ((!options.method || options.method === 'GET') && !deferProgressRead && !(qualityControl && request.url.includes('.m3u8'))) pending.resolve({ok: true, status: 200, json: async () => null, text: async () => ''});
       return pending.promise;
     },
   };
@@ -150,16 +158,16 @@ function browser({viewer = true, episode = firstEpisode, position = 0, storage =
     assert.equal(authorizations().length, count + 1, 'An explicit Play must request current Content authorization.');
     const request = authorizations().at(-1); request.ignoreAbort = ignoreAbort; return request;
   };
-  const finishAuthorization = async (request, session, {metadata = true} = {}) => {
+  const finishAuthorization = async (request, session, {metadata = true, url = '/protected-test.m3u8'} = {}) => {
     request.resolve({ok: true, status: 200, json: async () => ({
-      allowed: true, play_session_id: session, short_lived_url: '/protected-test.m3u8',
+      allowed: true, play_session_id: session, short_lived_url: url,
       expires_at: new Date(now + 120000).toISOString(),
     })});
     await settle();
     if (metadata) { video.emit('loadedmetadata'); await settle(); }
   };
   return {
-    video, button, status, progressStatus, window, membership, storage, saves, effects, hlsInstances, authorizations, beginAuthorization, finishAuthorization,
+    video, button, status, progressStatus, quality, hdOption, resolution, requests, window, membership, storage, saves, effects, hlsInstances, authorizations, beginAuthorization, finishAuthorization,
     progressReads() { return requests.filter(item => (!item.options.method || item.options.method === 'GET') && item.url.includes('/progress/')); },
     activeTimerCount() { return timers.size; },
     timerCallbacks() { return [...timers.values()].map(timer => timer.callback); },
@@ -512,4 +520,96 @@ test('paused native HLS renewal preserves position and return links before metad
   page.startPlaying(38); await page.advancePlayback(39);
   assert.equal(page.saves().at(-1).body.position_seconds, 39);
   await page.acceptSave(page.saves().at(-1));
+});
+
+
+test('the pilot distinguishes selected quality from decoded size and reuses the play session', async () => {
+  const page = browser({qualityControl: true, position: 14});
+  await page.authorize(sessionA);
+  let hls = page.hlsInstances[0];
+  assert.equal(hls.calls.includes('startLoad'), false);
+  hls.emit('manifest-parsed');
+  assert.equal(hls.calls.includes('startLoad'), true);
+  Object.assign(page.video, {videoWidth: 360, videoHeight: 628}); page.video.emit('resize');
+  assert.equal(page.resolution.textContent, '360 × 628');
+  page.video.pause();
+
+  page.quality.value = 'hd'; page.quality.emit('change'); await settle();
+  let renewal = page.authorizations().at(-1);
+  assert.equal(renewal.body.play_session_id, sessionA);
+  assert.equal(page.resolution.textContent, '360 × 628', 'A selected quality is not yet a decoded frame.');
+  Object.assign(page.video, {videoWidth: 0, videoHeight: 0});
+  await page.finishAuthorization(renewal, sessionA);
+  assert(hls.destroyed);
+  hls = page.hlsInstances[1]; hls.emit('manifest-parsed');
+  assert.equal(hls.startLevel, 2);
+  assert.equal(hls.loadLevel, 2);
+  assert.equal(page.video.paused, true);
+  assert.equal(page.video.currentTime, 14);
+  Object.assign(page.video, {videoWidth: 720, videoHeight: 1254}); page.video.emit('resize');
+  assert.equal(page.resolution.textContent, '720 × 1254');
+
+  page.quality.value = 'auto'; page.quality.emit('change'); await settle();
+  renewal = page.authorizations().at(-1);
+  assert.equal(renewal.body.play_session_id, sessionA);
+  await page.finishAuthorization(renewal, sessionA);
+  hls = page.hlsInstances[2]; hls.emit('manifest-parsed');
+  assert.equal(hls.options.startLevel, 0);
+  assert.equal(hls.loadLevel, undefined);
+  assert.equal(page.video.currentTime, 14);
+  hls.emit('error', {fatal: true});
+  assert.equal(page.resolution.textContent, 'quality_waiting');
+});
+
+test('preselecting HD applies it before loading, and a missing rendition restores auto', async () => {
+  const page = browser({qualityControl: true});
+  page.quality.value = 'hd';
+  await page.authorize(sessionA);
+  const hls = page.hlsInstances[0];
+  hls.emit('manifest-parsed');
+  assert.equal(hls.startLevel, 2);
+  assert.equal(hls.loadLevel, 2);
+  await page.elapse(100000);
+  const renewal = page.authorizations().at(-1);
+  assert.equal(renewal.body.play_session_id, sessionA);
+  await page.finishAuthorization(renewal, sessionA);
+  const next = page.hlsInstances[1];
+  next.levels = [{width:240,height:418}];
+  next.emit('manifest-parsed');
+  assert.equal(page.quality.value, 'auto');
+  assert.equal(page.hdOption.disabled, true);
+  assert.equal(next.loadLevel, undefined);
+});
+
+test('native HD uses the exact same-origin signed rendition and restores the current position', async () => {
+  const page = browser({qualityControl: true, nativeHls: true, managedMediaSource: true, position: 14});
+  const master = '/api/v1/content/playback/grant/master.m3u8?signature=master';
+  const hd = '/api/v1/content/playback/grant/web-index.m3u8?signature=hd';
+  const hdCaptions = '/api/v1/content/playback/grant/web-captions.m3u8?signature=caption';
+  const initial = await page.beginAuthorization();
+  await page.finishAuthorization(initial, sessionA, {url: master});
+  page.quality.value = 'hd'; page.quality.emit('change'); await settle();
+  const renewed = page.authorizations().at(-1);
+  assert.equal(renewed.body.play_session_id, sessionA);
+  await page.finishAuthorization(renewed, sessionA, {url: master, metadata: false});
+  const read = page.requests.at(-1);
+  read.resolve({ok:true, text:async () => [
+    '#EXTM3U',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="mobile-subs",URI="/wrong-captions.m3u8"',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="web-subs",URI="'+hdCaptions+'"',
+    '#EXT-X-STREAM-INF:BANDWIDTH=1800000,RESOLUTION=720x1254,SUBTITLES="web-subs"',
+    'https://unrelated.example'+hd,
+    '#EXT-X-STREAM-INF:BANDWIDTH=1800000,RESOLUTION=720x1254,SUBTITLES="web-subs"',
+    hd,
+  ].join('\n')});
+  await settle();
+  assert.equal(page.video.currentSrc, 'http://127.0.0.1'+hd);
+  assert.equal(page.requests.at(-1).url, 'http://127.0.0.1'+hdCaptions);
+  page.video.emit('loadedmetadata'); await settle();
+  assert.equal(page.video.currentTime, 14);
+  assert.equal(page.video.paused, false);
+  page.quality.value = 'auto'; page.quality.emit('change'); await settle();
+  await page.finishAuthorization(page.authorizations().at(-1), sessionA, {url: master});
+  assert.equal(page.video.currentSrc, 'http://127.0.0.1'+master);
+  assert.equal(page.video.currentTime, 14);
 });
