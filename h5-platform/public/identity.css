@@ -4,3 +4,7 @@
 [data-registration-r1] [hidden]{display:none!important}
 
 .identity-registration-r1 button,.identity-registration-r1 .button,.identity-registration-r1 summary{min-height:44px;white-space:normal;overflow-wrap:anywhere}.identity-registration-r1 p{overflow-wrap:anywhere}.identity-registration-r1 [data-purpose-state]{white-space:pre-line}
+
+.badge {
+    color: #1c322e;
+}
