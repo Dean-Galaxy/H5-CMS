@@ -327,6 +327,80 @@ final class PageTestProbeTest extends AcquisitionTestCase
         Http::assertNothingSent();
     }
 
+    public function test_owner_page_reuses_actual_privacy_partial_with_csrf_and_does_not_grant_on_get(): void
+    {
+        $this->staging();
+        $this->withServerVariables(['REMOTE_ADDR' => '8.8.8.8'])->withHeader('User-Agent', 'Explicit inline privacy fixture');
+        $response = $this->get('https://staging.example.test'.PageTestProbe::PATH);
+        $response->assertOk()->assertSee('data-audience-tracking', false)->assertSee('data-buffer-scope', false)
+            ->assertSee('data-privacy-open', false)->assertSee('data-privacy-dialog', false)->assertSee('data-privacy-form', false)
+            ->assertSee('data-privacy-advertising-test', false)->assertSee('data-privacy-reject', false)->assertSee('data-privacy-withdraw', false)
+            ->assertSee('name="csrf-token"', false)->assertSee(csrf_token())->assertSee('保存成功后刷新本页')
+            ->assertDontSee('href="/membership"', false);
+        $html = $response->getContent();
+        $this->assertSame(1, substr_count($html, 'data-audience-tracking'));
+        $this->assertSame(1, substr_count($html, 'href="/audience/analytics.css"'));
+        $this->assertSame(1, substr_count($html, 'src="/audience/analytics.js" defer'));
+        $dom = new \DOMDocument;
+        @$dom->loadHTML('<?xml encoding="UTF-8">'.$html);
+        $xpath = new \DOMXPath($dom);
+        $this->assertSame(1, $xpath->query('//form[@data-privacy-form]')->length);
+        $this->assertSame(0, $xpath->query('//form[@data-privacy-form]/ancestor::form')->length);
+        $this->assertSame(1, $xpath->query('//form[@action="'.PageTestProbe::PATH.'"]//button[@disabled]')->length);
+        $this->assertDatabaseCount('acquisition_privacy', 0);
+        $this->assertDatabaseCount('acquisition_page_tests', 0);
+        Http::assertNothingSent();
+    }
+
+    public function test_inline_privacy_uses_existing_browser_api_cookie_scope_and_withdrawal_without_sending(): void
+    {
+        [$pixel] = $this->assets();
+        $this->staging();
+        $this->withServerVariables(['REMOTE_ADDR' => '8.8.8.8'])->withHeaders([
+            'User-Agent' => 'Explicit inline privacy fixture', 'Origin' => 'https://staging.example.test', 'Sec-Fetch-Site' => 'same-origin',
+        ]);
+        // Preserve encrypted response cookies exactly as a browser does across separate staff/viewer session scopes.
+        $keepCookies = function ($response): void {
+            foreach ($response->headers->getCookies() as $cookie) {
+                $this->withUnencryptedCookie($cookie->getName(), $cookie->getValue());
+            }
+        };
+        $url = 'https://staging.example.test'.PageTestProbe::PATH;
+        $response = $this->get($url)->assertOk();
+        $keepCookies($response);
+        preg_match('/name="csrf-token" content="([^"]+)"/', $response->getContent(), $meta);
+        $this->assertNotEmpty($meta[1] ?? null);
+        $this->withHeader('X-CSRF-TOKEN', $meta[1]);
+        $context = $this->getJson('https://staging.example.test/api/v1/tracking/context')->assertOk()
+            ->assertJsonPath('advertising_test_only', true)->assertJsonPath('analytics_available', false)
+            ->assertJsonPath('consent.advertising', 'unknown');
+        $keepCookies($context);
+        $this->assertDatabaseCount('acquisition_privacy', 0);
+        $choice = ['analytics' => false, 'advertising' => true, 'policy_version' => 'analytics-v1'];
+        $saved = $this->postJson('https://staging.example.test/api/v1/tracking/consent', $choice)->assertOk()
+            ->assertJsonPath('consent.analytics', 'denied')->assertJsonPath('consent.advertising', 'granted');
+        $keepCookies($saved);
+        $page = $this->get($url)->assertOk()->assertDontSee('尚无广告同意');
+        $keepCookies($page);
+        $dom = new \DOMDocument;
+        @$dom->loadHTML($page->getContent());
+        $this->assertSame(0, (new \DOMXPath($dom))->query('//form[@action="'.PageTestProbe::PATH.'"]//button[@disabled]')->length);
+        $this->post($url, ['pixel_id' => $pixel['id'], 'agree' => '1'])->assertRedirect(PageTestProbe::PATH);
+        $this->assertDatabaseCount('acquisition_page_tests', 1);
+        $withdrawn = $this->postJson('https://staging.example.test/api/v1/tracking/consent', array_replace($choice, ['advertising' => false]))
+            ->assertOk()->assertJsonPath('consent.advertising', 'denied');
+        $keepCookies($withdrawn);
+        $this->get($url)->assertOk()->assertSee('尚无广告同意');
+        $this->assertDatabaseHas('acquisition_page_tests', ['state' => 'blocked', 'reason' => 'CONSENT_REQUIRED_OR_REVOKED']);
+        // Existing legacy refusal marker remains authoritative; embedding the component cannot override it.
+        DB::table('acquisition_privacy')->update(['r1_advertising_denied_at' => now(), 'r1_advertising_denial_until' => now()->addDay()]);
+        $this->postJson('https://staging.example.test/api/v1/tracking/consent', $choice)->assertOk()->assertJsonPath('consent.advertising', 'denied');
+        $this->get($url)->assertOk()->assertSee('尚无广告同意');
+        $this->assertDatabaseCount('acquisition_page_tests', 1);
+        $this->businessEmpty();
+        Http::assertNothingSent();
+    }
+
     public function test_protected_post_rejects_cross_origin_and_missing_csrf_without_fetch_metadata(): void
     {
         [$pixel] = $this->assets();
