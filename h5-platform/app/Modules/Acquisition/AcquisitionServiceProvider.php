@@ -13,6 +13,7 @@ use App\Modules\Acquisition\Console\DispatchAcquisition;
 use App\Modules\Acquisition\Console\PruneAnalytics;
 use App\Modules\Acquisition\Console\PruneMeasurement;
 use App\Modules\Acquisition\Console\PruneRegistrationPurposes;
+use App\Modules\Acquisition\Console\SendPageTest;
 use App\Modules\Acquisition\Registration\RegistrationMeasurementAdapter;
 use App\Modules\Acquisition\Registration\RegistrationObservations;
 use App\Modules\Acquisition\Services\AttributionRecorder;
@@ -49,7 +50,7 @@ final class AcquisitionServiceProvider extends ServiceProvider
             throw new \LogicException('Acquisition transport is invalid or simulation is forbidden outside local/testing.');
         }
         Event::listen(PaymentSettled::class, [PaymentReceiver::class, 'handle']);
-        $this->commands([ConfigurePixelCredentials::class, DispatchAcquisition::class, PruneAnalytics::class, PruneMeasurement::class, PruneRegistrationPurposes::class]);
+        $this->commands([SendPageTest::class, ConfigurePixelCredentials::class, DispatchAcquisition::class, PruneAnalytics::class, PruneMeasurement::class, PruneRegistrationPurposes::class]);
         $this->app->afterResolving(Schedule::class, function (Schedule $schedule) {
             $schedule->command('acquisition:dispatch')->everyMinute()->withoutOverlapping(5);
             $schedule->command('acquisition:analytics-prune')->daily()->withoutOverlapping(5);

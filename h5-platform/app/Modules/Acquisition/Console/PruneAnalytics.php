@@ -18,6 +18,11 @@ final class PruneAnalytics extends Command
         $limit = max(1, min(5000, (int) $this->option('limit')));
         $cutoff = now()->subDays(90);
         DB::transaction(function () use ($limit, $cutoff) {
+            // Expired probe contexts are unusable; erase private material, safe diagnostics become eligible for deletion after one day.
+            $probeIds = DB::table('acquisition_page_tests')->where('expires_at', '<=', Clock::stamp())->limit($limit)->pluck('id');
+            DB::table('acquisition_page_tests')->whereIn('id', $probeIds)->update(['context_encrypted' => null, 'privacy_id' => null, 'pixel_id' => null, 'pixel_version' => null]);
+            $oldProbes = DB::table('acquisition_page_tests')->where('created_at', '<=', Clock::stamp(now()->subDay()))->limit($limit)->pluck('id');
+            DB::table('acquisition_page_tests')->whereIn('id', $oldProbes)->delete();
             $contexts = DB::table('acquisition_checkout_contexts')->where('expires_at', '<=', Clock::stamp())->limit($limit)->pluck('id');
             DB::table('acquisition_checkout_contexts')->whereIn('id', $contexts)->delete();
             $ids = DB::table('acquisition_behaviors')->where('received_at', '<', $cutoff)->whereNotIn('event_name', BehaviorRecorder::FINANCIAL)->limit($limit)->pluck('id');

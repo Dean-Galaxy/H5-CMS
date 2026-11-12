@@ -6,8 +6,10 @@ use App\Modules\Acquisition\Http\TrackingThrottle;
 use App\Modules\Acquisition\Measurement\CoreController;
 use App\Modules\Acquisition\Measurement\CoreRequest;
 use App\Modules\Acquisition\Measurement\CoreThrottle;
+use App\Modules\Acquisition\Probe\PageTestController;
 use App\Modules\Acquisition\Registration\PurposeController;
 use App\Modules\Acquisition\Registration\PurposeThrottle;
+use App\Modules\Identity\Http\StaffMfa;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/r/{code}', [TrackingController::class, 'landing'])->middleware('throttle:60,1');
@@ -32,4 +34,11 @@ Route::prefix('/api/v3/measurement/purposes')->middleware(CoreRequest::class)->g
     $throttle = PurposeThrottle::class;
     Route::get('context', [$controller, 'context'])->middleware($throttle.':context');
     Route::patch('preferences', [$controller, 'preferences'])->middleware($throttle.':preferences')->block(10, 10);
+});
+
+// Protected explicit diagnostic, never an anonymous event ingestion API.
+Route::prefix('/admin/acquisition-page-test')->middleware(['auth:staff', StaffMfa::class, 'throttle:10,1'])->group(function () {
+    Route::get('/', [PageTestController::class, 'show']);
+    Route::post('/', [PageTestController::class, 'create'])->block(10, 10);
+    Route::post('/withdraw', [PageTestController::class, 'withdraw'])->block(10, 10);
 });

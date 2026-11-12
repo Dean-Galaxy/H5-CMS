@@ -104,6 +104,11 @@ final class TrackingContext
         }
         if (! $advertising) {
             $values += ['advertising' => 'denied', 'active_source' => null];
+            // Explicit withdrawal permanently cancels unconsumed diagnostic intents, even if regranted later.
+            DB::table('acquisition_page_tests')->whereIn('privacy_id', $affected)->where('state', 'pending')->update([
+                'state' => 'blocked', 'reason' => 'CONSENT_REQUIRED_OR_REVOKED', 'context_encrypted' => null,
+                'privacy_id' => null, 'pixel_id' => null, 'pixel_version' => null,
+            ]);
             DB::table('acquisition_sources')->whereIn('privacy_id', $affected)->whereNull('revoked_at')->update(['revoked_at' => Clock::stamp()]);
         }
         DB::table('acquisition_privacy')->whereIn('id', $affected)->update($values);
