@@ -1,0 +1,10 @@
+No syntax errors detected in h5-platform/app/Modules/Acquisition/AcquisitionServiceProvider.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Analytics/TrackingContext.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Console/PruneAnalytics.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Console/SendPageTest.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Probe/MetaPageTest.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Probe/PageTestController.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Probe/PageTestProbe.php
+No syntax errors detected in h5-platform/database/migrations/2026_11_12_050010_create_acquisition_page_tests.php
+No syntax errors detected in h5-platform/routes/modules/acquisition.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/PageTestProbeTest.php

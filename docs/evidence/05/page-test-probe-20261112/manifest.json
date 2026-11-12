@@ -1,0 +1,69 @@
+{
+  "baseline": "77d28d157ee40e91c493dec1a2f47b6dcf73e1c7",
+  "source": "6188cda8cfe07106e58abec1fe032588579da49f",
+  "branch": "codex/05-page-test-probe",
+  "scope": "00 frozen single-use nonpayment Meta PageView diagnostic; direct-test-1 runtime unchanged",
+  "db": "own marked disposable h5_d2a32071a6_r1a_clean_test on 5605",
+  "real_ad_requests": 0,
+  "real_credentials_read": false,
+  "cloud_access": false,
+  "runtime_env_modified": false,
+  "web_started": false,
+  "tests": [
+    {
+      "file": "focused-tests.txt",
+      "tests": 29,
+      "assertions": 417,
+      "seconds": 3.81
+    },
+    {
+      "file": "final-boundaries.txt",
+      "tests": 2,
+      "assertions": 24,
+      "seconds": 0.77,
+      "overlap": true
+    },
+    {
+      "file": "existing-prune.txt",
+      "tests": 1,
+      "assertions": 5,
+      "seconds": 0.52
+    },
+    {
+      "file": "normal-login-tests.txt",
+      "tests": 3,
+      "assertions": 27,
+      "seconds": 0.99,
+      "overlap": true
+    }
+  ],
+  "php_lint_files": 10,
+  "browser_verified": false,
+  "platform_confirmed": false,
+  "files": [
+    {
+      "file": "existing-prune.txt",
+      "sha256": "140c4a443d37515f98dedaa98a654ea870ded03dfec55cd59d045ecc9388d209"
+    },
+    {
+      "file": "final-boundaries.txt",
+      "sha256": "a5167a353900421038fec61b8e97b90ca33aee07024ec3515e485949405b1bfa"
+    },
+    {
+      "file": "focused-tests.txt",
+      "sha256": "7994dae0a99db9658b5b7737a729dbfe6ca55378623823df031dfd05e018cd89"
+    },
+    {
+      "file": "normal-login-tests.txt",
+      "sha256": "f90598f5d0081b051785a045ab3d84804c2a0d8e8f1154c6aaacc53aeef7629c"
+    },
+    {
+      "file": "php-lint.txt",
+      "sha256": "71b4e34aa0ce1796d4798aca39f0f8a318f978a7a6d011eba763163e7c9b6d9f"
+    },
+    {
+      "file": "pint.txt",
+      "sha256": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a"
+    }
+  ]
+}
