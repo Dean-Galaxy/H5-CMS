@@ -1,0 +1,1 @@
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/PageTestProbeTest.php

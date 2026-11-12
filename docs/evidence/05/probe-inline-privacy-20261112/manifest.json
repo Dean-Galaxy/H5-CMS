@@ -1,0 +1,32 @@
+{
+  "baseline": "86a80981b12e0c54a0883f771a5c66579ae1baad",
+  "source": "15ad350cb565a593e77b3327f3d630c11191cfb7",
+  "branch": "codex/05-probe-privacy-inline",
+  "scope": "protected probe view includes existing Audience privacy partial; no new consent logic or routes",
+  "tests": {
+    "passed": 4,
+    "assertions": 85,
+    "seconds": 1.13,
+    "filter": "owner_page_reuses|inline_privacy_uses|real_protected_http|nonowner_has"
+  },
+  "db_scope": "own marked disposable h5_d2a32071a6_r1a_clean_test on 5605",
+  "own_test_pg_stopped_normally": true,
+  "real_platform_requests": 0,
+  "real_secrets_read": false,
+  "cloud_operations": false,
+  "browser_run": false,
+  "files": [
+    {
+      "file": "focused-tests.txt",
+      "sha256": "29e22f05c65a4db14b64baf3b0b5775511ce2ca03591ea8129f95751669f8d22"
+    },
+    {
+      "file": "php-lint.txt",
+      "sha256": "c79af834bebd23fa070a6c33950fdc946648ad13462bf7761716b2a86de98f53"
+    },
+    {
+      "file": "pint.txt",
+      "sha256": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a"
+    }
+  ]
+}
