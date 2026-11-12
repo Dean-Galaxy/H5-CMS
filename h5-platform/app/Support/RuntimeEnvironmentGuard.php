@@ -44,8 +44,14 @@ final class RuntimeEnvironmentGuard
             : config('h5.modules.acquisition.provider') === null && config('h5.modules.acquisition.ready') === false,
             'RUNTIME_ACQUISITION_NOT_RELEASED');
         $this->require(config('mail.driver') === null, 'RUNTIME_MAIL_LEGACY_FORBIDDEN');
-        $visited = 0;
-        $this->mailer(config('mail.default'), [], $visited);
+        if ($environment === 'staging' && config('h5.controlled_staging') === true
+            && $test === true && config('mail.default') === 'array') {
+            // The acquisition provider still checks the full test policy at boot.
+            $this->require(config('mail.mailers.array') === ['transport' => 'array'], 'RUNTIME_MAIL_TRANSPORT_FORBIDDEN');
+        } else {
+            $visited = 0;
+            $this->mailer(config('mail.default'), [], $visited);
+        }
         $from = config('mail.from.address');
         $this->require(is_string($from) && filter_var($from, FILTER_VALIDATE_EMAIL) !== false, 'RUNTIME_MAIL_FROM_INVALID');
     }

@@ -1,0 +1,10 @@
+-- In a later approved window, use the existing PG cluster.
+-- Set the new role password through the existing private operator channel.
+CREATE ROLE h5_page_test LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION;
+CREATE DATABASE h5_page_test OWNER h5_page_test;
+REVOKE CONNECT ON DATABASE h5_page_test FROM PUBLIC;
+GRANT CONNECT ON DATABASE h5_page_test TO h5_page_test;
+ALTER DATABASE h5_page_test SET timezone TO 'UTC';
+ALTER ROLE h5_page_test IN DATABASE h5_page_test SET timezone TO 'UTC';
+-- Before FPM is made reachable, verify pg_hba SCRAM rules and that this role
+-- has no production DB access or production table privileges.

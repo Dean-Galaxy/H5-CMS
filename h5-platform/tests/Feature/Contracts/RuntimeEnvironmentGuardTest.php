@@ -7,6 +7,7 @@ use App\Support\DirectConnectionContext;
 use App\Support\RuntimeEnvironmentGuard;
 use App\Support\ServerRegionResolver;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Transport\ArrayTransport;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use LogicException;
@@ -368,6 +369,18 @@ class RuntimeEnvironmentGuardTest extends TestCase
         $cases[] = [['APP_DEBUG' => 'true'], false];
         $cases[] = [['MAIL_REQUIRE_TLS' => 'false'], false];
         $cases[] = [['MAIL_MAILER' => 'failover'], false];
+
+        $arrayMail = ['MAIL_MAILER' => 'array', 'H5_ACQUISITION_STAGING_TEST' => 'true',
+            'MAIL_USERNAME' => 'null', 'MAIL_PASSWORD' => 'null', 'MAIL_HOST' => 'null',
+            'ACQUISITION_ANALYTICS_ENABLED' => 'false', 'ACQUISITION_C_ENABLED' => 'false',
+            'ACQUISITION_C_SYNTHETIC_POLICY' => 'false', 'ACQUISITION_R1_SYNTHETIC_POLICY' => 'false',
+            'ACQUISITION_R1_OBSERVATIONS_ENABLED' => 'false', 'ACQUISITION_TRANSPORT' => 'disabled',
+            'ACQUISITION_EXTERNAL_ENABLED' => 'false', 'ACQUISITION_PLATFORM_REVIEWED' => 'false'];
+        $cases[] = [$arrayMail, true];
+        $cases[] = [array_replace($arrayMail, ['H5_ACQUISITION_STAGING_TEST' => 'false']), false];
+        $cases[] = [array_replace($arrayMail, ['H5_CONTROLLED_STAGING' => 'false']), false];
+        $cases[] = [array_replace($arrayMail, ['ACQUISITION_ANALYTICS_ENABLED' => 'true']), false];
+        $cases[] = [array_replace($arrayMail, ['ACQUISITION_TRANSPORT' => 'http']), false];
         try {
             foreach ($cases as $i => [$changes, $expected]) {
                 $process = new Process([PHP_BINARY, __DIR__.'/Support/runtime-guard-probe.php', 'origin'],
@@ -381,7 +394,7 @@ class RuntimeEnvironmentGuardTest extends TestCase
                     $this->assertSame('staging', $result['environment']);
                     $this->assertSame('https://staging.example.test', $result['origin']);
                     $this->assertSame('ZZ', $result['region']['country_code']);
-                    $this->assertFalse($result['acquisition_ready']);
+                    $this->assertSame(($changes['H5_ACQUISITION_STAGING_TEST'] ?? 'false') === 'true', $result['acquisition_ready']);
                 } else {
                     $this->assertSame(null, $result['origin']);
                 }
@@ -405,6 +418,85 @@ class RuntimeEnvironmentGuardTest extends TestCase
             $this->environment($env);
             config(['h5.controlled_staging' => false]);
             $this->rejects(fn () => app(RuntimeEnvironmentGuard::class)->assertSafeRuntime());
+        }
+    }
+
+    private function arrayAdvertisingStaging(array $changes = []): void
+    {
+        $this->safeStaging([
+            'h5.controlled_staging' => true, 'h5.acquisition_staging_test' => true,
+            'h5.modules.acquisition' => ['provider' => AcquisitionServiceProvider::class, 'ready' => true],
+            'mail.default' => 'array', 'mail.mailers' => ['array' => ['transport' => 'array']],
+            'acquisition.analytics_enabled' => false, 'acquisition.measurement.enabled' => false,
+            'acquisition.measurement.synthetic_policy' => false, 'acquisition.registration.synthetic_policy' => false,
+            'acquisition.registration.observations_enabled' => false, 'acquisition.transport' => 'disabled',
+            'acquisition.external_enabled' => false, 'acquisition.platform_reviewed' => false,
+        ]);
+        config($changes);
+    }
+
+    public function test_controlled_advertising_array_mail_uses_the_builtin_memory_transport(): void
+    {
+        $this->arrayAdvertisingStaging();
+        $this->assertSame('https://staging.example.test', app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin());
+        Mail::purge('array');
+        $transport = Mail::mailer()->getSymfonyTransport();
+        $this->assertInstanceOf(ArrayTransport::class, $transport);
+        Mail::raw('Synthetic in-memory check', fn ($message) => $message->to('synthetic@example.test')->subject('Synthetic'));
+        $this->assertCount(1, $transport->messages());
+        $transport->flush();
+        $this->assertCount(0, $transport->messages());
+    }
+
+    public function test_controlled_advertising_array_mail_requires_the_exact_lane_and_configuration(): void
+    {
+        $guard = app(RuntimeEnvironmentGuard::class);
+        foreach ([
+            ['h5.acquisition_staging_test' => false, 'h5.modules.acquisition' => ['provider' => null, 'ready' => false]],
+            ['h5.controlled_staging' => false],
+            ['h5.acquisition_staging_test' => 'true'], ['h5.controlled_staging' => 'true'],
+            ['mail.driver' => 'array'],
+            ['mail.mailers.array' => null], ['mail.mailers.array' => ['transport' => 'log']],
+            ['mail.mailers.array' => ['transport' => 'array', 'url' => 'smtp://example.test']],
+            ['mail.default' => 'alias', 'mail.mailers.alias' => ['transport' => 'array']],
+        ] as $changes) {
+            $this->arrayAdvertisingStaging($changes);
+            $this->rejects(fn () => $guard->assertSafeRuntime());
+        }
+        foreach (['failover', 'roundrobin'] as $mode) {
+            $this->arrayAdvertisingStaging(['mail.default' => $mode,
+                'mail.mailers.'.$mode => ['transport' => $mode, 'mailers' => ['array']]]);
+            $this->rejects(fn () => $guard->assertSafeRuntime());
+        }
+        foreach (['log', 'preview', 'sendmail', 'resend', 'unknown'] as $mode) {
+            $this->arrayAdvertisingStaging(['mail.default' => $mode, 'mail.mailers.'.$mode => ['transport' => $mode]]);
+            $this->rejects(fn () => $guard->assertSafeRuntime());
+        }
+        $this->arrayAdvertisingStaging(['h5.controlled_staging' => false, 'h5.acquisition_staging_test' => false,
+            'h5.modules.acquisition' => ['provider' => null, 'ready' => false]]);
+        $this->environment('production');
+        $this->rejects(fn () => $guard->assertSafeRuntime());
+        foreach (['local', 'testing'] as $environment) {
+            $this->environment($environment);
+            $guard->assertSafeRuntime();
+            $this->assertSame('array', config('mail.default'));
+        }
+    }
+
+    public function test_array_mail_keeps_the_advertising_origin_and_policy_checks(): void
+    {
+        $guard = app(RuntimeEnvironmentGuard::class);
+        foreach ([
+            ['app.url' => 'http://staging.example.test'], ['app.debug' => true],
+            ['session.secure' => false], ['trustedproxy.proxies' => '*'],
+            ['mail.from.address' => 'invalid'], ['h5.modules.acquisition.ready' => false],
+            ['acquisition.analytics_enabled' => true], ['acquisition.measurement.enabled' => true],
+            ['acquisition.measurement.synthetic_policy' => true], ['acquisition.registration.synthetic_policy' => true],
+            ['acquisition.registration.observations_enabled' => true], ['acquisition.transport' => 'local_simulation'],
+            ['acquisition.transport' => 'http'], ['acquisition.external_enabled' => true],
+        ] as $changes) {
+            $this->arrayAdvertisingStaging($changes);
+            $this->rejects(fn () => $guard->controlledAcquisitionTestOrigin());
         }
     }
 
