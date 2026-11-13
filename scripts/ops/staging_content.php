@@ -2,6 +2,7 @@
 
 // Fixed staging content operations. All configuration must belong to this release.
 use App\Support\RuntimeEnvironmentGuard;
+use H5Ops\StagingContentPolicy;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 
@@ -12,6 +13,7 @@ if (PHP_SAPI !== 'cli' || count($argv) !== 2 || ! in_array($mode, ['check', 'med
 }
 
 try {
+    require __DIR__.'/staging_content_policy.php';
     $root = dirname(__DIR__, 2);
     require $root.'/h5-platform/vendor/autoload.php';
     $app = require $root.'/h5-platform/bootstrap/app.php';
@@ -31,10 +33,6 @@ try {
         || config('h5.controlled_staging') !== true
         || config('h5.acquisition_staging_test') !== true
         || config('mail.default') !== 'array'
-        || config('billing.driver') !== 'unconfigured'
-        || config('billing.new_purchase_provider') !== 'unconfigured'
-        || config('billing.paypal.enabled') !== false
-        || config('billing.paypal_live.enabled') !== false
         || realpath(config('h5.media_root', '')) !== $media) {
         throw new RuntimeException;
     }
@@ -49,6 +47,20 @@ try {
         || ! in_array($identity->zone, ['UTC', 'Etc/UTC'], true)) {
         throw new RuntimeException;
     }
+    $ads = [];
+    foreach (['transport', 'external_enabled', 'platform_reviewed', 'analytics_enabled', 'measurement.enabled',
+        'measurement.synthetic_policy', 'registration.observations_enabled', 'registration.synthetic_policy'] as $key) {
+        $ads[$key] = config('acquisition.'.$key);
+    }
+    StagingContentPolicy::check([
+        'environment' => $app->environment(), 'workspace' => config('h5.workspace'),
+        'controlled' => config('h5.controlled_staging'), 'acquisition_test' => config('h5.acquisition_staging_test'),
+        'cached' => $app->configurationIsCached(), 'mail' => config('mail.default'), 'origin' => config('app.url'),
+        'driver' => config('billing.driver'), 'provider' => config('billing.new_purchase_provider'),
+        'sandbox' => config('billing.paypal'), 'live' => config('billing.paypal_live'),
+        'stripe_secret' => config('billing.stripe_secret'), 'stripe_webhook_secret' => config('billing.stripe_webhook_secret'),
+        'ads' => $ads,
+    ], [StagingContentPolicy::class, 'assertLocalSandboxBinding']);
     $exit = 0;
     $counts = [];
     if ($mode !== 'check') {
