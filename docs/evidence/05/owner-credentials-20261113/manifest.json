@@ -1,0 +1,35 @@
+{
+  "baseline": "541711176e8834d7d9215dabf9d5f1b7960f8a06",
+  "source": "e135d7026c2c638e74a6c47f784ecdadae190ded",
+  "branch": "codex/05-owner-credentials",
+  "route": "POST /api/v1/admin/acquisition/pixel-credentials",
+  "tests": {
+    "passed": 9,
+    "assertions": 164,
+    "seconds": 1.11
+  },
+  "ui_validation": "DOM/HTTP doubles only; real Blade rendered through Livewire",
+  "own_db": "h5_d2a32071a6_r1a_clean_test/5605",
+  "own_pg_stopped_normally": true,
+  "real_credentials_read": false,
+  "cloud_write": false,
+  "real_ad_requests": 0,
+  "files": [
+    {
+      "file": "dialog-test.txt",
+      "sha256": "62b6ee3cbbb9957941cdd5933e2fe1e9699168a6efb713385c287312235e5bc9"
+    },
+    {
+      "file": "focused-tests.txt",
+      "sha256": "5c1eff683d40384ce8ae202641d41cf67c7b67563c9b759906d708679ff68863"
+    },
+    {
+      "file": "php-lint.txt",
+      "sha256": "51d3ebebb465450c4ad2cd7abd97d6d349533f2a05e3240aba37eaf89a8f7275"
+    },
+    {
+      "file": "pint.txt",
+      "sha256": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a"
+    }
+  ]
+}

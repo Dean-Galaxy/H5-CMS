@@ -1,0 +1,1 @@
+PASS: cancel, busy single submit, pre-send clear, conflict, unknown no retry, success clear, fixed endpoint and CSRF (DOM/HTTP doubles)

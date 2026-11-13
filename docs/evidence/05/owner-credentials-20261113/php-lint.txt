@@ -1,0 +1,3 @@
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Http/PixelCredentialsController.php
+No syntax errors detected in h5-platform/routes/modules/acquisition.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/OwnerCredentialsTest.php
