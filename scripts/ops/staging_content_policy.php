@@ -5,9 +5,15 @@ namespace H5Ops;
 // Admission for content tasks only; never enables payment or performs provider I/O.
 final class StagingContentPolicy
 {
-    public static function check(array $c, callable $sandboxBinding): string
+    public static function check(array $c, callable $sandboxBinding, ?callable $smtpConfigured = null): string
     {
         $lane = self::lane($c);
+        if ($c['mail'] === 'smtp') {
+            if ($smtpConfigured === null) {
+                throw new \RuntimeException;
+            }
+            $smtpConfigured();
+        }
         if ($lane === 'paypal_sandbox') {
             $sandboxBinding();
         }
@@ -21,11 +27,25 @@ final class StagingContentPolicy
         app(\App\Modules\Billing\Services\PayPalMerchantBinding::class)->assertBound($scope);
     }
 
+    public static function assertLocalSmtpRecipients(): void
+    {
+        // Identity owns the scope, strict RuntimeGuard mail validation and recipient rules.
+        $class = \App\Modules\Identity\Services\StagingTestRecipients::class;
+        if (! class_exists($class)) {
+            throw new \RuntimeException;
+        }
+        $source = (new \ReflectionClass($class))->getFileName();
+        if (! is_string($source) || ! is_file($source) || ! is_readable($source)) {
+            throw new \RuntimeException;
+        }
+        app($class)->assertConfigured();
+    }
+
     private static function lane(array $c): string
     {
         if (($c['environment'] ?? null) !== 'staging' || ($c['workspace'] ?? null) !== 'h5_page_test'
             || ($c['controlled'] ?? null) !== true || ($c['acquisition_test'] ?? null) !== true
-            || ($c['cached'] ?? null) !== true || ($c['mail'] ?? null) !== 'array'
+            || ($c['cached'] ?? null) !== true || ! in_array($c['mail'] ?? null, ['array', 'smtp'], true)
             || ($c['driver'] ?? null) !== 'unconfigured' || ($c['live']['enabled'] ?? null) !== false
             || ($c['ads']['transport'] ?? null) !== 'disabled') {
             throw new \RuntimeException;

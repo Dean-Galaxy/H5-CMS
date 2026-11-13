@@ -32,7 +32,7 @@ try {
         || config('h5.workspace') !== 'h5_page_test'
         || config('h5.controlled_staging') !== true
         || config('h5.acquisition_staging_test') !== true
-        || config('mail.default') !== 'array'
+        || ! in_array(config('mail.default'), ['array', 'smtp'], true)
         || realpath(config('h5.media_root', '')) !== $media) {
         throw new RuntimeException;
     }
@@ -60,7 +60,7 @@ try {
         'sandbox' => config('billing.paypal'), 'live' => config('billing.paypal_live'),
         'stripe_secret' => config('billing.stripe_secret'), 'stripe_webhook_secret' => config('billing.stripe_webhook_secret'),
         'ads' => $ads,
-    ], [StagingContentPolicy::class, 'assertLocalSandboxBinding']);
+    ], [StagingContentPolicy::class, 'assertLocalSandboxBinding'], [StagingContentPolicy::class, 'assertLocalSmtpRecipients']);
     $exit = 0;
     $counts = [];
     if ($mode !== 'check') {
