@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Acquisition\Http\PixelCredentialsController;
 use App\Modules\Acquisition\Http\TrackingController;
 use App\Modules\Acquisition\Http\TrackingRequest;
 use App\Modules\Acquisition\Http\TrackingThrottle;
@@ -42,3 +43,6 @@ Route::prefix('/admin/acquisition-page-test')->middleware(['auth:staff', StaffMf
     Route::post('/', [PageTestController::class, 'create'])->block(10, 10);
     Route::post('/withdraw', [PageTestController::class, 'withdraw'])->block(10, 10);
 });
+
+Route::post('/api/v1/admin/acquisition/pixel-credentials', PixelCredentialsController::class)
+    ->middleware(['auth:staff', StaffMfa::class, 'throttle:10,1'])->block(10, 10);

@@ -25,7 +25,7 @@
             <section class="h5-card"><h3>像素资产</h3><div class="h5-table-wrap"><table class="h5-table"><thead><tr><th>资产</th><th>状态</th><th>验证与操作</th></tr></thead><tbody>
             @forelse($pixels as $asset)<tr wire:key="pixel-{{ $asset['id'] }}"><td><strong>{{ $asset['name'] }}</strong><br>{{ ucfirst($asset['platform']) }} · {{ $asset['external_id'] }}<br><span class="h5-badge">{{ $asset['environment'] === 'test' ? '测试' : '正式' }}</span> · 版本 {{ $asset['version'] }}</td>
                 <td><span class="h5-badge {{ $asset['active'] ? 'h5-ok' : 'h5-warn' }}">{{ $asset['active'] ? '启用' : '停用' }}</span><br>可见关联链接 {{ $asset['affected_links'] }} 个<br>共享人员 {{ count($asset['assigned_staff_ids']) }} 名</td>
-                <td>本站模拟：{{ $asset['local_status'] === 'simulated' ? '通过' : '未测试' }}<br>平台：待联调<br><span class="h5-note" data-pixel-credentials>{{ $asset['credential_readiness']['label'] }}（不代表平台接收）</span><div class="h5-toolbar"><button class="h5-link" data-editor-action="selectPixel" data-editor-id="{{ $asset['id'] }}">编辑 / 启停</button>@if($asset['environment'] === 'test')<button class="h5-link" wire:click="simulatePixel('{{ $asset['id'] }}')">本地模拟校验</button>@endif @if($owner)<button class="h5-link" data-editor-action="selectAssignment" data-editor-type="pixel" data-editor-id="{{ $asset['id'] }}">分配像素</button>@endif</div></td></tr>
+                <td>本站模拟：{{ $asset['local_status'] === 'simulated' ? '通过' : '未测试' }}<br>平台：待联调<br><span class="h5-note" data-pixel-credentials>{{ $asset['credential_readiness']['label'] }}（不代表平台接收）</span><div class="h5-toolbar"><button class="h5-link" data-editor-action="selectPixel" data-editor-id="{{ $asset['id'] }}">编辑 / 启停</button>@if($asset['environment'] === 'test')<button class="h5-link" wire:click="simulatePixel('{{ $asset['id'] }}')">本地模拟校验</button>@endif @if($owner)<button type="button" class="h5-link" data-credential-open data-pixel-id="{{ $asset['id'] }}" data-pixel-version="{{ $asset['version'] }}" data-pixel-environment="{{ $asset['environment'] }}">授权配置</button><button class="h5-link" data-editor-action="selectAssignment" data-editor-type="pixel" data-editor-id="{{ $asset['id'] }}">分配像素</button>@endif</div></td></tr>
             @empty<tr><td colspan="3">尚无可见像素，请登记你拥有或获授权的测试资产。</td></tr>@endforelse
             </tbody></table></div><p class="h5-muted">共 {{ $pixelPagination['total'] }} 项 · 第 {{ $pixelPagination['page'] }} / {{ $pixelPagination['last_page'] }} 页</p>
             @if($pixelPagination['page'] > 1)<button class="h5-button" wire:click="$set('pixelPage', {{ $pixelPagination['page'] - 1 }})">上一页像素</button>@endif
@@ -96,8 +96,73 @@
             <p class="h5-error" data-editor-error role="alert" hidden></p>
             <x-slot:actions><button type="button" class="h5-button" data-admin-close>取消</button><button type="submit" form="acquisition-assignment-form" class="h5-button h5-primary">保存共享分配</button></x-slot:actions>
         </x-admin.dialog>@endif
+        @if($owner)
+        <x-admin.dialog id="acquisition-credentials" title="像素授权配置（仅负责人）" wire:ignore>
+            <p data-credential-target></p>
+            <p class="h5-note">保存仅配置授权，不发送、不启用资产或外发。不会显示已有秘密。空白保留当前版本已存值；首次配置需填Token，测试资产还需测试码。</p>
+            <form data-credential-form autocomplete="off">
+                <label class="h5-field">Token<input class="h5-input" type="password" autocomplete="new-password" data-credential-token maxlength="4096"></label>
+                <label class="h5-field" data-credential-test-field>测试事件码<input class="h5-input" type="password" autocomplete="new-password" data-credential-test-code maxlength="256"></label>
+                <label class="h5-field"><span><input type="checkbox" data-credential-reuse> 若改名或启停导致新版本尚无配置，我明确确认将同一平台、编号及用途的旧版本授权用于当前版本。</span></label>
+                <p role="status" data-credential-result>取消或提交后输入会清空；失败不会自动重发。</p>
+                <button type="submit" class="h5-button h5-primary">保存授权配置</button>
+            </form>
+            <x-slot:actions><button type="button" class="h5-button" data-admin-close>取消</button></x-slot:actions>
+        </x-admin.dialog>
+        @endif
     </x-admin.workspace>
     <script>
+        (() => {
+            const root = document.getElementById('acquisition-workspace');
+            if (!root || root.dataset.credentialsBound) return;
+            root.dataset.credentialsBound = '1';
+            const dialog = root.querySelector('#acquisition-credentials');
+            if (!dialog) return;
+            const form = dialog.querySelector('form'), token = dialog.querySelector('[data-credential-token]');
+            const code = dialog.querySelector('[data-credential-test-code]'), reuse = dialog.querySelector('[data-credential-reuse]');
+            const result = dialog.querySelector('[data-credential-result]');
+            let target = null, busy = false;
+            const clear = () => { token.value = ''; code.value = ''; reuse.checked = false; };
+            root.addEventListener('click', event => {
+                const button = event.target.closest('[data-credential-open]');
+                if (!button || busy) return;
+                clear();
+                target = {pixel_id: button.dataset.pixelId, version: Number(button.dataset.pixelVersion)};
+                dialog.querySelector('[data-credential-target]').textContent = `${button.dataset.pixelEnvironment === 'test' ? '专用测试资产' : '正式资产（默认不发送）'} · 版本 ${target.version}`;
+                dialog.querySelector('[data-credential-test-field]').hidden = button.dataset.pixelEnvironment !== 'test';
+                result.textContent = '空白保留当前版本已存值；不回填秘密。';
+                H5Admin.openDialog(dialog);
+            });
+            dialog.addEventListener('close', () => { clear(); target = null; });
+            dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); else clear(); });
+            dialog.addEventListener('h5-admin:dialog-close-request', event => { if (busy) event.preventDefault(); else clear(); });
+            window.addEventListener('pagehide', clear);
+            form.addEventListener('submit', async event => {
+                event.preventDefault();
+                if (busy || !target) return;
+                busy = true;
+                let payload = {...target, token: token.value, test_event_code: code.value, reuse_previous: reuse.checked};
+                clear();
+                dialog.querySelectorAll('input,button').forEach(control => control.disabled = true);
+                const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 15000);
+                try {
+                    const response = await fetch('/api/v1/admin/acquisition/pixel-credentials', {
+                        signal: controller.signal,
+                        method: 'POST', credentials: 'same-origin', cache: 'no-store', redirect: 'error', referrerPolicy: 'no-referrer',
+                        headers: {'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || ''},
+                        body: JSON.stringify(payload)
+                    });
+                    const value = await response.json();
+                    if (response.ok && value.code === 'CREDENTIAL_SAVED') {
+                        result.textContent = '配置已保存，未发送。正在刷新状态。';
+                        location.assign('/admin/acquisition-desk?tab=pixels');
+                    } else {
+                        result.textContent = value.code === 'CREDENTIAL_VERSION_CONFLICT' ? '版本已变化，请关闭并刷新后重新核对。' : '未确认保存；请核对当前版本、必填秘密及私密存储。输入已清空，不会自动重发。';
+                    }
+                } catch { result.textContent = '保存结果未知；输入已清空。请先核对状态，不要盲目重发。'; }
+                finally { clearTimeout(timeout); payload = null; clear(); busy = false; dialog.querySelectorAll('input,button').forEach(control => control.disabled = false); }
+            });
+        })();
         (() => {
             const root = document.getElementById('acquisition-workspace');
             if (!root || root.dataset.acquisitionGuard === '1') return;
