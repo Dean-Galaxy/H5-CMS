@@ -6,6 +6,7 @@ use App\Contracts\AuditRecorder;
 use App\Contracts\IdentityContext;
 use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\MailDeliveryUnconfirmed;
+use App\Modules\Identity\Services\StagingTestRecipients;
 use App\Modules\Identity\Services\Verification;
 use App\Modules\Identity\Services\ViewerBehavior;
 use App\Support\ApiProblem;
@@ -52,6 +53,7 @@ final class IdentityController
     public function forgot(Request $request)
     {
         $input = $request->validate(['email' => ['required', 'email', 'max:254']]);
+        app(StagingTestRecipients::class)->assertAllowedAddress(mb_strtolower(trim($input['email'])));
         // Identical public response for missing, throttled and existing accounts.
         try {
             Password::broker('viewers')->sendResetLink(['email' => mb_strtolower(trim($input['email']))]);
@@ -109,6 +111,7 @@ final class IdentityController
                 throw new ApiProblem('INVALID_CREDENTIALS', 422, '凭据不正确');
             }
             $email = mb_strtolower(trim($input['email']));
+            app(StagingTestRecipients::class)->assertAllowedAddress($email);
             if (Viewer::where('email', $email)->whereKeyNot($user->id)->exists()) {
                 throw new ApiProblem('VALIDATION_FAILED', 422, '无法使用此邮箱');
             }

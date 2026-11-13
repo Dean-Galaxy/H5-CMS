@@ -14,6 +14,7 @@ use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\CurrentIdentity;
 use App\Modules\Identity\Services\DatabaseAuditRecorder;
 use App\Modules\Identity\Services\StaffDirectory;
+use App\Modules\Identity\Services\StagingTestRecipients;
 use App\Modules\Identity\Services\Verification;
 use App\Modules\Identity\Services\ViewerBehavior;
 use Illuminate\Auth\Events\Failed;
@@ -23,6 +24,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Events\MessageSending;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
@@ -51,6 +53,7 @@ final class IdentityServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Event::listen(MessageSending::class, [StagingTestRecipients::class, 'assertMessageRecipients']);
         // Never construct emailed credentials from an untrusted request Host header.
         URL::forceRootUrl(config('app.url'));
         URL::forceScheme(parse_url(config('app.url'), PHP_URL_SCHEME));

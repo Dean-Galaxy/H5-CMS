@@ -35,7 +35,7 @@ final class Labels
             'local_simulation' => '仅本地模拟', 'http' => '受控回传（平台未核验）',
             'pending' => '等待发送', 'retry' => '等待重试', 'sending' => '处理中', 'blocked' => '发送已阻断',
             'attempted' => '已消耗发送机会，结果待核对', 'unconfirmed' => '结果未确认，不自动重试',
-            'failed' => '发送失败/次数耗尽', 'api_accepted' => '接口已接受，平台待核验', 'simulated' => '本站模拟通过',
+            'failed' => '发送已终止（请查看原因）', 'api_accepted' => '接口已接受，平台待核验', 'simulated' => '本站模拟通过',
             'unattributed' => '未归属：缺少来源', 'unresolved_source' => '来源待核对', 'matched' => '已匹配冻结来源',
             'test' => '测试', 'production' => '正式',
         ][$code ?? 'unknown'] ?? '未知/待核对';
@@ -46,6 +46,9 @@ final class Labels
         if ($code === null) {
             return '无已记录错误';
         }
+        if (str_starts_with($code, 'PURCHASE_TEST_STOP:')) {
+            return '单次名额已消耗，发送前停止，不可重发 · '.self::error(substr($code, strlen('PURCHASE_TEST_STOP:')));
+        }
         if (str_contains($code, ':')) {
             [$event, $reason] = explode(':', $code, 2);
 
@@ -53,6 +56,13 @@ final class Labels
         }
 
         return [
+            'PURCHASE_TEST_RESERVED_NO_RETRY' => '单次名额已消耗；是否已发出及平台结果未确认，不可重发',
+            'PURCHASE_TEST_UNKNOWN_NO_RETRY' => '平台处理结果未知，单次名额已消耗，不可重发',
+            'PURCHASE_TEST_REJECTED_NO_RETRY' => '平台接口明确拒收，单次名额已消耗，不可重发',
+            'PURCHASE_TEST_NOT_FRESH' => '不是从未尝试的待发记录，禁止重发或重置',
+            'PURCHASE_TEST_FACT_INVALID' => '缺少匹配的测试付款事实或不在本次范围',
+            'PURCHASE_TEST_VERSION_CHANGED' => '原链接/像素版本或凭据配置已变更',
+            'PURCHASE_TEST_INPUT_INVALID' => '需要精确UUID及独立事务入口',
             'network' => '网络异常', 'media' => '媒体异常', 'region' => '地区限制', 'membership' => '会员资格限制', 'authorization' => '播放授权未通过',
             'timeout' => '等待超时', 'unavailable' => '服务未就绪', 'invalid' => '提交内容无效', 'validation' => '内容校验未通过', 'credentials' => '身份验证未通过',
             'rate_limited' => '请求过于频繁', 'unknown' => '未知/待核对', 'payment_pending' => '付款待核对', 'payment_cancelled' => '付款流程取消', 'payment_failed' => '付款失败',

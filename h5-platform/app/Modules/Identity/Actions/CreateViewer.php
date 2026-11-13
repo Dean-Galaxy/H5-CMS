@@ -4,6 +4,7 @@ namespace App\Modules\Identity\Actions;
 
 use App\Modules\Identity\Models\Viewer;
 use App\Modules\Identity\Services\RegistrationTerms;
+use App\Modules\Identity\Services\StagingTestRecipients;
 use App\Modules\Identity\Services\ViewerPassword;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -37,6 +38,8 @@ final class CreateViewer implements CreatesNewUsers
             ];
         }
         Validator::make($input, $rules, ['email.unique' => '无法使用此邮箱注册，请登录或尝试找回密码。'])->validate();
+
+        app(StagingTestRecipients::class)->assertAllowedAddress($input['email']);
 
         $viewer = DB::transaction(function () use ($input, $terms): Viewer {
             $viewer = Viewer::create(array_intersect_key($input, array_flip(['name', 'email', 'password'])));
