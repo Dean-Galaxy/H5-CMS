@@ -20,6 +20,22 @@ server {
     # Provider ingress is outside this content/operations integration scope.
     location ~ ^/webhooks(?:/|$) { return 503; }
     location ~ ^/(?:membership/(?:checkout|cancel|resume)|billing/return(?:/recheck)?|api/v1/billing/(?:checkout|subscription/(?:cancel|resume)))/?$ { return 503; }
+    # Content library dependencies only; business /content paths stay with the app.
+    location = /content/admin.css {
+        limit_except GET { deny all; }
+        types { text/css css; }
+        try_files $uri =404;
+    }
+    location = /content/errors.js {
+        limit_except GET { deny all; }
+        types { application/javascript js; }
+        try_files $uri =404;
+    }
+    location = /content/admin.js {
+        limit_except GET { deny all; }
+        types { application/javascript js; }
+        try_files $uri =404;
+    }
     # Locked browser dependency; no general /vendor file server or sourcemap.
     location = /vendor/hls.js/1.7.3/hls.min.js {
         limit_except GET { deny all; }

@@ -5,6 +5,7 @@ from contextlib import closing
 import http.client
 import hashlib
 import json
+import re
 from pathlib import Path
 import socket
 import socketserver
@@ -59,11 +60,31 @@ class Fixture(socketserver.StreamRequestHandler):
             self.wfile.write(struct.pack('!BBHHBB', 1, kind, 1, len(data), 0, 0) + data)
 
 
+
+def library_assets(public_root):
+    # Deliberately limited to the Content library Blade; fail on dynamic asset URLs.
+    blade = (ROOT/'h5-platform/resources/views/content/library.blade.php').read_text()
+    references = re.findall(r"\basset\s*\(([^)]*)\)", blade)
+    assert references, 'Content library has no discoverable asset references'
+    discovered = {}
+    for expression in references:
+        match = re.fullmatch(r"\s*(['\"])(content/[A-Za-z0-9_.-]+\.(?:css|js))\1\s*", expression)
+        assert match, ('Unsupported Content library asset expression', expression)
+        relative = match[2]
+        source = public_root/relative
+        assert source.is_file() and not source.is_symlink(), ('Missing Content library asset', relative)
+        discovered['/'+relative] = source.read_bytes()
+    return discovered
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--nginx', type=Path, required=True)
     parser.add_argument('--openssl', type=Path, required=True)
-    parser.add_argument('--hls-only', action='store_true', help='Only the locked HLS file and adjacent route boundaries')
+    cases = parser.add_mutually_exclusive_group()
+    cases.add_argument('--content-library-only', action='store_true', help='Discover Content library Blade assets and test only their static boundaries')
+    parser.add_argument('--content-public', type=Path, default=ROOT/'h5-platform/public', help='Read-only existing public assets for the Content case')
+    cases.add_argument('--hls-only', action='store_true', help='Only the locked HLS file and adjacent route boundaries')
     parser.add_argument('--hls-file', type=Path, help='Existing local locked bundle; no download is performed')
     args = parser.parse_args()
     hls_path = '/vendor/hls.js/1.7.3/hls.min.js'
@@ -78,6 +99,7 @@ def main():
         hls_payload = source.read_bytes()
         if len(hls_payload) != hls_entry['bytes'] or hashlib.sha256(hls_payload).hexdigest() != hls_entry['sha256']:
             parser.error('HLS bundle differs from browser-assets.lock.json')
+    content_assets = library_assets(args.content_public) if args.content_library_only else {}
     area_template = ROOT/'deploy/page-test-staging'
     with tempfile.TemporaryDirectory(prefix='h5-stage-route-', dir='/private/tmp') as temp:
         area = Path(temp)
@@ -89,6 +111,12 @@ def main():
         assert len(assets) == 10 and all(p.is_file() and p.suffix in ('.css', '.js') for p in assets)
         for asset in assets:
             (static_audience/asset.name).write_bytes(asset.read_bytes())
+        for path, payload in content_assets.items():
+            target = static_root/path.lstrip('/')
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+        if content_assets:
+            (static_root/'content/extra.js').write_bytes(b'/* not an approved static path */')
         if hls_payload is not None:
             bundle = static_root/hls_path.lstrip('/')
             bundle.parent.mkdir(parents=True)
@@ -137,7 +165,37 @@ def main():
                             break
                     except OSError:
                         time.sleep(.05)
-                if args.hls_only:
+                if args.content_library_only:
+                    verified = {}
+                    for path, payload in content_assets.items():
+                        observed = {}
+                        # The Blade appends a version query; matching must still serve the exact file.
+                        url = path + '?v=' + hashlib.sha256(payload).hexdigest()[:12]
+                        status, raw = request('GET', url, response_headers=observed)
+                        assert status == 200 and raw == payload, ('Content asset GET', path, status)
+                        mime = 'text/css' if path.endswith('.css') else 'application/javascript'
+                        assert observed['Content-Type'] == mime, (path, observed)
+                        assert observed['X-Content-Type-Options'] == 'nosniff'
+                        assert observed['Cache-Control'] == 'no-store, private'
+                        assert request('HEAD', url) == (200, b''), path
+                        assert request('POST', url, b'{}')[0] == 403, path
+                        verified[path] = {'bytes':len(payload), 'sha256':hashlib.sha256(payload).hexdigest(), 'mime':mime}
+                    for method, path in (('GET','/api/v1/admin/content'), ('POST','/api/v1/admin/content/uploads'), ('POST','/content/business-action')):
+                        status, raw = request(method, path, b'{}' if method == 'POST' else None)
+                        assert status == 418, (method, path, status)
+                        params = json.loads(raw)['params']
+                        assert params['REQUEST_METHOD'] == method and params['REQUEST_URI'] == path
+                    for path in ('/content/', '/content/extra.js', '/content/admin.js/child'):
+                        assert request('GET', path)[0] == 418, path
+                    for path in ('/content/.env', '/content/test.php'):
+                        assert request('GET', path)[0] == 404, path
+                    result = {'scope':'native TLS Content library Blade asset references only',
+                              'blade':'h5-platform/resources/views/content/library.blade.php',
+                              'discovered_assets':verified, 'get_head_real_bytes_mime':True, 'post_403':True,
+                              'nosniff_cache_headers':True, 'content_api_forwarded':True,
+                              'content_not_general_static':True, 'php_dotfile_rejected':True,
+                              'authenticated_page_body_or_operations_tested':False}
+                elif args.hls_only:
                     observed = {}
                     status, raw = request('GET', hls_path, response_headers=observed)
                     assert status == 200 and raw == hls_payload, ('HLS GET', status)
