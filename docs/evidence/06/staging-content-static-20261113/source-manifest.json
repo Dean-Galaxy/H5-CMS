@@ -1,0 +1,29 @@
+{
+  "tested_source_commit": "7f2ecebd68c1e8e7a681feb98c5507e5db5653f7",
+  "base_commit": "2ebe6438da4d7c5ec356bbb34160937cbaabfe1f",
+  "reported_deployed_failure_version": "40b8589",
+  "source_sha256": {
+    "deploy/page-test-staging/nginx.conf.template": "1bbc02c33629c9810ae08a044c16bdc1c4262c616cc8fa53d71286925a53820b",
+    "scripts/ops/tests/check_staging_operations.py": "11a1a4f3874d65cccb243a2c22878d24adc5dd46ebce221265ebc1052da00122"
+  },
+  "read_only_fixture_inputs": {
+    "h5-platform/resources/views/content/library.blade.php": {
+      "bytes": 2650,
+      "sha256": "e9a569b855f02952ab38b7b49cd235bd5d1ba56ac8219fe30fb45667fe5cc34f"
+    },
+    "h5-platform/public/content/admin.css": {
+      "bytes": 6176,
+      "sha256": "206f837f3140d330c8d293c7f2fba53c74901524925f8e3bccdfbbdc44ae3509"
+    },
+    "h5-platform/public/content/errors.js": {
+      "bytes": 2567,
+      "sha256": "941c980ae51676ebedaddf313e0f13ff7c82de3485fa267d62d49bcdf7519afc"
+    },
+    "h5-platform/public/content/admin.js": {
+      "bytes": 64720,
+      "sha256": "760166718345a7ae3c3f55d9693981a0f93d9e6985a09c87220c07345011a9e0"
+    }
+  },
+  "public_asset_source": "/Volumes/KESU/H5/h5-platform/public",
+  "public_assets_equal_to_tested_checkout": true
+}
