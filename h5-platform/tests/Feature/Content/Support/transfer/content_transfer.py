@@ -174,7 +174,7 @@ def apply_sql(package, target, additions):
         sql.append('DO $guard$ BEGIN IF (SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY ' + ','.join(KEYS[t]) + "),'[]'::jsonb) FROM " + t + ' r) <> ' + literal(canonical(rows)) + "::jsonb THEN RAISE EXCEPTION 'TARGET_CHANGED'; END IF; END $guard$;")
     staff_ids = {r['created_by'] for t in ('content_assets', 'content_dramas') for r in package['db']['tables'][t]}
     for staff_id in sorted(staff_ids):
-        sql.append("DO $guard$ BEGIN IF NOT EXISTS (SELECT 1 FROM identity_staff WHERE id=" + literal(staff_id) + " AND role='owner' AND active) THEN RAISE EXCEPTION 'OWNER_MISSING'; END IF; END $guard$;")
+        sql.append("DO $guard$ BEGIN IF NOT EXISTS (SELECT 1 FROM identity_staff WHERE id::text=" + literal(staff_id) + " AND role='owner' AND active) THEN RAISE EXCEPTION 'OWNER_MISSING'; END IF; END $guard$;")
     for t in TABLES:
         if not additions[t]:
             continue
@@ -245,7 +245,7 @@ def main():
         raise ValueError('target database identity mismatch or source selected as target')
     target = read_db(args.target_service)
     for staff_id in sorted({r['created_by'] for t in ('content_assets', 'content_dramas') for r in package['db']['tables'][t]}):
-        if query(args.target_service, "SELECT EXISTS(SELECT 1 FROM identity_staff WHERE id=" + literal(staff_id) + " AND role='owner' AND active);") != 't':
+        if query(args.target_service, "SELECT EXISTS(SELECT 1 FROM identity_staff WHERE id::text=" + literal(staff_id) + " AND role='owner' AND active);") != 't':
             raise ValueError('target active Owner missing; no identity import permitted')
     additions = merge_rows(package, target)
     missing_bytes = 0
