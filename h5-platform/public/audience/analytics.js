@@ -168,7 +168,7 @@
   }
   async function confirmLanding() {
     if (landingBusy) return landingPromise;
-    if (!landingGranted() || !context?.pending_landing || !routeIds || routeIds[2] || document.visibilityState !== 'visible'
+    if (!landingGranted() || !context?.pending_landing || !routeIds || (routeIds[2] && !advertisingTestOnly) || document.visibilityState !== 'visible'
       || landingConfirmed || landingAttempts >= 3 || !budget()) return false;
     landingBusy = true; landingAttempts++;
     const epoch = generation;

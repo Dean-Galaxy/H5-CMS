@@ -1,0 +1,69 @@
+{
+  "previous_red_commit": "2c39549aa6076534794f86157ee23ef64fcb1cfa",
+  "accepted_04_dependency": "2f3417492a3ba9e181f2c6c06f82fea3132a2ab9",
+  "local_dependency": "915e214d02ea2f2c9b7facb021719402bbe7b77c",
+  "source": "77a11f8ae7c355ba13285e66f63926aed8b7d4c5",
+  "implementation_change": "one condition in shared analytics.js confirmLanding only; controlled advertisingTestOnly watch allowed, ordinary watch unchanged",
+  "browser": {
+    "actual_chrome": true,
+    "html_privacy_controls": "real partial structure, translated strings/HMAC substituted with fixture text",
+    "http_navigation_proof": "explicit in-memory doubles",
+    "before_landing_requests": 0,
+    "after_landing_requests": 1,
+    "duplicate_foreground_added_requests": 0,
+    "withdrawal_added_requests": 0,
+    "ordinary_watch_added_requests": 0,
+    "analytics_requests": 0,
+    "external_requests": 0,
+    "page_errors": 0,
+    "payload_keys": [
+      "page_instance_id",
+      "drama_id",
+      "path"
+    ]
+  },
+  "http": {
+    "test_file": "tests/Feature/Acquisition/PromotionWatchChainTest.php",
+    "passed": 1,
+    "assertions": 138,
+    "seconds": 0.93,
+    "real_drama_and_watch_html": true,
+    "real_session_and_csrf_token": true,
+    "original_proof_required": true,
+    "negative_cases": [
+      "missing",
+      "expired exactly 10 minutes",
+      "denied",
+      "withdrawn then regranted"
+    ],
+    "source_and_event_count_after_all_cases": 1,
+    "financial_analytics_c_r1_records": 0,
+    "platform_requests": 0
+  },
+  "checks": {
+    "php_lint": 1,
+    "node_syntax": 2,
+    "pint": "passed",
+    "git_diff_check": "passed"
+  },
+  "old_23_suite_rerun": false,
+  "cloud_write": false,
+  "real_user_cookie_secret_ip_ua_read": false,
+  "real_platform_send": false,
+  "own_test_pg_stopped_normally": true,
+  "decoded_video_test": false,
+  "files": [
+    {
+      "file": "client-red.txt",
+      "sha256": "12177706769bf90c6243fb0c26a3c5b343c5b03a9cff13fd28ea68dfda1741b2"
+    },
+    {
+      "file": "client-green.txt",
+      "sha256": "6da252fff34ea93a7ed802b2faa0dec30a45dd6072d08f8b379f398f6493daf6"
+    },
+    {
+      "file": "http-green.txt",
+      "sha256": "c8d41177080433b9016bbcc5a3beb5436d91793d47ea88fe96237a8cc7e637ee"
+    }
+  ]
+}

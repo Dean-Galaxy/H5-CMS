@@ -5,12 +5,13 @@ use App\Contracts\RegionResolver;
 use App\Support\RuntimeEnvironmentGuard;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Env;
+use Illuminate\Support\Facades\DB;
 
 $root = dirname(__DIR__, 2);
-$options = getopt('', ['expect-env:', 'require-cache']);
+$options = getopt('', ['expect-env:', 'require-cache', 'require-db-utc']);
 $expected = $options['expect-env'] ?? null;
 if (PHP_SAPI !== 'cli' || ! in_array($expected, ['local', 'testing', 'staging', 'production'], true)) {
-    fwrite(STDERR, "Use --expect-env=staging [--require-cache].\n");
+    fwrite(STDERR, "Use --expect-env=staging [--require-cache] [--require-db-utc].\n");
     exit(2);
 }
 require $root.'/h5-platform/vendor/autoload.php';
@@ -25,7 +26,26 @@ try {
     if (array_key_exists('require-cache', $options) && ! app()->configurationIsCached()) {
         throw new LogicException('PREFLIGHT_CACHE_REQUIRED');
     }
-    echo json_encode(['ok' => true, 'contract' => config('h5.contract'),
+    if (config('h5.acquisition_staging_test') === true) {
+        try {
+            $landing = app(\App\Contracts\PromotionLandingEvidence::class);
+        } catch (Throwable) {
+            throw new LogicException('PREFLIGHT_PROMOTION_BINDING_UNAVAILABLE');
+        }
+        if ($landing instanceof \App\Support\DisabledPromotionLandingEvidence) {
+            throw new LogicException('PREFLIGHT_PROMOTION_BINDING_UNAVAILABLE');
+        }
+    }
+    $dbUtc = [];
+    if (array_key_exists('require-db-utc', $options)) {
+        $connection = DB::connection();
+        if ($connection->getDriverName() !== 'pgsql'
+            || ! in_array($connection->selectOne("SELECT current_setting('TimeZone') AS zone")->zone, ['UTC', 'Etc/UTC'], true)) {
+            throw new LogicException('PREFLIGHT_DATABASE_UTC_REQUIRED');
+        }
+        $dbUtc = ['database_utc' => true];
+    }
+    echo json_encode($dbUtc + ['ok' => true, 'contract' => config('h5.contract'),
         'config_environment' => config('app.env'), 'container_environment' => app()->environment(),
         'process_environment' => Env::get('APP_ENV'), 'cached' => app()->configurationIsCached(),
         'controlled_staging' => config('h5.controlled_staging'),

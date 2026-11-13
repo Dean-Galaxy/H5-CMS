@@ -1,0 +1,7 @@
+Observed original tool output (archived without rerunning):
+Command: python3 h5-platform/tests/Feature/Acquisition/Support/r1a_test.py clean test --compact tests/Feature/Acquisition/PromotionWatchChainTest.php
+Tests: 1 passed (138 assertions)
+Duration: 0.93s
+Exit: 0
+Own marked synthetic database: h5_d2a32071a6_r1a_clean_test, port 5605.
+Real Laravel HTML/session/consent/confirm chain; explicit synthetic published content with placeholder media, no decoded-video or platform claim.
