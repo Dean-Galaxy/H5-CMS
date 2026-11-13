@@ -1,0 +1,1 @@
+{"application_routes_forwarded": 24, "chunk_bytes": 1048576, "range_offset_headers": true, "sni_host_dotfiles_php_boundaries": true, "provider_ingress_closed": true, "audience_static_files_get_only": 10, "scope": "native TLS Nginx to synthetic FastCGI", "authenticated_login_playback_calendar_tested": false}

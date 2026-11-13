@@ -1,0 +1,20 @@
+{
+  "tested_source_commit": "720c3a0f2e7dd6e14f75a3a7f5ec089543bf5ded",
+  "previous_template_commit": "5b9a2943f5657c6fced08ecdf174b9ad88b8f316",
+  "sha256": {
+    "deploy/page-test-staging/nginx.conf.template": "5a09bcea717bf894ed8ec68f4016148814e7dfdd288333b6ccfe041ea4675f25",
+    "scripts/ops/tests/check_staging_operations.py": "c74ee5d64c3dfbe77e110b0b11f78000435811b86e79506ac0338978ce51b368"
+  },
+  "audience_static_files": [
+    "analytics.css",
+    "analytics.js",
+    "billing.js",
+    "measurement-c.css",
+    "measurement-c.js",
+    "player.js",
+    "purposes-r1.css",
+    "purposes-r1.js",
+    "site.css",
+    "site.js"
+  ]
+}

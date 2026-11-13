@@ -67,6 +67,13 @@ def main():
     with tempfile.TemporaryDirectory(prefix='h5-stage-route-', dir='/private/tmp') as temp:
         area = Path(temp)
         (area/'logs').mkdir()
+        static_root = area/'public'
+        static_audience = static_root/'audience'
+        static_audience.mkdir(parents=True)
+        assets = sorted((ROOT/'h5-platform/public/audience').iterdir())
+        assert len(assets) == 10 and all(p.is_file() and p.suffix in ('.css', '.js') for p in assets)
+        for asset in assets:
+            (static_audience/asset.name).write_bytes(asset.read_bytes())
         subprocess.run([str(args.openssl), 'req', '-x509', '-newkey', 'rsa:2048', '-nodes',
                         '-keyout', str(area/'key'), '-out', str(area/'cert'), '-days', '1',
                         '-subj', '/CN='+HOST, '-addext', 'subjectAltName=DNS:'+HOST],
@@ -78,6 +85,7 @@ def main():
             'unix:/run/php/h5-page-test.sock', 'unix:'+str(area/'fcgi.sock'))
         (area/'fcgi.conf').write_text(fcgi)
         config = (area_template/'nginx.conf.template').read_text()
+        config = config.replace('root /srv/h5-page-test/current/h5-platform/public;', f'root {static_root};')
         config = config.replace('listen 443 ssl;', f'listen 127.0.0.1:{port} ssl;')
         config = config.replace('/etc/letsencrypt/live/'+HOST+'/fullchain.pem', str(area/'cert'))
         config = config.replace('/etc/letsencrypt/live/'+HOST+'/privkey.pem', str(area/'key'))
@@ -118,6 +126,7 @@ def main():
                     ('GET','/api/v1/tracking/context'), ('POST','/api/v1/tracking/landing'),
                     ('POST','/api/v1/tracking/consent'), ('POST','/api/v1/tracking/events'),
                     ('POST','/api/v1/episodes/x/playback-grants'),
+                    ('POST','/audience/dramas/11111111-1111-4111-8111-111111111111/episodes/22222222-2222-4222-8222-222222222222/playback'),
                 ]
                 for method, path in forwarded:
                     status, raw = request(method, path, b'{}' if method not in ('GET','HEAD') else None)
@@ -125,6 +134,11 @@ def main():
                     value = json.loads(raw)['params']
                     assert value['REQUEST_METHOD'] == method and value['REQUEST_URI'] == path
                     assert all(key not in value for key in ('HTTP_RANGE', 'HTTP_IF_RANGE', 'HTTP_UPLOAD_OFFSET'))
+                for asset in assets:
+                    path = '/audience/' + asset.name
+                    status, raw = request('GET', path)
+                    assert status == 200 and raw == asset.read_bytes(), (path, status)
+                    assert request('POST', path, b'{}')[0] == 403, path
                 status, raw = request('POST','/api/v1/admin/content/uploads/x/chunks',b'x'*1048576,
                                       {'Upload-Offset':'1048576','Content-Type':'application/octet-stream'})
                 assert status == 418
@@ -156,7 +170,7 @@ def main():
                         raise AssertionError('Unknown SNI was accepted')
                 result = {'application_routes_forwarded':len(forwarded),'chunk_bytes':1048576,
                           'range_offset_headers':True,'sni_host_dotfiles_php_boundaries':True,
-                          'provider_ingress_closed':True,'scope':'native TLS Nginx to synthetic FastCGI',
+                          'provider_ingress_closed':True,'audience_static_files_get_only':len(assets),'scope':'native TLS Nginx to synthetic FastCGI',
                           'authenticated_login_playback_calendar_tested':False}
             finally:
                 nginx.terminate()

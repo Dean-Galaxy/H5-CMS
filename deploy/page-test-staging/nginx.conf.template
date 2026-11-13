@@ -24,7 +24,13 @@ server {
         limit_except GET { deny all; }
         try_files $uri =404;
     }
-    location ~ ^/(build|css|js|fonts|admin-ui|audience)/ {
+    # Only the ten existing public/audience files are static. Other /audience
+    # paths are application routes, including POST playback; retain app CSRF.
+    location ~ ^/audience/(?:(?:analytics|site|purposes-r1|measurement-c)\.(?:css|js)|(?:player|billing)\.js)$ {
+        limit_except GET { deny all; }
+        try_files $uri =404;
+    }
+    location ~ ^/(build|css|js|fonts|admin-ui)/ {
         limit_except GET { deny all; }
         location ~ \.php { return 404; }
         try_files $uri =404;
