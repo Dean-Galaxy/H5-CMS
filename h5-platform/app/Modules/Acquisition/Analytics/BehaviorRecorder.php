@@ -9,6 +9,7 @@ use App\Contracts\RegionResolver;
 use App\Enums\BehaviorRecordingResult as Result;
 use App\Modules\Acquisition\Measurement\CoreContext;
 use App\Modules\Acquisition\Measurement\SiteAnalysisBridge;
+use App\Modules\Acquisition\Production\PilotScope;
 use App\Modules\Acquisition\Services\AttributionRecorder;
 use App\Support\ApiProblem;
 use Carbon\CarbonImmutable;
@@ -29,7 +30,7 @@ final class BehaviorRecorder implements BehaviorEventRecorder
 
     public function recordFact(string $eventName, array $properties, string $deduplicationKey): Result
     {
-        if (TrackingContext::advertisingTestOnly() || SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
+        if (TrackingContext::advertisingOnly() || SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
             return Result::Skipped;
         }
         if (! app(TrackingContext::class)->enabled()) {
@@ -106,7 +107,7 @@ final class BehaviorRecorder implements BehaviorEventRecorder
     /** Returns Accepted for an identical retry, Skipped for invalid or unconsented input. */
     public function browser(string $id, string $name, array $properties): Result
     {
-        if (TrackingContext::advertisingTestOnly() || SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
+        if (TrackingContext::advertisingOnly() || SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
             return Result::Skipped;
         }
         if (! app(TrackingContext::class)->enabled()) {
@@ -324,6 +325,9 @@ final class BehaviorRecorder implements BehaviorEventRecorder
 
     public function diagnostic(string $reason): void
     {
+        if (PilotScope::enabled()) {
+            return;
+        }
         try {
             DB::transaction(fn () => DB::statement('INSERT INTO acquisition_capture_diagnostics(reason,count,last_at) VALUES (?,1,?) ON CONFLICT(reason) DO UPDATE SET count=acquisition_capture_diagnostics.count+1,last_at=EXCLUDED.last_at', [$reason, Clock::stamp()]));
         } catch (Throwable) {
@@ -333,7 +337,7 @@ final class BehaviorRecorder implements BehaviorEventRecorder
 
     public function clearBrowserContext(): void
     {
-        if (! TrackingContext::advertisingTestOnly()) {
+        if (! TrackingContext::advertisingOnly()) {
             try {
                 app(CoreContext::class)->end();
             } catch (Throwable) {

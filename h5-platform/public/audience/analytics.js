@@ -45,11 +45,12 @@
   const granted = () => !advertisingTestOnly && context?.analytics_available !== false && context?.enabled === true && context?.policy_version === POLICY && context?.consent?.analytics === 'granted' && !blocked();
   const landingGranted = () => context?.enabled === true && context?.policy_version === POLICY && context?.consent?.advertising === 'granted' && !blocked();
   const canSend = granted;
+  const analyticsUnavailable = () => advertisingTestOnly || context?.analytics_available === false;
   function privacyStatus() {
     form.setAttribute('aria-busy', consentBusy ? 'true' : 'false');
     form.querySelectorAll('input[type=checkbox], button[type=submit], [data-privacy-reject], [data-privacy-withdraw]').forEach(control => { control.disabled = consentBusy; });
-    form.elements.analytics.disabled = consentBusy || advertisingTestOnly;
-    if (advertisingTestOnly) form.elements.analytics.checked = false;
+    form.elements.analytics.disabled = consentBusy || analyticsUnavailable();
+    if (analyticsUnavailable()) form.elements.analytics.checked = false;
     mount.querySelector('[data-privacy-advertising-test]').hidden = !advertisingTestOnly;
     const state = consentBusy ? 'saving' : saveFailed || blocked() ? 'unavailable' : reading ? 'reading'
       : readFailed ? 'readFailed' : context?.enabled === false ? 'disabled' : saved ? 'saved' : 'ready';
@@ -103,7 +104,7 @@
       form.elements.analytics.checked = typeof pendingChoice?.analytics === 'boolean' ? pendingChoice.analytics : value.consent.analytics === 'granted';
       form.elements.advertising.checked = typeof pendingChoice?.advertising === 'boolean' ? pendingChoice.advertising : value.consent.advertising === 'granted';
     }
-    if (advertisingTestOnly) form.elements.analytics.checked = false;
+    if (analyticsUnavailable()) form.elements.analytics.checked = false;
     privacyStatus();
     if (value.enabled && value.consent.analytics === 'unknown' && value.consent.advertising === 'unknown' && !blocked() && !dialog.open) dialog.showModal();
     const epoch = generation;
@@ -276,7 +277,7 @@
   }
   async function saveChoices(analytics, advertising) {
     if (consentBusy) return;
-    if (advertisingTestOnly) analytics = false;
+    if (analyticsUnavailable()) analytics = false;
     const version = ++choiceVersion;
     if (form.elements.analytics.checked !== analytics || form.elements.advertising.checked !== advertising) {
       form.elements.analytics.checked = analytics; form.elements.advertising.checked = advertising;
@@ -292,7 +293,7 @@
     try {
       const value = await request('/api/v1/tracking/consent', desired);
       if (version !== choiceVersion) return;
-      if (!validContext(value) || value.enabled !== true || value.consent.analytics !== (analytics ? 'granted' : 'denied')
+      if (!validContext(value) || (!value.enabled && (analytics || advertising)) || value.consent.analytics !== (analytics ? 'granted' : 'denied')
         || value.consent.advertising !== (advertising ? 'granted' : 'denied')) throw new Error('tracking_unavailable');
       locallyPaused = false; write(localStorage, BLOCK, null);
       if (submittedDraft === draftVersion) draftDirty = false;

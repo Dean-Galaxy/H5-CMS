@@ -21,9 +21,9 @@ async function eventually(predicate, timeout = 8000) {
 }
 
 async function fixture({consent = 'unknown', advertising = 'unknown', locale = 'en', media = false, hidden = false, enabled = true,
-  clickQuery = '', cookieProbe = null, pendingLanding = true, landingDelay = 0, landingConfirmed = true, consentResponse = null, contextDelay = 0, advertisingTestOnly = false} = {}) {
+  clickQuery = '', cookieProbe = null, pendingLanding = true, landingDelay = 0, landingConfirmed = true, consentResponse = null, contextDelay = 0, advertisingTestOnly = false, productionAdvertisingOnly = false} = {}) {
   const ctx = await browser.newContext({viewport: {width: 390, height: 844}});
-  let server = {...(advertisingTestOnly ? {advertising_test_only: true, analytics_available: false} : {}), enabled, policy_version: 'analytics-v1', consent: {analytics: consent, advertising}, pending_landing: pendingLanding};
+  let server = {...(advertisingTestOnly ? {advertising_test_only: true, analytics_available: false} : productionAdvertisingOnly ? {analytics_available: false} : {}), enabled, policy_version: 'analytics-v1', consent: {analytics: consent, advertising}, pending_landing: pendingLanding};
   const observations = {posts: [], events: new Map(), landing: [], consent: [], external: [], errors: [], playback: 0, timeline: [], referrers: [], contextStarted: 0, contextFinished: 0};
   const fault = {events: 0, status: 503, consent: 0, contextDelay, contextStatus: 200, consentDelay: 0};
   let scope = 'synthetic-browser-scope', member = true;
@@ -56,7 +56,7 @@ async function fixture({consent = 'unknown', advertising = 'unknown', locale = '
       const p = req.postDataJSON(); observations.consent.push(p);
       if (fault.consentDelay) await pause(fault.consentDelay);
       if (fault.consent-- > 0) return route.fulfill({status: 503});
-      if (consentResponse) return json(consentResponse);
+      if (consentResponse) return json(typeof consentResponse === 'function' ? consentResponse(p, server) : consentResponse);
       server.consent = {analytics: p.analytics ? 'granted' : 'denied', advertising: p.advertising ? 'granted' : 'denied'};
       return json(server);
     }
@@ -98,6 +98,10 @@ async function fixture({consent = 'unknown', advertising = 'unknown', locale = '
       return route.fulfill({status: 200, contentType: url.pathname.endsWith('.js') ? 'text/javascript' : 'text/css', body: fs.readFileSync(asset)});
     }
     let html = fs.readFileSync(path.join(runtime, 'analytics-'+locale+'.html'), 'utf8').replace(/data-buffer-scope="[^"]+"/, 'data-buffer-scope="'+scope+'"');
+    if (!html.includes('data-privacy-advertising-test')) {
+      const notice = locale === 'zh_CN' ? '仅限受控广告测试' : 'Controlled advertising test only';
+      html = html.replace('<form data-privacy-form>', '<form data-privacy-form><p data-privacy-advertising-test hidden>'+notice+'</p>');
+    }
     if (media) {
       html = html.replace('<main id="main">', `<main id="main"><section data-player data-drama="${drama}" data-episode="${episode}" data-duration="20" data-viewer=""><video muted playsinline controls preload="none"></video><button data-play>Play</button><p data-player-status></p><p data-progress-status></p></section>`);
       html = html.replace('</body>', '<script id="audience-messages" type="application/json">'+JSON.stringify({loading: 'Checking', playing: 'Playing', media_error: 'Media error', network: 'Network', MEMBERSHIP_REQUIRED: 'Membership required', guest_progress: 'Saved'})+'</script><script src="/audience/player.js" defer></script></body>');
@@ -562,5 +566,30 @@ for (const locale of ['en', 'zh_CN']) test('controlled advertising test disables
     assert.deepEqual(f.observations.consent[1], {analytics: false, advertising: false, policy_version: 'analytics-v1'});
     await f.page.waitForFunction(() => !document.querySelector('[data-privacy-dialog]').open);
     assert.equal(f.observations.posts.length, 0); assert.deepEqual(f.observations.errors, []);
+  } finally { await f.ctx.close(); }
+});
+
+test('production advertising choices disable analytics and accept withdrawal after the window ends', async () => {
+  const f = await fixture({productionAdvertisingOnly: true, consentResponse: (p, server) => ({
+    ...server, enabled: p.advertising, consent: {analytics: 'denied', advertising: p.advertising ? 'granted' : 'denied'},
+  })});
+  try {
+    const {page, observations} = f;
+    const dialog = page.locator('[data-privacy-dialog]');
+    const form = page.locator('[data-privacy-form]');
+    await dialog.waitFor({state: 'visible', timeout: 5000});
+    await page.waitForFunction(() => document.querySelector('[name="analytics"]').disabled, null, {timeout: 5000});
+    assert.equal(await form.locator('input[name="analytics"]').isDisabled(), true);
+    assert.equal(await page.locator('[data-privacy-advertising-test]').isVisible(), false);
+    await form.locator('input[name="advertising"]').check();
+    await form.locator('button[type="submit"]').click();
+    await dialog.waitFor({state: 'hidden'});
+    assert.deepEqual(observations.consent[0], {analytics: false, advertising: true, policy_version: 'analytics-v1'});
+    await page.locator('[data-privacy-open]').click();
+    await form.locator('[data-privacy-withdraw]').click();
+    await dialog.waitFor({state: 'hidden'});
+    assert.deepEqual(observations.consent[1], {analytics: false, advertising: false, policy_version: 'analytics-v1'});
+    assert.equal(observations.posts.length, 0);
+    assert.equal(observations.external.length, 0);
   } finally { await f.ctx.close(); }
 });

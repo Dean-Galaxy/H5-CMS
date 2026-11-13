@@ -5,6 +5,7 @@ namespace App\Modules\Acquisition;
 use App\Contracts\AttributionService;
 use App\Contracts\BehaviorEventRecorder;
 use App\Contracts\CheckoutAttribution;
+use App\Contracts\PromotionLandingEvidence;
 use App\Contracts\RegistrationMeasurement;
 use App\Data\PaymentSettled;
 use App\Modules\Acquisition\Analytics\BehaviorRecorder;
@@ -13,6 +14,8 @@ use App\Modules\Acquisition\Console\DispatchAcquisition;
 use App\Modules\Acquisition\Console\PruneAnalytics;
 use App\Modules\Acquisition\Console\PruneMeasurement;
 use App\Modules\Acquisition\Console\PruneRegistrationPurposes;
+use App\Modules\Acquisition\Production\PilotLandingEvidence;
+use App\Modules\Acquisition\Production\PilotScope;
 use App\Modules\Acquisition\Registration\RegistrationMeasurementAdapter;
 use App\Modules\Acquisition\Registration\RegistrationObservations;
 use App\Modules\Acquisition\Services\AttributionRecorder;
@@ -31,12 +34,22 @@ final class AcquisitionServiceProvider extends ServiceProvider
         $this->app->bind(AttributionService::class, AttributionRecorder::class);
         $this->app->bind(CheckoutAttribution::class, CheckoutContextStore::class);
         $this->app->bind(BehaviorEventRecorder::class, BehaviorRecorder::class);
+        if (PilotScope::enabled()) {
+            $this->app->bind(PromotionLandingEvidence::class, PilotLandingEvidence::class);
+
+            return;
+        }
         $this->app->singleton(RegistrationObservations::class);
         $this->app->bind(RegistrationMeasurement::class, RegistrationMeasurementAdapter::class);
     }
 
     public function boot(): void
     {
+        if (PilotScope::enabled()) {
+            app(RuntimeEnvironmentGuard::class)->productionAcquisitionPilotOrigin();
+
+            return;
+        }
         if (! app()->environment('local', 'testing') || config('h5.acquisition_staging_test') !== false) {
             app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
         }

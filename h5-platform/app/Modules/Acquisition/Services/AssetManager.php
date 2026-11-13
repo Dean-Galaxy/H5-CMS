@@ -9,6 +9,7 @@ use App\Contracts\PromotableCatalog;
 use App\Enums\Permission;
 use App\Enums\Role;
 use App\Modules\Acquisition\Analytics\TrackingContext;
+use App\Modules\Acquisition\Production\PilotScope;
 use App\Modules\Acquisition\Sending\Credentials;
 use App\Modules\Acquisition\Sending\LocalSimulator;
 use App\Modules\Acquisition\Sending\MetaAdapter;
@@ -277,6 +278,9 @@ final class AssetManager
     public function retry(string $linkId): int
     {
         $this->access->get('link', $linkId);
+        if (PilotScope::enabled()) {
+            return 0;
+        }
         // Does not send here, reset attempts, change event id, or requeue accepted events.
         $count = DB::table('acquisition_deliveries')->where('link_id', $linkId)->whereIn('state', ['retry', 'blocked'])
             ->where('attempts', '<', config('acquisition.max_attempts'))->update(['state' => 'pending', 'next_attempt_at' => now(), 'updated_at' => now()]);

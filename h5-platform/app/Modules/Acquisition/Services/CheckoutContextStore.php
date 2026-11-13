@@ -8,6 +8,7 @@ use App\Data\CheckoutPageContext;
 use App\Modules\Acquisition\Analytics\ClickContext;
 use App\Modules\Acquisition\Analytics\Clock;
 use App\Modules\Acquisition\Analytics\TrackingContext;
+use App\Modules\Acquisition\Production\PilotScope;
 use App\Modules\Acquisition\Registration\LegacyAdvertisingBridge;
 use App\Support\RuntimeEnvironmentGuard;
 use Carbon\CarbonImmutable;
@@ -78,6 +79,11 @@ final class CheckoutContextStore implements CheckoutAttribution
 
     private function origin(): string
     {
+        if (PilotScope::enabled()) {
+            app(RuntimeEnvironmentGuard::class)->productionAcquisitionScope();
+
+            return app(RuntimeEnvironmentGuard::class)->productionAcquisitionPilotOrigin();
+        }
         if (! app()->environment('local', 'testing') || TrackingContext::advertisingTestOnly()) {
             return app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
         }

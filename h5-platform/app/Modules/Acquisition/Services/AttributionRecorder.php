@@ -9,6 +9,9 @@ use App\Modules\Acquisition\Analytics\BehaviorRecorder;
 use App\Modules\Acquisition\Analytics\ClickContext;
 use App\Modules\Acquisition\Analytics\Clock;
 use App\Modules\Acquisition\Analytics\TrackingContext;
+use App\Modules\Acquisition\Production\PilotLandingEvidence;
+use App\Modules\Acquisition\Production\PilotScope;
+use App\Modules\Acquisition\Registration\LegacyAdvertisingBridge;
 use App\Support\ApiProblem;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Crypt;
@@ -34,10 +37,18 @@ final class AttributionRecorder implements AttributionService
     {
         $link = DB::table('acquisition_links')->where('code', $code)->first();
         $this->validLink($link);
+        if (PilotScope::enabled() && ! app(PilotLandingEvidence::class)->trustedRequest(false)) {
+            return '/dramas/'.$link->drama_id;
+        }
         if ($this->eligibleRequest()) {
-            app(TrackingContext::class)->session()?->put('tracking.pending', [
+            $session = app(TrackingContext::class)->session();
+            $session?->put('tracking.pending', [
                 'link_id' => $link->id, 'key' => (string) Str::uuid(), 'created_at' => now()->toIso8601String(),
             ]);
+            if (PilotScope::enabled()) {
+                $session?->put('tracking.production_engaged', true);
+                $session?->forget('tracking.production_get');
+            }
         }
 
         // Preserve opaque bytes: global input trimming must not turn an invalid ID into a valid one.
@@ -52,6 +63,13 @@ final class AttributionRecorder implements AttributionService
     {
         if (! $link || ! $link->active) {
             throw new ApiProblem('NOT_FOUND', 404, '推广链接已停用或不可用');
+        }
+        if (PilotScope::enabled()) {
+            try {
+                app(PilotScope::class)->target($link->id);
+            } catch (\LogicException) {
+                throw new ApiProblem('NOT_FOUND', 404, '推广链接不可用');
+            }
         }
         $pixel = DB::table('acquisition_pixels')->where('id', $link->pixel_id)->first();
         if (! $pixel || ! $pixel->active || $pixel->platform !== $link->platform) {
@@ -92,10 +110,20 @@ final class AttributionRecorder implements AttributionService
             if ($link->drama_id !== $dramaId) {
                 return false;
             }
+            if (PilotScope::enabled() && (! app(PilotLandingEvidence::class)->confirms($pending, $dramaId)
+                || app(LegacyAdvertisingBridge::class)->denied($privacy))) {
+                return false;
+            }
             app(CatalogReader::class)->drama($dramaId, 'zh_CN');
             $row = DB::table('acquisition_sources')->where('landing_key', $pending['key'])->first();
             if (! $row) {
                 $pixel = DB::table('acquisition_pixels')->where('id', $link->pixel_id)->lockForUpdate()->first();
+                if (PilotScope::enabled()) {
+                    [, , $approvedPixel] = app(PilotScope::class)->target($link->id);
+                    if ((int) $pixel->version !== (int) $approvedPixel->version) {
+                        return false;
+                    }
+                }
                 $id = (string) Str::uuid();
                 $subject = $c->subject();
                 $matching = app(ClickContext::class)->forPlatform($link->platform, $clickContext);
@@ -114,7 +142,7 @@ final class AttributionRecorder implements AttributionService
             DB::table('acquisition_privacy')->where('id', $privacy->id)->update(['active_source' => $row->id]);
             $c->rememberConsent($privacy->id);
             $c->session()->put('tracking.confirmed', ['page' => $pageInstanceId, 'drama' => $dramaId, 'source' => $row->id]);
-            $c->session()->forget('tracking.pending');
+            $c->session()->forget(['tracking.pending', 'tracking.production_get']);
 
             return true;
         });
@@ -136,6 +164,14 @@ final class AttributionRecorder implements AttributionService
         if (! $row || $row->consent !== 'granted' || CarbonImmutable::parse($row->captured_at)->greaterThan(now())
             || CarbonImmutable::parse($row->expires_at)->lessThanOrEqualTo(now())) {
             return null;
+        }
+
+        if (PilotScope::enabled()) {
+            try {
+                app(PilotScope::class)->source($row);
+            } catch (\LogicException) {
+                return null;
+            }
         }
 
         return new AttributionSnapshot($row->id, $row->link_id, $row->channel, $row->pixel_version,

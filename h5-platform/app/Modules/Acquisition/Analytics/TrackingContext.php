@@ -4,6 +4,7 @@ namespace App\Modules\Acquisition\Analytics;
 
 use App\Contracts\IdentityContext;
 use App\Modules\Acquisition\Measurement\SiteAnalysisBridge;
+use App\Modules\Acquisition\Production\PilotScope;
 use App\Modules\Acquisition\Registration\LegacyAdvertisingBridge;
 use App\Modules\Acquisition\Registration\PurposeProof;
 use App\Support\RuntimeEnvironmentGuard;
@@ -17,6 +18,12 @@ final class TrackingContext
 {
     public function enabled(): bool
     {
+        if (PilotScope::enabled()) {
+            $session = $this->session();
+
+            return config('h5.modules.acquisition.ready') === true && app(PilotScope::class)->active()
+                && $session?->get('tracking.production_engaged') === true;
+        }
         if (self::advertisingTestOnly()) {
             app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
         }
@@ -27,6 +34,11 @@ final class TrackingContext
     public static function advertisingTestOnly(): bool
     {
         return config('h5.acquisition_staging_test') === true;
+    }
+
+    public static function advertisingOnly(): bool
+    {
+        return self::advertisingTestOnly() || PilotScope::enabled();
     }
 
     public function session(): ?Session
@@ -49,13 +61,13 @@ final class TrackingContext
         $row = is_string($id) && Str::isUuid($id) ? DB::table('acquisition_privacy')->where('id', $id)->first() : null;
         if ($row && $restore && $s) {
             $s->put('tracking.privacy', $row->id);
-            if (! self::advertisingTestOnly() && $row->current_subject) {
+            if (! self::advertisingOnly() && $row->current_subject) {
                 $s->put('tracking.subject', $row->current_subject);
             }
-            if ($row->active_source) {
+            if ($row->active_source && ! PilotScope::enabled()) {
                 $s->put('tracking.source', $row->active_source);
             }
-            if (! self::advertisingTestOnly() && $row->viewer_id) {
+            if (! self::advertisingOnly() && $row->viewer_id) {
                 $s->put('tracking.viewer', $row->viewer_id);
             }
         }
@@ -89,7 +101,7 @@ final class TrackingContext
         if ($analytics && $advertising) {
             return;
         }
-        $viewer = self::advertisingTestOnly() ? null : app(IdentityContext::class)->viewer()?->id;
+        $viewer = self::advertisingOnly() ? null : app(IdentityContext::class)->viewer()?->id;
         $ids = array_values(array_unique([...$this->evidenceIds(), ...array_filter([$this->privacy()?->id])]));
         $query = DB::table('acquisition_privacy');
         if ($viewer) {
@@ -115,6 +127,9 @@ final class TrackingContext
             app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
             $analytics = false;
         }
+        if (PilotScope::enabled()) {
+            $analytics = false;
+        }
         $s = $this->session();
         if (! $s) {
             return;
@@ -125,7 +140,7 @@ final class TrackingContext
             $old = $this->privacy();
             $old = $old ? DB::table('acquisition_privacy')->where('id', $old->id)->lockForUpdate()->first() : null;
             $r1 = app(LegacyAdvertisingBridge::class);
-            if (! $advertising && ! self::advertisingTestOnly()) {
+            if (! $advertising && ! self::advertisingOnly()) {
                 $r1->legacyWithdrawal();
             }
             $r1Denied = $r1->denied($old);
@@ -135,6 +150,9 @@ final class TrackingContext
             $preserve = SiteAnalysisBridge::experience() && $analytics && ! $denied;
             $choice = $preserve ? ($old?->analytics ?? $s->get('tracking.consent.analytics', 'unknown')) : ($analytics && ! $denied ? 'granted' : 'denied');
             $this->withdrawKnown($preserve || $choice === 'granted', $advertising);
+            if (! $advertising && PilotScope::enabled()) {
+                $s->forget(['tracking.source', 'tracking.production_get']);
+            }
             $id = $old?->id ?? (string) Str::uuid();
             $s->put('tracking.consent', ['analytics' => $choice, 'advertising' => $advertising ? 'granted' : 'denied']);
             // A rejection alone creates no legacy tracking identity.
@@ -177,6 +195,19 @@ final class TrackingContext
 
     public function syncViewer(?string $viewer = null): void
     {
+        if (PilotScope::enabled()) {
+            $session = $this->session();
+            $current = $viewer ?? app(IdentityContext::class)->viewer()?->id;
+            $previous = $session?->get('tracking.viewer');
+            if ($previous && $previous !== $current) {
+                $this->clear();
+            }
+            if ($current && ($session?->has('tracking.pending') || $session?->has('tracking.source'))) {
+                $session->put('tracking.viewer', $current);
+            }
+
+            return;
+        }
         if (self::advertisingTestOnly()) {
             return;
         }
@@ -212,7 +243,7 @@ final class TrackingContext
     public function subject(?string $viewer = null): ?object
     {
         $s = $this->session();
-        if (self::advertisingTestOnly() || ! $s || ! $this->enabled()) {
+        if (self::advertisingOnly() || ! $s || ! $this->enabled()) {
             return null;
         }
         if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
@@ -264,8 +295,10 @@ final class TrackingContext
 
         $result = ['enabled' => $this->enabled(), 'consent' => $p ? ['analytics' => $p->analytics, 'advertising' => $p->advertising] : ($this->session()?->get('tracking.consent') ?? ['analytics' => 'unknown', 'advertising' => 'unknown']),
             'policy_version' => 'analytics-v1', 'pending_landing' => (bool) $this->session()?->has('tracking.pending')];
-        if (self::advertisingTestOnly()) {
-            $result['advertising_test_only'] = true;
+        if (self::advertisingOnly()) {
+            if (self::advertisingTestOnly()) {
+                $result['advertising_test_only'] = true;
+            }
             $result['analytics_available'] = false;
             // Historical grants cannot be presented as an available analysis feature here.
             $result['consent']['analytics'] = $result['consent']['analytics'] === 'denied' ? 'denied' : 'unknown';

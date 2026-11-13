@@ -6,6 +6,7 @@ use App\Enums\BehaviorRecordingResult;
 use App\Modules\Acquisition\Analytics\BehaviorRecorder;
 use App\Modules\Acquisition\Analytics\ClickContext;
 use App\Modules\Acquisition\Analytics\TrackingContext;
+use App\Modules\Acquisition\Production\PilotScope;
 use App\Modules\Acquisition\Services\AttributionRecorder;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
@@ -29,7 +30,7 @@ final class TrackingController
 
     public function consent(Request $r, TrackingContext $context)
     {
-        if (! $context->enabled()) {
+        if (! $context->enabled() && ! PilotScope::enabled()) {
             return $this->context($context);
         }
         if (strlen($r->getContent()) > 1024) {
@@ -38,8 +39,14 @@ final class TrackingController
         abort_if(array_diff(array_keys($r->all()), ['analytics', 'advertising', 'policy_version']), 422);
         abort_unless(is_bool($r->input('analytics')) && is_bool($r->input('advertising')), 422);
         $input = $r->validate(['analytics' => ['required', 'boolean'], 'advertising' => ['required', 'boolean'], 'policy_version' => ['required', 'in:analytics-v1']]);
+        if (! $context->enabled() && $input['advertising']) {
+            return $this->context($context);
+        }
         try {
             $context->consent((bool) $input['analytics'], (bool) $input['advertising']);
+            if (PilotScope::enabled() && ! $input['advertising']) {
+                return response()->json($context->publicContext())->header('Cache-Control', 'no-store');
+            }
         } catch (Throwable) {
             app(BehaviorRecorder::class)->diagnostic('consent_failed');
 
@@ -120,7 +127,9 @@ final class TrackingController
 
     public function landing(string $code, TrackingContext $context, AttributionRecorder $attribution)
     {
-        if (! $context->enabled()) {
+        if (PilotScope::enabled()) {
+            abort_unless(app(PilotScope::class)->active(), 404);
+        } elseif (! $context->enabled()) {
             throw new DependencyNotReady('Acquisition：站内采集未显式启用');
         }
 
