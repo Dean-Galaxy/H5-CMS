@@ -1,5 +1,7 @@
 # H5 多任务开发共同规则
 
+- 2026-11-13 本人00直接允许实际独立staging注册验邮/Sandbox接入后，源码334a0e14已部署/已GitHub读回。01 27f8a56＋05 870d287＋06 80b/395纯组合，00独立13/195严格无警告及SMTP真实服务17项过；原生真实UID/Guard/PGUTC/内容check、19公网正反无Basic过。SMTP AUTH无DATA，原Sandbox配对只恢复已验证配置行并保原receipt/time、当前精确通知十类读回，测试价399/1299/is_test；13保护表/APPKEY/OwnerMFA/两像素/正式77d配置SHA保持，无迁移/普通用户账务复制/工程发信交易外发。前后8件配置dump加密离机核过，正常timer保留；实核同00秒碰撞后仅staging改30秒(d2cc5f3a)，18:49两个真实tick exit0（媒体空队列，未报新素材实跑）。07现带本人在真实注册入口proton邮箱正常签名验邮，真人注册/两平台Purchase及正式准入仍待；第二观众163地址已本人直接批准并精确配置，两地址允许/越界拒绝。root main未合发布源码，以纯候选/实际334为准，见00注册验邮与单笔Purchase接续。
+
 - 2026-11-13 注册验邮与单笔Purchase独立候选adbf2100（01 27f8a56＋05 870d287＋06 80b/395）已GitHub留存，00独立13/195严格无警告通过、06真实01 SMTP17项过，测试PG正常停；未合main/未云部署/未发信/交易。root首轮夹具漏空.env警告已仅修准备并保留回执。staging viewer0需正常验邮，TikToktestv1配置本人确认及00安全读回/8件加密备份过；原SandboxOAuth/商品/旧回调只读200，当前stage回调0。下一实际接入须明确独立staging SMTP本人名单/原Sandbox配对和精确通知，不假verified/复制生产用户/旧付款补来源；正式广告准入另待。见00-注册验邮与单笔Purchase测试接续-20261113.md。
 
 - 2026-11-13 07本人确认“服务器PageView：看到；事件ID：一致”，00 read_thread核原话，与唯一h5_promotion_3f7eb4c2-e6d0-448b-8566-dcde471eef54官方API回执同ID。本轮Meta真实推广4/4完成仅限定既定页面链路，不等同Purchase/TikTok/正式投放；8件发送后配置/dump加密离机核过，正常站点/资产Token/media-publish timer继续保留，web外发不扩。本人要求继续后三项，00已派现有03/05/06只读核当前工程与真实依赖，不重发PageView/重放旧真钱单/新建广告或花预算。

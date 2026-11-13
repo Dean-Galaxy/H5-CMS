@@ -1,0 +1,105 @@
+# Persistent integration staging. Application Auth/MFA/CSRF governs normal routes.
+# Include alongside the existing default TLS/SNI reject server.
+server {
+    listen 443 ssl;
+    server_name staging.sparklingshort.com;
+    ssl_certificate /etc/letsencrypt/live/staging.sparklingshort.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/staging.sparklingshort.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    if ($host != staging.sparklingshort.com) { return 444; }
+    if ($ssl_server_name != staging.sparklingshort.com) { return 444; }
+    auth_basic off;
+    root /srv/h5-page-test/current/h5-platform/public;
+    access_log off;
+    error_log /dev/null crit;
+    add_header Cache-Control "no-store, private" always;
+    add_header X-Content-Type-Options nosniff always;
+    client_max_body_size 2m;
+    location ~ (?:^|/)\. { return 404; }
+    location ~* \.php(?:/|$) { return 404; }
+    # Explicitly enabled official Sandbox acceptance; application auth/CSRF remains.
+    location = /webhooks/paypal {
+        if ($request_method != POST) { return 405; }
+        include __FASTCGI_INCLUDE__;
+        fastcgi_param HTTP_PAYPAL_AUTH_ALGO $http_paypal_auth_algo if_not_empty;
+        fastcgi_param HTTP_PAYPAL_CERT_URL $http_paypal_cert_url if_not_empty;
+        fastcgi_param HTTP_PAYPAL_TRANSMISSION_ID $http_paypal_transmission_id if_not_empty;
+        fastcgi_param HTTP_PAYPAL_TRANSMISSION_SIG $http_paypal_transmission_sig if_not_empty;
+        fastcgi_param HTTP_PAYPAL_TRANSMISSION_TIME $http_paypal_transmission_time if_not_empty;
+    }
+    location = /membership/checkout {
+        if ($request_method != POST) { return 405; }
+        include __FASTCGI_INCLUDE__;
+    }
+    location = /membership/cancel {
+        if ($request_method != POST) { return 405; }
+        include __FASTCGI_INCLUDE__;
+    }
+    location = /billing/return {
+        if ($request_method !~ ^(GET|HEAD)$) { return 405; }
+        include __FASTCGI_INCLUDE__;
+    }
+    location = /billing/return/recheck {
+        if ($request_method != POST) { return 405; }
+        include __FASTCGI_INCLUDE__;
+    }
+    location = /api/v1/billing/checkout {
+        if ($request_method != POST) { return 405; }
+        include __FASTCGI_INCLUDE__;
+    }
+    location = /api/v1/billing/subscription/cancel {
+        if ($request_method != POST) { return 405; }
+        include __FASTCGI_INCLUDE__;
+    }
+    # Other provider ingress, Live and resume remain outside this test release.
+    location ~ ^/webhooks(?:/|$) { return 503; }
+    location ~ ^/(?:membership/(?:checkout|cancel|resume)|billing/return(?:/recheck)?|api/v1/billing/(?:checkout|subscription/(?:cancel|resume)))/?$ { return 503; }
+    # Content library dependencies only; business /content paths stay with the app.
+    location = /content/admin.css {
+        limit_except GET { deny all; }
+        types { text/css css; }
+        try_files $uri =404;
+    }
+    location = /content/errors.js {
+        limit_except GET { deny all; }
+        types { application/javascript js; }
+        try_files $uri =404;
+    }
+    location = /content/admin.js {
+        limit_except GET { deny all; }
+        types { application/javascript js; }
+        try_files $uri =404;
+    }
+    # Locked browser dependency; no general /vendor file server or sourcemap.
+    location = /vendor/hls.js/1.7.3/hls.min.js {
+        limit_except GET { deny all; }
+        types { application/javascript js; }
+        try_files $uri =404;
+    }
+    location ~ ^/identity\.(css|js)$ {
+        limit_except GET { deny all; }
+        try_files $uri =404;
+    }
+    # Only the ten existing public/audience files are static. Other /audience
+    # paths are application routes, including POST playback; retain app CSRF.
+    location ~ ^/audience/(?:(?:analytics|site|purposes-r1|measurement-c)\.(?:css|js)|(?:player|billing)\.js)$ {
+        limit_except GET { deny all; }
+        try_files $uri =404;
+    }
+    location ~ ^/(build|css|js|fonts|admin-ui)/ {
+        limit_except GET { deny all; }
+        location ~ \.php { return 404; }
+        try_files $uri =404;
+    }
+    location = /__LIVEWIRE__/livewire.js {
+        limit_except GET { deny all; }
+        include __FASTCGI_INCLUDE__;
+    }
+    location = /__LIVEWIRE__/livewire.min.js {
+        limit_except GET { deny all; }
+        include __FASTCGI_INCLUDE__;
+    }
+    location / {
+        include __FASTCGI_INCLUDE__;
+    }
+}
