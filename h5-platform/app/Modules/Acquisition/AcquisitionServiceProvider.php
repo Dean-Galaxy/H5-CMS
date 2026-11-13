@@ -5,6 +5,7 @@ namespace App\Modules\Acquisition;
 use App\Contracts\AttributionService;
 use App\Contracts\BehaviorEventRecorder;
 use App\Contracts\CheckoutAttribution;
+use App\Contracts\PromotionLandingEvidence;
 use App\Contracts\RegistrationMeasurement;
 use App\Data\PaymentSettled;
 use App\Modules\Acquisition\Analytics\BehaviorRecorder;
@@ -14,6 +15,8 @@ use App\Modules\Acquisition\Console\PruneAnalytics;
 use App\Modules\Acquisition\Console\PruneMeasurement;
 use App\Modules\Acquisition\Console\PruneRegistrationPurposes;
 use App\Modules\Acquisition\Console\SendPageTest;
+use App\Modules\Acquisition\Console\SendPromotionPageViews;
+use App\Modules\Acquisition\Promotion\LandingCapture;
 use App\Modules\Acquisition\Registration\RegistrationMeasurementAdapter;
 use App\Modules\Acquisition\Registration\RegistrationObservations;
 use App\Modules\Acquisition\Services\AttributionRecorder;
@@ -31,6 +34,7 @@ final class AcquisitionServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/config.php', 'acquisition');
         $this->app->bind(AttributionService::class, AttributionRecorder::class);
         $this->app->bind(CheckoutAttribution::class, CheckoutContextStore::class);
+        $this->app->bind(PromotionLandingEvidence::class, LandingCapture::class);
         $this->app->bind(BehaviorEventRecorder::class, BehaviorRecorder::class);
         $this->app->singleton(RegistrationObservations::class);
         $this->app->bind(RegistrationMeasurement::class, RegistrationMeasurementAdapter::class);
@@ -50,7 +54,7 @@ final class AcquisitionServiceProvider extends ServiceProvider
             throw new \LogicException('Acquisition transport is invalid or simulation is forbidden outside local/testing.');
         }
         Event::listen(PaymentSettled::class, [PaymentReceiver::class, 'handle']);
-        $this->commands([SendPageTest::class, ConfigurePixelCredentials::class, DispatchAcquisition::class, PruneAnalytics::class, PruneMeasurement::class, PruneRegistrationPurposes::class]);
+        $this->commands([SendPromotionPageViews::class, SendPageTest::class, ConfigurePixelCredentials::class, DispatchAcquisition::class, PruneAnalytics::class, PruneMeasurement::class, PruneRegistrationPurposes::class]);
         $this->app->afterResolving(Schedule::class, function (Schedule $schedule) {
             $schedule->command('acquisition:dispatch')->everyMinute()->withoutOverlapping(5);
             $schedule->command('acquisition:analytics-prune')->daily()->withoutOverlapping(5);

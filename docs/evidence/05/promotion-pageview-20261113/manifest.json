@@ -1,0 +1,46 @@
+{
+  "baseline": "a5f7691a680b71e0a03aedfa35b18a67d1b0628d",
+  "public_dependency": "fc78494021c34d3bc77fff37795813a0225bb76e",
+  "public_dependency_local": "ce428fc",
+  "source": "571bbbfcd1640d967639f2e0ea8dea7fd923277d",
+  "branch": "codex/05-promotion-pageviews",
+  "tests": [
+    {
+      "file": "focused-tests.txt",
+      "passed": 23,
+      "assertions": 315,
+      "seconds": 2.61
+    },
+    {
+      "file": "ad-only-compatibility.txt",
+      "passed": 1,
+      "assertions": 23,
+      "seconds": 0.36
+    }
+  ],
+  "php_lint_files": 12,
+  "actual_04_hook_combination": "pending owner integration",
+  "browser_run": false,
+  "real_platform_requests": 0,
+  "real_token_read": false,
+  "cloud_write": false,
+  "own_test_pg_stopped_normally": true,
+  "files": [
+    {
+      "file": "ad-only-compatibility.txt",
+      "sha256": "bc5a478449c4ca74bd6741e6aeab7cee09d1160569964ce234042965a154a639"
+    },
+    {
+      "file": "focused-tests.txt",
+      "sha256": "65918802038633ec44ff4235536c1f97f1045eb9c9505f87c85a46063409f947"
+    },
+    {
+      "file": "php-lint.txt",
+      "sha256": "b6398b0aa36c9d3c32d227106f91ba6fd14ba204f431e9ae39afe447ac48b506"
+    },
+    {
+      "file": "pint.txt",
+      "sha256": "9fa3c401d4d7dcf9d616a4e847f09d73bafe2397e5f1b5b77531e2516436ed5a"
+    }
+  ]
+}

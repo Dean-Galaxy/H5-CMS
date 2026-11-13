@@ -1,0 +1,12 @@
+No syntax errors detected in h5-platform/app/Modules/Acquisition/AcquisitionServiceProvider.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Analytics/Labels.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Analytics/TrackingContext.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Console/PruneAnalytics.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Console/SendPromotionPageViews.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Promotion/LandingCapture.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Promotion/PageViewSender.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Services/AssetManager.php
+No syntax errors detected in h5-platform/app/Modules/Acquisition/Services/AttributionRecorder.php
+No syntax errors detected in h5-platform/database/migrations/2026_11_13_050011_create_acquisition_promotion_pageviews.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/DirectTestLaneTest.php
+No syntax errors detected in h5-platform/tests/Feature/Acquisition/PromotionPageViewTest.php

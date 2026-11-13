@@ -1,0 +1,31 @@
+{
+  "parent": "e997b4ba6407ee5dcc922e0f28c422a8214b44ca",
+  "source": "193de87a5c2d07b28b7b776c348e8fa4ba294af7",
+  "scope": "Meta PageView gate only; preserve original TikTok source confirmation",
+  "tests": {
+    "command_filter": "ad_only_",
+    "passed": 2,
+    "assertions": 35,
+    "seconds": 0.6,
+    "new_tiktok_assertions": 12,
+    "existing_meta_assertions": 23
+  },
+  "checks": {
+    "php_lint_files": 2,
+    "pint_dirty": "passed",
+    "git_diff_check": "passed"
+  },
+  "own_test_pg_stopped_normally": true,
+  "real_platform_requests": 0,
+  "cloud_write": false,
+  "files": [
+    {
+      "file": "red.txt",
+      "sha256": "8212ea8284b14d7594454c3c22ecea219983cc22a916ad0b7f60e4f010055ba1"
+    },
+    {
+      "file": "green.txt",
+      "sha256": "543075fd652750f4514e7294d48a06cae8c49c880b70153fe674db7905f2a81b"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Command: python3 h5-platform/tests/Feature/Acquisition/Support/r1a_test.py clean test --compact tests/Feature/Acquisition/DirectTestLaneTest.php --filter=ad_only_
+
+  ..
+
+  Tests:    2 passed (35 assertions)
+  Duration: 0.60s
+
+
+Exit: 0

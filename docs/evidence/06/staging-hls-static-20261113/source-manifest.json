@@ -1,0 +1,15 @@
+{
+  "tested_source_commit": "9e8ef48c1d7e01ac2f36653084266cf02ffff82d",
+  "base_commit": "affaafdc3dac2f9d4ceadc7edcef2ca25e4ef8c6",
+  "sha256": {
+    "deploy/page-test-staging/nginx.conf.template": "24e36b0a742ceb83cb63a51f20a792a8580e83aada91f96f80aa38944a542b25",
+    "scripts/ops/tests/check_staging_operations.py": "d5a5431187903e5952344783c1bd25d51da55b3531397ef026ed6b7afd3ba37f"
+  },
+  "existing_public_dependency": {
+    "read_only_source": "/Volumes/KESU/H5/h5-platform/public/vendor/hls.js/1.7.3/hls.min.js",
+    "bytes": 619692,
+    "sha256": "a12e7ee1cd64a69dcdb314157e45dafcba705bfb0b1440b7935cb265d374423e",
+    "network_used": false,
+    "committed_bundle": false
+  }
+}

@@ -104,6 +104,10 @@ final class TrackingContext
         }
         if (! $advertising) {
             $values += ['advertising' => 'denied', 'active_source' => null];
+            DB::table('acquisition_promotion_pageviews')->whereIn('privacy_id', $affected)->where('state', 'pending')->update([
+                'state' => 'blocked', 'reason' => 'CONSENT_REQUIRED_OR_REVOKED', 'context_encrypted' => null,
+            ]);
+            $this->session()?->forget('tracking.promotion_get');
             // Explicit withdrawal permanently cancels unconsumed diagnostic intents, even if regranted later.
             DB::table('acquisition_page_tests')->whereIn('privacy_id', $affected)->where('state', 'pending')->update([
                 'state' => 'blocked', 'reason' => 'CONSENT_REQUIRED_OR_REVOKED', 'context_encrypted' => null,

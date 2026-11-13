@@ -42,6 +42,9 @@
         </x-admin.panel>
 
         <x-admin.panel group="acquisition-tabs" name="deliveries" :active="$tab">
+            @if($summary)<section class="h5-card"><h3>真实推广 PageView 测试发送</h3><p>仅同意后的目标剧成功GET及可见确认；本站去重状态，不是平台归因。接口接受仍待持有人在Meta Test Events核对；未知不自动重发。付款重试按钮不处理此类事件。</p>
+            @forelse($summary['page_views'] ?? [] as $row)<p>{{ \App\Modules\Acquisition\Analytics\Labels::state($row['state']) }} · {{ $row['count'] }} 项 @if($row['reason'])（{{ \App\Modules\Acquisition\Analytics\Labels::error($row['reason']) }}）@endif</p>@empty<p>暂无获准的推广页面测试事件。</p>@endforelse</section>@endif
+
             <section class="h5-card"><h3>发送记录</h3>
                 @if($summary)<p>对应链接的脱敏聚合结果；失败重试仅适用于尚未成功发送的项目。重试不变更订单，也不会在页面中直接发送。</p>
                     @forelse($summary['deliveries'] as $row)<p><span class="h5-badge">{{ \App\Modules\Acquisition\Analytics\Labels::state($row['state']) }}</span> {{ $row['count'] }} 项 @if($row['reason'])（{{ \App\Modules\Acquisition\Analytics\Labels::error($row['reason']) }}）@endif</p>@empty<p>暂无对应发送记录。</p>@endforelse

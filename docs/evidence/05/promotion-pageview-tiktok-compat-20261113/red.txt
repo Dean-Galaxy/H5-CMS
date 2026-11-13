@@ -1,0 +1,7 @@
+Observed before narrowing the Meta gate, on parent e997b4ba6407ee5dcc922e0f28c422a8214b44ca plus the new test.
+Command: python3 h5-platform/tests/Feature/Acquisition/Support/r1a_test.py clean test --compact tests/Feature/Acquisition/DirectTestLaneTest.php --filter=ad_only_tiktok
+Exit: 1
+Failed: test_ad_only_tiktok_confirms_original_source_without_meta_get_evidence_or_pageview
+Failed asserting that false is true at DirectTestLaneTest.php:264, AttributionRecorder.confirm.
+1 failed (4 assertions), 0.58s.
+Initial command had an extra h5-platform prefix and exited 2 (test file not found); corrected before this reproduction.

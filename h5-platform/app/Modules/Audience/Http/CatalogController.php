@@ -3,6 +3,7 @@
 namespace App\Modules\Audience\Http;
 
 use App\Contracts\CatalogReader;
+use App\Contracts\PromotionLandingEvidence;
 use App\Support\ApiProblem;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -48,7 +49,23 @@ final class CatalogController
 
     public function drama(string $id)
     {
-        return $this->page(fn () => view('audience.drama', ['drama' => $this->catalog->drama($id, app()->getLocale())]));
+        return $this->page(function () use ($id) {
+            $drama = $this->catalog->drama($id, app()->getLocale());
+            // Build the complete HTML response before handing off evidence; rendering may still fail.
+            $response = response()->view('audience.drama', compact('drama'));
+            $request = request();
+            if ($response->getStatusCode() === 200 && $drama->id === $id && $request->isMethod('GET')
+                && ! $request->expectsJson()
+                && ! preg_match('/prefetch|prerender/i', $request->header('Purpose', '').' '.$request->header('Sec-Purpose', ''))) {
+                try {
+                    app(PromotionLandingEvidence::class)->record($id);
+                } catch (\Throwable) {
+                    // No fallback evidence or consent. A failed optional hook must not break browsing.
+                }
+            }
+
+            return $response;
+        });
     }
 
     public function watch(string $id, string $episode)

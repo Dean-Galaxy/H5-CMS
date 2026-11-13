@@ -270,6 +270,7 @@ final class AssetManager
         return ['payments' => $rows->map(fn ($r) => ['is_test' => (bool) $r->is_test, 'transaction_kind' => $r->transaction_kind,
             'currency' => $r->currency, 'payments' => (int) $r->payments, 'amount_minor' => (int) $r->amount_minor])->all(),
             'deliveries' => $deliveries->map(fn ($r) => ['state' => $r->state, 'reason' => $r->last_error, 'count' => (int) $r->count])->all(),
+            'page_views' => DB::table('acquisition_promotion_pageviews')->where('link_id', $linkId)->select('state', 'reason')->selectRaw('COUNT(*) AS count')->groupBy('state', 'reason')->get()->map(fn ($r) => ['state' => $r->state, 'reason' => $r->reason, 'count' => (int) $r->count])->all(),
             'visits' => null, 'visits_status' => app(TrackingContext::class)->enabled() ? 'AVAILABLE_IN_ANALYTICS_REPORT' : 'DEPENDENCY_NOT_READY',
             'definition' => '本站核实付款总额，未扣退款；测试与真实分列；不是平台归因、ROAS 或真实观看'];
     }

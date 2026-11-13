@@ -9,6 +9,7 @@ use App\Modules\Acquisition\Analytics\BehaviorRecorder;
 use App\Modules\Acquisition\Analytics\ClickContext;
 use App\Modules\Acquisition\Analytics\Clock;
 use App\Modules\Acquisition\Analytics\TrackingContext;
+use App\Modules\Acquisition\Promotion\LandingCapture;
 use App\Support\ApiProblem;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Crypt;
@@ -93,6 +94,14 @@ final class AttributionRecorder implements AttributionService
                 return false;
             }
             app(CatalogReader::class)->drama($dramaId, 'zh_CN');
+            $pixel = DB::table('acquisition_pixels')->where('id', $link->pixel_id)->lockForUpdate()->first();
+            $getEvidence = null;
+            if (TrackingContext::advertisingTestOnly() && $link->platform === 'meta') {
+                $getEvidence = app(LandingCapture::class)->evidence($pending, $dramaId, $privacy, $pixel);
+                if (! $getEvidence || $pixel->environment !== 'test') {
+                    return false;
+                }
+            }
             $row = DB::table('acquisition_sources')->where('landing_key', $pending['key'])->first();
             if (! $row) {
                 $pixel = DB::table('acquisition_pixels')->where('id', $link->pixel_id)->lockForUpdate()->first();
@@ -109,6 +118,9 @@ final class AttributionRecorder implements AttributionService
                     'context_encrypted' => Crypt::encryptString(json_encode(['page_url' => rtrim(config('app.url'), '/').'/dramas/'.$dramaId,
                         'ip' => request()->ip(), 'user_agent' => mb_substr(request()->userAgent() ?? '', 0, 512)] + $matching, JSON_THROW_ON_ERROR))]);
                 $row = DB::table('acquisition_sources')->where('id', $id)->first();
+            }
+            if ($getEvidence) {
+                app(LandingCapture::class)->enqueue($row, $link, $pixel, $getEvidence);
             }
             $c->session()->put('tracking.source', $row->id);
             DB::table('acquisition_privacy')->where('id', $privacy->id)->update(['active_source' => $row->id]);

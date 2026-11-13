@@ -33,7 +33,7 @@ Nginx不再用探针路径白名单覆盖普通菜单。下列请求进入实际
 
 1. 固定接收后的完整SHA，记录staging当前指针/env/cache/Nginx摘要及各专属timer状态。备份新库、媒体和配置至既有加密离机链；可读dump或摘要核验不等于独立恢复。现有备份/恢复操作见 [恢复手册](../../docs/06-部署与恢复手册.md#备份独立恢复和不覆盖新付款的回退)。本候选没有迁移、公共依赖或业务实现变更。
 2. 如接02内容迁移，在**仅测试站**停止本文两个timer并等待在途任务结束。必须中止时再停本service，保留RUNNING，不自动清标记/重试未知素材。02只迁内容表及被引用媒体；不导入身份、消费者、账务或生产秘密。核实际文件逐摘要、所有关系/发布状态及剩余磁盘后再恢复任务。00当前源端计1705文件/12,038,939,386字节，可用22,490,726,400字节；这是只读容量回执，不代表已经复制或恢复。
-3. 在独立release安装同锁依赖和静态产物（沿用已核38件Filament公开文件），共享env/storage/media保持现有绑定。重建配置缓存时只用staging环境及 `/srv/h5-page-test/shared/bootstrap/config.php`，不复制生产缓存。比较缓存绝对路径的键和值，除目标版本路径及明确变更项外保持。以实际 `route:list` 核菜单/API与登录HTML的data-update-uri，不能猜唯一哈希路径。
+3. 在独立release安装同锁依赖和静态产物（沿用已核38件Filament公开文件），共享env/storage/media保持现有绑定。还须备齐原浏览器锁指定的hls.min.js及LICENSE；源码归档不含这些生成产物。仅复用00已核公开文件/本地官方包，独立复制不共享inode、不改正式、不把vendor塞Git；从目标release执行 `python3 scripts/install_browser_assets.py --check`（不联网），并配置精确 `/vendor/hls.js/1.7.3/hls.min.js` 静态入口，两项缺一均不能交浏览器。重建配置缓存时只用staging环境及 `/srv/h5-page-test/shared/bootstrap/config.php`，不复制生产缓存。比较缓存绝对路径的键和值，除目标版本路径及明确变更项外保持。以实际 `route:list` 核菜单/API与登录HTML的data-update-uri，不能猜唯一哈希路径。
 4. GeoIP由00把已存在的DB-IP库复制到 `/srv/h5-page-test/shared/geoip/dbip.mmdb`，root持有、目标UID只读，禁止可写或指向生产文件的符号链接。源摘要为 `145ce5dfb812d8de28547e6289bb5c5f8b3df2f1dea21d324d5b575e0431311f`，目标逐SHA核同；实际配置dbip_lite/max_age_days=45，并核metadata、目标UID读取及解析/缺库过期拒绝。不给假US、不访问外部IP解析、不放宽生产敏感目录。文件复制和目标解析本轮未执行。
 5. 渲染 `__FASTCGI_INCLUDE__` 为目标root持有的include绝对路径；`__LIVEWIRE__` 用目标实际 `livewire-xxxxxxxx` 段。保留现有默认TLS/SNI拒绝server、80续期与旧8443。目标机 `nginx -t`、`php-fpm8.4 -t` 后仅00 reload已有服务；比较生产配置摘要保持。原站不重部署、不改任务。
 6. root执行下面原生预检/安装顺序；资源参数先由00在实际主机合成视频测峰值。384MiB门槛为256MiB任务上限之外预留128MiB的初值，不能证明真实视频够用。不得为了让素材变ready提高主机规格或放宽生产预算。

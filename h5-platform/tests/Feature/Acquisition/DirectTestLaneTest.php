@@ -5,6 +5,7 @@ namespace Tests\Feature\Acquisition;
 use App\Contracts\CatalogReader;
 use App\Contracts\CheckoutAttribution;
 use App\Contracts\IdentityContext;
+use App\Contracts\PromotionLandingEvidence;
 use App\Data\AttributionSnapshot;
 use App\Data\CheckoutPageContext;
 use App\Data\Drama;
@@ -208,7 +209,16 @@ final class DirectTestLaneTest extends AcquisitionTestCase
         $this->assertFalse($public['analytics_available']);
         $this->assertSame(['analytics' => 'denied', 'advertising' => 'granted'], $public['consent']);
         app(AttributionRecorder::class)->prepare(basename($link['url']));
+        $checkout = request();
+        $get = Request::create(config('app.url').'/dramas/'.$link['drama_id'], 'GET', server: ['HTTP_USER_AGENT' => 'Explicit fixture']);
+        $get->setLaravelSession(app('session.store'));
+        $this->app->instance('request', $get);
+        app(PromotionLandingEvidence::class)->record($link['drama_id']);
+        $confirm = Request::create(config('app.url').'/api/v1/tracking/landing', 'POST', server: ['REMOTE_ADDR' => '8.8.8.8', 'HTTP_USER_AGENT' => 'Explicit fixture', 'HTTP_ORIGIN' => config('app.url')]);
+        $confirm->setLaravelSession(app('session.store'));
+        $this->app->instance('request', $confirm);
         $this->assertTrue(app(AttributionRecorder::class)->confirm($link['drama_id'], AcquisitionStore::id(), ['fbclid' => 'FAKE_TEST_CLICK']));
+        $this->app->instance('request', $checkout);
         $c->syncViewer(AcquisitionStore::id());
         $this->assertNull($c->subject(AcquisitionStore::id()));
         $recorder = app(BehaviorRecorder::class);
@@ -234,6 +244,35 @@ final class DirectTestLaneTest extends AcquisitionTestCase
         }
         $this->assertSame(0, DB::table('acquisition_privacy')->whereNotNull('viewer_id')->count());
         $this->assertDatabaseHas('acquisition_sources', ['id' => $snapshot->source_id, 'subject_id' => null]);
+        Http::assertNothingSent();
+    }
+
+    public function test_ad_only_tiktok_confirms_original_source_without_meta_get_evidence_or_pageview(): void
+    {
+        [$pixel, $link] = $this->assets('tiktok');
+        $this->staging();
+        (new AcquisitionServiceProvider($this->app))->boot();
+        $this->purchaseRequest();
+        $catalog = Mockery::mock(CatalogReader::class);
+        $catalog->shouldReceive('drama')->andReturn(new Drama($link['drama_id'], 'Fixture', '', null, 0, 0, 5, 'published', []));
+        $this->app->instance(CatalogReader::class, $catalog);
+        app(TrackingContext::class)->consent(false, true);
+        $recorder = app(AttributionRecorder::class);
+        $this->assertTrue(TrackingContext::advertisingTestOnly());
+        $this->assertSame('/dramas/'.$link['drama_id'], $recorder->prepare(basename($link['url'])));
+        $this->assertNull(session()->get('tracking.promotion_get'));
+        $this->assertTrue($recorder->confirm($link['drama_id'], AcquisitionStore::id(), ['ttclid' => 'E.C.P.FAKE_CLICK']));
+        $snapshot = $recorder->snapshot(null);
+        $this->assertNotNull($snapshot);
+        $this->assertSame('tiktok', $snapshot->channel);
+        $this->assertDatabaseHas('acquisition_sources', ['id' => $snapshot->source_id, 'link_id' => $link['id'],
+            'pixel_id' => $pixel['id'], 'channel' => 'tiktok', 'consent' => 'granted', 'is_simulation' => false, 'subject_id' => null]);
+        $source = DB::table('acquisition_sources')->where('id', $snapshot->source_id)->sole();
+        $context = json_decode(Crypt::decryptString($source->context_encrypted), true);
+        $this->assertSame('E.C.P.FAKE_CLICK', $context['ttclid']);
+        $this->assertDatabaseCount('acquisition_sources', 1);
+        $this->assertDatabaseCount('acquisition_promotion_pageviews', 0);
+        $this->assertDatabaseCount('acquisition_subjects', 0);
         Http::assertNothingSent();
     }
 
