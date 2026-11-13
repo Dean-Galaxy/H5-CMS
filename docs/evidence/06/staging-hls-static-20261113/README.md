@@ -23,3 +23,11 @@ python3 scripts/ops/tests/check_staging_operations.py \
 ```
 
 00负责把正式站已核的公开文件独立复制至staging部署产物，不共享inode、不改正式、不将第三方压缩vendor提交Git。原install_browser_assets.py --check同时检查hls.min.js和LICENSE：脚本619692字节/上述摘要，LICENSE1338字节/SHA256 ca8773cf798c7ed997d4dd7c8e23c348699f8d5b7462636694cc14de6cda12db。源LICENSE尚须00实核，不因脚本存在假定许可证已齐。复制完整锁定产物后，从目标release执行 `python3 scripts/install_browser_assets.py --check`，通过且Nginx精确规则就绪才交浏览器；此检查不联网。目标云文件/MIME和原生部署、干净Chrome点击后的MSE解码/分片与手机结果由00随后记最终SHA；本轮没有云部署或真实解码，不借其原生8秒媒体处理结果作为本次浏览器通过。
+
+## 防再犯（持续补记，关联00统一索引）
+
+本问题同时包含发布产物缺失与静态入口缺失，不因其中一项修复关闭整项。每个新release在交浏览器前执行既有 `python3 scripts/install_browser_assets.py --check`，核JS和LICENSE均符合锁；再对页面实际script URL核200、真实摘要、JavaScript MIME及SRI。生成文件不在Git中，不能只看源码归档、页面HTML200或媒体清单HTTP。保留本次HLS窄fixture及POST拒绝检查；最终仍须实际点击播放验证非原生HLS脚本执行与媒体解码。本记录保留失败及待验状态，收到00统一编号后原位关联，不重复编号。
+
+### 同类后续：内容管理静态依赖再次遗漏（2026-11-13）
+
+00在40b8589实际确认/content三个library资源404；与本记录同属“未从真实页面依赖核发布产物及静态入口”的根因类别。HLS单项修复没有覆盖其他菜单，此次是同类再次发生，不能只写成新文件404。沿本类别关联 [内容窄验与防再犯](../staging-content-static-20261113/README.md)，不造重复编号。新增从Content library Blade实际asset引用自动发现依赖的检查；实际员工四tab正文仍须00接收候选后验证，静态通过不得关闭完整业务阻断。

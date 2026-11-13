@@ -46,3 +46,19 @@ python3 -m unittest discover -s h5-platform/tests/Feature/Content/Support/transf
 ```
 
 默认跳过 PG 集成；仅对两个新空 `_test` 库显式设置 `CONTENT_TRANSFER_SOURCE_TEST` / `CONTENT_TRANSFER_TARGET_TEST` 为私密 service 名后运行。集成拒绝非空库，不删除任何库；原始回执留02私密 `.runtime/logs/content-transfer-tests.txt`；最终受影响PG回执 `.runtime/logs/content-transfer-final-tests.txt`。不重跑全产品/人工/上传优化。执行后验收交00：3剧45集与ID/version/已公开集数、所选文件逐SHA/属主、原Owner/MFA与像素配置保持；后台同账号编辑/预览、前台合法免费集和推广链接选剧按实际入口必要小轮核验。
+
+## 真实问题与防再犯（持续补充，关联00统一索引）
+
+按本人2026-11-13在07的要求：后续每次真实问题在现有交接补充触发环境、已确认根因/未知项、修复提交、实际验证及可执行预防；保留失败，不存凭据/隐私，不另造重复编号。项目结束待本人明确通知再统一提炼 skill，现在不创建或安装。公共编号与索引由00维护。
+
+### 本次迁入：UUID Owner谓词类型不匹配
+
+- 现象/环境：00在真实库完成只读export（3剧45集/93绑定ready资产）后，目标dry-run报PSQL拒绝；目标数据/媒体未写入。00以无个人数据readonly探针确认 `operator does not exist uuid=text`。原export和1674文件摘要保留，不因修补重新导出/重哈希。
+- 根因：安全hex literal返回text，工具两处Owner谓词使用 `identity_staff.id = literal(...)`，真实id为uuid；初版PG最小夹具把id/created_by简化成text，掩盖类型差异。此前合成通过不代表真实schema通过。
+- 修复：`bea306d4f9a0cd190b37f381d09d61a34c8c5064` 两处改为 `id::text` 比较，保留hex编码、active Owner门禁和精确scope；夹具identity_staff.id及content_assets/content_dramas.created_by改uuid并使用合法合成UUID。
+- 实际验证：仅受影响PG端到端1项1.355秒通过，覆盖UUID下dry-run/apply、幂等、目标版本漂移拒绝、inactive Owner拒绝且未生成plan/媒体、保护像素/身份保持；自有新合成测试库5602，结束恢复PG停止。回执 `.runtime/logs/content-transfer-uuid-tests.txt`。实际云迁入接收结果由00续记，本条不冒称已完成真实迁入。
+- 防再犯：凡跨库工具将SQL文本表达式与真实类型列比较，必须核对实际schema并显式转换；最小夹具可省无关列，不能简化谓词/FK/主键的关键类型。先dry-run确认零写入，失败修补后复用已冻结源包，仅复验受影响路径。
+
+### 待00排查：staging内容管理四tab正文空白
+
+本人07实报只有导航壳、无业务正文；根因未知，00统一排查且独占云写，02尚未收到定向修复。保留该阻断，不以HTTP200/导航壳当完整功能通过。后续关闭需真实权限下看到必要业务正文并完成受影响操作；具体修复提交/验证证据待00接续，02不重复部署或重跑。
