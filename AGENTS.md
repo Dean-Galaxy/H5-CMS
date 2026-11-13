@@ -1,5 +1,7 @@
 # H5 多任务开发共同规则
 
+- 2026-11-13 07本人确认“服务器PageView：看到；事件ID：一致”，00 read_thread核原话，与唯一h5_promotion_3f7eb4c2-e6d0-448b-8566-dcde471eef54官方API回执同ID。本轮Meta真实推广4/4完成仅限定既定页面链路，不等同Purchase/TikTok/正式投放；8件发送后配置/dump加密离机核过，正常站点/资产Token/media-publish timer继续保留，web外发不扩。本人要求继续后三项，00已派现有03/05/06只读核当前工程与真实依赖，不重发PageView/重放旧真钱单/新建广告或花预算。
+
 - 2026-11-13 本人07“已返回剧目”后，00核唯一真实pending/原链接/像素v1/已存广告同意及私密测试配置，单CLI进程精确发送PageView h5_promotion_3f7eb4c2-e6d0-448b-8566-dcde471eef54。事件17:25:13、受理17:29:49北京时间，Meta HTTP200/events_received1、CLI0、独立台账api_accepted/context清空；仅1请求、无自动重试/批发/Purchase。持久web仍disabled/externalfalse/reviewedfalse，配置/Token SHA与正式77d保持、普通timer不停。已给07精确ID/时间做同一Meta Test Events面板人工匹配；API受理已过、面板本人确认仍待，不报正式投放或4/4。原生成缺口记录同文件续写，源码63b7adf8不变。
 
 - 2026-11-13 本人07真实内容/链接/播放/广告同意四项成功，00实际核PageView台账0，不能冒称已发。确认两缺口：新Promotion源码root0700使真实h5用户类不可读（SHA/Console通过仍漏），及watch后保存同意被客户端排除。固定公开源码目录0755实际UID加载过，05一行受控watch修复77a11＋00绑定预检eb80，纯63b7adf8已GitHub/部署，无迁移/回填，11关键表与原同意/链接/凭据保持；独立Chrome双件及HTTP1项138断言过。普通timer保持、web广告仍disabled/外发0。旧GET根本无proof不能补造，已交07仅原浏览器返回剧目一次取得真实新GET，同意/链接保持。之后只精确1个真实pending用单次进程发送PageView，原持久开关不动、无历史扫描/自动重试；API与Meta面板分记。详见docs/handoffs/00-真实推广事件生成缺口修复与单次发送准备-20261113.md。
