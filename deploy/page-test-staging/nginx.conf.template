@@ -1,5 +1,5 @@
 # Standalone named TLS vhost, no default_server. Render all placeholders first.
-# __LIVEWIRE__ is the literal route-list-confirmed hash path, e.g. livewire-1234abcd.
+# __LIVEWIRE__ retains the hashed route. The login HTML advertises /admin/livewire/update.
 # Include this map in http {}, not inside another server.
 map "$request_method:$uri" $h5_page_test_allowed {
     default 0;
@@ -7,6 +7,7 @@ map "$request_method:$uri" $h5_page_test_allowed {
     ~^POST:/admin/logout$ 1;
     ~^GET:/admin/multi-factor-authentication/(set-up|challenge)$ 1;
     ~^POST:/__LIVEWIRE__/update$ 1;
+    ~^POST:/admin/livewire/update$ 1;
     ~^(GET|POST):/admin/acquisition-page-test$ 1;
     ~^POST:/admin/acquisition-page-test/withdraw$ 1;
     ~^GET:/api/v1/auth/csrf$ 1;
