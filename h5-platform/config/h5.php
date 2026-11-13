@@ -6,11 +6,24 @@ use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Content\ContentServiceProvider;
 use App\Modules\Identity\IdentityServiceProvider;
 
+$acquisitionStagingTest = env('H5_ACQUISITION_STAGING_TEST', false);
+$acquisitionProductionPilot = env('H5_ACQUISITION_PRODUCTION_PILOT', false);
+$acquisitionReady = $acquisitionStagingTest === true || $acquisitionProductionPilot === true;
+
 return [
     'contract' => '1.0.5',
     'workspace' => env('H5_WORKSPACE', 'unconfigured'),
     'controlled_staging' => env('H5_CONTROLLED_STAGING', false),
-    'acquisition_staging_test' => env('H5_ACQUISITION_STAGING_TEST', false),
+    'acquisition_staging_test' => $acquisitionStagingTest,
+    'acquisition_production_pilot' => $acquisitionProductionPilot,
+    'acquisition_production_scope' => [
+        'platform' => env('H5_ACQUISITION_PRODUCTION_PLATFORM'),
+        'link_id' => env('H5_ACQUISITION_PRODUCTION_LINK_ID'),
+        'pixel_id' => env('H5_ACQUISITION_PRODUCTION_PIXEL_ID'),
+        'pixel_version' => env('H5_ACQUISITION_PRODUCTION_PIXEL_VERSION'),
+        'from' => env('H5_ACQUISITION_PRODUCTION_FROM'),
+        'until' => env('H5_ACQUISITION_PRODUCTION_UNTIL'),
+    ],
     'simulation' => env('H5_SIMULATION', false),
     'local_modules' => env('H5_LOCAL_MODULES', ''),
     'local_module_providers' => [
@@ -33,8 +46,8 @@ return [
         'billing' => ['provider' => BillingServiceProvider::class, 'ready' => true],
         'audience' => ['provider' => AudienceServiceProvider::class, 'ready' => true],
         'acquisition' => [
-            'provider' => env('H5_ACQUISITION_STAGING_TEST', false) === true ? AcquisitionServiceProvider::class : null,
-            'ready' => env('H5_ACQUISITION_STAGING_TEST', false) === true,
+            'provider' => $acquisitionReady ? AcquisitionServiceProvider::class : null,
+            'ready' => $acquisitionReady,
         ],
     ],
 ];

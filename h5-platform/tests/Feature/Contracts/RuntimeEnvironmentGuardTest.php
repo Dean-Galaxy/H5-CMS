@@ -138,6 +138,69 @@ class RuntimeEnvironmentGuardTest extends TestCase
         $this->rejects(fn () => app(RuntimeEnvironmentGuard::class)->controlledStagingOrigin());
     }
 
+    public function test_production_purchase_scope_is_explicit_and_expiry_does_not_stop_website_boot(): void
+    {
+        $guard = app(RuntimeEnvironmentGuard::class);
+        $this->safeStaging();
+        $this->environment('production');
+        $guard->assertSafeRuntime();
+        $this->rejects(fn () => $guard->productionAcquisitionPilotOrigin());
+        config([
+            'app.url' => 'https://sparklingshort.com',
+            'billing.paypal_live.enabled' => true,
+            'billing.new_purchase_provider' => 'paypal_live',
+            'h5.acquisition_production_pilot' => true,
+            'h5.modules.acquisition' => ['provider' => AcquisitionServiceProvider::class, 'ready' => true],
+        ]);
+        $this->assertSame('https://sparklingshort.com', $guard->productionAcquisitionPilotOrigin());
+        $this->rejects(fn () => $guard->productionAcquisitionScope());
+
+        $this->travelTo(\Illuminate\Support\Carbon::parse('2026-11-13T12:00:00Z'));
+        config(['h5.acquisition_production_scope' => [
+            'platform' => 'meta',
+            'link_id' => '11111111-1111-4111-8111-111111111111',
+            'pixel_id' => '22222222-2222-4222-8222-222222222222',
+            'pixel_version' => '1',
+            'from' => '2026-11-13T12:00:00Z',
+            'until' => '2026-11-13T13:00:00Z',
+        ]]);
+        $this->assertSame(1, $guard->productionAcquisitionScope()['pixel_version']);
+        $this->travel(60)->minutes();
+        $this->rejects(fn () => $guard->productionAcquisitionScope());
+        $guard->assertSafeRuntime();
+        $this->travelBack();
+    }
+
+    public function test_production_purchase_rejects_other_origins_modes_and_nonproduction_environments(): void
+    {
+        $guard = app(RuntimeEnvironmentGuard::class);
+        $this->safeStaging();
+        config([
+            'app.url' => 'https://sparklingshort.com',
+            'billing.paypal_live.enabled' => true,
+            'billing.new_purchase_provider' => 'paypal_live',
+            'h5.acquisition_production_pilot' => true,
+            'h5.modules.acquisition' => ['provider' => AcquisitionServiceProvider::class, 'ready' => true],
+        ]);
+        foreach (['staging', 'testing', 'local'] as $environment) {
+            $this->environment($environment);
+            $this->rejects(fn () => $guard->productionAcquisitionPilotOrigin());
+        }
+        $this->environment('production');
+        foreach ([
+            ['app.url', 'https://staging.sparklingshort.com', 'https://sparklingshort.com'],
+            ['acquisition.external_enabled', true, false],
+            ['acquisition.transport', 'http', 'disabled'],
+            ['acquisition.analytics_enabled', true, false],
+            ['h5.acquisition_production_pilot', 'true', true],
+        ] as [$key, $invalid, $valid]) {
+            config([$key => $invalid]);
+            $this->rejects(fn () => $guard->productionAcquisitionPilotOrigin());
+            config([$key => $valid]);
+        }
+        $this->assertSame('https://sparklingshort.com', $guard->productionAcquisitionPilotOrigin());
+    }
+
     public function test_c_experience_only_selects_an_isolated_local_page_and_never_releases_staging(): void
     {
         foreach (['local', 'testing'] as $environment) {

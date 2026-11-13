@@ -4,7 +4,9 @@ namespace App\Support;
 
 use App\Modules\Acquisition\AcquisitionServiceProvider;
 use App\Modules\Billing\Gateway\PayPal\LiveApi;
+use DateTimeImmutable;
 use Illuminate\Support\Env;
+use Illuminate\Support\Str;
 use LogicException;
 
 /** Checks loaded configuration only. Never connects to mail, payment providers or a region service. */
@@ -15,7 +17,7 @@ final class RuntimeEnvironmentGuard
         $environment = config('app.env');
         $this->require(in_array($environment, ['local', 'testing', 'staging', 'production'], true)
             && $environment === app()->environment() && $environment === Env::get('APP_ENV'), 'RUNTIME_ENVIRONMENT_INVALID');
-        foreach (['app.debug', 'h5.controlled_staging', 'h5.acquisition_staging_test', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration'] as $key) {
+        foreach (['app.debug', 'h5.controlled_staging', 'h5.acquisition_staging_test', 'h5.acquisition_production_pilot', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration'] as $key) {
             $this->require(is_bool(config($key)), 'RUNTIME_BOOLEAN_INVALID');
         }
         $this->require(! config('h5.measurement_c_experience') || in_array($environment, ['local', 'testing'], true), 'RUNTIME_C_EXPERIENCE_FORBIDDEN');
@@ -25,6 +27,11 @@ final class RuntimeEnvironmentGuard
         $this->require(! config('h5.controlled_staging') || $environment === 'staging', 'STAGING_ENVIRONMENT_REQUIRED');
         $this->require(! config('h5.acquisition_staging_test') || ($environment === 'staging'
             && config('h5.controlled_staging') === true), 'ACQUISITION_TEST_STAGING_REQUIRED');
+        $productionPilot = config('h5.acquisition_production_pilot');
+        $this->require(! $productionPilot || ($environment === 'production'
+            && config('h5.acquisition_staging_test') === false
+            && config('billing.paypal_live.enabled') === true
+            && config('billing.new_purchase_provider') === 'paypal_live'), 'ACQUISITION_PILOT_PRODUCTION_REQUIRED');
         $this->paypal($environment);
         $this->paypalLive($environment);
         if (in_array($environment, ['local', 'testing'], true)) {
@@ -38,11 +45,19 @@ final class RuntimeEnvironmentGuard
         $this->require(config('session.secure') === true && config('session.http_only') === true
             && config('session.same_site') === 'lax', 'RUNTIME_COOKIE_UNSAFE');
         $this->require(in_array(config('trustedproxy.proxies'), [null, []], true), 'RUNTIME_PROXY_FORBIDDEN');
-        $test = config('h5.acquisition_staging_test');
-        $this->require($test
+        $acquisitionReady = config('h5.acquisition_staging_test') || $productionPilot;
+        $this->require($acquisitionReady
             ? config('h5.modules.acquisition.provider') === AcquisitionServiceProvider::class && config('h5.modules.acquisition.ready') === true
             : config('h5.modules.acquisition.provider') === null && config('h5.modules.acquisition.ready') === false,
             'RUNTIME_ACQUISITION_NOT_RELEASED');
+        if ($productionPilot) {
+            $this->require($this->origin() === 'https://sparklingshort.com', 'ACQUISITION_PILOT_ORIGIN_INVALID');
+            foreach (['analytics_enabled', 'measurement.enabled', 'measurement.synthetic_policy',
+                'registration.synthetic_policy', 'registration.observations_enabled', 'external_enabled'] as $key) {
+                $this->require(config('acquisition.'.$key, false) === false, 'ACQUISITION_PILOT_GLOBAL_MODE_FORBIDDEN');
+            }
+            $this->require(config('acquisition.transport', 'disabled') === 'disabled', 'ACQUISITION_PILOT_GLOBAL_MODE_FORBIDDEN');
+        }
         $this->require(config('mail.driver') === null, 'RUNTIME_MAIL_LEGACY_FORBIDDEN');
         $visited = 0;
         $this->mailer(config('mail.default'), [], $visited);
@@ -67,6 +82,50 @@ final class RuntimeEnvironmentGuard
         $this->require($mode === 'http' ? $external && $reviewed : ! $external, 'ACQUISITION_TEST_EXTERNAL_NOT_READY');
 
         return $origin;
+    }
+
+    public function productionAcquisitionPilotOrigin(): string
+    {
+        $this->assertSafeRuntime();
+        $this->require(config('h5.acquisition_production_pilot') === true, 'ACQUISITION_PILOT_NOT_ENABLED');
+
+        return $this->origin();
+    }
+
+    /** Use at the point of capture, exact payment handoff, or send. An expired window must not stop website boot. */
+    public function productionAcquisitionScope(): array
+    {
+        $this->productionAcquisitionPilotOrigin();
+        $scope = config('h5.acquisition_production_scope');
+        $this->require(is_array($scope)
+            && in_array($scope['platform'] ?? null, ['meta', 'tiktok'], true)
+            && is_string($scope['link_id'] ?? null) && Str::isUuid($scope['link_id'])
+            && is_string($scope['pixel_id'] ?? null) && Str::isUuid($scope['pixel_id'])
+            && $this->integer($scope['pixel_version'] ?? null, 1, 999999), 'ACQUISITION_PILOT_SCOPE_INVALID');
+        $from = $this->pilotTimestamp($scope['from'] ?? null);
+        $until = $this->pilotTimestamp($scope['until'] ?? null);
+        $now = now()->getTimestamp();
+        $this->require($from < $until && $from <= $now && $now < $until, 'ACQUISITION_PILOT_WINDOW_CLOSED');
+
+        return [
+            'platform' => $scope['platform'],
+            'link_id' => $scope['link_id'],
+            'pixel_id' => $scope['pixel_id'],
+            'pixel_version' => (int) $scope['pixel_version'],
+            'from' => $scope['from'],
+            'until' => $scope['until'],
+        ];
+    }
+
+    private function pilotTimestamp(mixed $value): int
+    {
+        $format = 'Y-m-d\TH:i:s\Z';
+        $date = is_string($value) && preg_match('/\A[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\z/D', $value)
+            ? DateTimeImmutable::createFromFormat('!'.$format, $value, new \DateTimeZone('UTC'))
+            : false;
+        $this->require($date !== false && $date->format($format) === $value, 'ACQUISITION_PILOT_SCOPE_INVALID');
+
+        return $date->getTimestamp();
     }
 
     /** Validate shape at boot; missing credentials remain unavailable to the adapter. */
