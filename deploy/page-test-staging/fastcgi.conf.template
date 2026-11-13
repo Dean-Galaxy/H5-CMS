@@ -20,7 +20,7 @@
         fastcgi_param SERVER_PORT 443;
         fastcgi_param SERVER_NAME staging.sparklingshort.com;
         fastcgi_param REDIRECT_STATUS 200;
-        # Explicit browser/webhook header allowlist; no client supplied proxy/country identity.
+        # Explicit browser header allowlist; no client supplied proxy/country identity.
         fastcgi_param HTTP_HOST staging.sparklingshort.com;
         fastcgi_param HTTP_ACCEPT $http_accept;
         fastcgi_param HTTP_ACCEPT_LANGUAGE $http_accept_language;
@@ -39,10 +39,4 @@
         fastcgi_param HTTP_IF_RANGE $http_if_range if_not_empty;
         fastcgi_param HTTP_UPLOAD_OFFSET $http_upload_offset if_not_empty;
         fastcgi_param HTTP_IDEMPOTENCY_KEY $http_idempotency_key;
-        fastcgi_param HTTP_STRIPE_SIGNATURE $http_stripe_signature;
-        fastcgi_param HTTP_PAYPAL_AUTH_ALGO $http_paypal_auth_algo;
-        fastcgi_param HTTP_PAYPAL_CERT_URL $http_paypal_cert_url;
-        fastcgi_param HTTP_PAYPAL_TRANSMISSION_ID $http_paypal_transmission_id;
-        fastcgi_param HTTP_PAYPAL_TRANSMISSION_SIG $http_paypal_transmission_sig;
-        fastcgi_param HTTP_PAYPAL_TRANSMISSION_TIME $http_paypal_transmission_time;
-        fastcgi_read_timeout 30s;
+        fastcgi_read_timeout 120s;

@@ -1,0 +1,13 @@
+test_actual_entry_with_synthetic_readouts (test_staging_media_capacity.CapacityTests.test_actual_entry_with_synthetic_readouts) ... {"staging_media_capacity": "eligible", "available_kib": 500000, "minimum_kib": 393216}
+ok
+test_busy_unknown_and_threshold (test_staging_media_capacity.CapacityTests.test_busy_unknown_and_threshold) ... ok
+test_inspection_failure_skips (test_staging_media_capacity.CapacityTests.test_inspection_failure_skips) ... {"staging_media_capacity":"unavailable_skip"}
+{"staging_media_capacity":"unavailable_skip"}
+ok
+test_missing_production_unit_skips (test_staging_media_capacity.CapacityTests.test_missing_production_unit_skips) ... {"staging_media_capacity": "production_busy_or_unknown", "available_kib": 500000, "minimum_kib": 393216}
+ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.001s
+
+OK

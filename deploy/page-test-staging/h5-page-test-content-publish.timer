@@ -1,0 +1,10 @@
+[Unit]
+Description=Check Sparkling Short publication schedules every minute
+ConditionPathExists=/srv/h5-page-test/ops/content-publish/ENABLED
+[Timer]
+OnCalendar=*-*-* *:*:00 UTC
+AccuracySec=1s
+Persistent=false
+Unit=h5-page-test-content-publish.service
+[Install]
+WantedBy=timers.target

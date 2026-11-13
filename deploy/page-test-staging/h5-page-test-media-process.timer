@@ -1,0 +1,14 @@
+# Persistent staging timer, independent of production. Arm with its own marker.
+[Unit]
+Description=H5 media-only polling (isolated staging)
+ConditionPathExists=/srv/h5-page-test/ops/media-process/ENABLED
+ConditionPathExists=!/srv/h5-page-test/ops/media-process/RUNNING
+
+[Timer]
+OnCalendar=*-*-* *:*:00 UTC
+AccuracySec=1s
+Persistent=false
+Unit=h5-page-test-media-process.service
+
+[Install]
+WantedBy=timers.target

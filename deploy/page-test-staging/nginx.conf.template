@@ -1,20 +1,5 @@
-# Standalone named TLS vhost, no default_server. Render all placeholders first.
-# __LIVEWIRE__ retains the hashed route. The login HTML advertises /admin/livewire/update.
-# Include this map in http {}, not inside another server.
-map "$request_method:$uri" $h5_page_test_allowed {
-    default 0;
-    ~^GET:/(admin/?|admin/login|admin/acquisition-desk|admin/acquisition-page-test|membership)$ 1;
-    ~^POST:/admin/logout$ 1;
-    ~^GET:/admin/multi-factor-authentication/(set-up|challenge)$ 1;
-    ~^POST:/__LIVEWIRE__/update$ 1;
-    ~^POST:/admin/livewire/update$ 1;
-    ~^POST:/api/v1/admin/acquisition/pixel-credentials$ 1;
-    ~^(GET|POST):/admin/acquisition-page-test$ 1;
-    ~^POST:/admin/acquisition-page-test/withdraw$ 1;
-    ~^GET:/api/v1/auth/csrf$ 1;
-    ~^GET:/api/v1/tracking/context$ 1;
-    ~^POST:/api/v1/tracking/consent$ 1;
-}
+# Persistent integration staging. Application Auth/MFA/CSRF governs normal routes.
+# Include alongside the existing default TLS/SNI reject server.
 server {
     listen 443 ssl;
     server_name staging.sparklingshort.com;
@@ -22,14 +7,19 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/staging.sparklingshort.com/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     if ($host != staging.sparklingshort.com) { return 444; }
+    if ($ssl_server_name != staging.sparklingshort.com) { return 444; }
     auth_basic off;
     root /srv/h5-page-test/current/h5-platform/public;
     access_log off;
     error_log /dev/null crit;
     add_header Cache-Control "no-store, private" always;
     add_header X-Content-Type-Options nosniff always;
-    client_max_body_size 128k;
-    location ~ /\. { return 404; }
+    client_max_body_size 2m;
+    location ~ (?:^|/)\. { return 404; }
+    location ~* \.php(?:/|$) { return 404; }
+    # Provider ingress is outside this content/operations integration scope.
+    location ~ ^/webhooks(?:/|$) { return 503; }
+    location ~ ^/(?:membership/(?:checkout|cancel|resume)|billing/return(?:/recheck)?|api/v1/billing/(?:checkout|subscription/(?:cancel|resume)))/?$ { return 503; }
     location ~ ^/identity\.(css|js)$ {
         limit_except GET { deny all; }
         try_files $uri =404;
@@ -48,7 +38,6 @@ server {
         include __FASTCGI_INCLUDE__;
     }
     location / {
-        if ($h5_page_test_allowed = 0) { return 503; }
         include __FASTCGI_INCLUDE__;
     }
 }

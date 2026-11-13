@@ -1,0 +1,59 @@
+# Persistent isolated staging candidate. Install and arm under the approved operations scope.
+# The actual current release must include 02's accepted non-ready -> nonzero fix before arming.
+# Marker directory: root:root 0755, marker files root:root 0600; never h5-writable.
+[Unit]
+Description=H5 single-item media processing (persistent isolated staging)
+ConditionPathExists=/srv/h5-page-test/ops/media-process/ENABLED
+ConditionPathExists=!/srv/h5-page-test/ops/media-process/RUNNING
+After=postgresql@17-main.service
+OnFailure=h5-page-test-media-stop-on-failure.service
+
+[Service]
+Type=oneshot
+User=h5_page_test
+Group=h5_page_test
+WorkingDirectory=/srv/h5-page-test/current/h5-platform
+Environment=APP_ENV=staging
+Environment=APP_CONFIG_CACHE=/srv/h5-page-test/shared/bootstrap/config.php
+ExecCondition=/usr/bin/python3 /srv/h5-page-test/current/scripts/ops/staging_media_capacity.py
+ExecCondition=/usr/bin/systemctl --quiet is-active postgresql@17-main.service
+# Check actual access inside the RW mount: h5 must not write, owner must be root.
+ExecStartPre=/usr/bin/test ! -w /srv/h5-page-test/ops/media-process
+ExecStartPre=!/usr/bin/test -O /srv/h5-page-test/ops/media-process
+ExecStartPre=/usr/bin/php8.4 -d memory_limit=128M /srv/h5-page-test/current/scripts/ops/staging_content.php check
+# '!' changes credentials only; unlike '+', it retains the filesystem sandbox.
+ExecStartPre=!/usr/bin/touch -- /srv/h5-page-test/ops/media-process/RUNNING
+# GNU sync with operands fsyncs both the marker and its parent before the CLI.
+ExecStartPre=!/usr/bin/sync -- /srv/h5-page-test/ops/media-process/RUNNING /srv/h5-page-test/ops/media-process
+ExecStart=/usr/bin/php8.4 -d memory_limit=128M /srv/h5-page-test/current/scripts/ops/staging_content.php media
+# For oneshot this runs only after ExecStart exits successfully. Never clear on stop.
+ExecStartPost=!/usr/bin/rm -- /srv/h5-page-test/ops/media-process/RUNNING
+ExecStartPost=!/usr/bin/sync -- /srv/h5-page-test/ops/media-process
+Restart=no
+RemainAfterExit=no
+TimeoutStartSec=15min
+TimeoutStopSec=5s
+KillMode=control-group
+SendSIGKILL=yes
+OOMPolicy=kill
+# Initial capacity hypotheses, not acceptance for arbitrary real videos.
+CPUQuota=25%
+MemoryHigh=192M
+MemoryMax=256M
+OOMScoreAdjust=500
+Nice=10
+UMask=0077
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+# The RW mount does not grant DAC permissions: h5 cannot write root's marker dir.
+ReadWritePaths=/srv/h5-page-test/shared/media /srv/h5-page-test/shared/storage/logs /srv/h5-page-test/ops/media-process
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=127.0.0.1
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=h5-page-test-media-process
+# No [Install], Restart loop, queue, scheduler, sudo, shell, or automatic PG/FPM start.

@@ -1,0 +1,20 @@
+{
+  "tested_source_commit": "af4c54f716a73adea7ea19e008def3db8ad888db",
+  "base_commit": "a5f7691a680b71e0a03aedfa35b18a67d1b0628d",
+  "recorded_utc": "2026-11-13T05:38:03.467011+00:00",
+  "sha256": {
+    "deploy/page-test-staging/README.md": "a072dea65bacac50991214180df8b4bc1082e9316501558153c3d5f51b1b2a9c",
+    "deploy/page-test-staging/fastcgi.conf.template": "d49e9a77fd947adfa960c0633ce1c62b85f031e46264af90c735e3b08416b4ed",
+    "deploy/page-test-staging/h5-page-test-content-publish.service": "4102eba676d0387d8b0bbe59cbea35a55ae7b5a5f3f9e127ac238b3ac200159d",
+    "deploy/page-test-staging/h5-page-test-content-publish.timer": "3b1d4f5a61e7e3af465e1745e6946ce9417bb837405a95b02e30c821b1a2a42f",
+    "deploy/page-test-staging/h5-page-test-media-process.service": "1370a94f4771ab0bd2c3570dff51c9904311f7b7e294370203edef4ba784065e",
+    "deploy/page-test-staging/h5-page-test-media-process.timer": "284c0dff468656313b6058b5e83541aa3dc5f31e35b6b05016b017df606b5dea",
+    "deploy/page-test-staging/h5-page-test-media-stop-on-failure.service": "6091f81aa22907a6524280e906ea750c79c8ed5ee2b786882120c724a272e476",
+    "deploy/page-test-staging/nginx.conf.template": "4d24d031235459e0bc08008212272a7df8b2c828cffab54d4bb7377f8291b003",
+    "deploy/page-test-staging/runtime.env.example": "a6e77034088e0d5f608d1d0605c5ab112af67aa6c6e0c243b3c2c0d42ccbdfd5",
+    "scripts/ops/staging_content.php": "9886194b005287e660d49c2edc41535c75ee34673373dded16ee1e58632f46cf",
+    "scripts/ops/staging_media_capacity.py": "6a3ccc334b3f1a554c75a8619c2f13a09524a69ea449bd0d4f40713eff3d2402",
+    "scripts/ops/tests/check_staging_operations.py": "6fbf3fb1003e0097696df7b2f511b7dd94039358ce1049c707ec50d550fc7bcd",
+    "scripts/ops/tests/test_staging_media_capacity.py": "e2fff90fda9e543f5c51e27f8325e74f0f4b7d4afce6efb4c7b98bccbf5dc839"
+  }
+}

@@ -1,0 +1,28 @@
+[Unit]
+Description=H5 content publication (isolated staging)
+After=postgresql@17-main.service
+ConditionPathExists=/srv/h5-page-test/ops/content-publish/ENABLED
+
+[Service]
+Type=oneshot
+User=h5_page_test
+Group=h5_page_test
+WorkingDirectory=/srv/h5-page-test/current/h5-platform
+Environment=APP_ENV=staging
+Environment=APP_CONFIG_CACHE=/srv/h5-page-test/shared/bootstrap/config.php
+ExecCondition=/usr/bin/systemctl --quiet is-active postgresql@17-main.service
+ExecStartPre=/usr/bin/php8.4 /srv/h5-page-test/current/scripts/ops/staging_content.php check
+ExecStart=/usr/bin/php8.4 /srv/h5-page-test/current/scripts/ops/staging_content.php publish
+TimeoutStartSec=45s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/srv/h5-page-test/shared/storage/logs
+Restart=no
+KillMode=control-group
+TimeoutStopSec=5s
+RestrictAddressFamilies=AF_UNIX AF_INET
+IPAddressDeny=any
+IPAddressAllow=127.0.0.1
