@@ -1,6 +1,6 @@
 # 单次页面探针的独立 staging 准备
 
-2026-11-12。正式应用基线 77d28d157ee40e91c493dec1a2f47b6dcf73e1c7，05 源码 6188cda8cfe07106e58abec1fe032588579da49f、交接 385d9fbeee0182287ff93ddb8c8c5164ddbdab01。00 已接 c904/6e56 并独立验证 30 项 421 断言。实际部署需固定含 01 无邮件准入的最终完整 SHA。本材料仅离线准备，模板须渲染后交 00 串行安装。
+2026-11-12。正式应用基线 77d28d157ee40e91c493dec1a2f47b6dcf73e1c7，05 源码 6188cda8cfe07106e58abec1fe032588579da49f、交接 385d9fbeee0182287ff93ddb8c8c5164ddbdab01。00 已接 c904/6e56 并独立验证 30 项 421 断言。00已部署的独立staging为541711176e8834d7d9215dabf9d5f1b7960f8a06，包含01窄array准入及05页内隐私组件。本文实际部署状态来自00回执，当前修复仅更新源模板及回归。
 
 ## 最小拓扑
 
@@ -18,7 +18,7 @@
 
 ## 配置、邮件停点与缓存
 
-runtime.env.example 是目标配置，其中新密钥和新库口令由工程生成至 0600 文件。当前正式站用 Resend SMTP，其凭据不复制。01 已由 00 派发窄修，只有 staging+controlled+acquisition_staging_test 才允许精确内建 array 邮件叶子，production 和嵌套 failover 继续拒绝。收到该候选并独立复核之前，MAIL_MAILER=array 会被现 Guard 拒绝，停在启动前，不用假 SMTP 通过预检。
+runtime.env.example 是目标配置，其中新密钥和新库口令由工程生成至 0600 文件。当前正式站用 Resend SMTP，其凭据不复制。01 已由 00 派发窄修，只有 staging+controlled+acquisition_staging_test 才允许精确内建 array 邮件叶子，production 和嵌套 failover 继续拒绝。该依赖已在独立组合接收，77d单独源码仍须先组合此准入再启动测试配置。
 
 Acquisition 配置来自 app/Modules/Acquisition/config.php，正式 ready=false 时该 namespace 未加载，不能复制正式缓存的 null 值来作配置。目标 .env 只指向 /srv/h5-page-test/shared/app.env，由工程安装为0600。CLI从目标 h5-platform 目录加载此文件，不用shell直接source Dotenv。新目录必须实际设置 H5_ACQUISITION_STAGING_TEST=true，加载正确 provider、ready=true 及 acquisition 配置。transport=disabled、external_enabled=false、platform_reviewed=false、credentials_file 空，C/R1/analytics 关闭。此为可显示/准备的受控入口，外发还需真实资产和另行窗口。
 
@@ -33,9 +33,9 @@ Acquisition 配置来自 app/Modules/Acquisition/config.php，正式 ready=false
 1. 核域名与证书、安装路径及文件权限。建立专用用户与目录、角色/库的 SCRAM 限定，生成独立 APP_KEY 和密码，校验对生产库无权限。创建 shared 的 storage/logs/framework、media、bootstrap 和私密配置目录。
 2. 固定最终 release，复用同锁依赖与已构建静态文件，清除复制来源的 .env/cache/runtime。按目标环境执行 migrate --force，核 050010 和目标 UTC。之后仅导入已审的一个 Owner，清目标 remember/recovery/session，验证新密钥可解密其 MFA。
 3. 在新目录显式指定 APP_ENV=staging、APP_CONFIG_CACHE 生成 config:cache。使用 check_runtime.php --expect-env=staging --require-cache --require-db-utc，核正确工作区/缓存/PG 后才准备路由。
-4. 从目标 route:list 固定实际 Livewire hash，渲染 nginx.conf.template 与 fastcgi.conf.template。用现主机 php-fpm -t、nginx -t 检查完整配置。仅后续批准时 reload 已有服务使新 pool/vhost 生效，所有旧站配置须逐项比对和可回退。
-5. 干净浏览器用原 Owner 密码和原 MFA 打开 /admin/acquisition-page-test。无 Basic 小窗，未登录跳原 /admin/login，未完成 MFA 拒绝，跨站/缺 CSRF 拒绝。静态、登录 Livewire 和同源 cookie 均来自 staging Host，不跳 production。
-6. 同一浏览器访问 /membership 的原隐私选项。只允许 GET /api/v1/tracking/context 和 POST /api/v1/tracking/consent，先显式广告同意、分析关闭，再准备一次意图。无测试资产/未勾选/撤回/缺同意仍阻断。仅页面或 HTTP 200 不记真实授权/发送通过。
+4. 读取目标登录HTML中script的data-update-uri，核其同源、精确路径及POST方法，并保留目标哈希路由兼容，再渲染两份模板。页面实际声明/admin/livewire/update，不能按route:list猜测唯一哈希路径。用现主机 php-fpm -t、nginx -t 检查完整配置。仅后续批准时 reload 已有服务使新 pool/vhost 生效，所有旧站配置须逐项比对和可回退。
+5. 干净浏览器用原 Owner 密码和原 MFA 打开 /admin/acquisition-page-test。无 Basic 小窗，未登录跳原 /admin/login，未完成 MFA 拒绝，跨站/缺 CSRF 拒绝。静态、登录Livewire和同源cookie均来自staging Host。实际填写不存在的合成账号并点击登录，应由应用返回页内凭据错误。缺CSRF的最小POST应419，这一步仅证路由和CSRF，真实Owner/MFA成功仍须本人。
+6. 同一浏览器直接使用探针页内复用的原隐私组件。只允许 GET /api/v1/tracking/context 和 POST /api/v1/tracking/consent，先显式广告同意、分析关闭，再准备一次意图。无测试资产/未勾选/撤回/缺同意仍阻断。仅页面或 HTTP 200 不记真实授权/发送通过。
 7. 本阶段结束保持 transport disabled。后续如获准发一次，由工程在同一 release/cache/env 执行 acquisition:page-test 精确UUID，10分钟内最多一次；不扫队列，不自动重试。HTTP 接受与 Meta 面板确认各留回执。
 
 ## 路由最小表
@@ -46,13 +46,13 @@ Acquisition 配置来自 app/Modules/Acquisition/config.php，正式 ready=false
 | /admin/logout | POST |
 | /admin/multi-factor-authentication/set-up、challenge | GET，最终以 route:list 核实际 MFA 路径 |
 | /admin/acquisition-page-test、其 /withdraw | POST，同源 CSRF |
-| 实际哈希 Livewire /update | POST，原持久登录/MFA中间件 |
+| /admin/livewire/update（HTML实际声明）及原哈希Livewire /update | 精确POST，原web/CSRF和持久staff/MFA校验 |
 | 哈希 livewire.js/livewire.min.js、admin-ui、audience、build/css/js/fonts | 仅实际存在的 GET 资源，无 PHP 文件静态旁路 |
 | /membership、/api/v1/auth/csrf、/api/v1/tracking/context | GET |
 | /api/v1/tracking/consent | POST，同源 CSRF |
 | 其余业务/API/注册/支付/回调/采集/events | 默认 503 |
 
-/membership 是候选实际指向的隐私选项页。模板没有开放通用 /api/v1/admin 或所有 /admin 页面。Livewire 内部动作仍须原权限与 MFA，边缘无法按组件动作细分，因此目标 Owner 的其他动作只会落独立库。部署时须核 UI 所需资源与精确 MFA 入口，不能为消除 404 扩成整站放行。
+541探针页内复用原tracking隐私组件与analytics.css/js。空库关闭支付时/membership曾返回503，当前隐私流程以探针页内组件为准，表内GET仅保留模板兼容。模板没有开放通用 /api/v1/admin 或所有 /admin 页面。Livewire 内部动作仍须原权限与 MFA，边缘无法按组件动作细分，因此目标 Owner 的其他动作只会落独立库。部署时须核 UI 所需资源与精确 MFA 入口，不能为消除 404 扩成整站放行。
 
 ## 到期清理与停止
 
@@ -68,11 +68,28 @@ Acquisition 配置来自 app/Modules/Acquisition/config.php，正式 ready=false
 - 新库/角色是否已存在，pg_hba 限定新角色的规则，以及目标连接实际 UTC。正式端口/库/角色已确认，无需再次提供。
 - 原 Owner 明确 UUID、role/active/MFA 已配置布尔和必要列类型。仅源工程内读取秘密并私密转换，回执不回显邮箱、密码哈希、MFA 或恢复码。
 - 现 FPM pool 父服务的 sandbox、可读 /srv 路径、Nginx 用户和 socket 权限、新 UID 可用性与单 worker 内存余量。
-- 目标最终 SHA 含 01 Guard 窄修、05 源码及实际 Livewire/MFA route-list 和静态资源路径。
+- 固定目标SHA与其登录HTML实际data-update-uri，再核route-list和MFA路径。Git archive缺发布静态时，应补同composer.lock的已发布Filament css/js/fonts，按清单逐摘要验证；此前00补38文件。
 - 批准后测试窗口负责人、结束及一天后清理执行入口。平台 Token/测试码暂不需要收集。
 
-本轮只做源码、配置与模板校核。真实 staging 启动、TLS、公网 UI、MFA 单行迁移、清理执行和 Meta 接收均待实际窗口验收。
+11/12首次准备交付仅做源码、配置与模板校核。此后00已完成独立staging启动、TLS、公网登录页及MFA单行迁移；本人有效账号/MFA成功及Meta接收仍待反馈，实际状态见00最新交接。
 
-## 本轮验证范围
+## 11/12原准备阶段验证（历史）
 
 对正式77d和05候选逐文件核对，静态材料没有应用、公共Guard或主站配置改动。Nginx 1.28.3 本机编译件未含SSL模块，首个完整模板检查在该限制拒绝。随后只在临时配置去掉TLS指令，原生核其余map/location/FastCGI语法。TLS证书与目标机完整配置、FPM语法、真实Owner迁移、浏览器和外发均留待实际窗口，未启动服务。静态检查包含邮件停点声明、支付与采集关闭项、独立DB/缓存/会话/路径和精确路由占位符。
+
+
+## 2026-11-13 精确登录提交修复
+
+模板新增且只新增POST /admin/livewire/update规则，原哈希规则保留。00现场回执记录缺CSRF从503变为419，干净Chrome真正提交不存在的合成账号后得到200及页内“登录信息有误”，无503覆盖层。此为负向登录和路由验收，真实Owner/MFA登录仍待本人。
+
+只读入口预检从实际登录HTML解析script[data-update-uri]，限定同站HTTPS与精确Livewire提交路径，禁止重定向，仅发送一次不含CSRF的{}，预期419。只输出路径/status，Cookie仅在内存且不输出，不记录HTML或真实账户。此工具本轮仅做静态及合成HTML解析检查，没有运行公网预检。00已有独立现场实证，无需重复47组。
+
+此前完整Laravel/FastCGI夹具缺数据库，CSRF拒绝审计引起500，该夹具已撤出交付，不计为当前候选通过。其历史回执保留在06私密.runtime/page-test-login-20261113。00现场证据保存在主仓私密目录 .runtime/00-staging-login-20261113/，包括route-verification.json、login-submit-verification.json、submit-diagnostic.json及截图。真实503→419与Chrome实际合成账号提交200分别记，Owner/MFA真人通过仍须本人确认。
+
+在另行需要复核时，明确执行以下命令。默认不运行网络请求。
+
+```sh
+python3 scripts/ops/tests/check_page_test_login_route.py --login-url https://staging.sparklingshort.com/admin/login
+```
+
+部署只更新staging既有map此一规则，00负责nginx -t/reload及前后摘要。回退仅撤该规则并核语法，旧提交会重新被503拒绝，需明确向使用者说明。正式配置、付款/邮件/广告不在此修复范围。
