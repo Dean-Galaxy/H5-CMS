@@ -101,7 +101,7 @@ final class DeliveryWorker
     {
         return DB::transaction(function () use ($id) {
             $row = DB::table('acquisition_deliveries')->where('id', $id)->lockForUpdate()->first();
-            if (! $row || in_array($row->state, ['simulated', 'api_accepted', 'failed', 'blocked'], true)
+            if (! $row || ! in_array($row->state, ['pending', 'retry', 'sending'], true)
                 || ($row->state === 'sending' && CarbonImmutable::parse($row->lease_until)->greaterThan(now()))
                 || ($row->state !== 'sending' && $row->next_attempt_at && CarbonImmutable::parse($row->next_attempt_at)->greaterThan(now()))) {
                 return null;

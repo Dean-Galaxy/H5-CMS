@@ -14,6 +14,7 @@ use App\Modules\Acquisition\Console\DispatchAcquisition;
 use App\Modules\Acquisition\Console\PruneAnalytics;
 use App\Modules\Acquisition\Console\PruneMeasurement;
 use App\Modules\Acquisition\Console\PruneRegistrationPurposes;
+use App\Modules\Acquisition\Console\SendProductionPurchase;
 use App\Modules\Acquisition\Production\PilotLandingEvidence;
 use App\Modules\Acquisition\Production\PilotScope;
 use App\Modules\Acquisition\Registration\RegistrationMeasurementAdapter;
@@ -47,6 +48,7 @@ final class AcquisitionServiceProvider extends ServiceProvider
     {
         if (PilotScope::enabled()) {
             app(RuntimeEnvironmentGuard::class)->productionAcquisitionPilotOrigin();
+            $this->commands([SendProductionPurchase::class]);
 
             return;
         }

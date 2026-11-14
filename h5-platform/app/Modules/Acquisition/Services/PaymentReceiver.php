@@ -6,6 +6,7 @@ use App\Contracts\BehaviorEventRecorder;
 use App\Data\PaymentSettled;
 use App\Enums\BehaviorRecordingResult;
 use App\Modules\Acquisition\Analytics\TrackingContext;
+use App\Modules\Acquisition\Production\PurchaseEvidence;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -14,6 +15,41 @@ final class PaymentReceiver
 {
     /** Internal listener only. Persist then return; never contact ad platforms in Billing's transaction. */
     public function handle(PaymentSettled $event): void
+    {
+        $this->record($event);
+    }
+
+    /** Called only by the exact Billing outbox consumer inside its transaction. */
+    public function receiveProduction(PaymentSettled $event, array $approved): bool
+    {
+        if (DB::transactionLevel() === 0) {
+            throw new \LogicException('PRODUCTION_PURCHASE_REQUIRES_OUTBOX_TRANSACTION');
+        }
+        $evidence = app(PurchaseEvidence::class);
+        $evidence->requireEvent($event, $approved);
+
+        return DB::transaction(function () use ($event, $approved, $evidence): bool {
+            DB::select("SELECT pg_advisory_xact_lock(hashtextextended('acquisition.production.purchase', 0))");
+            if (DB::table('acquisition_production_purchase')->where('slot', 1)->exists()) {
+                throw new \LogicException('PRODUCTION_PURCHASE_SLOT_ALREADY_BOUND');
+            }
+
+            $id = $this->record($event, production: true);
+            $row = $id ? DB::table('acquisition_deliveries')->find($id) : null;
+            if (! $row) {
+                throw new \LogicException('PRODUCTION_PURCHASE_SOURCE_INVALID');
+            }
+            $evidence->prepare($row, $event->payment_id, $approved);
+            DB::table('acquisition_production_purchase')->insert([
+                'slot' => 1, 'payment_id' => $event->payment_id, 'order_id' => $event->order_id,
+                'delivery_id' => $id, 'scope_digest' => $evidence->digest($approved), 'created_at' => now(),
+            ]);
+
+            return true;
+        });
+    }
+
+    private function record(PaymentSettled $event, bool $production = false): ?string
     {
         $data = $event->toArray();
         Validator::make($data, [
@@ -33,7 +69,7 @@ final class PaymentReceiver
         unset($fingerprintData['event_id']);
         $fingerprint = hash('sha256', json_encode($fingerprintData, JSON_THROW_ON_ERROR));
 
-        DB::transaction(function () use ($event, $fingerprint) {
+        return DB::transaction(function () use ($event, $fingerprint, $production) {
             // Serializes even before a row exists, unlike SELECT FOR UPDATE on an absent row.
             DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', ['acquisition.payment:'.$event->payment_id]);
             $alias = DB::table('acquisition_event_ids')->where('event_id', $event->event_id)->first();
@@ -42,6 +78,9 @@ final class PaymentReceiver
             }
             $previous = DB::table('acquisition_receipts')->where('payment_id', $event->payment_id)->first();
             if ($previous) {
+                if ($production) {
+                    throw new \LogicException('PRODUCTION_PURCHASE_RECEIPT_ALREADY_EXISTS');
+                }
                 if (! hash_equals($previous->fingerprint, $fingerprint)) {
                     throw new \DomainException('ACQUISITION_PAYMENT_CONFLICT');
                 }
@@ -51,7 +90,7 @@ final class PaymentReceiver
 
                 $this->behavior($event);
 
-                return;
+                return null;
             }
             $snapshot = $event->attribution_snapshot;
             $source = $snapshot ? DB::table('acquisition_sources')->where('id', $snapshot->source_id)->first() : null;
@@ -70,16 +109,24 @@ final class PaymentReceiver
                 'source_status' => ! $snapshot ? 'unattributed' : ($matched ? 'matched' : 'unresolved_source'), 'received_at' => now(),
             ]);
             DB::table('acquisition_event_ids')->insert(['event_id' => $event->event_id, 'payment_id' => $event->payment_id]);
-            $this->behavior($event);
+            if (! $production) {
+                $this->behavior($event);
+            }
             if ($matched) {
+                $id = AcquisitionStore::id();
                 DB::table('acquisition_deliveries')->insert([
-                    'id' => AcquisitionStore::id(), 'receipt_id' => $event->event_id, 'link_id' => $source->link_id,
+                    'id' => $id, 'receipt_id' => $event->event_id, 'link_id' => $source->link_id,
                     'source_id' => $source->id, 'pixel_id' => $source->pixel_id, 'pixel_version' => $source->pixel_version,
                     'platform' => $pixel->platform, 'external_id' => $pixel->external_id, 'environment' => $pixel->environment,
                     'event_key' => 'h5_'.hash('sha256', 'PaymentSettled.v1:'.$event->payment_id),
-                    'next_attempt_at' => now(), 'created_at' => now(), 'updated_at' => now(),
+                    'state' => $production ? 'pilot_ready' : 'pending',
+                    'next_attempt_at' => $production ? null : now(), 'created_at' => now(), 'updated_at' => now(),
                 ]);
+
+                return $id;
             }
+
+            return null;
         }, 3);
     }
 
