@@ -10,6 +10,10 @@ use App\Support\DependencyNotReady;
 use App\Support\RuntimeEnvironmentGuard;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ConnectTimeoutException;
+use GuzzleHttp\Exception\NetworkTimeoutException;
+use GuzzleHttp\Exception\ResponseTimeoutException;
+use GuzzleHttp\Psr7\Exception\TimeoutException;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 use RuntimeException;
@@ -308,10 +312,22 @@ class SandboxApi
             }
 
             return json_decode($body, true, 64, JSON_THROW_ON_ERROR | JSON_BIGINT_AS_STRING);
-        } catch (Throwable) {
+        } catch (Throwable $error) {
             $this->diagnostic($this->operation($method, $path), $status, $failure, $providerCode);
             // Do not chain vendor exceptions: requests may contain authorization or webhook bodies.
-            throw new RuntimeException('PAYPAL_RECONCILIATION_REQUIRED');
+            $reason = match (true) {
+                $status === 404 && $providerCode === 'RESOURCE_NOT_FOUND'
+                    && $this->operation($method, $path) === 'read_subscription' => 'SUBSCRIPTION_NOT_FOUND',
+                in_array($status, [401, 403], true) => 'ACCESS',
+                $status === 429 => 'RATE_LIMITED',
+                $error instanceof ConnectTimeoutException,
+                $error instanceof NetworkTimeoutException,
+                $error instanceof ResponseTimeoutException,
+                $error instanceof TimeoutException => 'TIMEOUT',
+                default => 'TRANSPORT',
+            };
+
+            throw new PayPalReadFailure($reason);
         }
     }
 

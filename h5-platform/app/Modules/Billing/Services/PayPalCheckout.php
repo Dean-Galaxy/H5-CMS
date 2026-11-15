@@ -106,6 +106,11 @@ final class PayPalCheckout
                             'state' => 'pending', 'last_error' => $url === null ? 'PAYPAL_RECONCILIATION_REQUIRED' : null, 'updated_at' => now()]);
                     }
 
+                    if (in_array($actual['status'], ['APPROVED', 'ACTIVE'], true)
+                        || ($actual['status'] === 'APPROVAL_PENDING' && $sub->provider_status === null)) {
+                        DB::table('billing_subscriptions')->where('id', $sub->id)->update(['provider_status' => $actual['status']]);
+                    }
+
                     // ACTIVE/APPROVED alone grant nothing and do not clear resolution_required.
                     return $url;
                 } catch (Throwable) {

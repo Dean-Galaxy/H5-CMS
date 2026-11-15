@@ -3,6 +3,7 @@
 namespace App\Modules\Billing\Services;
 
 use App\Modules\Billing\Gateway\PaymentGateway;
+use App\Modules\Billing\Gateway\PayPal\PayPalReadFailure;
 use App\Modules\Billing\Gateway\PayPal\SandboxWebhookEnvelope;
 use App\Modules\Billing\Gateway\ProviderGatewayRouter;
 use App\Modules\Billing\Gateway\ProviderScope;
@@ -26,11 +27,12 @@ final class WebhookService
         $done = 0;
         $ids = ProviderActivity::eligible(DB::table('billing_inbox'))->where(function ($q) {
             $q->where('state', 'pending')->orWhere(fn ($q) => $q->where('state', 'processing')->where('processed_at', '<', now()->subMinutes(5)));
-        })->orderByRaw('last_attempted_at ASC NULLS FIRST')->orderBy('created_at')->limit(max(1, min($limit, 1000)))->pluck('id');
+        })->where(fn ($q) => $q->whereNull('paypal_retry_at')->orWhere('paypal_retry_at', '<=', now()))
+            ->orderByRaw('last_attempted_at ASC NULLS FIRST')->orderBy('created_at')->limit(max(1, min($limit, 1000)))->pluck('id');
         foreach ($ids as $id) {
             $event = DB::transaction(function () use ($id) {
                 $event = DB::table('billing_inbox')->where('id', $id)->lockForUpdate()->first();
-                if (! $event || ProviderActivity::disabled($event->provider, $event->provider_environment) || $event->state === 'processed' || $event->state === 'ignored'
+                if (! $event || ($event->paypal_retry_at !== null && now()->lt($event->paypal_retry_at)) || ProviderActivity::disabled($event->provider, $event->provider_environment) || $event->state === 'processed' || $event->state === 'ignored'
                     || ($event->state === 'processing' && $event->processed_at > now()->subMinutes(5)->toDateTimeString())) {
                     return null;
                 }
@@ -43,11 +45,18 @@ final class WebhookService
             }
             try {
                 $supported = $this->process($event);
-                DB::table('billing_inbox')->where('id', $id)->update(['state' => $supported ? 'processed' : 'ignored', 'last_error' => null, 'processed_at' => now()]);
+                DB::table('billing_inbox')->where('id', $id)->update(['state' => $supported ? 'processed' : 'ignored', 'last_error' => null, 'processed_at' => now(), 'paypal_retry_at' => null]);
                 $done++;
-            } catch (Throwable) {
+            } catch (Throwable $error) {
                 // Persist a safe code, never Stripe response bodies, signatures or payment data.
-                DB::table('billing_inbox')->where('id', $id)->update(['state' => 'pending', 'last_error' => 'RECONCILIATION_REQUIRED', 'processed_at' => null]);
+                $retryAt = $error instanceof PayPalReadFailure ? $error->retryAt : null;
+                $diagnostic = match ($error instanceof PayPalReadFailure ? $error->reason : null) {
+                    'SUBSCRIPTION_NOT_FOUND' => 'PAYPAL_SUBSCRIPTION_NOT_FOUND',
+                    'SUBSCRIPTION_NOT_FOUND_PRIORITY' => 'PAYPAL_SUBSCRIPTION_NOT_FOUND_PRIORITY',
+                    default => 'RECONCILIATION_REQUIRED',
+                };
+                DB::table('billing_inbox')->where('id', $id)->update(['state' => 'pending', 'last_error' => $diagnostic,
+                    'processed_at' => null, 'paypal_retry_at' => $retryAt]);
             }
         }
 

@@ -11,6 +11,7 @@ use App\Enums\Role;
 use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Billing\Filament\Pages\BillingDesk;
 use App\Modules\Billing\Gateway\PayPal\LiveApi;
+use App\Modules\Billing\Gateway\PayPal\PayPalReadFailure;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Services\BillingAdministration;
@@ -27,6 +28,7 @@ use App\Support\DependencyNotReady;
 use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectTimeoutException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
@@ -34,6 +36,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use RuntimeException;
+use Tests\Feature\Billing\Support\ProviderLedgerFixture;
 use Tests\TestCase;
 
 /** Explicit Live HTTP Fake only; never a real provider connection or official payment evidence. */
@@ -72,6 +75,10 @@ final class PayPalLiveTest extends TestCase
     protected int $unstableReads = -1;
 
     protected bool $subscriptionUnavailable = false;
+
+    private ?int $subscriptionFailureStatus = null;
+
+    private bool $subscriptionTimeout = false;
 
     protected bool $missingWebhookEvents = false;
 
@@ -487,6 +494,137 @@ final class PayPalLiveTest extends TestCase
         self::assertSame([], $this->calls);
     }
 
+    public function test_subscription_read_backoff_rotates_past_missing_orders_and_preserves_paid_access(): void
+    {
+        $healthy = $this->checkout();
+        [$viewer, $other, $sub] = ProviderLedgerFixture::create(new ProviderScope('paypal', 'live', 'fixture-seller'));
+        DB::table('billing_orders')->where('id', $other->id)->update(['checkout_id' => 'I-UNAVAILABLE', 'is_test' => false, 'state' => 'pending',
+            'checkout_prepared_at' => now()->subDay(), 'updated_at' => now()->subDay()]);
+        DB::table('billing_subscriptions')->where('id', $sub->id)->update(['provider_id' => 'I-UNAVAILABLE', 'is_test' => false,
+            'provider_status' => 'APPROVAL_PENDING', 'customer_id' => null,
+            'updated_at' => now()->subDay()]);
+        $this->paid();
+        $this->artisan('billing:reconcile', ['--limit' => 2])->expectsOutputToContain('unresolved checks: 1;')->assertExitCode(1);
+        self::assertSame(1, count(array_keys($this->calls, 'GET /v1/billing/subscriptions/I-UNAVAILABLE', true)));
+        self::assertDatabaseHas('billing_payments', ['order_id' => $healthy->id]);
+        self::assertDatabaseHas('billing_subscriptions', ['id' => $sub->id, 'state' => 'pending', 'resolution_required' => true,
+            'paypal_retry_reason' => 'SUBSCRIPTION_NOT_FOUND', 'paypal_retry_count' => 1]);
+        $this->travel(1)->minutes();
+        $this->artisan('billing:reconcile', ['--limit' => 2])->expectsOutputToContain('subscriptions deferred: 1;')->assertExitCode(0);
+        self::assertSame(1, count(array_keys($this->calls, 'GET /v1/billing/subscriptions/I-UNAVAILABLE', true)));
+        self::assertNotContains('POST /v1/billing/subscriptions/I-UNAVAILABLE/cancel', $this->calls);
+        $identity = new ViewerIdentity($viewer->id, $viewer->email, true);
+        $offer = $this->billing->offer($identity);
+        $this->pending(fn () => $this->billing->checkout($identity, new CheckoutInput($offer->offer_id, $offer->price_version, '/membership'), BillingStore::id(), null));
+        self::assertDatabaseCount('billing_payments', 1);
+
+        $this->subscriptionFailureStatus = 404;
+        app(ProviderInboxStore::class)->receive(ProviderScope::fromRecord($healthy), [
+            'id' => 'WH-LOCAL-RECHECK', 'type' => 'BILLING.SUBSCRIPTION.UPDATED', 'object_id' => $healthy->checkout_id,
+            'created' => now()->toIso8601ZuluString(), 'is_test' => false,
+        ]);
+        $before = count(array_keys($this->calls, 'GET /v1/billing/subscriptions/I-FIXTURE', true));
+        $this->artisan('billing:reconcile', ['--limit' => 2])->assertExitCode(1);
+        self::assertSame($before + 1, count(array_keys($this->calls, 'GET /v1/billing/subscriptions/I-FIXTURE', true)));
+        self::assertDatabaseHas('billing_inbox', ['state' => 'pending', 'last_error' => 'PAYPAL_SUBSCRIPTION_NOT_FOUND_PRIORITY', 'attempts' => 1]);
+        self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+        $this->travel(2)->minutes();
+        $this->artisan('billing:reconcile', ['--limit' => 2])->expectsOutputToContain('priority subscription reviews: 1;')->assertExitCode(1);
+        self::assertDatabaseHas('billing_inbox', ['state' => 'pending', 'last_error' => 'PAYPAL_SUBSCRIPTION_NOT_FOUND_PRIORITY', 'attempts' => 2]);
+        self::assertDatabaseCount('billing_entitlements', 1);
+    }
+
+    public function test_fresh_signed_payment_rechecks_during_backoff_and_uses_the_original_period(): void
+    {
+        $order = $this->checkout();
+        $this->subscriptionFailureStatus = 404;
+        $this->artisan('billing:reconcile')->assertExitCode(1);
+        $this->travel(1)->minutes();
+        $this->subscriptionFailureStatus = null;
+        $this->paid();
+        app(ProviderInboxStore::class)->receive(ProviderScope::fromRecord($order), [
+            'id' => 'WH-LOCAL-LATE', 'type' => 'PAYMENT.SALE.COMPLETED', 'object_id' => self::SALE,
+            'created' => now()->toIso8601ZuluString(), 'is_test' => false,
+        ]);
+        $this->artisan('billing:reconcile')->assertExitCode(0);
+        self::assertDatabaseHas('billing_subscriptions', ['id' => $order->subscription_id, 'paypal_retry_at' => null]);
+        self::assertDatabaseHas('billing_inbox', ['state' => 'processed']);
+        self::assertDatabaseCount('billing_payments', 1);
+        self::assertDatabaseCount('billing_entitlements', 1);
+        self::assertSame('2026-11-03T06:00:00Z', BillingStore::iso(DB::table('billing_payments')->value('period_end')));
+    }
+
+    public function test_subscription_read_failures_keep_distinct_safe_diagnostics(): void
+    {
+        $order = $this->checkout();
+        foreach ([[403, 'ACCESS'], [429, 'RATE_LIMITED'], [null, 'TIMEOUT']] as [$status, $reason]) {
+            $this->subscriptionFailureStatus = $status;
+            $this->subscriptionTimeout = $status === null;
+            try {
+                $this->sync($order);
+                self::fail('Expected failed provider read');
+            } catch (PayPalReadFailure $failure) {
+                self::assertSame($reason, $failure->reason);
+                self::assertNull($failure->getPrevious());
+            }
+            self::assertDatabaseHas('billing_subscriptions', ['id' => $order->subscription_id, 'paypal_retry_reason' => $reason,
+                'paypal_retry_count' => 1, 'resolution_required' => true]);
+        }
+        self::assertDatabaseCount('billing_payments', 0);
+    }
+
+    public function test_funding_notice_promotes_a_missing_old_unapproved_checkout_in_the_same_round(): void
+    {
+        $order = $this->checkout();
+        $this->travel(32)->minutes();
+        $scope = ProviderScope::fromRecord($order);
+        $this->subscriptionFailureStatus = 404;
+        $this->artisan('billing:reconcile')->assertExitCode(1);
+        $this->travel(5)->minutes();
+        app(ProviderInboxStore::class)->receive($scope, [
+            'id' => 'WH-LOCAL-CREATED', 'type' => 'BILLING.SUBSCRIPTION.CREATED', 'object_id' => $order->checkout_id,
+            'created' => now()->toIso8601ZuluString(), 'is_test' => false,
+        ]);
+        $this->travel(1)->seconds();
+        $this->paid(); // A matching Sale read is available, but the subscription endpoint is still unavailable.
+        $headers = ['paypal-auth-algo' => 'SHA256withRSA', 'paypal-cert-url' => 'https://api.paypal.com/v1/notifications/certs/CERT-fixture',
+            'paypal-transmission-id' => 'fixture-funding', 'paypal-transmission-sig' => base64_encode('fixture'),
+            'paypal-transmission-time' => now()->toIso8601ZuluString()];
+        $this->postJson('/webhooks/paypal/live', ['id' => 'WH-LOCAL-FUNDING', 'event_type' => 'PAYMENT.SALE.COMPLETED',
+            'create_time' => now()->toIso8601ZuluString(), 'resource' => ['id' => self::SALE]], $headers)->assertOk();
+        $before = count(array_keys($this->calls, 'GET /v1/billing/subscriptions/I-FIXTURE', true));
+        $this->artisan('billing:reconcile')->expectsOutputToContain('priority subscription reviews: 1;')->assertExitCode(1);
+        self::assertSame($before + 2, count(array_keys($this->calls, 'GET /v1/billing/subscriptions/I-FIXTURE', true)));
+        self::assertDatabaseHas('billing_inbox', ['provider_event_id' => 'WH-LOCAL-CREATED', 'attempts' => 1,
+            'last_error' => 'PAYPAL_SUBSCRIPTION_NOT_FOUND']);
+        self::assertDatabaseHas('billing_inbox', ['provider_event_id' => 'WH-LOCAL-FUNDING', 'state' => 'pending',
+            'last_error' => 'PAYPAL_SUBSCRIPTION_NOT_FOUND_PRIORITY']);
+        self::assertDatabaseHas('billing_subscriptions', ['id' => $order->subscription_id, 'paypal_retry_reason' => 'SUBSCRIPTION_NOT_FOUND_PRIORITY',
+            'resolution_required' => true, 'state' => 'pending']);
+        $this->artisan('billing:reconcile')->expectsOutputToContain('priority subscription reviews: 1;')->assertExitCode(1);
+        self::assertDatabaseCount('billing_payments', 0);
+        self::assertDatabaseCount('billing_entitlements', 0);
+    }
+
+    public function test_approved_or_active_observation_keeps_old_unpaid_checkout_in_priority_review(): void
+    {
+        $order = $this->checkout();
+        foreach (['APPROVED', 'ACTIVE'] as $status) {
+            $this->remote['status'] = $status;
+            self::assertNull(app(PayPalReconciliation::class)->approvalUrl($order));
+            self::assertDatabaseHas('billing_subscriptions', ['id' => $order->subscription_id, 'provider_status' => $status]);
+        }
+        $this->travel(32)->minutes();
+        $this->subscriptionFailureStatus = 404;
+        $this->artisan('billing:reconcile')->expectsOutputToContain('priority subscription reviews: 1;')->assertExitCode(1);
+        $this->travel(2)->minutes();
+        $this->artisan('billing:reconcile')->expectsOutputToContain('priority subscription reviews: 1;')->assertExitCode(1);
+        self::assertDatabaseHas('billing_subscriptions', ['id' => $order->subscription_id, 'state' => 'pending',
+            'paypal_retry_reason' => 'SUBSCRIPTION_NOT_FOUND_PRIORITY', 'paypal_retry_count' => 2, 'resolution_required' => true]);
+        self::assertNotContains('POST /v1/billing/subscriptions/I-FIXTURE/cancel', $this->calls);
+        self::assertDatabaseCount('billing_payments', 0);
+    }
+
     private function checkout(): object
     {
         $offer = $this->billing->offer($this->viewer());
@@ -547,7 +685,16 @@ final class PayPalLiveTest extends TestCase
         if ($path === '/v1/oauth2/token' && $this->merchantUnavailable) {
             return new Response(403, [], '{"debug_id":"private-fixture-diagnostic"}');
         }
+        if ($path === '/v1/billing/subscriptions/I-UNAVAILABLE') {
+            return new Response(404, [], '{"name":"RESOURCE_NOT_FOUND"}');
+        }
         if ($path === '/v1/billing/subscriptions/I-FIXTURE') {
+            if ($this->subscriptionTimeout) {
+                throw new ConnectTimeoutException('fixture timeout', $request);
+            }
+            if ($this->subscriptionFailureStatus !== null) {
+                return new Response($this->subscriptionFailureStatus, [], '{"name":"RESOURCE_NOT_FOUND"}');
+            }
             if ($this->subscriptionUnavailable) {
                 return new Response(503);
             }

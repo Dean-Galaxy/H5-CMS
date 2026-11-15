@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Modules\Billing\Services;
 
 use App\Modules\Billing\Gateway\PayPal\PayPalAmount;
+use App\Modules\Billing\Gateway\PayPal\PayPalReadFailure;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
 use App\Modules\Billing\Gateway\PayPal\SandboxSubscriptionRequest;
 use App\Modules\Billing\Gateway\PayPal\SandboxWeeklyPlan;
@@ -12,6 +13,7 @@ use App\Modules\Billing\Gateway\PayPal\WeeklyCycleEvidence;
 use App\Modules\Billing\Gateway\PayPal\WeeklyPlanVerifier;
 use App\Modules\Billing\Gateway\ProviderScope;
 use App\Modules\Billing\Support\ProviderActivity;
+use App\Support\DependencyNotReady;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -28,18 +30,29 @@ final class PayPalReconciliation
         $this->api->forScope($scope)->configurationStamp(ProviderScope::fromRecord($sub));
     }
 
-    public function sync(string $subscriptionId, bool $allowLifecycleChanges = true): void
+    public function sync(string $subscriptionId, bool $allowLifecycleChanges = true, bool $priorityEvidence = false): void
+    {
+        if ($allowLifecycleChanges && app()->bound(PayPalSyncRound::class)) {
+            app(PayPalSyncRound::class)->observe($subscriptionId, fn () => $this->syncOnce($subscriptionId, true, $priorityEvidence), $priorityEvidence);
+
+            return;
+        }
+        $this->syncOnce($subscriptionId, $allowLifecycleChanges, $priorityEvidence);
+    }
+
+    private function syncOnce(string $subscriptionId, bool $allowLifecycleChanges, bool $priorityEvidence): void
     {
         $initial = DB::table('billing_subscriptions')->find($subscriptionId) ?? throw new RuntimeException('PAYPAL_SUBSCRIPTION_UNKNOWN');
         ProviderActivity::assertEnabled('paypal', $initial->provider_environment);
         $stage = 'IDENTITY';
         try {
-            DB::transaction(function () use ($subscriptionId, $allowLifecycleChanges, &$stage) {
+            DB::transaction(function () use ($subscriptionId, $allowLifecycleChanges, &$priorityEvidence, &$stage) {
                 $sub = DB::table('billing_subscriptions')->find($subscriptionId) ?? throw new RuntimeException('PAYPAL_SUBSCRIPTION_UNKNOWN');
                 BillingStore::lock($sub->viewer_id);
                 $sub = DB::table('billing_subscriptions')->find($subscriptionId);
                 [$order, $remote, $scope, $stamp] = $this->read($sub);
                 $status = $remote['status'];
+                $priorityEvidence = $priorityEvidence || $status !== 'APPROVAL_PENDING';
                 $expiredApproval = in_array($status, ['APPROVAL_PENDING', 'APPROVED'], true)
                     && $order->checkout_prepared_at && now()->gte(CarbonImmutable::parse($order->checkout_prepared_at)->addMinutes(31));
                 $paidUntil = DB::table('billing_payments')->where('subscription_id', $sub->id)->max('period_end');
@@ -128,17 +141,24 @@ final class PayPalReconciliation
                     'state' => $terminal && ! $resolution ? ($hasAccess ? 'canceling' : 'ended')
                         : ($stopped ? 'canceling' : ($paidCurrent && ! $failed ? 'active' : (count($known) ? 'past_due' : 'pending'))),
                     'provider_status' => $status, 'renewal_enabled' => ! $stopped && $status === 'ACTIVE',
+                    'paypal_retry_at' => null, 'paypal_retry_count' => 0, 'paypal_retry_reason' => null,
                     'resolution_required' => $resolution, 'period_start' => $latest?->period_start, 'period_end' => $latest?->period_end, 'updated_at' => now(),
                 ]);
                 app(BillingBehaviorFacts::class)->subscription($sub->id);
-                if ($expiredApproval && ! $known->count() && ! $resolution) {
+                if ($terminal && ! $known->count() && ! $resolution && in_array($order->state, ['pending', 'processing'], true)) {
                     DB::table('billing_orders')->where('id', $order->id)->update(['state' => 'expired', 'checkout_url' => null, 'last_error' => null, 'updated_at' => now()]);
                 }
             });
         } catch (Throwable $error) {
             // Preserve a reversal stop intent even when the observation transaction rolls back.
-            $this->markPending($subscriptionId, $error->getMessage() === 'PAYPAL_SALE_REVIEW_REQUIRED', 'PAYPAL_RECONCILE_'.$stage);
-            throw new RuntimeException('PAYPAL_RECONCILIATION_REQUIRED');
+            $reason = match (true) {
+                $error instanceof PayPalReadFailure => $error->reason,
+                $error instanceof DependencyNotReady,
+                $error->getMessage() === 'PAYPAL_MERCHANT_BINDING_REQUIRED_OR_MISMATCH' => 'CONFIGURATION',
+                default => 'EVIDENCE',
+            };
+            [$retryAt, $deferred, $reason] = $this->markPending($subscriptionId, $error->getMessage() === 'PAYPAL_SALE_REVIEW_REQUIRED', 'PAYPAL_RECONCILE_'.$stage, $reason, $priorityEvidence);
+            throw new PayPalReadFailure($reason, $retryAt, $deferred);
         }
     }
 
@@ -160,6 +180,10 @@ final class PayPalReconciliation
             $this->verifyPlan($sub, $order, $remote);
             $this->sameConfiguration($scope, $stamp);
 
+            if (in_array($remote['status'], ['APPROVED', 'ACTIVE'], true)) {
+                DB::table('billing_subscriptions')->where('id', $sub->id)->update(['provider_status' => $remote['status']]);
+            }
+
             return SandboxSubscriptionRequest::approvalUrl($remote, $scope->environment);
         });
     }
@@ -178,6 +202,10 @@ final class PayPalReconciliation
         }
         $this->sameConfiguration($scope, $stamp);
         $this->require(in_array($remote['status'], ['SUSPENDED', 'CANCELLED', 'EXPIRED'], true));
+        if (app()->bound(PayPalSyncRound::class)) {
+            // A confirmed lifecycle change requires a fresh observation.
+            app(PayPalSyncRound::class)->invalidate($sub->id);
+        }
         // Confirmation stops renewal only. Paid intervals stay exactly as originally recorded.
         DB::table('billing_subscriptions')->where('id', $sub->id)->update(['state' => 'canceling',
             'provider_status' => $remote['status'], 'renewal_enabled' => false, 'resolution_required' => true,
@@ -192,7 +220,7 @@ final class PayPalReconciliation
         if (str_starts_with($event->event_type, 'BILLING.SUBSCRIPTION.')) {
             $sub = DB::table('billing_subscriptions')->where($scope->columns())->where('provider_id', $event->object_id)->first();
             $this->require($sub !== null);
-            $this->sync($sub->id);
+            $this->sync($sub->id, priorityEvidence: $event->event_type !== 'BILLING.SUBSCRIPTION.CREATED');
         } elseif ($event->event_type === 'PAYMENT.SALE.REFUNDED') {
             $this->refund($scope, $event->object_id);
         } elseif (in_array($event->event_type, ['PAYMENT.SALE.COMPLETED', 'PAYMENT.SALE.REVERSED'], true)) {
@@ -204,7 +232,7 @@ final class PayPalReconciliation
                 $this->markPending($sub->id, true);
                 throw new RuntimeException('PAYPAL_REVERSAL_REVIEW_REQUIRED');
             }
-            $this->sync($sub->id);
+            $this->sync($sub->id, priorityEvidence: true);
         } else {
             return false;
         }
@@ -394,21 +422,59 @@ final class PayPalReconciliation
             'fingerprint' => $fingerprint, 'facts' => json_encode($facts, JSON_THROW_ON_ERROR), 'observed_at' => now()]);
     }
 
-    private function markPending(string $subId, bool $stop = false, ?string $diagnostic = null): void
+    private function markPending(string $subId, bool $stop = false, ?string $diagnostic = null, ?string $retryReason = null, bool $priorityEvidence = false): array
     {
         $sub = DB::table('billing_subscriptions')->find($subId);
         if (! $sub) {
-            return;
+            return [null, false, $retryReason];
         }
-        DB::transaction(function () use ($sub, $stop, $diagnostic) {
+
+        return DB::transaction(function () use ($sub, $stop, $diagnostic, $retryReason, $priorityEvidence) {
             BillingStore::lock($sub->viewer_id);
             if ($diagnostic !== null) {
                 DB::table('billing_orders')->where('id', $sub->first_order_id)->whereIn('state', ['processing', 'pending'])
                     ->update(['last_error' => $diagnostic, 'updated_at' => now()]);
             }
-            DB::table('billing_subscriptions')->where('id', $sub->id)->update(['resolution_required' => true, 'updated_at' => now()]
+            $retry = [];
+            $deferred = false;
+            if ($retryReason !== null) {
+                $current = DB::table('billing_subscriptions')->find($sub->id);
+                if ($retryReason === 'SUBSCRIPTION_NOT_FOUND' && ($priorityEvidence || ! $this->oldUnapprovedCheckout($current))) {
+                    $retryReason = 'SUBSCRIPTION_NOT_FOUND_PRIORITY';
+                }
+                $deferred = $retryReason === 'SUBSCRIPTION_NOT_FOUND' && $current->paypal_retry_reason === $retryReason;
+                $count = $current->paypal_retry_reason === $retryReason ? min(8, $current->paypal_retry_count + 1) : 1;
+                $baseMinutes = match ($retryReason) {
+                    'SUBSCRIPTION_NOT_FOUND' => 5,
+                    'ACCESS', 'CONFIGURATION', 'RATE_LIMITED', 'SUBSCRIPTION_NOT_FOUND_PRIORITY' => 2,
+                    default => 1,
+                };
+                $retry = ['paypal_retry_reason' => $retryReason, 'paypal_retry_count' => $count,
+                    'paypal_retry_at' => now()->addMinutes(min(60, $baseMinutes * (2 ** ($count - 1))))];
+            }
+            DB::table('billing_subscriptions')->where('id', $sub->id)->update($retry + ['resolution_required' => true, 'updated_at' => now()]
                 + ($stop ? ['desired_renewal' => false] : []));
+
+            return [BillingStore::iso($retry['paypal_retry_at'] ?? null), $deferred, $retryReason];
         });
+    }
+
+    /** Only a known unapproved, expired checkout can enter ordinary not-found review. */
+    private function oldUnapprovedCheckout(object $sub): bool
+    {
+        if ($sub->state !== 'pending' || $sub->provider_status !== 'APPROVAL_PENDING' || $sub->renewal_enabled
+            || $sub->desired_renewal === false || $sub->refund_stopped
+            || $sub->customer_id !== null || $sub->period_start !== null || $sub->period_end !== null
+            || ! in_array($sub->paypal_retry_reason, [null, 'SUBSCRIPTION_NOT_FOUND'], true)) {
+            return false;
+        }
+        $order = DB::table('billing_orders')->where(ProviderScope::fromRecord($sub)->columns())
+            ->where('id', $sub->first_order_id)->where('subscription_id', $sub->id)->where('viewer_id', $sub->viewer_id)->first();
+
+        return $order !== null && $order->checkout_id === $sub->provider_id && $order->state === 'pending'
+            && $order->payment_state === 'pending' && $order->checkout_prepared_at !== null
+            && now()->gte(CarbonImmutable::parse($order->checkout_prepared_at)->addMinutes(31))
+            && ! DB::table('billing_payments')->where('subscription_id', $sub->id)->exists();
     }
 
     private function sameConfiguration(ProviderScope $scope, string $stamp): void

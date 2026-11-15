@@ -36,15 +36,24 @@ try {
     // Existing routines own signatures, idempotency, cancellation and trusted facts.
     // --limit is per category; the existing pending-operation retries are capped at 100.
     $exit = $kernel->call('billing:reconcile', ['--limit' => 10]);
-    $inbox = DB::table('billing_inbox')->where('state', 'pending')->whereNotNull('last_error')->count();
+    // The 03 priority-aware retry policy identifies old unapproved checkouts.
+    // Only linked CREATED reviews can be deferred. Money, activation, and
+    // due retries retain failure reporting and their original inbox records.
+    $backlog = DB::selectOne(file_get_contents(__DIR__.'/billing_reconcile_backlog.sql'));
+    $inbox = (int) $backlog->inbox_errors;
+    $subscriptionErrors = (int) $backlog->subscription_errors;
     // Advertising is intentionally disabled. Retain its events without reporting
     // the absence of that consumer as a financial reconciliation failure.
     $outbox = DB::table('billing_outbox')->whereNull('delivered_at')->whereNotNull('last_error')
         ->where('last_error', '<>', 'CONSUMER_NOT_READY')->count();
     $deferred = DB::table('billing_outbox')->whereNull('delivered_at')->where('last_error', 'CONSUMER_NOT_READY')->count();
-    $ok = $exit === 0 && $inbox === 0 && $outbox === 0;
+    $ok = $exit === 0 && $inbox === 0 && $subscriptionErrors === 0 && $outbox === 0;
     echo json_encode(['ok' => $ok, 'scope' => 'paypal_live', 'command_exit' => $exit,
-        'inbox_errors' => $inbox, 'outbox_errors' => $outbox, 'outbox_deferred' => $deferred], JSON_THROW_ON_ERROR).PHP_EOL;
+        'inbox_errors' => $inbox, 'inbox_deferred' => (int) $backlog->inbox_deferred,
+        'subscriptions_deferred' => (int) $backlog->subscriptions_deferred,
+        'subscriptions_priority' => (int) $backlog->subscriptions_priority,
+        'subscription_errors' => $subscriptionErrors,
+        'outbox_errors' => $outbox, 'outbox_deferred' => $deferred], JSON_THROW_ON_ERROR).PHP_EOL;
     $exit = $ok ? 0 : 1;
 } catch (Throwable $error) {
     // Never print provider responses, account data, secrets or exception messages.
