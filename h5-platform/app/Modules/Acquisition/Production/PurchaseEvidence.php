@@ -6,6 +6,7 @@ use App\Data\PaymentSettled;
 use App\Enums\TransactionKind;
 use App\Modules\Acquisition\Analytics\ClickContext;
 use App\Modules\Acquisition\Sending\MetaAdapter;
+use App\Modules\Acquisition\Sending\TikTokAdapter;
 use App\Modules\Acquisition\Services\CheckoutContextStore;
 use App\Support\RuntimeEnvironmentGuard;
 use Carbon\CarbonImmutable;
@@ -20,12 +21,15 @@ final class PurchaseEvidence
             || config('acquisition.transport') !== 'disabled' || config('acquisition.external_enabled') !== false) {
             throw new LogicException('PRODUCTION_PURCHASE_RUNTIME_INVALID');
         }
-        $scope = app(RuntimeEnvironmentGuard::class)->productionAcquisitionScope();
-        if ($scope['platform'] !== 'meta') {
-            throw new LogicException('PRODUCTION_PURCHASE_META_ONLY');
-        }
+        return app(RuntimeEnvironmentGuard::class)->productionAcquisitionScope();
+    }
 
-        return $scope;
+    public function slot(array $scope): int
+    {
+        return match ($scope['platform']) {
+            'meta' => 1,
+            'tiktok' => 2,
+        };
     }
 
     public function digest(array $scope): string
@@ -56,7 +60,7 @@ final class PurchaseEvidence
         }
         [$scope, $link, $pixel] = app(PilotScope::class)->source($source);
         if ($scope !== $approved || $row->link_id !== $link->id || $row->pixel_id !== $pixel->id
-            || (int) $row->pixel_version !== $scope['pixel_version'] || $row->platform !== 'meta'
+            || (int) $row->pixel_version !== $scope['pixel_version'] || $row->platform !== $scope['platform']
             || $row->environment !== 'production' || $row->external_id !== $pixel->external_id) {
             throw new LogicException('PRODUCTION_PURCHASE_ASSET_CHANGED');
         }
@@ -74,9 +78,12 @@ final class PurchaseEvidence
         if (! $captured || CarbonImmutable::parse($captured)->lt($source->captured_at) || $occurred->lt($captured)) {
             throw new LogicException('PRODUCTION_PURCHASE_CHECKOUT_INVALID');
         }
-        // Revalidate the frozen click values. The adapter only projects the approved Meta fields.
-        app(ClickContext::class)->validate(array_intersect_key($context, ['fbc' => true, 'fbp' => true]));
+        // Revalidate only the frozen click values for the approved platform.
+        $keys = $scope['platform'] === 'meta' ? ['fbc', 'fbp'] : ['ttclid', 'ttp'];
+        app(ClickContext::class)->validate(array_intersect_key($context, array_fill_keys($keys, true)));
 
-        return app(MetaAdapter::class)->payload($row, $receipt, $context, null);
+        $adapter = $scope['platform'] === 'meta' ? app(MetaAdapter::class) : app(TikTokAdapter::class);
+
+        return $adapter->payload($row, $receipt, $context, null);
     }
 }

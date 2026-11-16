@@ -51,10 +51,8 @@ final class AttributionRecorder implements AttributionService
             }
         }
 
-        // Preserve opaque bytes: global input trimming must not turn an invalid ID into a valid one.
-        $rawQuery = [];
-        parse_str((string) request()->server('QUERY_STRING', ''), $rawQuery);
-        $query = app(ClickContext::class)->forward($link->platform, $rawQuery);
+        // Read the raw query so duplicate and malformed click IDs cannot be normalized into a match.
+        $query = app(ClickContext::class)->forward($link->platform, (string) request()->server('QUERY_STRING', ''));
 
         return '/dramas/'.$link->drama_id.($query ? '?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986) : '');
     }

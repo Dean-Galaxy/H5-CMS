@@ -97,6 +97,14 @@ final class ClickMatchingTest extends AcquisitionTestCase
         $this->assertDatabaseCount('acquisition_behaviors', 0); // advertising-only never becomes analytics consent
     }
 
+    public function test_repeated_or_array_tiktok_click_ids_are_discarded_without_blocking_landing(): void
+    {
+        [, $link] = $this->assets('tiktok');
+        foreach (['ttclid=first&ttclid=second', '%74tclid=first&ttclid=second', 'ttclid=first&ttclid%5B%5D=second'] as $query) {
+            $this->get($link['url'].'?'.$query)->assertRedirect('/dramas/'.$link['drama_id']);
+        }
+    }
+
     public function test_unknown_denied_malformed_and_oversized_matching_is_not_persisted(): void
     {
         [$pixel,$link] = $this->assets();

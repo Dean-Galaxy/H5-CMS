@@ -29,8 +29,9 @@ final class PaymentReceiver
         $evidence->requireEvent($event, $approved);
 
         return DB::transaction(function () use ($event, $approved, $evidence): bool {
-            DB::select("SELECT pg_advisory_xact_lock(hashtextextended('acquisition.production.purchase', 0))");
-            if (DB::table('acquisition_production_purchase')->where('slot', 1)->exists()) {
+            $slot = $evidence->slot($approved);
+            DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', ['acquisition.production.purchase:'.$slot]);
+            if (DB::table('acquisition_production_purchase')->where('slot', $slot)->exists()) {
                 throw new \LogicException('PRODUCTION_PURCHASE_SLOT_ALREADY_BOUND');
             }
 
@@ -41,7 +42,7 @@ final class PaymentReceiver
             }
             $evidence->prepare($row, $event->payment_id, $approved);
             DB::table('acquisition_production_purchase')->insert([
-                'slot' => 1, 'payment_id' => $event->payment_id, 'order_id' => $event->order_id,
+                'slot' => $slot, 'payment_id' => $event->payment_id, 'order_id' => $event->order_id,
                 'delivery_id' => $id, 'scope_digest' => $evidence->digest($approved), 'created_at' => now(),
             ]);
 

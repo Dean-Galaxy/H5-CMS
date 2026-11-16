@@ -108,6 +108,7 @@ final class OutboxService
         $subscription = DB::table('billing_subscriptions')->where($scope->columns())->find($payment->subscription_id);
         $this->require($order !== null && $subscription !== null
             && $order->viewer_id === $payment->viewer_id && $subscription->viewer_id === $payment->viewer_id
+            && ($approved['platform'] !== 'tiktok' || ($approved['viewer_id'] ?? null) === $payment->viewer_id)
             && $order->subscription_id === $subscription->id && $subscription->first_order_id === $order->id
             && $order->state === 'paid' && $order->payment_state === 'succeeded'
             && $order->transaction_kind === TransactionKind::FirstSubscription->value

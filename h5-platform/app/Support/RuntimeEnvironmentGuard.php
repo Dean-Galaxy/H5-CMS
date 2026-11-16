@@ -107,7 +107,7 @@ final class RuntimeEnvironmentGuard
         $now = now()->getTimestamp();
         $this->require($from < $until && $from <= $now && $now < $until, 'ACQUISITION_PILOT_WINDOW_CLOSED');
 
-        return [
+        $approved = [
             'platform' => $scope['platform'],
             'link_id' => $scope['link_id'],
             'pixel_id' => $scope['pixel_id'],
@@ -115,6 +115,13 @@ final class RuntimeEnvironmentGuard
             'from' => $scope['from'],
             'until' => $scope['until'],
         ];
+        if ($scope['platform'] === 'tiktok') {
+            $viewer = $scope['viewer_id'] ?? null;
+            $this->require(is_string($viewer) && Str::isUuid($viewer), 'ACQUISITION_PILOT_VIEWER_REQUIRED');
+            $approved['viewer_id'] = $viewer;
+        }
+
+        return $approved;
     }
 
     private function pilotTimestamp(mixed $value): int

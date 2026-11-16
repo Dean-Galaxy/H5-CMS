@@ -10,7 +10,7 @@ final class SendProductionPurchase extends Command
 {
     protected $signature = 'acquisition:purchase-production {payment : Approved Live payment UUID} {order : Approved initial order UUID}';
 
-    protected $description = '回传获授权的一笔正式 Meta Purchase，单次名额先落库，结果未知不重发';
+    protected $description = '回传指定平台获授权的一笔正式 Purchase，单次名额先落库，结果未知不重发';
 
     public function handle(SinglePurchaseSender $sender): int
     {

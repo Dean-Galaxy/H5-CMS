@@ -36,7 +36,7 @@ final class SinglePurchaseSender
         }
 
         $reservation = DB::transaction(function () use ($paymentId, $orderId, $scope) {
-            $slot = DB::table('acquisition_production_purchase')->where('slot', 1)->lockForUpdate()->first();
+            $slot = DB::table('acquisition_production_purchase')->where('slot', $this->evidence->slot($scope))->lockForUpdate()->first();
             if (! $slot || $slot->payment_id !== $paymentId || $slot->order_id !== $orderId
                 || ! hash_equals($slot->scope_digest, $this->evidence->digest($scope))) {
                 throw new LogicException('PRODUCTION_PURCHASE_SLOT_MISMATCH');
@@ -69,7 +69,9 @@ final class SinglePurchaseSender
             $row = DB::table('acquisition_deliveries')->find($id);
             if ($checked !== 'already_delivered' || ! $row || $row->state !== 'failed' || $row->last_error !== self::RESERVED
                 || (int) $row->attempts !== 1 || $row->payload_encrypted !== null
-                || $this->prepare($row, $paymentId, $scope) !== $prepared) {
+                // TikTok constructs a new object for its user fields on every preparation.
+                || json_encode($this->prepare($row, $paymentId, $scope), JSON_THROW_ON_ERROR)
+                    !== json_encode($prepared, JSON_THROW_ON_ERROR)) {
                 throw new LogicException('PRODUCTION_PURCHASE_RESERVATION_CHANGED');
             }
         } catch (Throwable) {
@@ -94,9 +96,23 @@ final class SinglePurchaseSender
     {
         try {
             // This fixed host and connection are only reachable after the exact durable reservation.
-            $response = Http::acceptJson()->asJson()->withToken($prepared['token'])->timeout(12)->connectTimeout(4)
-                ->withoutRedirecting()->post($prepared['url'], $prepared['payload']);
+            $request = Http::acceptJson()->asJson()->timeout(12)->connectTimeout(4)->withoutRedirecting();
+            $request = $prepared['platform'] === 'tiktok'
+                ? $request->withHeader('Access-Token', $prepared['token'])
+                : $request->withToken($prepared['token']);
+            $response = $request->post($prepared['url'], $prepared['payload']);
             $body = $response->json();
+            if ($prepared['platform'] === 'tiktok') {
+                if ($response->status() === 200 && is_array($body) && ($body['code'] ?? null) === 0) {
+                    return ['api_accepted', null];
+                }
+                if (in_array($response->status(), [400, 401, 403, 404, 422], true)
+                    && is_int($body['code'] ?? null) && $body['code'] !== 0) {
+                    return ['rejected', 'PRODUCTION_PURCHASE_REJECTED_NO_RETRY'];
+                }
+
+                return ['unconfirmed', 'PRODUCTION_PURCHASE_UNKNOWN_NO_RETRY'];
+            }
             if ($response->successful() && is_array($body) && ($body['events_received'] ?? null) === 1 && ! isset($body['error'])) {
                 return ['api_accepted', null];
             }
@@ -116,13 +132,24 @@ final class SinglePurchaseSender
     {
         $payload = $this->evidence->prepare($row, $paymentId, $scope);
         $credential = app(Credentials::class)->forDelivery($row);
+        if (! $credential || array_key_exists('test_event_code', $credential)) {
+            throw new LogicException('PRODUCTION_PURCHASE_CREDENTIALS_INVALID');
+        }
+        if ($row->platform === 'tiktok') {
+            if (! preg_match('/^[A-Za-z0-9_-]{5,64}$/D', $row->external_id)) {
+                throw new LogicException('PRODUCTION_PURCHASE_TIKTOK_ASSET_INVALID');
+            }
+
+            return ['platform' => 'tiktok', 'payload' => $payload, 'token' => $credential['token'],
+                'url' => 'https://business-api.tiktok.com/open_api/v1.3/event/track/'];
+        }
+
         $version = config('acquisition.meta_api_version');
-        if (! $credential || array_key_exists('test_event_code', $credential) || ! is_string($version)
-            || ! preg_match('/^v[0-9]{2}\\.0$/D', $version) || ! preg_match('/^[0-9]{5,30}$/D', $row->external_id)) {
+        if (! is_string($version) || ! preg_match('/^v[0-9]{2}\\.0$/D', $version) || ! preg_match('/^[0-9]{5,30}$/D', $row->external_id)) {
             throw new LogicException('PRODUCTION_PURCHASE_META_CREDENTIALS_INVALID');
         }
 
-        return ['payload' => $payload, 'token' => $credential['token'],
+        return ['platform' => 'meta', 'payload' => $payload, 'token' => $credential['token'],
             'url' => 'https://graph.facebook.com/'.$version.'/'.$row->external_id.'/events'];
     }
 }

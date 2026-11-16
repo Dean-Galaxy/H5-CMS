@@ -103,7 +103,7 @@ final class ProductionPurchaseSenderTest extends TestCase
     private function credential(array $extra = []): void
     {
         file_put_contents($this->credentialFile, json_encode([$this->approved['pixel_id'].':1' => $extra + [
-            'platform' => 'meta', 'external_id' => '12345678', 'environment' => 'production',
+            'platform' => $this->approved['platform'], 'external_id' => '12345678', 'environment' => 'production',
             'token' => 'OFFLINE-SYNTHETIC-TOKEN',
         ]], JSON_THROW_ON_ERROR));
         chmod($this->credentialFile, 0600);
@@ -241,15 +241,92 @@ final class ProductionPurchaseSenderTest extends TestCase
         Http::assertSentCount(1);
     }
 
-    private function paid(): array
+    public function test_tiktok_uses_its_own_slot_and_keeps_meta_success_immutable(): void
+    {
+        [$metaPayment, $metaOrder] = $this->paid();
+        $viewer = BillingStore::id();
+        $tiktokUrl = 'https://business-api.tiktok.com/open_api/v1.3/event/track/';
+        $during = null;
+        $competing = [];
+        Http::fake([
+            'graph.facebook.com/*' => Http::response(['events_received' => 1]),
+            $tiktokUrl => function (Request $request) use (&$during, &$competing) {
+                $slot = DB::table('acquisition_production_purchase')->where('slot', 2)->sole();
+                $row = DB::table('acquisition_deliveries')->find($slot->delivery_id);
+                $during = [$request, $row->state, $row->attempts, DB::transactionLevel(),
+                    app(DeliveryWorker::class)->deliver($row->id), Artisan::call('acquisition:purchase-production', $competing)];
+
+                return Http::response(['code' => 0, 'request_id' => 'OFFLINE-ACCEPTANCE']);
+            },
+        ]);
+        $sender = app(SinglePurchaseSender::class);
+        $this->assertSame('api_accepted', $sender->send($metaPayment, $metaOrder)['state']);
+        $meta = DB::table('acquisition_production_purchase')->where('slot', 1)->sole();
+        $metaDelivery = DB::table('acquisition_deliveries')->find($meta->delivery_id);
+        $this->selectTikTok($viewer);
+        $this->artisan('acquisition:purchase-production', ['payment' => $metaPayment, 'order' => $metaOrder])->assertFailed();
+        [$otherPayment, $otherOrder] = $this->paid();
+        $this->artisan('acquisition:purchase-production', ['payment' => $otherPayment, 'order' => $otherOrder])->assertFailed();
+        $this->assertDatabaseMissing('acquisition_production_purchase', ['slot' => 2]);
+        [$payment, $order] = $this->paid($viewer);
+        $competing = ['payment' => $payment, 'order' => $order];
+        $this->assertSame('api_accepted', $sender->send($payment, $order)['state']);
+        $this->assertSame('blocked', $sender->send($payment, $order)['state']);
+        [$request, $state, $attempts, $level, $claimed, $competingExit] = $during;
+        $this->assertSame(['failed', 1, 0, false, 1], [$state, $attempts, $level, $claimed, $competingExit]);
+        $this->assertSame($tiktokUrl, $request->url());
+        $this->assertTrue($request->hasHeader('Access-Token', 'OFFLINE-SYNTHETIC-TOKEN'));
+        $this->assertFalse($request->hasHeader('Authorization'));
+        $this->assertSame(['event_source' => 'web', 'event_source_id' => '12345678', 'data' => [[
+            'event' => 'Purchase', 'event_time' => now()->subMinute()->timestamp,
+            'event_id' => 'h5_'.hash('sha256', 'PaymentSettled.v1:'.$payment),
+            'user' => ['ip' => '8.8.8.8', 'user_agent' => 'Explicit local fixture', 'ttclid' => 'TikTokFixture-42', 'ttp' => 'BrowserFixture_42'],
+            'page' => ['url' => self::ORIGIN.'/membership'], 'properties' => ['currency' => 'USD', 'value' => 3.99],
+        ]]], json_decode($request->body(), true, flags: JSON_THROW_ON_ERROR));
+        $this->assertDatabaseHas('acquisition_production_purchase', ['slot' => 2, 'payment_id' => $payment, 'order_id' => $order]);
+        $this->assertEquals($meta, DB::table('acquisition_production_purchase')->where('slot', 1)->sole());
+        $this->assertEquals($metaDelivery, DB::table('acquisition_deliveries')->find($meta->delivery_id));
+        $this->assertDatabaseHas('billing_outbox', ['payment_id' => $otherPayment, 'delivered_at' => null, 'attempts' => 0]);
+        Http::assertSentCount(2);
+    }
+
+    public function test_tiktok_defers_no_retries_and_rejects_test_credentials(): void
+    {
+        $viewer = BillingStore::id();
+        $this->selectTikTok($viewer);
+        [$payment, $order] = $this->paid($viewer);
+        $this->credential(['test_event_code' => 'ONLY-FOR-TESTS']);
+        $this->artisan('acquisition:purchase-production', ['payment' => $payment, 'order' => $order])->assertFailed();
+        Http::assertNothingSent();
+
+        $this->credential();
+        Http::fake(['business-api.tiktok.com/*' => Http::response(['code' => 0], 503)]);
+        $sender = app(SinglePurchaseSender::class);
+        $this->assertSame('unconfirmed', $sender->send($payment, $order)['state']);
+        $this->assertSame('blocked', $sender->send($payment, $order)['state']);
+        $this->assertDatabaseHas('acquisition_deliveries', ['platform' => 'tiktok', 'state' => 'failed', 'attempts' => 1,
+            'last_error' => 'PRODUCTION_PURCHASE_UNKNOWN_NO_RETRY', 'payload_encrypted' => null]);
+        Http::assertSentCount(1);
+    }
+
+    private function selectTikTok(string $viewer): void
+    {
+        $this->approved = array_replace($this->approved, ['platform' => 'tiktok', 'viewer_id' => $viewer,
+            'link_id' => BillingStore::id(), 'pixel_id' => BillingStore::id()]);
+        config(['h5.acquisition_production_scope' => $this->approved]);
+        $this->credential();
+    }
+
+    private function paid(?string $viewer = null): array
     {
         $paidAt = now()->toImmutable()->subMinute();
         $scope = $this->scope;
         $link = $this->approved['link_id'];
         $pixel = $this->approved['pixel_id'];
+        $platform = $this->approved['platform'];
         $order = BillingStore::id();
         $subscription = BillingStore::id();
-        $viewer = BillingStore::id();
+        $viewer ??= BillingStore::id();
         $source = BillingStore::id();
         $context = BillingStore::id();
         $privacy = BillingStore::id();
@@ -257,26 +334,27 @@ final class ProductionPurchaseSenderTest extends TestCase
         $providerId = 'I-'.bin2hex(random_bytes(6));
         $sale = bin2hex(random_bytes(8));
         if (! DB::table('acquisition_pixels')->where('id', $pixel)->exists()) {
-            DB::table('acquisition_pixels')->insert(['id' => $pixel, 'owner_id' => $viewer, 'name' => 'Fixture', 'platform' => 'meta',
+            DB::table('acquisition_pixels')->insert(['id' => $pixel, 'owner_id' => $viewer, 'name' => 'Fixture', 'platform' => $platform,
                 'external_id' => '12345678', 'environment' => 'production', 'version' => 1, 'created_at' => $created, 'updated_at' => $created]);
-            DB::table('acquisition_pixel_versions')->insert(['pixel_id' => $pixel, 'version' => 1, 'platform' => 'meta',
+            DB::table('acquisition_pixel_versions')->insert(['pixel_id' => $pixel, 'version' => 1, 'platform' => $platform,
                 'external_id' => '12345678', 'environment' => 'production', 'created_at' => $created]);
         }
         if (! DB::table('acquisition_links')->where('id', $link)->exists()) {
             DB::table('acquisition_links')->insert(['id' => $link, 'owner_id' => $viewer, 'name' => 'Fixture', 'code' => bin2hex(random_bytes(8)),
-                'drama_id' => BillingStore::id(), 'drama_title' => 'Fixture', 'platform' => 'meta', 'pixel_id' => $pixel, 'created_at' => $created, 'updated_at' => $created]);
+                'drama_id' => BillingStore::id(), 'drama_title' => 'Fixture', 'platform' => $platform, 'pixel_id' => $pixel, 'created_at' => $created, 'updated_at' => $created]);
         }
         DB::table('acquisition_privacy')->insert(['id' => $privacy, 'analytics' => 'denied', 'advertising' => 'granted',
             'policy_version' => 'fixture', 'created_at' => $created, 'updated_at' => $created]);
         DB::table('acquisition_sources')->insert(['id' => $source, 'link_id' => $link, 'pixel_id' => $pixel, 'pixel_version' => 1, 'privacy_id' => $privacy,
-            'channel' => 'meta', 'consent' => 'granted', 'policy_version' => 'fixture', 'captured_at' => $created,
+            'channel' => $platform, 'consent' => 'granted', 'policy_version' => 'fixture', 'captured_at' => $created,
             'expires_at' => $created->addDay(), 'is_simulation' => false]);
         DB::table('acquisition_checkout_contexts')->insert(['id' => $context, 'source_id' => $source, 'privacy_id' => $privacy,
-            'pixel_id' => $pixel, 'pixel_version' => 1, 'platform' => 'meta', 'rendered_at' => $created,
+            'pixel_id' => $pixel, 'pixel_version' => 1, 'platform' => $platform, 'rendered_at' => $created,
             'captured_at' => $created, 'expires_at' => $created->addDay(),
             'context_encrypted' => Crypt::encryptString(json_encode(['page_url' => 'https://pilot.example.test/membership',
-                'ip' => '8.8.8.8', 'user_agent' => 'Explicit local fixture', 'fbc' => 'fb.1.1763031600000.SyntheticClick',
-                'email' => 'excluded@example.test']))]);
+                'ip' => '8.8.8.8', 'user_agent' => 'Explicit local fixture', 'email' => 'excluded@example.test',
+                ...($platform === 'meta' ? ['fbc' => 'fb.1.1763031600000.SyntheticClick']
+                    : ['ttclid' => 'TikTokFixture-42', 'ttp' => 'BrowserFixture_42', 'fbc' => 'fb.1.1763031600000.ExcludedMeta'])]))]);
         DB::table('billing_subscriptions')->insert($scope->columns() + [
             'id' => $subscription, 'first_order_id' => $order, 'viewer_id' => $viewer, 'provider_id' => $providerId,
             'state' => 'active', 'provider_status' => 'ACTIVE', 'resolution_required' => false, 'price_version' => 1,
@@ -288,7 +366,7 @@ final class ProductionPurchaseSenderTest extends TestCase
             'idempotency_key' => 'fixture-'.$order, 'fingerprint' => hash('sha256', $order), 'state' => 'pending',
             'return_to' => '/membership', 'price_version' => 1, 'amount_minor' => 399, 'regular_amount_minor' => 1299,
             'discount_applied' => true, 'currency' => 'USD', 'is_test' => false, 'created_at' => $created, 'updated_at' => $created,
-            'attribution_snapshot' => json_encode(['source_id' => $source, 'link_id' => $link, 'channel' => 'meta',
+            'attribution_snapshot' => json_encode(['source_id' => $source, 'link_id' => $link, 'channel' => $platform,
                 'pixel_config_version' => 1, 'captured_at' => BillingStore::iso($created), 'consent' => 'granted', 'checkout_context_id' => $context]),
         ]);
 

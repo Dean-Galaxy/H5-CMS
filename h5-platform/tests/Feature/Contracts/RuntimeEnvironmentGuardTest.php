@@ -165,6 +165,11 @@ class RuntimeEnvironmentGuardTest extends TestCase
             'until' => '2026-11-13T13:00:00Z',
         ]]);
         $this->assertSame(1, $guard->productionAcquisitionScope()['pixel_version']);
+        $this->assertArrayNotHasKey('viewer_id', $guard->productionAcquisitionScope());
+        config(['h5.acquisition_production_scope.platform' => 'tiktok']);
+        $this->rejects(fn () => $guard->productionAcquisitionScope());
+        config(['h5.acquisition_production_scope.viewer_id' => '33333333-3333-4333-8333-333333333333']);
+        $this->assertSame('33333333-3333-4333-8333-333333333333', $guard->productionAcquisitionScope()['viewer_id']);
         $this->travel(60)->minutes();
         $this->rejects(fn () => $guard->productionAcquisitionScope());
         $guard->assertSafeRuntime();

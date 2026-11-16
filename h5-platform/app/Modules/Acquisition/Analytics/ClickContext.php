@@ -42,14 +42,26 @@ final class ClickContext
         return array_intersect_key($value, array_flip(['ttclid', 'ttp']));
     }
 
-    public function forward(string $platform, array $query): array
+    public function forward(string $platform, string $query): array
     {
         $key = $platform === 'meta' ? 'fbclid' : 'ttclid';
-        if (! isset($query[$key])) {
+        $id = null;
+        foreach (explode('&', $query) as $part) {
+            [$name, $value] = array_pad(explode('=', $part, 2), 2, '');
+            $name = urldecode($name);
+            if (str_starts_with($name, $key.'[') || ($name === $key && $id !== null)) {
+                return [];
+            }
+            if ($name === $key) {
+                $id = urldecode($value);
+            }
+        }
+        if ($id === null) {
             return [];
         }
+
         try {
-            return $this->validate([$key => $query[$key]]);
+            return $this->validate([$key => $id]);
         } catch (ApiProblem) {
             return [];
         }

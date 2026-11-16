@@ -21,6 +21,7 @@ return [
         'link_id' => env('H5_ACQUISITION_PRODUCTION_LINK_ID'),
         'pixel_id' => env('H5_ACQUISITION_PRODUCTION_PIXEL_ID'),
         'pixel_version' => env('H5_ACQUISITION_PRODUCTION_PIXEL_VERSION'),
+        'viewer_id' => env('H5_ACQUISITION_PRODUCTION_VIEWER_ID'),
         'from' => env('H5_ACQUISITION_PRODUCTION_FROM'),
         'until' => env('H5_ACQUISITION_PRODUCTION_UNTIL'),
     ],
