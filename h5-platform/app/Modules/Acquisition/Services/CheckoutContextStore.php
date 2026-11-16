@@ -80,7 +80,7 @@ final class CheckoutContextStore implements CheckoutAttribution
     private function origin(): string
     {
         if (PilotScope::enabled()) {
-            app(RuntimeEnvironmentGuard::class)->productionAcquisitionScope();
+            app(PilotScope::class)->policy();
 
             return app(RuntimeEnvironmentGuard::class)->productionAcquisitionPilotOrigin();
         }

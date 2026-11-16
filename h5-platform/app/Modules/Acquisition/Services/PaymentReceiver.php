@@ -29,28 +29,41 @@ final class PaymentReceiver
         $evidence->requireEvent($event, $approved);
 
         return DB::transaction(function () use ($event, $approved, $evidence): bool {
-            $slot = $evidence->slot($approved);
-            DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', ['acquisition.production.purchase:'.$slot]);
-            if (DB::table('acquisition_production_purchase')->where('slot', $slot)->exists()) {
-                throw new \LogicException('PRODUCTION_PURCHASE_SLOT_ALREADY_BOUND');
+            $automatic = isset($approved['mode']);
+            if ($automatic && $approved['run_id'] !== null) {
+                DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', ['acquisition.automatic.run:'.$approved['run_id']]);
+                if (DB::table('acquisition_automatic_purchases')->where('run_id', $approved['run_id'])->exists()) {
+                    throw new \LogicException('PRODUCTION_AUTOMATIC_RUN_ALREADY_BOUND');
+                }
+            } elseif (! $automatic) {
+                $slot = $evidence->slot($approved);
+                DB::select('SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', ['acquisition.production.purchase:'.$slot]);
+                if (DB::table('acquisition_production_purchase')->where('slot', $slot)->exists()) {
+                    throw new \LogicException('PRODUCTION_PURCHASE_SLOT_ALREADY_BOUND');
+                }
             }
 
-            $id = $this->record($event, production: true);
+            $id = $this->record($event, $automatic ? 'automatic' : 'pilot');
             $row = $id ? DB::table('acquisition_deliveries')->find($id) : null;
             if (! $row) {
                 throw new \LogicException('PRODUCTION_PURCHASE_SOURCE_INVALID');
             }
             $evidence->prepare($row, $event->payment_id, $approved);
-            DB::table('acquisition_production_purchase')->insert([
-                'slot' => $slot, 'payment_id' => $event->payment_id, 'order_id' => $event->order_id,
-                'delivery_id' => $id, 'scope_digest' => $evidence->digest($approved), 'created_at' => now(),
-            ]);
+            $bound = ['payment_id' => $event->payment_id, 'order_id' => $event->order_id,
+                'delivery_id' => $id, 'scope_digest' => $evidence->digest($approved)];
+            if ($automatic) {
+                DB::table('acquisition_automatic_purchases')->upsert([
+                    $bound + ['run_id' => $approved['run_id'], 'checked_at' => now()],
+                ], ['payment_id'], ['order_id', 'delivery_id', 'scope_digest', 'run_id', 'checked_at']);
+            } else {
+                DB::table('acquisition_production_purchase')->insert($bound + ['slot' => $slot, 'created_at' => now()]);
+            }
 
             return true;
         });
     }
 
-    private function record(PaymentSettled $event, bool $production = false): ?string
+    private function record(PaymentSettled $event, ?string $production = null): ?string
     {
         $data = $event->toArray();
         Validator::make($data, [
@@ -120,7 +133,7 @@ final class PaymentReceiver
                     'source_id' => $source->id, 'pixel_id' => $source->pixel_id, 'pixel_version' => $source->pixel_version,
                     'platform' => $pixel->platform, 'external_id' => $pixel->external_id, 'environment' => $pixel->environment,
                     'event_key' => 'h5_'.hash('sha256', 'PaymentSettled.v1:'.$event->payment_id),
-                    'state' => $production ? 'pilot_ready' : 'pending',
+                    'state' => match ($production) { 'automatic' => 'production_ready', 'pilot' => 'pilot_ready', default => 'pending' },
                     'next_attempt_at' => $production ? null : now(), 'created_at' => now(), 'updated_at' => now(),
                 ]);
 

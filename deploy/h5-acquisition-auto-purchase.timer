@@ -1,0 +1,12 @@
+[Unit]
+Description=Deliver eligible newly settled Purchase events every minute
+ConditionPathExists=/srv/h5/ops/acquisition-auto-purchase/ENABLED
+
+[Timer]
+OnCalendar=*-*-* *:*:40 UTC
+AccuracySec=1s
+Persistent=false
+Unit=h5-acquisition-auto-purchase.service
+
+[Install]
+WantedBy=timers.target

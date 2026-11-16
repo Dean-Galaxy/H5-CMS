@@ -11,11 +11,18 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Feature\Content\ContentTestCase;
 
 final class ProductionPilotHttpTest extends ContentTestCase
 {
-    public function test_real_promotion_redirect_and_successful_drama_html_enable_the_scoped_advertising_choice(): void
+    public static function launchModes(): array
+    {
+        return ['manual' => [false], 'automatic' => [true]];
+    }
+
+    #[DataProvider('launchModes')]
+    public function test_real_promotion_redirect_and_successful_drama_html_enable_the_scoped_advertising_choice(bool $automatic): void
     {
         $drama = $this->fixture(count: 1, published: true);
         $origin = 'https://pilot.example.test';
@@ -26,9 +33,16 @@ final class ProductionPilotHttpTest extends ContentTestCase
         {
             public array $scope = [];
 
+            public array $automatic = [];
+
             public function productionAcquisitionPilotOrigin(): string
             {
                 return 'https://pilot.example.test';
+            }
+
+            public function productionAutomaticPurchasePolicy(): ?array
+            {
+                return $this->automatic && now()->lt($this->automatic['until']) ? $this->automatic : null;
             }
 
             public function productionAcquisitionScope(): array
@@ -59,6 +73,13 @@ final class ProductionPilotHttpTest extends ContentTestCase
         $guard->scope = ['platform' => 'meta', 'link_id' => $link['id'], 'pixel_id' => $pixel['id'],
             'pixel_version' => $pixel['version'], 'from' => now()->subMinute()->toIso8601ZuluString(),
             'until' => now()->addHour()->toIso8601ZuluString()];
+        if ($automatic) {
+            $guard->automatic = array_diff_key($guard->scope, ['platform' => true]) + [
+                'mode' => 'single', 'run_id' => (string) Str::uuid(), 'viewer_id' => (string) Str::uuid(),
+            ];
+            $guard->scope = [];
+            config(['h5.acquisition_automatic_mode' => 'single']);
+        }
         $path = '/dramas/'.$drama->id;
         $this->get($url, ['Sec-Fetch-Site' => 'cross-site', 'Sec-Fetch-Mode' => 'navigate', 'Sec-Fetch-Dest' => 'document'])
             ->assertRedirect($path);

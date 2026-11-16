@@ -32,6 +32,9 @@ final class RuntimeEnvironmentGuard
             && config('h5.acquisition_staging_test') === false
             && config('billing.paypal_live.enabled') === true
             && config('billing.new_purchase_provider') === 'paypal_live'), 'ACQUISITION_PILOT_PRODUCTION_REQUIRED');
+        $automatic = config('h5.acquisition_automatic_mode', 'off');
+        $this->require(in_array($automatic, ['off', 'single', 'continuous'], true)
+            && ($automatic === 'off' || $productionPilot), 'ACQUISITION_AUTOMATIC_MODE_INVALID');
         $this->paypal($environment);
         $this->paypalLive($environment);
         if (in_array($environment, ['local', 'testing'], true)) {
@@ -122,6 +125,41 @@ final class RuntimeEnvironmentGuard
         }
 
         return $approved;
+    }
+
+    /** A cutoff prevents pre-release and prior trial payments from entering the automatic worker. */
+    public function productionAutomaticPurchasePolicy(): ?array
+    {
+        $this->productionAcquisitionPilotOrigin();
+        $mode = config('h5.acquisition_automatic_mode', 'off');
+        if ($mode === 'off') {
+            return null;
+        }
+
+        $policy = config('h5.acquisition_automatic_policy');
+        $from = $this->pilotTimestamp($policy['from'] ?? null);
+        $now = now()->getTimestamp();
+        if ($mode === 'continuous') {
+            foreach (['until', 'run_id', 'viewer_id', 'link_id', 'pixel_id', 'pixel_version'] as $field) {
+                $this->require(($policy[$field] ?? null) === null, 'ACQUISITION_AUTOMATIC_SCOPE_INVALID');
+            }
+
+            return $from <= $now ? ['mode' => $mode, 'from' => $policy['from'], 'until' => null, 'run_id' => null] : null;
+        }
+
+        $until = $this->pilotTimestamp($policy['until'] ?? null);
+        $this->require($from < $until && $until - $from <= 86400, 'ACQUISITION_AUTOMATIC_SCOPE_INVALID');
+        foreach (['run_id', 'viewer_id', 'link_id', 'pixel_id'] as $field) {
+            $this->require(is_string($policy[$field] ?? null) && Str::isUuid($policy[$field]), 'ACQUISITION_AUTOMATIC_SCOPE_INVALID');
+        }
+        $this->require($this->integer($policy['pixel_version'] ?? null, 1, 999999), 'ACQUISITION_AUTOMATIC_SCOPE_INVALID');
+        if ($from > $now || $until <= $now) {
+            return null;
+        }
+
+        return ['mode' => $mode, 'from' => $policy['from'], 'until' => $policy['until'], 'run_id' => $policy['run_id'],
+            'viewer_id' => $policy['viewer_id'], 'link_id' => $policy['link_id'], 'pixel_id' => $policy['pixel_id'],
+            'pixel_version' => (int) $policy['pixel_version']];
     }
 
     private function pilotTimestamp(mixed $value): int

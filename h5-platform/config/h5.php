@@ -25,6 +25,17 @@ return [
         'from' => env('H5_ACQUISITION_PRODUCTION_FROM'),
         'until' => env('H5_ACQUISITION_PRODUCTION_UNTIL'),
     ],
+    // The native worker stays idle until an independent automatic policy is configured.
+    'acquisition_automatic_mode' => env('H5_ACQUISITION_AUTOMATIC_MODE', 'off'),
+    'acquisition_automatic_policy' => [
+        'from' => env('H5_ACQUISITION_AUTOMATIC_FROM'),
+        'until' => env('H5_ACQUISITION_AUTOMATIC_UNTIL'),
+        'run_id' => env('H5_ACQUISITION_AUTOMATIC_RUN_ID'),
+        'viewer_id' => env('H5_ACQUISITION_AUTOMATIC_VIEWER_ID'),
+        'link_id' => env('H5_ACQUISITION_AUTOMATIC_LINK_ID'),
+        'pixel_id' => env('H5_ACQUISITION_AUTOMATIC_PIXEL_ID'),
+        'pixel_version' => env('H5_ACQUISITION_AUTOMATIC_PIXEL_VERSION'),
+    ],
     'simulation' => env('H5_SIMULATION', false),
     'local_modules' => env('H5_LOCAL_MODULES', ''),
     'local_module_providers' => [

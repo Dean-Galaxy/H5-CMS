@@ -70,14 +70,33 @@ final class OutboxService
     public function dispatchProductionPilotPayment(string $paymentId, callable $receive): string
     {
         $guard = app(RuntimeEnvironmentGuard::class);
+        $this->require(config('h5.acquisition_automatic_mode', 'off') === 'off');
+
+        return $this->dispatchVerifiedProductionPayment($paymentId, $guard->productionAcquisitionScope(...), $receive);
+    }
+
+    /** The automatic worker supplies the destination from the settled order and immutable source. */
+    public function dispatchAutomaticProductionPayment(string $paymentId, array $approved, callable $receive): string
+    {
+        $guard = app(RuntimeEnvironmentGuard::class);
+
+        return $this->dispatchVerifiedProductionPayment($paymentId, function () use ($guard, $approved): array {
+            $policy = $guard->productionAutomaticPurchasePolicy();
+            $this->require($policy !== null && array_intersect_key($approved, $policy) === $policy);
+
+            return $approved;
+        }, $receive);
+    }
+
+    private function dispatchVerifiedProductionPayment(string $paymentId, callable $resolve, callable $receive): string
+    {
         $this->require(config('h5.acquisition_production_pilot') === true && Str::isUuid($paymentId));
-        $guard->productionAcquisitionPilotOrigin();
-        $approved = $guard->productionAcquisitionScope();
+        $approved = $resolve();
         $scope = new ProviderScope('paypal', 'live', config('billing.paypal_live.merchant_scope', ''));
         $this->require(! ProviderActivity::disabled('paypal', 'live'));
         (new PayPalMerchantBinding(app(LiveApi::class)))->assertBound($scope);
 
-        return DB::transaction(function () use ($paymentId, $receive, $guard, $approved, $scope) {
+        return DB::transaction(function () use ($paymentId, $receive, $resolve, $approved, $scope) {
             $payment = DB::table('billing_payments')->where($scope->columns())->find($paymentId);
             $this->require($payment !== null);
             // Share the existing financial lock order without creating account rows.
@@ -86,14 +105,14 @@ final class OutboxService
             $payment = DB::table('billing_payments')->where($scope->columns())->find($paymentId);
             $this->require($account !== null && $row !== null && $payment !== null && $account->viewer_id === $payment->viewer_id);
             $event = $this->productionPilotEvent($row, $payment, $account, $scope, $approved);
-            $this->require($guard->productionAcquisitionScope() === $approved);
+            $this->require($resolve() === $approved);
             if ($row->delivered_at !== null) {
                 return 'already_delivered';
             }
             if ($receive($event, $approved) !== true) {
                 throw new RuntimeException('BILLING_PILOT_RECEIVER_NOT_CONFIRMED');
             }
-            $this->require($guard->productionAcquisitionScope() === $approved);
+            $this->require($resolve() === $approved);
             // Verified notices can arrive without taking the billing account lock.
             $this->requireNoBlockingProviderNotice($scope, $payment->provider_charge_id);
             $this->markDelivered($row->id);
@@ -108,7 +127,7 @@ final class OutboxService
         $subscription = DB::table('billing_subscriptions')->where($scope->columns())->find($payment->subscription_id);
         $this->require($order !== null && $subscription !== null
             && $order->viewer_id === $payment->viewer_id && $subscription->viewer_id === $payment->viewer_id
-            && ($approved['platform'] !== 'tiktok' || ($approved['viewer_id'] ?? null) === $payment->viewer_id)
+            && (! isset($approved['viewer_id']) || $approved['viewer_id'] === $payment->viewer_id)
             && $order->subscription_id === $subscription->id && $subscription->first_order_id === $order->id
             && $order->state === 'paid' && $order->payment_state === 'succeeded'
             && $order->transaction_kind === TransactionKind::FirstSubscription->value
@@ -140,7 +159,7 @@ final class OutboxService
         foreach ([$snapshot['captured_at'] ?? null, $order->created_at, $payment->paid_at, $row->created_at] as $value) {
             $this->require(is_string($value));
             $time = CarbonImmutable::parse($value);
-            $this->require($time->gte($approved['from']) && $time->lt($approved['until']) && $time->lte(now()));
+            $this->require($time->gte($approved['from']) && ($approved['until'] === null || $time->lt($approved['until'])) && $time->lte(now()));
         }
         $payload = BillingStore::json($row->payload);
         $expected = [

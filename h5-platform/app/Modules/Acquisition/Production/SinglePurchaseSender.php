@@ -20,13 +20,23 @@ final class SinglePurchaseSender
 
     public function send(string $paymentId, string $orderId): array
     {
+        return $this->sendApproved($paymentId, $orderId, null);
+    }
+
+    public function sendAutomatically(string $paymentId, string $orderId, string $linkId): array
+    {
+        return $this->sendApproved($paymentId, $orderId, $linkId);
+    }
+
+    private function sendApproved(string $paymentId, string $orderId, ?string $automaticLink): array
+    {
         if (! Str::isUuid($paymentId) || ! Str::isUuid($orderId) || DB::transactionLevel() !== 0) {
             return ['state' => 'blocked', 'reason' => 'PRODUCTION_PURCHASE_INPUT_INVALID'];
         }
 
-        $scope = $this->evidence->scope();
+        $scope = $this->evidence->scope($automaticLink);
         // Outbox owns the provider, account, ledger and notice checks. This callback does no transport.
-        $outbox = app(OutboxService::class)->dispatchProductionPilotPayment($paymentId,
+        $outbox = $this->dispatch($paymentId, $scope,
             function (PaymentSettled $event, array $approved) use ($paymentId, $orderId, $scope): bool {
                 return $approved === $scope && $event->payment_id === $paymentId && $event->order_id === $orderId
                     && app(PaymentReceiver::class)->receiveProduction($event, $approved);
@@ -36,13 +46,16 @@ final class SinglePurchaseSender
         }
 
         $reservation = DB::transaction(function () use ($paymentId, $orderId, $scope) {
-            $slot = DB::table('acquisition_production_purchase')->where('slot', $this->evidence->slot($scope))->lockForUpdate()->first();
-            if (! $slot || $slot->payment_id !== $paymentId || $slot->order_id !== $orderId
-                || ! hash_equals($slot->scope_digest, $this->evidence->digest($scope))) {
+            $automatic = isset($scope['mode']);
+            $binding = $automatic
+                ? DB::table('acquisition_automatic_purchases')->where('payment_id', $paymentId)->lockForUpdate()->first()
+                : DB::table('acquisition_production_purchase')->where('slot', $this->evidence->slot($scope))->lockForUpdate()->first();
+            if (! $binding || $binding->payment_id !== $paymentId || $binding->order_id !== $orderId
+                || ! is_string($binding->scope_digest) || ! hash_equals($binding->scope_digest, $this->evidence->digest($scope))) {
                 throw new LogicException('PRODUCTION_PURCHASE_SLOT_MISMATCH');
             }
-            $row = DB::table('acquisition_deliveries')->where('id', $slot->delivery_id)->lockForUpdate()->first();
-            if (! $row || $row->state !== 'pilot_ready' || (int) $row->attempts !== 0 || $row->first_attempted_at !== null
+            $row = DB::table('acquisition_deliveries')->where('id', $binding->delivery_id)->lockForUpdate()->first();
+            if (! $row || $row->state !== ($automatic ? 'production_ready' : 'pilot_ready') || (int) $row->attempts !== 0 || $row->first_attempted_at !== null
                 || $row->accepted_at !== null || $row->lease_token !== null || $row->lease_until !== null
                 || $row->next_attempt_at !== null || $row->payload_encrypted !== null) {
                 return null;
@@ -65,7 +78,7 @@ final class SinglePurchaseSender
         $reason = 'PRODUCTION_PURCHASE_UNKNOWN_NO_RETRY';
         try {
             // Billing also rechecks refunds, reversals and the original ledger on a delivered replay.
-            $checked = app(OutboxService::class)->dispatchProductionPilotPayment($paymentId, static fn (): bool => false);
+            $checked = $this->dispatch($paymentId, $scope, static fn (): bool => false);
             $row = DB::table('acquisition_deliveries')->find($id);
             if ($checked !== 'already_delivered' || ! $row || $row->state !== 'failed' || $row->last_error !== self::RESERVED
                 || (int) $row->attempts !== 1 || $row->payload_encrypted !== null
@@ -90,6 +103,15 @@ final class SinglePurchaseSender
 
         return $updated === 1 ? ['state' => $state, 'reason' => $reason]
             : ['state' => 'unconfirmed', 'reason' => 'PRODUCTION_PURCHASE_UNKNOWN_NO_RETRY'];
+    }
+
+    private function dispatch(string $paymentId, array $scope, callable $receive): string
+    {
+        $outbox = app(OutboxService::class);
+
+        return isset($scope['mode'])
+            ? $outbox->dispatchAutomaticProductionPayment($paymentId, $scope, $receive)
+            : $outbox->dispatchProductionPilotPayment($paymentId, $receive);
     }
 
     private function sendReserved(array $prepared): array

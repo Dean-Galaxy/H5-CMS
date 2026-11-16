@@ -11,6 +11,7 @@ use App\Data\PaymentSettled;
 use App\Modules\Acquisition\Analytics\BehaviorRecorder;
 use App\Modules\Acquisition\Console\ConfigurePixelCredentials;
 use App\Modules\Acquisition\Console\DispatchAcquisition;
+use App\Modules\Acquisition\Console\DispatchProductionPurchases;
 use App\Modules\Acquisition\Console\PruneAnalytics;
 use App\Modules\Acquisition\Console\PruneMeasurement;
 use App\Modules\Acquisition\Console\PruneRegistrationPurposes;
@@ -48,7 +49,7 @@ final class AcquisitionServiceProvider extends ServiceProvider
     {
         if (PilotScope::enabled()) {
             app(RuntimeEnvironmentGuard::class)->productionAcquisitionPilotOrigin();
-            $this->commands([SendProductionPurchase::class]);
+            $this->commands([SendProductionPurchase::class, DispatchProductionPurchases::class]);
 
             return;
         }

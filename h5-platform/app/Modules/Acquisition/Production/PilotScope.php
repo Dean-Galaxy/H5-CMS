@@ -18,7 +18,7 @@ final class PilotScope
     public function active(): bool
     {
         try {
-            app(RuntimeEnvironmentGuard::class)->productionAcquisitionScope();
+            $this->policy();
 
             return true;
         } catch (LogicException) {
@@ -26,15 +26,30 @@ final class PilotScope
         }
     }
 
+    public function policy(): array
+    {
+        $guard = app(RuntimeEnvironmentGuard::class);
+        if (config('h5.acquisition_automatic_mode', 'off') === 'off') {
+            return $guard->productionAcquisitionScope();
+        }
+
+        return $guard->productionAutomaticPurchasePolicy()
+            ?? throw new LogicException('PRODUCTION_AUTOMATIC_WINDOW_CLOSED');
+    }
+
     public function target(string $linkId): array
     {
-        $scope = app(RuntimeEnvironmentGuard::class)->productionAcquisitionScope();
-        if ($scope['link_id'] !== $linkId) {
+        $scope = $this->policy();
+        if (isset($scope['link_id']) && $scope['link_id'] !== $linkId) {
             throw new LogicException('PRODUCTION_PURCHASE_OUT_OF_SCOPE');
         }
 
         $link = DB::table('acquisition_links')->where('id', $linkId)->first();
-        $pixel = DB::table('acquisition_pixels')->where('id', $scope['pixel_id'])->first();
+        $pixel = $link ? DB::table('acquisition_pixels')->where('id', $link->pixel_id)->first() : null;
+        if (! $link || ! $pixel || ! in_array($link->platform, ['meta', 'tiktok'], true)) {
+            throw new LogicException('PRODUCTION_PURCHASE_ASSET_CHANGED');
+        }
+        $scope += ['link_id' => $linkId, 'platform' => $link->platform, 'pixel_id' => $pixel->id, 'pixel_version' => (int) $pixel->version];
         $version = DB::table('acquisition_pixel_versions')->where('pixel_id', $scope['pixel_id'])
             ->where('version', $scope['pixel_version'])->first();
         if (! $link || ! $link->active || $link->pixel_id !== $scope['pixel_id'] || $link->platform !== $scope['platform']
@@ -54,6 +69,7 @@ final class PilotScope
             || $source->channel !== $scope['platform'] || $source->pixel_id !== $pixel->id
             || (int) $source->pixel_version !== $scope['pixel_version']
             || CarbonImmutable::parse($source->captured_at)->lessThan(CarbonImmutable::parse($scope['from']))
+            || ($scope['until'] !== null && CarbonImmutable::parse($source->captured_at)->gte($scope['until']))
             || CarbonImmutable::parse($source->captured_at)->greaterThan(now())
             || CarbonImmutable::parse($source->expires_at)->lessThanOrEqualTo(now())) {
             throw new LogicException('PRODUCTION_PURCHASE_SOURCE_INVALID');

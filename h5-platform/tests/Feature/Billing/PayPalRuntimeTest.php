@@ -5,11 +5,13 @@ namespace Tests\Feature\Billing;
 use App\Contracts\BillingAnalyticsReader;
 use App\Contracts\MembershipReader;
 use App\Contracts\RegionResolver;
+use App\Data\AttributionSnapshot;
 use App\Data\Checkout;
 use App\Data\CheckoutInput;
 use App\Data\PaymentSettled;
 use App\Data\ResolvedRegion;
 use App\Data\ViewerIdentity;
+use App\Modules\Acquisition\AcquisitionServiceProvider;
 use App\Modules\Billing\BillingServiceProvider;
 use App\Modules\Billing\Gateway\PaymentGateway;
 use App\Modules\Billing\Gateway\PayPal\SandboxApi;
@@ -28,9 +30,12 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\Feature\Billing\Support\FakeGateway;
@@ -143,6 +148,131 @@ final class PayPalRuntimeTest extends TestCase
         self::assertDatabaseCount('billing_paypal_observations', 1);
         $fact = DB::table('billing_payments')->first();
         self::assertSame('2026-11-03T06:00:00Z', BillingStore::iso($fact->period_end));
+    }
+
+    public static function automaticPurchaseCases(): array
+    {
+        return [
+            'Meta accepts exactly one purchase' => ['meta', 'accepted'],
+            'TikTok accepts exactly one purchase' => ['tiktok', 'accepted'],
+            'withdrawal stops a queued purchase' => ['tiktok', 'withdrawn'],
+            'one-attempt verification leaves an uncertain response unsent again' => ['tiktok', 'uncertain'],
+        ];
+    }
+
+    #[DataProvider('automaticPurchaseCases')]
+    public function test_paypal_webhook_reaches_the_scheduled_purchase_dispatch_without_a_buyer_return(string $platform, string $outcome): void
+    {
+        $this->app->register(AcquisitionServiceProvider::class);
+        $commands = array_map(fn ($event) => $event->command, app(Schedule::class)->events());
+        foreach (['billing:reconcile', 'acquisition:dispatch'] as $command) {
+            self::assertNotEmpty(array_filter($commands, fn ($scheduled) => str_contains($scheduled ?? '', $command)));
+        }
+
+        $source = $this->automaticPurchaseSource($platform);
+        $pixel = DB::table('acquisition_pixels')->sole();
+        $directory = realpath(sys_get_temp_dir()).'/h5-acq-secret-'.bin2hex(random_bytes(8));
+        mkdir($directory, 0700);
+        $credentials = $directory.'/credentials.json';
+        try {
+            file_put_contents($credentials, json_encode([$pixel->id.':1' => [
+                'platform' => $platform, 'external_id' => $pixel->external_id, 'environment' => 'test',
+                'token' => 'UNIT-TEST-NOT-A-REAL-SECRET', 'test_event_code' => 'UNIT_TEST',
+            ]], JSON_THROW_ON_ERROR));
+            chmod($credentials, 0600);
+            config(['app.url' => 'https://localhost', 'acquisition.credentials_file' => $credentials,
+                'acquisition.transport' => 'http', 'acquisition.external_enabled' => true, 'acquisition.platform_reviewed' => true,
+                'acquisition.analytics_enabled' => false, 'acquisition.max_attempts' => 1, 'acquisition.meta_api_version' => 'v27.0']);
+            Http::preventStrayRequests();
+            Http::fake([
+                'https://business-api.tiktok.com/open_api/v1.3/event/track/' => Http::response(
+                    $outcome === 'uncertain' ? ['error' => 'fixture upstream timeout'] : ['code' => 0],
+                    $outcome === 'uncertain' ? 504 : 200),
+                'https://graph.facebook.com/*' => Http::response(['events_received' => 1]),
+            ]);
+            $order = $this->checkout($source);
+            self::assertSame($source->source_id, BillingStore::json($order->attribution_snapshot)['source_id']);
+            $this->paid();
+            $body = ['id' => 'WH-SCHEDULED-TEST', 'event_type' => 'PAYMENT.SALE.COMPLETED',
+                'create_time' => now()->toIso8601ZuluString(), 'resource' => ['id' => self::SALE]];
+            $headers = ['paypal-auth-algo' => 'SHA256withRSA', 'paypal-cert-url' => 'https://api.sandbox.paypal.com/v1/notifications/certs/CERT-fixture',
+                'paypal-transmission-id' => 'fixture-scheduled-delivery', 'paypal-transmission-sig' => base64_encode('fixture'),
+                'paypal-transmission-time' => now()->toIso8601ZuluString()];
+            $this->postJson('/webhooks/paypal', $body, $headers)->assertOk();
+            Http::assertNothingSent();
+            $this->artisan('billing:reconcile', ['--limit' => 1])->assertSuccessful();
+            self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+            $payment = DB::table('billing_payments')->sole();
+            $delivery = DB::table('acquisition_deliveries')->sole();
+            self::assertSame('pending', $delivery->state);
+            self::assertSame('h5_'.hash('sha256', 'PaymentSettled.v1:'.$payment->id), $delivery->event_key);
+            $this->assertDatabaseCount('acquisition_production_purchase', 0);
+            Http::assertNothingSent();
+
+            if ($outcome === 'withdrawn') {
+                DB::table('acquisition_privacy')->update(['advertising' => 'denied']);
+            }
+            $this->artisan('acquisition:dispatch', ['--limit' => 1])->assertSuccessful();
+            $this->postJson('/webhooks/paypal', $body, $headers)->assertOk();
+            $this->travel(15)->minutes();
+            $this->artisan('billing:reconcile', ['--limit' => 1])->assertSuccessful();
+            $this->artisan('acquisition:dispatch', ['--limit' => 1])->assertSuccessful();
+
+            $this->assertDatabaseCount('billing_payments', 1);
+            $this->assertDatabaseCount('billing_entitlements', 1);
+            $this->assertDatabaseCount('acquisition_receipts', 1);
+            $this->assertDatabaseCount('acquisition_deliveries', 1);
+            $this->assertDatabaseMissing('billing_outbox', ['payment_id' => $payment->id, 'delivered_at' => null]);
+            self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+            $this->assertDatabaseHas('acquisition_deliveries', ['id' => $delivery->id,
+                'state' => match ($outcome) {
+                    'accepted' => 'api_accepted',
+                    'withdrawn' => 'blocked',
+                    'uncertain' => 'failed',
+                }, 'attempts' => $outcome === 'withdrawn' ? 0 : 1]);
+            if ($outcome === 'withdrawn') {
+                Http::assertNothingSent();
+            } else {
+                Http::assertSentCount(1);
+                [$request] = Http::recorded()->sole();
+                $payload = json_decode($request->body(), true, flags: JSON_THROW_ON_ERROR);
+                $event = $payload['data'][0];
+                self::assertSame('Purchase', $event[$platform === 'meta' ? 'event_name' : 'event']);
+                self::assertSame($delivery->event_key, $event['event_id']);
+                self::assertSame(['currency' => 'USD', 'value' => 3], $event[$platform === 'meta' ? 'custom_data' : 'properties']);
+                self::assertStringNotContainsString($this->user->email, $request->body());
+            }
+        } finally {
+            unlink($credentials);
+            rmdir($directory);
+        }
+    }
+
+    private function automaticPurchaseSource(string $platform): AttributionSnapshot
+    {
+        $pixel = BillingStore::id();
+        $link = BillingStore::id();
+        $source = BillingStore::id();
+        $privacy = BillingStore::id();
+        $checkoutContext = BillingStore::id();
+        $asset = ['platform' => $platform, 'external_id' => $platform === 'meta' ? '1234567890' : 'TIKTOK_FIXTURE', 'environment' => 'test'];
+        DB::table('acquisition_pixels')->insert(['id' => $pixel, 'owner_id' => BillingStore::id(), 'name' => 'Test pixel', ...$asset]);
+        DB::table('acquisition_pixel_versions')->insert(['pixel_id' => $pixel, 'version' => 1, 'created_at' => now(), ...$asset]);
+        DB::table('acquisition_links')->insert(['id' => $link, 'owner_id' => BillingStore::id(), 'platform' => $platform, 'pixel_id' => $pixel,
+            'name' => 'Test link', 'code' => 'scheduled-purchase-fixture', 'drama_id' => BillingStore::id(), 'drama_title' => 'Fixture']);
+        DB::table('acquisition_privacy')->insert(['id' => $privacy, 'analytics' => 'denied', 'advertising' => 'granted',
+            'policy_version' => 'analytics-v1', 'created_at' => now(), 'updated_at' => now()]);
+        $captured = now()->subMinute();
+        $context = Crypt::encryptString(json_encode(['page_url' => 'https://localhost/membership',
+            'ip' => '8.8.4.4', 'user_agent' => 'Automatic acceptance fixture'], JSON_THROW_ON_ERROR));
+        DB::table('acquisition_sources')->insert(['id' => $source, 'link_id' => $link, 'pixel_id' => $pixel, 'pixel_version' => 1,
+            'privacy_id' => $privacy, 'channel' => $platform, 'consent' => 'granted', 'policy_version' => 'analytics-v1',
+            'captured_at' => $captured, 'expires_at' => now()->addDay(), 'context_encrypted' => $context]);
+        DB::table('acquisition_checkout_contexts')->insert(['id' => $checkoutContext, 'source_id' => $source,
+            'privacy_id' => $privacy, 'pixel_id' => $pixel, 'pixel_version' => 1, 'platform' => $platform,
+            'context_encrypted' => $context, 'rendered_at' => now(), 'captured_at' => now(), 'expires_at' => now()->addDay()]);
+
+        return new AttributionSnapshot($source, $link, $platform, 1, $captured->toIso8601ZuluString(), 'granted', $checkoutContext);
     }
 
     public function test_cancel_requires_observed_stop_preserves_paid_period_and_disables_resume(): void
@@ -1194,10 +1324,10 @@ final class PayPalRuntimeTest extends TestCase
         $this->travel(2)->minutes();
     }
 
-    private function checkout(): object
+    private function checkout(?AttributionSnapshot $source = null): object
     {
         $offer = $this->billing->offer($this->viewer());
-        $result = $this->billing->checkout($this->viewer(), new CheckoutInput($offer->offer_id, $offer->price_version, '/membership'), BillingStore::id(), null);
+        $result = $this->billing->checkout($this->viewer(), new CheckoutInput($offer->offer_id, $offer->price_version, '/membership'), BillingStore::id(), $source);
         self::assertStringStartsWith('https://www.sandbox.paypal.com/', $result->checkout_url);
 
         return DB::table('billing_orders')->find($result->order_id);

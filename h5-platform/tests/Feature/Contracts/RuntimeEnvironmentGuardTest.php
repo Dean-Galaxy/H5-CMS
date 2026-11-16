@@ -176,6 +176,53 @@ class RuntimeEnvironmentGuardTest extends TestCase
         $this->travelBack();
     }
 
+    public function test_automatic_policy_is_separate_from_the_spent_manual_scope_and_expires_safely(): void
+    {
+        $this->safeStaging();
+        $this->environment('production');
+        config([
+            'app.url' => 'https://sparklingshort.com',
+            'billing.paypal_live.enabled' => true,
+            'billing.new_purchase_provider' => 'paypal_live',
+            'h5.acquisition_production_pilot' => true,
+            'h5.modules.acquisition' => ['provider' => AcquisitionServiceProvider::class, 'ready' => true],
+        ]);
+        $guard = app(RuntimeEnvironmentGuard::class);
+        $this->travelTo(\Illuminate\Support\Carbon::parse('2026-11-16T12:00:00Z'));
+        $this->assertNull($guard->productionAutomaticPurchasePolicy());
+        config([
+            'h5.acquisition_automatic_mode' => 'single',
+            'h5.acquisition_automatic_policy' => [
+                'run_id' => '11111111-1111-4111-8111-111111111111',
+                'viewer_id' => '22222222-2222-4222-8222-222222222222',
+                'link_id' => '33333333-3333-4333-8333-333333333333',
+                'pixel_id' => '44444444-4444-4444-8444-444444444444',
+                'pixel_version' => '1',
+                'from' => '2026-11-16T12:00:00Z',
+                'until' => '2026-11-16T13:00:00Z',
+            ],
+        ]);
+        $this->assertSame(1, $guard->productionAutomaticPurchasePolicy()['pixel_version']);
+        $this->rejects(fn () => $guard->productionAcquisitionScope());
+        config(['h5.acquisition_automatic_policy.viewer_id' => null]);
+        $this->rejects(fn () => $guard->productionAutomaticPurchasePolicy());
+        config(['h5.acquisition_automatic_policy.viewer_id' => '22222222-2222-4222-8222-222222222222',
+            'h5.acquisition_automatic_policy.until' => '2026-11-18T13:00:00Z']);
+        $this->rejects(fn () => $guard->productionAutomaticPurchasePolicy());
+        config(['h5.acquisition_automatic_policy.until' => '2026-11-16T13:00:00Z']);
+        $this->travel(60)->minutes();
+        $this->assertNull($guard->productionAutomaticPurchasePolicy());
+        $guard->assertSafeRuntime();
+        config(['h5.acquisition_automatic_mode' => 'continuous']);
+        $this->rejects(fn () => $guard->productionAutomaticPurchasePolicy());
+        config(['h5.acquisition_automatic_policy' => ['from' => '2026-11-16T13:00:00Z']]);
+        $this->assertSame(['mode' => 'continuous', 'from' => '2026-11-16T13:00:00Z', 'until' => null, 'run_id' => null],
+            $guard->productionAutomaticPurchasePolicy());
+        config(['acquisition.external_enabled' => true]);
+        $this->rejects(fn () => $guard->productionAutomaticPurchasePolicy());
+        $this->travelBack();
+    }
+
     public function test_production_purchase_rejects_other_origins_modes_and_nonproduction_environments(): void
     {
         $guard = app(RuntimeEnvironmentGuard::class);

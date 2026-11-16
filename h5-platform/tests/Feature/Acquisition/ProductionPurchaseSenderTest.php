@@ -61,6 +61,12 @@ final class ProductionPurchaseSenderTest extends TestCase
                 return $this->origin;
             }
 
+            public function productionAutomaticPurchasePolicy(): ?array
+            {
+                $policy = config('test_automatic_policy');
+                return $policy && ($policy['until'] === null || now()->lt($policy['until'])) ? $policy : null;
+            }
+
             public function productionAcquisitionScope(): array
             {
                 $scope = config('h5.acquisition_production_scope');
@@ -307,6 +313,114 @@ final class ProductionPurchaseSenderTest extends TestCase
         $this->assertDatabaseHas('acquisition_deliveries', ['platform' => 'tiktok', 'state' => 'failed', 'attempts' => 1,
             'last_error' => 'PRODUCTION_PURCHASE_UNKNOWN_NO_RETRY', 'payload_encrypted' => null]);
         Http::assertSentCount(1);
+    }
+
+    public function test_automatic_task_finds_the_new_settled_payment_and_sends_once_with_no_purchaser_callback(): void
+    {
+        [$oldPayment, $oldOrder] = $this->paid();
+        Http::fake(['graph.facebook.com/*' => Http::response(['events_received' => 1]),
+            'business-api.tiktok.com/*' => Http::response(['code' => 0])]);
+        $this->artisan('acquisition:purchase-production', ['payment' => $oldPayment, 'order' => $oldOrder])->assertSuccessful();
+        $manual = DB::table('acquisition_production_purchase')->sole();
+        [$oldDeferred] = $this->paid();
+        $this->travel(5)->minutes();
+        $viewer = BillingStore::id();
+        $this->selectTikTok($viewer);
+        [$newPayment] = $this->paid($viewer);
+        [$differentViewer] = $this->paid();
+        $this->enableAutomatic('single', $viewer);
+        $money = $this->billingRows();
+
+        $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"api_accepted":1')->assertSuccessful();
+        $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"selected":0')->assertSuccessful();
+        $this->assertDatabaseHas('acquisition_automatic_purchases', ['payment_id' => $newPayment]);
+        $this->assertDatabaseMissing('acquisition_automatic_purchases', ['payment_id' => $differentViewer]);
+        $this->assertDatabaseMissing('acquisition_automatic_purchases', ['payment_id' => $oldDeferred]);
+        $this->assertEquals($manual, DB::table('acquisition_production_purchase')->sole());
+        $this->assertDatabaseHas('acquisition_deliveries', ['platform' => 'tiktok', 'state' => 'api_accepted', 'attempts' => 1]);
+        $this->assertDatabaseHas('billing_outbox', ['payment_id' => $oldDeferred, 'delivered_at' => null]);
+        $this->assertEquals($money, $this->billingRows());
+        Http::assertSentCount(2);
+        Http::assertSent(fn (Request $request) => $request->url() === 'https://business-api.tiktok.com/open_api/v1.3/event/track/'
+            && ($request->data()['data'][0]['event_id'] ?? '') === 'h5_'.hash('sha256', 'PaymentSettled.v1:'.$newPayment));
+    }
+
+    public function test_continuous_task_rotates_preflight_failures_and_ignores_pre_activation_orders(): void
+    {
+        [$oldDeferred] = $this->paid();
+        $this->travel(5)->minutes();
+        [$refunded] = $this->paid();
+        DB::table('billing_payments')->where('id', $refunded)->update(['refunded_amount_minor' => 399]);
+        $this->travel(1)->second();
+        [$fresh] = $this->paid();
+        $this->enableAutomatic('continuous');
+        Http::fake(['graph.facebook.com/*' => Http::response(['events_received' => 1])]);
+
+        $this->artisan('acquisition:dispatch-production-purchases', ['--limit' => 1])->expectsOutputToContain('"blocked":1')->assertSuccessful();
+        $this->artisan('acquisition:dispatch-production-purchases', ['--limit' => 1])->expectsOutputToContain('"api_accepted":1')->assertSuccessful();
+        $this->assertDatabaseHas('acquisition_automatic_purchases', ['payment_id' => $refunded, 'delivery_id' => null]);
+        $this->assertDatabaseMissing('acquisition_automatic_purchases', ['payment_id' => $oldDeferred]);
+        $this->assertDatabaseMissing('billing_outbox', ['payment_id' => $fresh, 'delivered_at' => null]);
+        Http::assertSentCount(1);
+    }
+
+    public function test_unknown_automatic_result_cannot_be_sent_by_concurrent_or_later_worker(): void
+    {
+        [$payment] = $this->paid();
+        $this->enableAutomatic('continuous');
+        $worker = app(\App\Modules\Acquisition\Production\AutomaticPurchaseWorker::class);
+        $nested = null;
+        Http::fake(['graph.facebook.com/*' => function () use (&$nested, $worker) {
+            $nested = $worker->run(5);
+            return Http::response(['error' => ['is_transient' => true]], 504);
+        }]);
+        $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"unconfirmed":1')->assertFailed();
+        $this->assertSame(0, $nested['selected']);
+        $this->travel(2)->minutes();
+        $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"selected":0')->assertSuccessful();
+        $this->assertDatabaseHas('acquisition_deliveries', ['state' => 'failed', 'attempts' => 1,
+            'last_error' => 'PRODUCTION_PURCHASE_UNKNOWN_NO_RETRY']);
+        $this->assertDatabaseHas('billing_entitlements', ['payment_id' => $payment, 'revoked_at' => null]);
+        Http::assertSentCount(1);
+    }
+
+    public function test_late_withdrawal_and_expired_acceptance_do_not_send(): void
+    {
+        $viewer = BillingStore::id();
+        [$payment] = $this->paid($viewer);
+        $this->enableAutomatic('single', $viewer);
+        DB::listen(function (QueryExecuted $query) {
+            if (in_array('PRODUCTION_PURCHASE_RESERVED_NO_RETRY', $query->bindings, true)) {
+                DB::table('acquisition_privacy')->update(['advertising' => 'denied']);
+            }
+        });
+        $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"blocked":1')->assertSuccessful();
+        $this->assertDatabaseHas('acquisition_deliveries', ['state' => 'failed', 'attempts' => 1,
+            'last_error' => 'PRODUCTION_PURCHASE_STOPPED_NO_RETRY']);
+        $this->travel(45)->minutes();
+        $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"state":"inactive"')->assertSuccessful();
+        $this->assertDatabaseHas('billing_entitlements', ['payment_id' => $payment, 'revoked_at' => null]);
+        Http::assertNothingSent();
+    }
+
+    public function test_scheduled_command_is_idle_by_default_and_never_creates_a_delivery(): void
+    {
+        $this->paid();
+        $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"state":"inactive"')->assertSuccessful();
+        $this->assertDatabaseCount('acquisition_automatic_purchases', 0);
+        Http::assertNothingSent();
+    }
+
+    private function enableAutomatic(string $mode, ?string $viewer = null): void
+    {
+        $policy = ['mode' => $mode, 'from' => now()->subMinutes(4)->toIso8601ZuluString(),
+            'until' => null, 'run_id' => null];
+        if ($mode === 'single') {
+            $policy = array_replace($policy, ['until' => now()->addMinutes(30)->toIso8601ZuluString(), 'run_id' => BillingStore::id(),
+                'viewer_id' => $viewer, 'link_id' => $this->approved['link_id'], 'pixel_id' => $this->approved['pixel_id'],
+                'pixel_version' => $this->approved['pixel_version']]);
+        }
+        config(['h5.acquisition_automatic_mode' => $mode, 'test_automatic_policy' => $policy]);
     }
 
     private function selectTikTok(string $viewer): void
