@@ -1,0 +1,10 @@
+[Unit]
+Description=Observe H5 operations independently of billing execution
+
+[Timer]
+OnCalendar=*-*-* *:*:10 UTC
+AccuracySec=1s
+Persistent=false
+
+[Install]
+WantedBy=timers.target
