@@ -49,6 +49,45 @@ final class BillingUiTest extends BillingTestCase
             'confirmed_next_renewal_at' => $quote->next_renewal_at, 'confirmed' => '1'];
     }
 
+    public function test_legal_pages_are_public_bilingual_and_linked_from_the_shared_footer(): void
+    {
+        foreach ([
+            ['/terms?lang=en', 'Subscription and Use Terms', 'USD 3.99', 'Cancel automatic renewal'],
+            ['/terms?lang=zh_CN', '订阅与使用条款', '12.99 美元', '取消自动续费'],
+            ['/privacy?lang=en', 'Privacy Policy', 'Guest viewing progress stays in the browser.', 'If advertising measurement is enabled and you allow it'],
+            ['/privacy?lang=zh_CN', '隐私政策', '游客的观看进度保存在当前浏览器', '广告衡量已启用且你同意时'],
+        ] as [$uri, $title, $detail, $condition]) {
+            $this->get($uri)->assertOk()
+                ->assertHeader('Cache-Control', 'no-store, private')
+                ->assertSee('<h1>'.$title.'</h1>', false)
+                ->assertSee('SPARKLING PLAY INC')
+                ->assertSee('href="mailto:sparklingshort@proton.me"', false)
+                ->assertSee('<time datetime="2026-11-16">2026-11-16</time>', false)
+                ->assertSee($detail)
+                ->assertSee($condition);
+        }
+
+        $this->get('/identity/login?lang=zh_CN')->assertOk()
+            ->assertSeeInOrder(['<footer>', 'href="/terms?lang=zh_CN"', 'href="/privacy?lang=zh_CN"'], false);
+        $this->assertDatabaseCount('billing_offers', 0);
+        $this->assertDatabaseCount('billing_orders', 0);
+    }
+
+    public function test_membership_links_to_both_documents_before_purchase_confirmation(): void
+    {
+        DB::table('billing_prices')->update(['first_week_amount_minor' => 399, 'regular_amount_minor' => 1299]);
+
+        $this->get('/membership?lang=en')->assertOk()
+            ->assertSeeInOrder(['USD 3.99', 'USD 12.99', 'href="/terms?lang=en"', 'href="/privacy?lang=en"', 'Sign in to purchase'], false);
+        $this->loginViewer();
+        $this->get('/membership?purchase=1&lang=zh_CN')->assertOk()
+            ->assertSeeInOrder([
+                'USD 3.99', 'USD 12.99', 'href="/terms?lang=zh_CN"', 'href="/privacy?lang=zh_CN"',
+                'action="/membership/checkout"', 'name="confirmed" value="1" required', '确认并前往支付',
+            ], false);
+        $this->assertDatabaseCount('billing_orders', 0);
+    }
+
     public function test_guest_uses_real_offer_and_empty_price_is_not_filled_with_sample_data(): void
     {
         $this->get('/membership')->assertOk()->assertHeader('Cache-Control', 'no-store, private')
@@ -218,7 +257,7 @@ final class BillingUiTest extends BillingTestCase
         $saved['checkout']['expires_at'] = null;
         session()->put($savedKey, $saved);
 
-        $this->get($url)->assertOk()->assertSee('The payment link is no longer shown while the order is being checked.')
+        $this->get($url)->assertOk()->assertSee('The payment provider has not supplied an expiry time.')
             ->assertDontSee('https://www.sandbox.paypal.com/checkoutnow?token=approved-test-token', false)
             ->assertDontSee('data-payment-countdown', false)->assertDontSee('data-billing-deadline', false)
             ->assertSee('Recheck this original payment')->assertSee('No active paid access');

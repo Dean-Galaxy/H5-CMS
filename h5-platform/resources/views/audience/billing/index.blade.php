@@ -43,6 +43,7 @@
     <p>{{ B::get('after_first') }} <strong>{{ B::money($offer->next_renewal_amount_minor, $offer->currency) }}</strong></p>
     <p>{{ B::get('offer_deadline') }} <time datetime="{{ $offer->expires_at }}">{{ B::date($offer->expires_at) }}</time></p>
     <p role="status" data-deadline-status></p>
+    @include('audience.partials.legal-links')
     @if(!$viewer)
         <p>{{ B::get('eligibility') }}</p><div class="billing-actions">
             <a class="button" href="/identity/login?return_to={{ rawurlencode('/membership?purchase=1') }}">{{ B::get('signin') }}</a>
@@ -72,6 +73,7 @@
     <p>{{ B::get('resume_terms') }}</p>
     <p>{{ B::get('quote_valid') }} <time datetime="{{ $quote->expires_at }}">{{ B::date($quote->expires_at) }}</time></p>
     <p role="status" data-deadline-status></p>
+    @include('audience.partials.legal-links')
     <form method="post" action="/membership/resume" data-billing-form>
         @csrf
         <input type="hidden" name="quote_id" value="{{ $quote->quote_id }}"><input type="hidden" name="confirmation_version" value="{{ $quote->confirmation_version }}">

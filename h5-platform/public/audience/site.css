@@ -12,3 +12,48 @@
 .site-header nav a,.site-header .header-tools>a,.site-header .language summary,.site-header .language>div a{display:flex;align-items:center;min-height:44px;max-width:100%;overflow-wrap:anywhere}
 .site-header .brand{display:flex;align-items:center;min-height:44px}
 .audience-site [data-result]{color:var(--ink)}
+
+.legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.25rem;
+}
+
+.audience-site .legal-links a,
+.audience-site .legal-page a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+.audience-site footer .legal-links {
+    margin-bottom: .75rem;
+}
+
+.billing-panel .legal-links {
+    margin-block: 1rem;
+}
+
+.audience-site .legal-page {
+    max-width: 76ch;
+    margin-inline: auto;
+    padding: clamp(1.25rem, 4vw, 2.75rem);
+}
+
+.audience-site .legal-page h1 {
+    font-size: clamp(1.9rem, 6vw, 3rem);
+}
+
+.audience-site .legal-page h2 {
+    font-size: 1.2rem;
+    margin-bottom: .45rem;
+}
+
+.legal-page p {
+    margin-top: 0;
+    overflow-wrap: anywhere;
+}
+
+.legal-page section {
+    margin-block: 1.5rem;
+}

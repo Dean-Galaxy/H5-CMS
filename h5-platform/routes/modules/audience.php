@@ -3,6 +3,7 @@
 use App\Modules\Audience\Billing\BillingController;
 use App\Modules\Audience\Http\AudienceEnabled;
 use App\Modules\Audience\Http\CatalogController;
+use App\Modules\Audience\Http\LegalPageController;
 use App\Modules\Audience\Http\ProgressController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,8 @@ if (config('h5.modules.audience.ready')) {
         Route::get('/dramas/{id}/episodes/{episode}', [CatalogController::class, 'watch'])->whereUuid(['id', 'episode'])->name('audience.watch');
         Route::post('/audience/dramas/{drama}/episodes/{episode}/playback', [ProgressController::class, 'playback'])->whereUuid(['drama', 'episode'])->middleware('throttle:120,1');
         Route::get('/membership', [BillingController::class, 'index']);
+        Route::get('/terms', LegalPageController::class)->defaults('document', 'terms')->name('audience.terms');
+        Route::get('/privacy', LegalPageController::class)->defaults('document', 'privacy')->name('audience.privacy');
         Route::get('/billing/return', [BillingController::class, 'paymentReturn']);
         Route::middleware('auth:web')->group(function () {
             Route::post('/membership/checkout', [BillingController::class, 'checkout'])->middleware('throttle:30,1')->block(10, 10);
