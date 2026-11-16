@@ -60,7 +60,7 @@ final class BillingUiTest extends BillingTestCase
             $this->get($uri)->assertOk()
                 ->assertHeader('Cache-Control', 'no-store, private')
                 ->assertSee('<h1>'.$title.'</h1>', false)
-                ->assertSee('SPARKLING PLAY INC')
+                ->assertSee('HEALMAX BIOMEDICAL RESEARCH INC')
                 ->assertSee('href="mailto:sparklingshort@proton.me"', false)
                 ->assertSee('<time datetime="2026-11-16">2026-11-16</time>', false)
                 ->assertSee($detail)
