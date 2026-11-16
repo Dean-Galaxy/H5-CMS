@@ -49,7 +49,7 @@
             </section>
         </x-admin.panel>
 
-        @if(app(\App\Modules\Acquisition\Analytics\TrackingContext::class)->enabled())
+        @if(in_array('analytics', array_column($tabs, 'id'), true))
         <x-admin.panel group="acquisition-tabs" name="analytics" :active="$tab">
             @include('acquisition.analytics')
         </x-admin.panel>

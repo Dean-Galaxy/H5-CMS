@@ -383,6 +383,28 @@ final class AnalyticsTest extends AcquisitionTestCase
             ->set('analyticsFilters.from', '2020-01-01')->call('refreshAnalytics')->assertSee('最多90天')->assertSet('analyticsFilters.from', '2020-01-01');
     }
 
+    public function test_saved_production_analytics_remain_visible_after_collection_closes(): void
+    {
+        $this->seedLanding();
+        DB::table('acquisition_behaviors')->where('link_id', $this->link['id'])->update(['is_test' => false]);
+        config([
+            'acquisition.analytics_enabled' => false,
+            'h5.acquisition_production_pilot' => true,
+            'h5.acquisition_automatic_mode' => 'off',
+            'h5.acquisition_automatic_site_analytics' => false,
+        ]);
+
+        $url = '/admin/acquisition-desk?tab=analytics';
+        $this->get($url)->assertOk()->assertSeeHtml('data-admin-panel="analytics"')
+            ->assertSee('访问人数 1')->assertSee('主路径顺序漏斗')->assertSee('采集：未启用');
+
+        Livewire::test(AcquisitionDesk::class)->call('selectTab', 'analytics')
+            ->assertSet('tab', 'analytics')->assertSee('访问人数 1');
+
+        $this->signIn($this->staff());
+        $this->get($url)->assertOk()->assertDontSeeHtml('data-admin-panel="analytics"')->assertDontSee('访问人数 1');
+    }
+
     public function test_explicit_advertising_withdrawal_blocks_previously_queued_delivery_and_keeps_order_snapshot(): void
     {
         $this->seedLanding();
