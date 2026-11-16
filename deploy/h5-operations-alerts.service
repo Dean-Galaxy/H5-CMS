@@ -4,6 +4,7 @@ ConditionPathExists=/etc/h5/operations-alerts.json
 
 [Service]
 Type=oneshot
+User=h5-ops-alert
 DynamicUser=yes
 StateDirectory=h5-operations-alerts
 StateDirectoryMode=0700
