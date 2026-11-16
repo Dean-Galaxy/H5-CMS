@@ -6,7 +6,6 @@ use App\Contracts\IdentityContext;
 use App\Enums\Role;
 use App\Modules\Acquisition\Analytics\AnalyticsReport;
 use App\Modules\Acquisition\Analytics\LinkFilter;
-use App\Modules\Acquisition\Analytics\TrackingContext;
 use App\Modules\Acquisition\Services\AssetAccess;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Support\ApiProblem;
@@ -98,7 +97,7 @@ final class AcquisitionDesk extends Page
 
     private function allowedTabs(): array
     {
-        return app(TrackingContext::class)->enabled() ? ['links', 'pixels', 'payments', 'deliveries', 'analytics'] : ['links', 'pixels', 'payments', 'deliveries'];
+        return app(AnalyticsReport::class)->available() ? ['links', 'pixels', 'payments', 'deliveries', 'analytics'] : ['links', 'pixels', 'payments', 'deliveries'];
     }
 
     public function searchAnalyticsLinks(): void
@@ -305,7 +304,7 @@ final class AcquisitionDesk extends Page
         $analytics = null;
         $analyticsError = null;
         $analyticsLinks = ['items' => [], 'total' => 0, 'page' => 1, 'last_page' => 1, 'selected_unavailable' => false];
-        if (app(TrackingContext::class)->enabled()) {
+        if (app(AnalyticsReport::class)->available()) {
             $tabs[] = ['id' => 'analytics', 'label' => '站内分析'];
         }
         if ($this->tab === 'analytics') {

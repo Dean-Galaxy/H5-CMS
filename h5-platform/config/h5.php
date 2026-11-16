@@ -27,6 +27,7 @@ return [
     ],
     // The native worker stays idle until an independent automatic policy is configured.
     'acquisition_automatic_mode' => env('H5_ACQUISITION_AUTOMATIC_MODE', 'off'),
+    'acquisition_automatic_site_analytics' => env('H5_ACQUISITION_AUTOMATIC_SITE_ANALYTICS', false),
     'acquisition_automatic_policy' => [
         'from' => env('H5_ACQUISITION_AUTOMATIC_FROM'),
         'until' => env('H5_ACQUISITION_AUTOMATIC_UNTIL'),

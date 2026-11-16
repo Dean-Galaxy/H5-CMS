@@ -98,7 +98,7 @@ class RuntimeEnvironmentGuardTest extends TestCase
 
     public function test_boolean_environment_and_nonlocal_overrides_fail_closed(): void
     {
-        foreach (['app.debug', 'h5.controlled_staging', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration'] as $key) {
+        foreach (['app.debug', 'h5.controlled_staging', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration', 'h5.acquisition_automatic_site_analytics'] as $key) {
             foreach (['false', 'junk', 0, 1, null, []] as $value) {
                 $this->safeStaging([$key => $value]);
                 $this->rejects(fn () => app(RuntimeEnvironmentGuard::class)->assertSafeRuntime());
@@ -111,6 +111,7 @@ class RuntimeEnvironmentGuardTest extends TestCase
             ['session.http_only' => false], ['session.same_site' => 'none'],
             ['trustedproxy.proxies' => '*'], ['trustedproxy.proxies' => ['127.0.0.1']],
             ['h5.modules.acquisition.ready' => true],
+            ['h5.acquisition_automatic_site_analytics' => true],
         ] as $changes) {
             $this->safeStaging($changes);
             $this->rejects(fn () => app(RuntimeEnvironmentGuard::class)->assertSafeRuntime());

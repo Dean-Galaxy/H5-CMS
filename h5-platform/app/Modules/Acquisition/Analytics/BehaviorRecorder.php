@@ -6,6 +6,7 @@ use App\Contracts\BehaviorEventRecorder;
 use App\Contracts\BillingAnalyticsReader;
 use App\Contracts\CatalogReader;
 use App\Contracts\RegionResolver;
+use App\Data\PaymentSettled;
 use App\Enums\BehaviorRecordingResult as Result;
 use App\Modules\Acquisition\Measurement\CoreContext;
 use App\Modules\Acquisition\Measurement\SiteAnalysisBridge;
@@ -36,12 +37,37 @@ final class BehaviorRecorder implements BehaviorEventRecorder
         if (! app(TrackingContext::class)->enabled()) {
             return Result::Retry;
         }
+        return $this->recordServer($eventName, $properties, $deduplicationKey);
+    }
+
+    public function recordTrialPurchase(PaymentSettled $event): Result
+    {
+        $scope = app(PilotScope::class)->siteAnalyticsPolicy();
+        if ($scope === null || ! app()->runningInConsole() || $event->is_test) {
+            return Result::Skipped;
+        }
+        $checkout = DB::table('acquisition_analytics_orders')
+            ->where(['order_id' => $event->order_id, 'viewer_id' => $scope['viewer_id']])
+            ->where('checkout_at', '>=', $scope['from'])->where('checkout_at', '<', $scope['until'])->exists();
+        if (! $checkout) {
+            return Result::Skipped;
+        }
+
+        return $this->recordServer('payment_confirmed', [
+            'payment_id' => $event->payment_id, 'order_id' => $event->order_id, 'subscription_id' => $event->subscription_id,
+            'transaction_kind' => $event->transaction_kind->value, 'amount_minor' => $event->amount_minor,
+            'currency' => $event->currency, 'is_test' => $event->is_test, 'occurred_at' => $event->occurred_at,
+        ], 'payment:'.$event->payment_id, $scope);
+    }
+
+    private function recordServer(string $eventName, array $properties, string $deduplicationKey, ?array $scope = null): Result
+    {
         if ($deduplicationKey === '' || strlen($deduplicationKey) > 256) {
             return Result::Skipped;
         }
         try {
             // A savepoint prevents a failed capture from poisoning a surrounding business transaction.
-            return DB::transaction(function () use ($eventName, $properties, $deduplicationKey) {
+            return DB::transaction(function () use ($eventName, $properties, $deduplicationKey, $scope) {
                 $p = app(EventProperties::class)->validate($eventName, $properties, false);
                 if ($p === null) {
                     $this->diagnostic('invalid_server_event');
@@ -61,7 +87,8 @@ final class BehaviorRecorder implements BehaviorEventRecorder
                     $subject = app(TrackingContext::class)->subject($p['viewer_id'] ?? null);
                     $sourceId = app(AttributionRecorder::class)->snapshot(null)?->source_id;
                 }
-                if (! $subject) {
+                if (! $subject || ($scope && ($subject->viewer_id !== $scope['viewer_id'] || $p['is_test']
+                    || $time->lt($scope['from']) || $time->gte($scope['until'])))) {
                     return Result::Skipped;
                 }
                 $privacy = DB::table('acquisition_privacy')->where('id', $subject->privacy_id)->lockForUpdate()->first();

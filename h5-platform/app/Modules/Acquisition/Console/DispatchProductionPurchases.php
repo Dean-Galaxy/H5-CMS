@@ -18,7 +18,8 @@ final class DispatchProductionPurchases extends Command
             $result = $worker->run((int) $this->option('limit'));
             $this->line(json_encode($result, JSON_THROW_ON_ERROR));
 
-            return $result['rejected'] || $result['unconfirmed'] ? self::FAILURE : self::SUCCESS;
+            return $result['rejected'] || $result['unconfirmed'] || in_array($result['site_analytics'] ?? null, ['retry', 'blocked'], true)
+                ? self::FAILURE : self::SUCCESS;
         } catch (Throwable) {
             $this->error('AUTOMATIC_PURCHASE_WORKER_UNAVAILABLE');
 

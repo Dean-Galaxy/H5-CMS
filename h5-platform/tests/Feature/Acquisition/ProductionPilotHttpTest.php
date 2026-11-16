@@ -6,6 +6,7 @@ use App\Data\PaymentSettled;
 use App\Modules\Acquisition\AcquisitionServiceProvider;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Modules\Audience\AudienceServiceProvider;
+use App\Modules\Identity\Models\Viewer;
 use App\Support\RuntimeEnvironmentGuard;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
@@ -18,13 +19,25 @@ final class ProductionPilotHttpTest extends ContentTestCase
 {
     public static function launchModes(): array
     {
-        return ['manual' => [false], 'automatic' => [true]];
+        return [
+            'manual' => [false],
+            'automatic' => [true],
+            'dual consent' => [true, true, true, true],
+            'site analytics only' => [true, true, true, false],
+            'unrelated viewer' => [true, true, false, true],
+        ];
     }
 
     #[DataProvider('launchModes')]
-    public function test_real_promotion_redirect_and_successful_drama_html_enable_the_scoped_advertising_choice(bool $automatic): void
-    {
+    public function test_real_promotion_redirect_and_successful_drama_html_enable_the_scoped_advertising_choice(
+        bool $automatic,
+        bool $siteTrial = false,
+        bool $matchingViewer = false,
+        bool $advertising = true,
+    ): void {
         $drama = $this->fixture(count: 1, published: true);
+        $viewer = $siteTrial ? Viewer::create(['name' => 'Dual consent fixture', 'email' => Str::uuid().'@example.test',
+            'password' => 'LocalPassword1234', 'email_verified_at' => now()]) : null;
         $origin = 'https://pilot.example.test';
         config(['app.url' => $origin, 'h5.modules.audience.ready' => true, 'h5.modules.acquisition.ready' => true,
             'h5.acquisition_production_pilot' => true]);
@@ -75,10 +88,14 @@ final class ProductionPilotHttpTest extends ContentTestCase
             'until' => now()->addHour()->toIso8601ZuluString()];
         if ($automatic) {
             $guard->automatic = array_diff_key($guard->scope, ['platform' => true]) + [
-                'mode' => 'single', 'run_id' => (string) Str::uuid(), 'viewer_id' => (string) Str::uuid(),
+                'mode' => 'single', 'run_id' => (string) Str::uuid(),
+                'viewer_id' => $matchingViewer ? $viewer->id : (string) Str::uuid(),
             ];
             $guard->scope = [];
-            config(['h5.acquisition_automatic_mode' => 'single']);
+            config(['h5.acquisition_automatic_mode' => 'single', 'h5.acquisition_automatic_site_analytics' => $siteTrial]);
+        }
+        if ($viewer) {
+            $this->asViewer($viewer);
         }
         $path = '/dramas/'.$drama->id;
         $this->get($url, ['Sec-Fetch-Site' => 'cross-site', 'Sec-Fetch-Mode' => 'navigate', 'Sec-Fetch-Dest' => 'document'])
@@ -88,15 +105,35 @@ final class ProductionPilotHttpTest extends ContentTestCase
         $this->assertNotNull(session('tracking.production_get'));
         $this->assertSame(1, preg_match('/<meta name="csrf-token" content="([^"]+)">/', $page->getContent(), $match));
         $headers = ['Origin' => $origin, 'Sec-Fetch-Site' => 'same-origin', 'X-CSRF-TOKEN' => html_entity_decode($match[1], ENT_QUOTES)];
-        $this->postJson($origin.'/api/v1/tracking/consent', ['analytics' => true, 'advertising' => true,
-            'policy_version' => 'analytics-v1'], $headers)->assertOk()->assertJsonPath('analytics_available', false)
-            ->assertJsonPath('consent.analytics', 'denied')->assertJsonPath('consent.advertising', 'granted');
+        $choice = $this->postJson($origin.'/api/v1/tracking/consent', ['analytics' => true, 'advertising' => $advertising,
+            'policy_version' => 'analytics-v1'], $headers)->assertOk()
+            ->assertJsonPath('consent.analytics', $matchingViewer ? 'granted' : 'denied')
+            ->assertJsonPath('consent.advertising', $advertising ? 'granted' : 'denied');
+        if (! $matchingViewer) {
+            $choice->assertJsonPath('analytics_available', false);
+        }
         $payload = ['page_instance_id' => (string) Str::uuid(), 'drama_id' => $drama->id, 'path' => $path];
-        $this->postJson($origin.'/api/v1/tracking/landing', $payload, $headers)->assertOk()->assertJsonPath('confirmed', true);
-        $this->assertDatabaseHas('acquisition_sources', ['link_id' => $link['id'], 'pixel_id' => $pixel['id'],
-            'pixel_version' => $pixel['version'], 'subject_id' => null, 'is_simulation' => false]);
-        $this->assertDatabaseCount('acquisition_sources', 1);
-        $this->assertDatabaseCount('acquisition_behaviors', 0);
+        $this->postJson($origin.'/api/v1/tracking/landing', $payload, $headers)->assertOk()->assertJsonPath('confirmed', $advertising);
+        if ($advertising) {
+            $this->assertDatabaseHas('acquisition_sources', ['link_id' => $link['id'], 'pixel_id' => $pixel['id'],
+                'pixel_version' => $pixel['version'], 'subject_id' => session('tracking.subject'), 'is_simulation' => false]);
+            $this->assertSame($matchingViewer, session()->has('tracking.subject'));
+        }
+        $events = ['events' => [['event_id' => (string) Str::uuid(), 'event_name' => 'page_view', 'properties' => $payload]]];
+        $this->postJson($origin.'/api/v1/tracking/events', $events, $headers)->assertOk()
+            ->assertJsonPath('accepted', $matchingViewer ? 1 : 0);
+        $this->postJson($origin.'/api/v1/tracking/events', $events, $headers)->assertOk()
+            ->assertJsonPath('accepted', $matchingViewer ? 1 : 0);
+        $this->assertDatabaseCount('acquisition_sources', $advertising ? 1 : 0);
+        $this->assertDatabaseCount('acquisition_behaviors', $matchingViewer ? 1 : 0);
+        if ($matchingViewer) {
+            $this->assertDatabaseHas('acquisition_behaviors', ['viewer_id' => $viewer->id,
+                'event_name' => 'page_view', 'link_id' => $advertising ? $link['id'] : null]);
+            $this->postJson($origin.'/api/v1/tracking/consent', ['analytics' => false, 'advertising' => $advertising,
+                'policy_version' => 'analytics-v1'], $headers)->assertOk()->assertJsonPath('consent.analytics', 'denied')
+                ->assertJsonPath('consent.advertising', $advertising ? 'granted' : 'denied');
+            $this->postJson($origin.'/api/v1/tracking/events', $events, $headers)->assertOk()->assertJsonPath('accepted', 0);
+        }
         $this->assertDatabaseCount('acquisition_deliveries', 0);
         $this->travelTo(now()->addHour());
         $this->get($origin.$path)->assertOk();
@@ -104,7 +141,7 @@ final class ProductionPilotHttpTest extends ContentTestCase
             'policy_version' => 'analytics-v1'], $headers)->assertOk()
             ->assertJsonPath('enabled', false)->assertJsonPath('analytics_available', false)
             ->assertJsonPath('consent.analytics', 'denied')->assertJsonPath('consent.advertising', 'denied');
-        $this->assertDatabaseHas('acquisition_privacy', ['advertising' => 'denied', 'viewer_id' => null]);
+        $this->assertDatabaseHas('acquisition_privacy', ['advertising' => 'denied', 'viewer_id' => $matchingViewer ? $viewer->id : null]);
         Http::assertNothingSent();
     }
 }

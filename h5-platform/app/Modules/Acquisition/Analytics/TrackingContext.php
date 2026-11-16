@@ -38,7 +38,17 @@ final class TrackingContext
 
     public static function advertisingOnly(): bool
     {
-        return self::advertisingTestOnly() || PilotScope::enabled();
+        return self::advertisingTestOnly() || (PilotScope::enabled() && app(self::class)->siteAnalyticsScope() === null);
+    }
+
+    private function siteAnalyticsScope(): ?array
+    {
+        $scope = app(PilotScope::class)->siteAnalyticsPolicy();
+        if ($scope === null || ! $this->enabled() || app(IdentityContext::class)->viewer()?->id !== $scope['viewer_id']) {
+            return null;
+        }
+
+        return $scope;
     }
 
     public function session(): ?Session
@@ -127,7 +137,8 @@ final class TrackingContext
             app(RuntimeEnvironmentGuard::class)->controlledAcquisitionTestOrigin();
             $analytics = false;
         }
-        if (PilotScope::enabled()) {
+        $siteScope = $this->siteAnalyticsScope();
+        if (PilotScope::enabled() && $siteScope === null) {
             $analytics = false;
         }
         $s = $this->session();
@@ -135,12 +146,12 @@ final class TrackingContext
             return;
         }
         $this->syncViewer();
-        app(PurposeProof::class)->serialized(function () use ($s, $analytics, $advertising) {
+        app(PurposeProof::class)->serialized(function () use ($s, $analytics, $advertising, $siteScope) {
             $bridge = app(SiteAnalysisBridge::class);
             $old = $this->privacy();
             $old = $old ? DB::table('acquisition_privacy')->where('id', $old->id)->lockForUpdate()->first() : null;
             $r1 = app(LegacyAdvertisingBridge::class);
-            if (! $advertising && ! self::advertisingOnly()) {
+            if (! $advertising && ! PilotScope::enabled() && ! self::advertisingTestOnly()) {
                 $r1->legacyWithdrawal();
             }
             $r1Denied = $r1->denied($old);
@@ -155,6 +166,11 @@ final class TrackingContext
             }
             $id = $old?->id ?? (string) Str::uuid();
             $s->put('tracking.consent', ['analytics' => $choice, 'advertising' => $advertising ? 'granted' : 'denied']);
+            if ($siteScope && $choice === 'granted') {
+                $s->put('tracking.production_analytics_run', $siteScope['run_id']);
+            } elseif (PilotScope::enabled()) {
+                $s->forget('tracking.production_analytics_run');
+            }
             // A rejection alone creates no legacy tracking identity.
             if (! $old && $choice !== 'granted' && ! $advertising) {
                 return;
@@ -166,6 +182,9 @@ final class TrackingContext
             if (! $preserve || ! $old) {
                 $values += ['analytics' => $choice, 'analytics_granted_at' => $choice === 'granted'
                     ? ($old?->analytics === 'granted' ? $old->analytics_granted_at : Clock::stamp()) : null];
+            }
+            if ($siteScope && $choice === 'granted') {
+                $values['viewer_id'] = $siteScope['viewer_id'];
             }
             if ($denied) {
                 // Preserve an existing deadline; repeated legacy requests cannot extend a C preference's life.
@@ -249,15 +268,23 @@ final class TrackingContext
         if (SiteAnalysisBridge::experience() || app(SiteAnalysisBridge::class)->browserDenied()) {
             return null;
         }
+        $siteScope = $this->siteAnalyticsScope();
+        if ($siteScope && ($s->get('tracking.production_analytics_run') !== $siteScope['run_id']
+            || ($viewer !== null && $viewer !== $siteScope['viewer_id']))) {
+            return null;
+        }
         $this->syncViewer($viewer);
 
-        return DB::transaction(function () use ($viewer, $s) {
+        return DB::transaction(function () use ($viewer, $s, $siteScope) {
             $privacy = $this->privacy();
             $privacy = $privacy ? DB::table('acquisition_privacy')->where('id', $privacy->id)->lockForUpdate()->first() : null;
             if (! $privacy || $privacy->analytics !== 'granted' || app(SiteAnalysisBridge::class)->proofDenied($privacy)) {
                 return null;
             }
             $viewer ??= app(IdentityContext::class)->viewer()?->id;
+            if ($siteScope && $privacy->viewer_id !== $viewer) {
+                return null;
+            }
             $subjectId = $s->get('tracking.subject');
             $row = is_string($subjectId) && Str::isUuid($subjectId) ? DB::table('acquisition_subjects')->where('id', $subjectId)->first() : null;
             if (! $row || $row->privacy_id !== $privacy->id || ($row->viewer_id && $row->viewer_id !== $viewer)) {

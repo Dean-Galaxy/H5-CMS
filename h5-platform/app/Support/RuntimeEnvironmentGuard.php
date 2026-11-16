@@ -17,7 +17,7 @@ final class RuntimeEnvironmentGuard
         $environment = config('app.env');
         $this->require(in_array($environment, ['local', 'testing', 'staging', 'production'], true)
             && $environment === app()->environment() && $environment === Env::get('APP_ENV'), 'RUNTIME_ENVIRONMENT_INVALID');
-        foreach (['app.debug', 'h5.controlled_staging', 'h5.acquisition_staging_test', 'h5.acquisition_production_pilot', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration'] as $key) {
+        foreach (['app.debug', 'h5.controlled_staging', 'h5.acquisition_staging_test', 'h5.acquisition_production_pilot', 'h5.simulation', 'h5.local_us_test_region', 'h5.measurement_c_experience', 'h5.measurement_c_registration', 'h5.acquisition_automatic_site_analytics'] as $key) {
             $this->require(is_bool(config($key)), 'RUNTIME_BOOLEAN_INVALID');
         }
         $this->require(! config('h5.measurement_c_experience') || in_array($environment, ['local', 'testing'], true), 'RUNTIME_C_EXPERIENCE_FORBIDDEN');
@@ -35,6 +35,8 @@ final class RuntimeEnvironmentGuard
         $automatic = config('h5.acquisition_automatic_mode', 'off');
         $this->require(in_array($automatic, ['off', 'single', 'continuous'], true)
             && ($automatic === 'off' || $productionPilot), 'ACQUISITION_AUTOMATIC_MODE_INVALID');
+        $this->require(! config('h5.acquisition_automatic_site_analytics')
+            || ($productionPilot && $automatic === 'single'), 'ACQUISITION_AUTOMATIC_SITE_ANALYTICS_REQUIRES_SINGLE');
         $this->paypal($environment);
         $this->paypalLive($environment);
         if (in_array($environment, ['local', 'testing'], true)) {

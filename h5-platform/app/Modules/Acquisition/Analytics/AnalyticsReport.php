@@ -4,6 +4,7 @@ namespace App\Modules\Acquisition\Analytics;
 
 use App\Contracts\BillingAnalyticsReader;
 use App\Enums\Role;
+use App\Modules\Acquisition\Production\PilotScope;
 use App\Modules\Acquisition\Services\AssetAccess;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,30 @@ use Illuminate\Support\Str;
 
 final class AnalyticsReport
 {
+    public function available(): bool
+    {
+        if ($this->captureEnabled()) {
+            return true;
+        }
+        if (! PilotScope::enabled()) {
+            return false;
+        }
+        $staff = app(AssetAccess::class)->actor();
+        $events = DB::table('acquisition_behaviors')->where('is_test', false);
+        if ($staff->role !== Role::Owner) {
+            $events->whereIn('link_id', app(AssetAccess::class)->query('link', $staff)->select('id'));
+        }
+
+        return $events->exists();
+    }
+
+    private function captureEnabled(): bool
+    {
+        return PilotScope::enabled()
+            ? app(PilotScope::class)->siteAnalyticsPolicy() !== null
+            : app(TrackingContext::class)->enabled();
+    }
+
     public function read(array $filters = []): array
     {
         $staff = app(AssetAccess::class)->actor();
@@ -59,9 +84,10 @@ final class AnalyticsReport
             $delivery->where('environment', $test === 'test' ? 'test' : 'production');
             $receipts->where('is_test', $test === 'test');
         }
-        $enabled = app(TrackingContext::class)->enabled();
+        $captureEnabled = $this->captureEnabled();
         $scoped = clone $q;
         $period = (clone $q)->where('occurred_at', '>=', $from)->where('occurred_at', '<', $until);
+        $enabled = $captureEnabled || (PilotScope::enabled() && (clone $period)->where('is_test', false)->exists());
         // Aggregate the complete filtered period. Heartbeat volume never truncates independent metrics.
         $counts = [];
         foreach ((clone $period)->select('is_test', 'event_name')->selectRaw('COUNT(*) AS events, COUNT(DISTINCT subject_id) AS people')->groupBy('is_test', 'event_name')->get() as $row) {
@@ -78,13 +104,13 @@ final class AnalyticsReport
         [$funnel, $registration, $segments, $entryPeople, $processed, $observing] = $this->cohorts($period, $allAuthorized);
         $limited = $entryPeople > self::MAX_ENTRANCES;
         $finance = $this->finance($period);
-        $diagnostics = ['enabled' => $enabled, 'transport' => config('acquisition.transport', 'disabled'),
+        $diagnostics = ['enabled' => $captureEnabled, 'transport' => config('acquisition.transport', 'disabled'),
             'last_received_at' => $scoped->max('received_at'),
             'consent_skipped' => $staff->role === Role::Owner ? (int) DB::table('acquisition_capture_diagnostics')->where('reason', 'consent_skipped')->value('count') : null,
             'capture_failures' => $staff->role === Role::Owner ? DB::table('acquisition_capture_diagnostics')->where('reason', '!=', 'consent_skipped')->get(['reason', 'count', 'last_at'])->toArray() : [],
             'deliveries' => $delivery->select('environment', 'state', 'last_error')->selectRaw('COUNT(*) AS count')->groupBy('environment', 'state', 'last_error')->get()->toArray(),
             'source_status' => $receipts->select('is_test', 'source_status')->selectRaw('COUNT(*) AS count')->groupBy('is_test', 'source_status')->get()->toArray(),
-            'platform_confirmation' => 'Meta/TikTok真实平台均未核验；接口接受不等于平台归因或实际投放有效'];
+            'platform_confirmation' => '平台接口接收情况见投递回执。平台广告归因需在平台后台另行核对。'];
 
         return ['episodes' => $episodes, 'dimensions' => $dimensions, 'segments' => $segments, 'enabled' => $enabled,
             'limited' => $limited, 'funnel_entry_people' => $entryPeople, 'funnel_processed_people' => $processed, 'from' => $from->toDateString(), 'until' => $until->subDay()->toDateString(),

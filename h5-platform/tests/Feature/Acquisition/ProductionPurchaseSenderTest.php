@@ -7,6 +7,7 @@ use App\Data\PaymentSettled;
 use App\Data\StaffIdentity;
 use App\Enums\Role;
 use App\Modules\Acquisition\AcquisitionServiceProvider;
+use App\Modules\Acquisition\Analytics\AnalyticsReport;
 use App\Modules\Acquisition\Production\SinglePurchaseSender;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Modules\Acquisition\Services\DeliveryWorker;
@@ -345,6 +346,73 @@ final class ProductionPurchaseSenderTest extends TestCase
             && ($request->data()['data'][0]['event_id'] ?? '') === 'h5_'.hash('sha256', 'PaymentSettled.v1:'.$newPayment));
     }
 
+    public static function independentChoices(): array
+    {
+        return [
+            'both' => [true, true, 200],
+            'site analysis only' => [true, false, 200],
+            'advertising only' => [false, true, 200],
+            'site analysis survives a platform timeout' => [true, true, 504],
+        ];
+    }
+
+    #[DataProvider('independentChoices')]
+    public function test_scoped_timer_records_site_finance_and_advertising_as_independent_consented_results(
+        bool $analytics,
+        bool $advertising,
+        int $httpStatus,
+    ): void {
+        $viewer = BillingStore::id();
+        $this->selectTikTok($viewer);
+        [$payment, $order] = $this->paid($viewer, $advertising);
+        $this->enableAutomatic('single', $viewer);
+        config(['h5.acquisition_automatic_site_analytics' => true]);
+
+        $privacy = DB::table('acquisition_privacy')->value('id');
+        $subject = BillingStore::id();
+        $grantedAt = now()->subMinutes(3);
+        $checkoutAt = now()->subMinutes(2);
+        DB::table('acquisition_privacy')->where('id', $privacy)->update(['viewer_id' => $viewer,
+            'analytics' => $analytics ? 'granted' : 'denied', 'analytics_granted_at' => $analytics ? $grantedAt : null]);
+        DB::table('acquisition_subjects')->insert(['id' => $subject, 'privacy_id' => $privacy, 'viewer_id' => $viewer,
+            'session_key' => BillingStore::id(), 'created_at' => $checkoutAt, 'updated_at' => $checkoutAt]);
+        DB::table('acquisition_analytics_orders')->insert(['viewer_id' => $viewer, 'order_id' => $order, 'subject_id' => $subject,
+            'privacy_id' => $privacy, 'source_id' => $advertising ? DB::table('acquisition_sources')->value('id') : null,
+            'checkout_at' => $checkoutAt, 'created_at' => $checkoutAt]);
+
+        Http::fake(['business-api.tiktok.com/*' => Http::response(['code' => 0], $httpStatus)]);
+        $this->assertSame($httpStatus === 200 ? 0 : 1, Artisan::call('acquisition:dispatch-production-purchases'));
+        $this->assertStringContainsString($analytics ? '"site_analytics":"accepted"' : '"site_analytics":"skipped"', Artisan::output());
+        $this->travel(2)->minutes();
+        $this->artisan('acquisition:dispatch-production-purchases')->assertSuccessful();
+        $this->assertDatabaseHas('billing_entitlements', ['payment_id' => $payment, 'revoked_at' => null]);
+        $this->assertDatabaseCount('acquisition_behaviors', $analytics ? 1 : 0);
+        if ($analytics) {
+            $this->assertDatabaseHas('acquisition_behaviors', ['viewer_id' => $viewer, 'event_name' => 'payment_confirmed',
+                'subject_id' => $subject, 'is_test' => false]);
+        }
+        Http::assertSentCount($advertising ? 1 : 0);
+        if ($advertising) {
+            $this->assertDatabaseHas('acquisition_deliveries', ['state' => $httpStatus === 200 ? 'api_accepted' : 'failed',
+                'attempts' => 1, 'platform' => 'tiktok']);
+        }
+
+        $actor = new StaffIdentity(BillingStore::id(), 'Synthetic Owner', Role::Owner);
+        $identity = Mockery::mock(IdentityContext::class);
+        $identity->shouldReceive('staff', 'requireStaff')->andReturn($actor);
+        $this->app->instance(IdentityContext::class, $identity);
+        $report = app(AnalyticsReport::class);
+        $this->assertTrue($report->available());
+        $this->assertSame($analytics ? 399 : 0, $report->read(['test' => 'real'])['finance']['gross_minor']);
+        config(['h5.acquisition_automatic_mode' => 'off', 'h5.acquisition_automatic_site_analytics' => false]);
+        $this->assertSame($analytics, $report->available());
+        if ($analytics) {
+            $summary = $report->read(['test' => 'real']);
+            $this->assertFalse($summary['diagnostics']['enabled']);
+            $this->assertSame(399, $summary['finance']['gross_minor']);
+        }
+    }
+
     public function test_continuous_task_rotates_preflight_failures_and_ignores_pre_activation_orders(): void
     {
         [$oldDeferred] = $this->paid();
@@ -431,7 +499,7 @@ final class ProductionPurchaseSenderTest extends TestCase
         $this->credential();
     }
 
-    private function paid(?string $viewer = null): array
+    private function paid(?string $viewer = null, bool $advertising = true): array
     {
         $paidAt = now()->toImmutable()->subMinute();
         $scope = $this->scope;
@@ -457,7 +525,7 @@ final class ProductionPurchaseSenderTest extends TestCase
             DB::table('acquisition_links')->insert(['id' => $link, 'owner_id' => $viewer, 'name' => 'Fixture', 'code' => bin2hex(random_bytes(8)),
                 'drama_id' => BillingStore::id(), 'drama_title' => 'Fixture', 'platform' => $platform, 'pixel_id' => $pixel, 'created_at' => $created, 'updated_at' => $created]);
         }
-        DB::table('acquisition_privacy')->insert(['id' => $privacy, 'analytics' => 'denied', 'advertising' => 'granted',
+        DB::table('acquisition_privacy')->insert(['id' => $privacy, 'analytics' => 'denied', 'advertising' => $advertising ? 'granted' : 'denied',
             'policy_version' => 'fixture', 'created_at' => $created, 'updated_at' => $created]);
         DB::table('acquisition_sources')->insert(['id' => $source, 'link_id' => $link, 'pixel_id' => $pixel, 'pixel_version' => 1, 'privacy_id' => $privacy,
             'channel' => $platform, 'consent' => 'granted', 'policy_version' => 'fixture', 'captured_at' => $created,
@@ -480,8 +548,8 @@ final class ProductionPurchaseSenderTest extends TestCase
             'idempotency_key' => 'fixture-'.$order, 'fingerprint' => hash('sha256', $order), 'state' => 'pending',
             'return_to' => '/membership', 'price_version' => 1, 'amount_minor' => 399, 'regular_amount_minor' => 1299,
             'discount_applied' => true, 'currency' => 'USD', 'is_test' => false, 'created_at' => $created, 'updated_at' => $created,
-            'attribution_snapshot' => json_encode(['source_id' => $source, 'link_id' => $link, 'channel' => $platform,
-                'pixel_config_version' => 1, 'captured_at' => BillingStore::iso($created), 'consent' => 'granted', 'checkout_context_id' => $context]),
+            'attribution_snapshot' => $advertising ? json_encode(['source_id' => $source, 'link_id' => $link, 'channel' => $platform,
+                'pixel_config_version' => 1, 'captured_at' => BillingStore::iso($created), 'consent' => 'granted', 'checkout_context_id' => $context]) : null,
         ]);
 
         $payment = app(PaymentLedger::class)->record($subscription, new ExternalPayment(

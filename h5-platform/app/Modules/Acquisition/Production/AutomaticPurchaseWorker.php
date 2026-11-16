@@ -2,13 +2,16 @@
 
 namespace App\Modules\Acquisition\Production;
 
+use App\Data\PaymentSettled;
 use App\Enums\TransactionKind;
+use App\Modules\Acquisition\Analytics\BehaviorRecorder;
 use App\Support\RuntimeEnvironmentGuard;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use LogicException;
 use RuntimeException;
+use Throwable;
 
 final class AutomaticPurchaseWorker
 {
@@ -20,6 +23,13 @@ final class AutomaticPurchaseWorker
         }
 
         $summary = $this->summary('waiting');
+        if (app(PilotScope::class)->siteAnalyticsPolicy() === $policy) {
+            try {
+                $summary['site_analytics'] = $this->recordSitePurchase($policy);
+            } catch (Throwable) {
+                $summary['site_analytics'] = 'retry';
+            }
+        }
         foreach ($this->due($policy, max(1, min($limit, 5))) as $row) {
             $summary['selected']++;
             // Rotate invalid or temporarily unavailable candidates without rewriting the financial outbox.
@@ -47,6 +57,35 @@ final class AutomaticPurchaseWorker
     private function summary(string $state): array
     {
         return ['state' => $state, 'selected' => 0, 'api_accepted' => 0, 'blocked' => 0, 'rejected' => 0, 'unconfirmed' => 0];
+    }
+
+    private function recordSitePurchase(array $policy): string
+    {
+        // The durable PayPal facts still exist after the independent advertising consumer finishes.
+        $row = DB::table('billing_outbox as b')
+            ->join('billing_payments as p', 'p.id', '=', 'b.payment_id')
+            ->join('billing_orders as o', 'o.id', '=', 'p.order_id')
+            ->where(['p.provider' => 'paypal', 'p.provider_environment' => 'live', 'p.is_test' => false,
+                'p.merchant_scope' => config('billing.paypal_live.merchant_scope'), 'p.viewer_id' => $policy['viewer_id'],
+                'o.transaction_kind' => TransactionKind::FirstSubscription->value, 'o.state' => 'paid', 'o.payment_state' => 'succeeded'])
+            ->whereColumn('p.viewer_id', 'o.viewer_id')
+            ->where('b.created_at', '>=', $policy['from'])->where('o.created_at', '>=', $policy['from'])
+            ->where('p.paid_at', '>=', $policy['from'])->where('p.paid_at', '<', $policy['until'])
+            ->where('p.paid_at', '<=', now())->orderBy('p.paid_at')->first(['p.id', 'p.order_id', 'b.payload']);
+        if (! $row) {
+            return 'waiting';
+        }
+        if (DB::table('acquisition_behaviors')->where('dedup_key', hash('sha256', 'payment_confirmed:payment:'.$row->id))->exists()) {
+            return 'accepted';
+        }
+
+        $event = PaymentSettled::fromArray(json_decode($row->payload, true, flags: JSON_THROW_ON_ERROR));
+        if ($event->payment_id !== $row->id || $event->order_id !== $row->order_id
+            || $event->transaction_kind !== TransactionKind::FirstSubscription) {
+            return 'blocked';
+        }
+
+        return app(BehaviorRecorder::class)->recordTrialPurchase($event)->value;
     }
 
     private function due(array $policy, int $limit): iterable
