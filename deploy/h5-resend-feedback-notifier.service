@@ -1,0 +1,19 @@
+[Unit]
+Description=Send private summaries of Resend feedback
+ConditionPathExists=/etc/h5/resend-feedback.json
+
+[Service]
+Type=oneshot
+User=h5-ops-alert
+DynamicUser=yes
+StateDirectory=h5-resend-feedback
+StateDirectoryMode=0700
+LoadCredential=alert-config:/etc/h5/operations-alerts.json
+ExecStart=/usr/bin/python3 /usr/local/lib/h5-ops/resend_feedback_notifications.py
+TimeoutStartSec=45s
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=strict
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+UMask=0077

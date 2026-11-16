@@ -1,0 +1,23 @@
+[Unit]
+Description=Signed Resend feedback intake
+ConditionPathExists=/etc/h5/resend-feedback.json
+
+[Service]
+Type=simple
+User=h5-ops-alert
+DynamicUser=yes
+StateDirectory=h5-resend-feedback
+StateDirectoryMode=0700
+LoadCredential=resend-feedback:/etc/h5/resend-feedback.json
+ExecStart=/usr/bin/python3 /usr/local/lib/h5-ops/resend_feedback_server.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=strict
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX AF_INET
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

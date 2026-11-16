@@ -1,0 +1,10 @@
+[Unit]
+Description=Check for unreported Resend feedback each minute
+
+[Timer]
+OnCalendar=*-*-* *:*:25 UTC
+AccuracySec=1s
+Persistent=false
+
+[Install]
+WantedBy=timers.target
