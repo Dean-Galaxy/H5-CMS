@@ -4,10 +4,13 @@ namespace Tests\Feature\Acquisition;
 
 use App\Data\PaymentSettled;
 use App\Modules\Acquisition\AcquisitionServiceProvider;
+use App\Modules\Acquisition\Http\TrackingController;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Modules\Audience\AudienceServiceProvider;
 use App\Modules\Identity\Models\Viewer;
 use App\Support\RuntimeEnvironmentGuard;
+use Illuminate\Http\Request;
+use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +29,29 @@ final class ProductionPilotHttpTest extends ContentTestCase
             'site analytics only' => [true, true, true, false],
             'unrelated viewer' => [true, true, false, true],
         ];
+    }
+
+    public function test_clean_production_route_registration_requires_the_site_analytics_flag(): void
+    {
+        config(['h5.acquisition_production_pilot' => true]);
+        $router = app('router');
+        $original = $router->getRoutes();
+        try {
+            foreach ([false, true] as $siteAnalytics) {
+                config(['h5.acquisition_automatic_site_analytics' => $siteAnalytics]);
+                $router->setRoutes(new RouteCollection);
+                Route::middleware('web')->group(base_path('routes/modules/acquisition.php'));
+                $handler = $router->getRoutes()->getByAction(TrackingController::class.'@events');
+                if ($siteAnalytics) {
+                    $this->assertNotNull($handler);
+                    $this->assertSame($handler, $router->getRoutes()->match(Request::create('/api/v1/tracking/events', 'POST')));
+                } else {
+                    $this->assertNull($handler);
+                }
+            }
+        } finally {
+            $router->setRoutes($original);
+        }
     }
 
     #[DataProvider('launchModes')]

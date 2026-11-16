@@ -17,7 +17,7 @@ Route::prefix('/api/v1/tracking')->middleware(TrackingRequest::class)->group(fun
     Route::get('context', [TrackingController::class, 'context'])->middleware(TrackingThrottle::class.':120,1');
     Route::post('landing', [TrackingController::class, 'confirmLanding'])->middleware(TrackingThrottle::class.':60,1')->block(10, 10);
     Route::post('consent', [TrackingController::class, 'consent'])->middleware(TrackingThrottle::class.':30,1')->block(10, 10);
-    if (config('h5.acquisition_production_pilot') !== true) {
+    if (config('h5.acquisition_production_pilot') !== true || config('h5.acquisition_automatic_site_analytics') === true) {
         Route::post('events', [TrackingController::class, 'events'])->middleware(TrackingThrottle::class.':120,1')->block(10, 10);
     }
 });
