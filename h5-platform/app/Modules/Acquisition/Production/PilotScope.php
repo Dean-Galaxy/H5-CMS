@@ -40,7 +40,7 @@ final class PilotScope
     public function siteAnalyticsPolicy(): ?array
     {
         if (! self::enabled() || config('h5.acquisition_automatic_site_analytics') !== true
-            || config('h5.acquisition_automatic_mode') !== 'single') {
+            || ! in_array(config('h5.acquisition_automatic_mode'), ['single', 'continuous'], true)) {
             return null;
         }
 

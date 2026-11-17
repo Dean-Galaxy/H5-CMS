@@ -26,6 +26,7 @@ use App\Modules\Identity\Models\Viewer;
 use App\Support\ApiProblem;
 use App\Support\DependencyNotReady;
 use Carbon\CarbonImmutable;
+use Closure;
 use Filament\Facades\Filament;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectTimeoutException;
@@ -35,6 +36,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\Feature\Billing\Support\ProviderLedgerFixture;
 use Tests\TestCase;
@@ -625,6 +627,74 @@ final class PayPalLiveTest extends TestCase
         self::assertDatabaseCount('billing_payments', 0);
     }
 
+    private ?Closure $beforeSaleReply = null;
+
+    public static function refundInterleavings(): array
+    {
+        return [
+            'full without refund ID' => ['refunded', false, 300],
+            'full with refund notification' => ['refunded', true, 300],
+            'partial without refund ID' => ['partially_refunded', false, 0],
+            'partial with refund notification' => ['partially_refunded', true, 100],
+        ];
+    }
+
+    #[DataProvider('refundInterleavings')]
+    public function test_delayed_sale_read_cannot_overwrite_a_committed_refund(string $state, bool $withRefund, int $expected): void
+    {
+        $order = $this->checkout();
+        $this->paid();
+        $this->sync($order);
+        $this->travel(8)->days();
+        $this->paid(2);
+        $this->sync($order);
+        $payment = DB::table('billing_payments')->where('order_id', $order->id)->sole();
+        $firstEntitlement = DB::table('billing_entitlements')->where('payment_id', $payment->id)->sole();
+        $otherEntitlement = DB::table('billing_entitlements')->where('payment_id', '<>', $payment->id)->sole();
+        $reader = app(PayPalReconciliation::class);
+        $committed = null;
+
+        $this->beforeSaleReply = function () use ($reader, $payment, $state, $withRefund, $expected, &$committed): void {
+            $this->sales[self::SALE]['state'] = $state;
+            if ($withRefund) {
+                $this->refund = ['id' => 'REFUNDINTERLEAVED', 'sale_id' => self::SALE, 'state' => 'completed',
+                    'amount' => ['total' => $state === 'refunded' ? '3.00' : '1.00', 'currency' => 'USD']];
+                $reader->refund(ProviderScope::fromRecord($payment), 'REFUNDINTERLEAVED');
+            } else {
+                $reader->syncRefunds($payment->id);
+            }
+            self::assertDatabaseHas('billing_payments', ['id' => $payment->id, 'refunded_amount_minor' => $expected]);
+            $committed = DB::table('billing_entitlements')->where('payment_id', $payment->id)->sole()->revoked_at;
+        };
+
+        try {
+            $reader->syncRefunds($payment->id);
+            self::fail('The earlier observation must not overwrite the committed refund');
+        } catch (RuntimeException $error) {
+            self::assertSame('PAYPAL_REFUND_OBSERVATION_STALE', $error->getMessage());
+        }
+        self::assertSame($state === 'refunded', $committed !== null);
+        self::assertDatabaseHas('billing_payments', ['id' => $payment->id, 'refunded_amount_minor' => $expected]);
+        self::assertDatabaseHas('billing_orders', ['id' => $order->id, 'payment_state' => $state]);
+        self::assertDatabaseHas('billing_subscriptions', ['id' => $order->subscription_id, 'desired_renewal' => false, 'refund_stopped' => true]);
+        self::assertDatabaseCount('billing_refunds', $withRefund ? 1 : 0);
+        self::assertSame($committed, DB::table('billing_entitlements')->where('payment_id', $payment->id)->sole()->revoked_at);
+        self::assertSame((array) $otherEntitlement, (array) DB::table('billing_entitlements')->find($otherEntitlement->id));
+        self::assertTrue($this->billing->membership($this->user->id, now()->toDateTimeImmutable())->access_active);
+
+        // A later observation that starts from the committed revision can apply a real correction.
+        $this->sales[self::SALE]['state'] = 'completed';
+        if ($withRefund) {
+            $this->refund['state'] = 'failed';
+        }
+        $reader->syncRefunds($payment->id);
+        self::assertDatabaseHas('billing_payments', ['id' => $payment->id, 'refunded_amount_minor' => 0]);
+        self::assertDatabaseHas('billing_orders', ['id' => $order->id, 'payment_state' => 'succeeded']);
+        self::assertSame((array) $firstEntitlement, (array) DB::table('billing_entitlements')->find($firstEntitlement->id));
+        self::assertSame((array) $otherEntitlement, (array) DB::table('billing_entitlements')->find($otherEntitlement->id));
+        self::assertDatabaseHas('billing_subscriptions', ['id' => $order->subscription_id, 'desired_renewal' => false]);
+    }
+
     private function checkout(): object
     {
         $offer = $this->billing->offer($this->viewer());
@@ -735,6 +805,12 @@ final class PayPalLiveTest extends TestCase
             $this->remote['status'] = 'CANCELLED';
 
             return new Response(204);
+        }
+
+        if ($path === '/v1/payments/sale/'.self::SALE && $this->beforeSaleReply !== null) {
+            $beforeReply = $this->beforeSaleReply;
+            $this->beforeSaleReply = null;
+            $beforeReply();
         }
 
         return new Response(200, [], json_encode($data));

@@ -255,8 +255,14 @@ final class PayPalReconciliation
             BillingStore::lock($payment->viewer_id);
             $existing = DB::table('billing_refunds')->where($scope->columns())->where('provider_refund_id', $refundId)->first();
             $this->require(! $existing || ($existing->payment_id === $payment->id && $existing->amount_minor === $amount));
-            DB::table('billing_refunds')->updateOrInsert($scope->columns() + ['provider_refund_id' => $refundId],
-                ['payment_id' => $payment->id, 'amount_minor' => $amount, 'status' => $refund['state'] === 'completed' ? 'succeeded' : $refund['state'], 'created_at' => $existing->created_at ?? now()]);
+            if (! $existing) {
+                DB::table('billing_refunds')->insert($scope->columns() + ['provider_refund_id' => $refundId,
+                    'payment_id' => $payment->id, 'amount_minor' => $amount,
+                    'status' => $refund['state'] === 'completed' ? 'succeeded' : $refund['state'], 'created_at' => now()]);
+                // A poll already reading this payment cannot have verified the new refund ID.
+                DB::table('billing_payments')->where('id', $payment->id)->increment('paypal_refund_revision');
+            }
+            // For an existing ID, only a fresh combined read may change its status.
         });
         $this->syncRefunds($payment->id);
         $sub = DB::table('billing_subscriptions')->find($payment->subscription_id);
@@ -293,6 +299,12 @@ final class PayPalReconciliation
         }
         DB::transaction(function () use ($payment, $sub, $state, $refunds, $scope) {
             BillingStore::lock($sub->viewer_id);
+            // Do not hold an account lock across HTTP. Reject a read started before
+            // another accepted observation or a newly discovered refund ID.
+            $currentPayment = DB::table('billing_payments')->find($payment->id);
+            if ($currentPayment === null || $currentPayment->paypal_refund_revision !== $payment->paypal_refund_revision) {
+                throw new RuntimeException('PAYPAL_REFUND_OBSERVATION_STALE');
+            }
             $currentSubscription = DB::table('billing_subscriptions')->find($sub->id);
             foreach ($refunds as $id => $status) {
                 DB::table('billing_refunds')->where($scope->columns())->where('provider_refund_id', $id)->update(['status' => $status]);
@@ -303,9 +315,14 @@ final class PayPalReconciliation
             // Authoritative Sale state 'refunded' proves the entire original Sale was refunded.
             // No synthetic refund ID is created when an individual refund notification is missing.
             $total = $state === 'refunded' ? $payment->amount_minor : $known;
-            DB::table('billing_payments')->where('id', $payment->id)->update(['refunded_amount_minor' => $total]);
+            DB::table('billing_payments')->where('id', $payment->id)->increment('paypal_refund_revision', 1, ['refunded_amount_minor' => $total]);
             app(BillingBehaviorFacts::class)->refund($payment->id);
-            DB::table('billing_entitlements')->where('payment_id', $payment->id)->update(['revoked_at' => $total === $payment->amount_minor ? now() : null]);
+            $entitlement = DB::table('billing_entitlements')->where('payment_id', $payment->id);
+            if ($total === $payment->amount_minor) {
+                $entitlement->whereNull('revoked_at')->update(['revoked_at' => now()]);
+            } else {
+                $entitlement->whereNotNull('revoked_at')->update(['revoked_at' => null]);
+            }
             DB::table('billing_orders')->where('id', $payment->order_id)->update(['payment_state' => $state === 'refunded' ? 'refunded' : ($state === 'partially_refunded' ? 'partially_refunded' : 'succeeded'), 'updated_at' => now()]);
             if ($state !== 'completed') {
                 $changes = ['refund_stopped' => true, 'desired_renewal' => false, 'updated_at' => now()];

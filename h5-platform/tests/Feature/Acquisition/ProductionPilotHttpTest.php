@@ -8,11 +8,14 @@ use App\Modules\Acquisition\Http\TrackingController;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Modules\Audience\AudienceServiceProvider;
 use App\Modules\Identity\Models\Viewer;
+use App\Modules\Identity\Services\Verification;
 use App\Support\RuntimeEnvironmentGuard;
 use Illuminate\Http\Request;
 use Illuminate\Routing\RouteCollection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -28,6 +31,7 @@ final class ProductionPilotHttpTest extends ContentTestCase
             'dual consent' => [true, true, true, true],
             'site analytics only' => [true, true, true, false],
             'unrelated viewer' => [true, true, false, true],
+            'continuous anonymous visitor' => [true, true, false, true, true],
         ];
     }
 
@@ -60,9 +64,10 @@ final class ProductionPilotHttpTest extends ContentTestCase
         bool $siteTrial = false,
         bool $matchingViewer = false,
         bool $advertising = true,
+        bool $continuous = false,
     ): void {
         $drama = $this->fixture(count: 1, published: true);
-        $viewer = $siteTrial ? Viewer::create(['name' => 'Dual consent fixture', 'email' => Str::uuid().'@example.test',
+        $viewer = $siteTrial && ! $continuous ? Viewer::create(['name' => 'Dual consent fixture', 'email' => Str::uuid().'@example.test',
             'password' => 'LocalPassword1234', 'email_verified_at' => now()]) : null;
         $origin = 'https://pilot.example.test';
         config(['app.url' => $origin, 'h5.modules.audience.ready' => true, 'h5.modules.acquisition.ready' => true,
@@ -81,7 +86,7 @@ final class ProductionPilotHttpTest extends ContentTestCase
 
             public function productionAutomaticPurchasePolicy(): ?array
             {
-                return $this->automatic && now()->lt($this->automatic['until']) ? $this->automatic : null;
+                return $this->automatic && ($this->automatic['until'] === null || now()->lt($this->automatic['until'])) ? $this->automatic : null;
             }
 
             public function productionAcquisitionScope(): array
@@ -105,6 +110,8 @@ final class ProductionPilotHttpTest extends ContentTestCase
             'environment' => 'production', 'active' => true, 'version' => 0]);
         $link = $manager->saveLink(null, ['name' => 'Synthetic promotion', 'platform' => 'meta', 'pixel_id' => $pixel['id'],
             'drama_id' => $drama->id, 'active' => true, 'version' => 0]);
+        $second = $continuous ? $manager->saveLink(null, ['name' => 'Second synthetic promotion', 'platform' => 'meta', 'pixel_id' => $pixel['id'],
+            'drama_id' => $drama->id, 'active' => true, 'version' => 0]) : null;
         $this->defaultCookies = $this->unencryptedCookies = [];
         $this->withServerVariables(['REMOTE_ADDR' => '8.8.4.4', 'HTTP_USER_AGENT' => 'Synthetic production visitor']);
         $url = $origin.'/r/'.basename($link['url']);
@@ -120,9 +127,15 @@ final class ProductionPilotHttpTest extends ContentTestCase
             $guard->scope = [];
             config(['h5.acquisition_automatic_mode' => 'single', 'h5.acquisition_automatic_site_analytics' => $siteTrial]);
         }
+        if ($continuous) {
+            $guard->automatic = ['mode' => 'continuous', 'from' => now()->subMinute()->toIso8601ZuluString(),
+                'until' => null, 'run_id' => null];
+            config(['h5.acquisition_automatic_mode' => 'continuous']);
+        }
         if ($viewer) {
             $this->asViewer($viewer);
         }
+        $analytics = $matchingViewer || $continuous;
         $path = '/dramas/'.$drama->id;
         $this->get($url, ['Sec-Fetch-Site' => 'cross-site', 'Sec-Fetch-Mode' => 'navigate', 'Sec-Fetch-Dest' => 'document'])
             ->assertRedirect($path);
@@ -133,9 +146,9 @@ final class ProductionPilotHttpTest extends ContentTestCase
         $headers = ['Origin' => $origin, 'Sec-Fetch-Site' => 'same-origin', 'X-CSRF-TOKEN' => html_entity_decode($match[1], ENT_QUOTES)];
         $choice = $this->postJson($origin.'/api/v1/tracking/consent', ['analytics' => true, 'advertising' => $advertising,
             'policy_version' => 'analytics-v1'], $headers)->assertOk()
-            ->assertJsonPath('consent.analytics', $matchingViewer ? 'granted' : 'denied')
+            ->assertJsonPath('consent.analytics', $analytics ? 'granted' : 'denied')
             ->assertJsonPath('consent.advertising', $advertising ? 'granted' : 'denied');
-        if (! $matchingViewer) {
+        if (! $analytics) {
             $choice->assertJsonPath('analytics_available', false);
         }
         $payload = ['page_instance_id' => (string) Str::uuid(), 'drama_id' => $drama->id, 'path' => $path];
@@ -143,18 +156,46 @@ final class ProductionPilotHttpTest extends ContentTestCase
         if ($advertising) {
             $this->assertDatabaseHas('acquisition_sources', ['link_id' => $link['id'], 'pixel_id' => $pixel['id'],
                 'pixel_version' => $pixel['version'], 'subject_id' => session('tracking.subject'), 'is_simulation' => false]);
-            $this->assertSame($matchingViewer, session()->has('tracking.subject'));
+            $this->assertSame($analytics, session()->has('tracking.subject'));
         }
         $events = ['events' => [['event_id' => (string) Str::uuid(), 'event_name' => 'page_view', 'properties' => $payload]]];
         $this->postJson($origin.'/api/v1/tracking/events', $events, $headers)->assertOk()
-            ->assertJsonPath('accepted', $matchingViewer ? 1 : 0);
+            ->assertJsonPath('accepted', $analytics ? 1 : 0);
         $this->postJson($origin.'/api/v1/tracking/events', $events, $headers)->assertOk()
-            ->assertJsonPath('accepted', $matchingViewer ? 1 : 0);
+            ->assertJsonPath('accepted', $analytics ? 1 : 0);
         $this->assertDatabaseCount('acquisition_sources', $advertising ? 1 : 0);
-        $this->assertDatabaseCount('acquisition_behaviors', $matchingViewer ? 1 : 0);
-        if ($matchingViewer) {
-            $this->assertDatabaseHas('acquisition_behaviors', ['viewer_id' => $viewer->id,
+        $this->assertDatabaseCount('acquisition_behaviors', $analytics ? 1 : 0);
+        if ($analytics) {
+            $this->assertDatabaseHas('acquisition_behaviors', ['viewer_id' => $viewer?->id,
                 'event_name' => 'page_view', 'link_id' => $advertising ? $link['id'] : null]);
+            if ($continuous) {
+                $initialSource = session('tracking.source');
+                $this->get($origin.$path)->assertOk();
+                $this->assertSame($initialSource, session('tracking.source'));
+                $this->get($origin.'/r/'.basename($second['url']))->assertRedirect($path);
+                $this->get($origin.$path)->assertOk();
+                $this->postJson($origin.'/api/v1/tracking/landing', array_replace($payload, ['page_instance_id' => (string) Str::uuid()]), $headers)
+                    ->assertOk()->assertJsonPath('confirmed', true);
+                $latestSource = session('tracking.source');
+                $this->assertNotSame($initialSource, $latestSource);
+                $this->assertDatabaseHas('acquisition_sources', ['id' => $latestSource, 'link_id' => $second['id']]);
+                Notification::fake();
+                $this->postJson($origin.'/api/v1/auth/register', ['name' => 'Synthetic new viewer', 'email' => 'continuous@example.test',
+                    'password' => 'LocalPassword1234', 'password_confirmation' => 'LocalPassword1234'], $headers)->assertOk();
+                $viewer = Viewer::sole();
+                $this->get(app(Verification::class)->url($viewer))->assertRedirect();
+                $this->assertTrue($viewer->fresh()->hasVerifiedEmail());
+                $this->assertSame($latestSource, session('tracking.source'));
+                $this->assertDatabaseHas('acquisition_behaviors', ['viewer_id' => $viewer->id, 'event_name' => 'registration_succeeded', 'link_id' => $second['id']]);
+                $this->assertDatabaseHas('acquisition_behaviors', ['viewer_id' => $viewer->id, 'event_name' => 'email_verified', 'link_id' => $second['id']]);
+                $this->assertSame(1, DB::table('acquisition_subjects')->count());
+                $this->postJson($origin.'/api/v1/tracking/consent', ['analytics' => false, 'advertising' => false,
+                    'policy_version' => 'analytics-v1'], array_replace($headers, ['X-CSRF-TOKEN' => session()->token()]))->assertOk()
+                    ->assertJsonPath('consent.analytics', 'denied')->assertJsonPath('consent.advertising', 'denied');
+                Http::assertNothingSent();
+
+                return;
+            }
             $this->postJson($origin.'/api/v1/tracking/consent', ['analytics' => false, 'advertising' => $advertising,
                 'policy_version' => 'analytics-v1'], $headers)->assertOk()->assertJsonPath('consent.analytics', 'denied')
                 ->assertJsonPath('consent.advertising', $advertising ? 'granted' : 'denied');

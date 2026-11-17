@@ -36,7 +36,7 @@ final class RuntimeEnvironmentGuard
         $this->require(in_array($automatic, ['off', 'single', 'continuous'], true)
             && ($automatic === 'off' || $productionPilot), 'ACQUISITION_AUTOMATIC_MODE_INVALID');
         $this->require(! config('h5.acquisition_automatic_site_analytics')
-            || ($productionPilot && $automatic === 'single'), 'ACQUISITION_AUTOMATIC_SITE_ANALYTICS_REQUIRES_SINGLE');
+            || ($productionPilot && in_array($automatic, ['single', 'continuous'], true)), 'ACQUISITION_AUTOMATIC_SITE_ANALYTICS_REQUIRES_AUTOMATIC');
         $this->paypal($environment);
         $this->paypalLive($environment);
         if (in_array($environment, ['local', 'testing'], true)) {

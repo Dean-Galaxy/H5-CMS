@@ -37,19 +37,22 @@ final class BehaviorRecorder implements BehaviorEventRecorder
         if (! app(TrackingContext::class)->enabled()) {
             return Result::Retry;
         }
+
         return $this->recordServer($eventName, $properties, $deduplicationKey);
     }
 
-    public function recordTrialPurchase(PaymentSettled $event): Result
+    public function recordProductionPurchase(PaymentSettled $event): Result
     {
         $scope = app(PilotScope::class)->siteAnalyticsPolicy();
         if ($scope === null || ! app()->runningInConsole() || $event->is_test) {
             return Result::Skipped;
         }
-        $checkout = DB::table('acquisition_analytics_orders')
-            ->where(['order_id' => $event->order_id, 'viewer_id' => $scope['viewer_id']])
-            ->where('checkout_at', '>=', $scope['from'])->where('checkout_at', '<', $scope['until'])->exists();
-        if (! $checkout) {
+        $checkout = DB::table('acquisition_analytics_orders')->where('order_id', $event->order_id)
+            ->where('checkout_at', '>=', $scope['from']);
+        if ($scope['mode'] === 'single') {
+            $checkout->where('viewer_id', $scope['viewer_id'])->where('checkout_at', '<', $scope['until']);
+        }
+        if (! $checkout->exists()) {
             return Result::Skipped;
         }
 
@@ -87,8 +90,9 @@ final class BehaviorRecorder implements BehaviorEventRecorder
                     $subject = app(TrackingContext::class)->subject($p['viewer_id'] ?? null);
                     $sourceId = app(AttributionRecorder::class)->snapshot(null)?->source_id;
                 }
-                if (! $subject || ($scope && ($subject->viewer_id !== $scope['viewer_id'] || $p['is_test']
-                    || $time->lt($scope['from']) || $time->gte($scope['until'])))) {
+                if (! $subject || ($scope && ($p['is_test'] || $time->lt($scope['from'])
+                    || (isset($scope['viewer_id']) && $subject->viewer_id !== $scope['viewer_id'])
+                    || (isset($scope['until']) && $time->gte($scope['until']))))) {
                     return Result::Skipped;
                 }
                 $privacy = DB::table('acquisition_privacy')->where('id', $subject->privacy_id)->lockForUpdate()->first();
@@ -209,7 +213,7 @@ final class BehaviorRecorder implements BehaviorEventRecorder
             $mapping = DB::table('acquisition_analytics_orders')->where('subscription_id', $p['subscription_id'])->orderByDesc('created_at')->first();
         }
         $snapshot = $row['attribution_snapshot'] ?? null;
-        $sourceId = $mapping?->source_id ?? ($snapshot['source_id'] ?? null);
+        $sourceId = $mapping ? $mapping->source_id : ($snapshot['source_id'] ?? null);
         $source = $sourceId ? DB::table('acquisition_sources')->where('id', $sourceId)->first() : null;
         $subjectId = $mapping?->subject_id ?? $source?->subject_id;
         $subject = $subjectId ? DB::table('acquisition_subjects')->where('id', $subjectId)->first() : null;

@@ -44,7 +44,8 @@ final class TrackingContext
     private function siteAnalyticsScope(): ?array
     {
         $scope = app(PilotScope::class)->siteAnalyticsPolicy();
-        if ($scope === null || ! $this->enabled() || app(IdentityContext::class)->viewer()?->id !== $scope['viewer_id']) {
+        if ($scope === null || ! $this->enabled()
+            || ($scope['mode'] === 'single' && app(IdentityContext::class)->viewer()?->id !== $scope['viewer_id'])) {
             return null;
         }
 
@@ -167,7 +168,11 @@ final class TrackingContext
             $id = $old?->id ?? (string) Str::uuid();
             $s->put('tracking.consent', ['analytics' => $choice, 'advertising' => $advertising ? 'granted' : 'denied']);
             if ($siteScope && $choice === 'granted') {
-                $s->put('tracking.production_analytics_run', $siteScope['run_id']);
+                $marker = $siteScope['run_id'] ?? $siteScope['from'];
+                if ($s->get('tracking.production_analytics_run') !== $marker && $siteScope['mode'] === 'continuous') {
+                    $s->forget('tracking.subject');
+                }
+                $s->put('tracking.production_analytics_run', $marker);
             } elseif (PilotScope::enabled()) {
                 $s->forget('tracking.production_analytics_run');
             }
@@ -181,10 +186,12 @@ final class TrackingContext
             ];
             if (! $preserve || ! $old) {
                 $values += ['analytics' => $choice, 'analytics_granted_at' => $choice === 'granted'
-                    ? ($old?->analytics === 'granted' ? $old->analytics_granted_at : Clock::stamp()) : null];
+                    ? ($old?->analytics === 'granted' && (! isset($siteScope['mode']) || $siteScope['mode'] !== 'continuous'
+                        || ($old->analytics_granted_at && CarbonImmutable::parse($old->analytics_granted_at)->gte($siteScope['from'])))
+                        ? $old->analytics_granted_at : Clock::stamp()) : null];
             }
             if ($siteScope && $choice === 'granted') {
-                $values['viewer_id'] = $siteScope['viewer_id'];
+                $values['viewer_id'] = $siteScope['viewer_id'] ?? app(IdentityContext::class)->viewer()?->id;
             }
             if ($denied) {
                 // Preserve an existing deadline; repeated legacy requests cannot extend a C preference's life.
@@ -221,7 +228,8 @@ final class TrackingContext
             if ($previous && $previous !== $current) {
                 $this->clear();
             }
-            if ($current && ($session?->has('tracking.pending') || $session?->has('tracking.source'))) {
+            if ($current && ($session?->has('tracking.pending') || $session?->has('tracking.source')
+                || $session?->get('tracking.production_engaged') === true)) {
                 $session->put('tracking.viewer', $current);
             }
 
@@ -269,8 +277,8 @@ final class TrackingContext
             return null;
         }
         $siteScope = $this->siteAnalyticsScope();
-        if ($siteScope && ($s->get('tracking.production_analytics_run') !== $siteScope['run_id']
-            || ($viewer !== null && $viewer !== $siteScope['viewer_id']))) {
+        if ($siteScope && ($s->get('tracking.production_analytics_run') !== ($siteScope['run_id'] ?? $siteScope['from'])
+            || (isset($siteScope['viewer_id']) && $viewer !== null && $viewer !== $siteScope['viewer_id']))) {
             return null;
         }
         $this->syncViewer($viewer);
@@ -283,7 +291,10 @@ final class TrackingContext
             }
             $viewer ??= app(IdentityContext::class)->viewer()?->id;
             if ($siteScope && $privacy->viewer_id !== $viewer) {
-                return null;
+                if ($siteScope['mode'] !== 'continuous' || $privacy->viewer_id !== null || $viewer === null) {
+                    return null;
+                }
+                DB::table('acquisition_privacy')->where('id', $privacy->id)->update(['viewer_id' => $viewer]);
             }
             $subjectId = $s->get('tracking.subject');
             $row = is_string($subjectId) && Str::isUuid($subjectId) ? DB::table('acquisition_subjects')->where('id', $subjectId)->first() : null;
@@ -322,6 +333,11 @@ final class TrackingContext
 
         $result = ['enabled' => $this->enabled(), 'consent' => $p ? ['analytics' => $p->analytics, 'advertising' => $p->advertising] : ($this->session()?->get('tracking.consent') ?? ['analytics' => 'unknown', 'advertising' => 'unknown']),
             'policy_version' => 'analytics-v1', 'pending_landing' => (bool) $this->session()?->has('tracking.pending')];
+        $scope = $this->siteAnalyticsScope();
+        if (($scope['mode'] ?? null) === 'continuous' && $result['consent']['analytics'] === 'granted'
+            && $this->session()?->get('tracking.production_analytics_run') !== $scope['from']) {
+            $result['consent']['analytics'] = 'unknown';
+        }
         if (self::advertisingOnly()) {
             if (self::advertisingTestOnly()) {
                 $result['advertising_test_only'] = true;

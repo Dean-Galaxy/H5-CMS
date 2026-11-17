@@ -1,0 +1,23 @@
+; Candidate pool for the dedicated callback socket. Review against the installed PHP pool.
+[h5-paypal-live-callback]
+user = h5
+group = h5
+listen = /run/php/h5-paypal-live-callback.sock
+listen.owner = www-data
+listen.group = www-data
+listen.mode = 0660
+listen.backlog = 8
+pm = ondemand
+pm.max_children = 1
+pm.process_idle_timeout = 10s
+pm.max_requests = 200
+request_terminate_timeout = 25s
+request_terminate_timeout_track_finished = yes
+clear_env = yes
+env[APP_ENV] = production
+catch_workers_output = no
+security.limit_extensions = .php
+php_admin_flag[display_errors] = off
+php_admin_flag[expose_php] = off
+php_admin_value[post_max_size] = 1M
+php_admin_value[memory_limit] = 128M

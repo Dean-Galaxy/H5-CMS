@@ -8,6 +8,7 @@ use App\Data\StaffIdentity;
 use App\Enums\Role;
 use App\Modules\Acquisition\AcquisitionServiceProvider;
 use App\Modules\Acquisition\Analytics\AnalyticsReport;
+use App\Modules\Acquisition\Production\AutomaticPurchaseWorker;
 use App\Modules\Acquisition\Production\SinglePurchaseSender;
 use App\Modules\Acquisition\Services\AssetManager;
 use App\Modules\Acquisition\Services\DeliveryWorker;
@@ -65,6 +66,7 @@ final class ProductionPurchaseSenderTest extends TestCase
             public function productionAutomaticPurchasePolicy(): ?array
             {
                 $policy = config('test_automatic_policy');
+
                 return $policy && ($policy['until'] === null || now()->lt($policy['until'])) ? $policy : null;
             }
 
@@ -353,6 +355,13 @@ final class ProductionPurchaseSenderTest extends TestCase
             'site analysis only' => [true, false, 200],
             'advertising only' => [false, true, 200],
             'site analysis survives a platform timeout' => [true, true, 504],
+            'continuous TikTok' => [true, true, 200, 'continuous'],
+            'continuous Meta' => [true, true, 200, 'continuous', 'meta'],
+            'continuous analytics only' => [true, false, 200, 'continuous'],
+            'continuous advertising only' => [false, true, 200, 'continuous'],
+            'continuous neither' => [false, false, 200, 'continuous'],
+            'continuous preserves analytics through platform failure' => [true, true, 504, 'continuous'],
+            'continuous honors late advertising withdrawal' => [true, true, 200, 'continuous', 'tiktok', true],
         ];
     }
 
@@ -361,28 +370,30 @@ final class ProductionPurchaseSenderTest extends TestCase
         bool $analytics,
         bool $advertising,
         int $httpStatus,
+        string $mode = 'single',
+        string $platform = 'tiktok',
+        bool $withdrawAdvertising = false,
     ): void {
         $viewer = BillingStore::id();
-        $this->selectTikTok($viewer);
-        [$payment, $order] = $this->paid($viewer, $advertising);
-        $this->enableAutomatic('single', $viewer);
+        if ($platform === 'tiktok') {
+            $this->selectTikTok($viewer);
+        }
+        [$payment, $order] = $this->paid($viewer, $advertising, replay: true);
+        $this->enableAutomatic($mode, $viewer);
         config(['h5.acquisition_automatic_site_analytics' => true]);
 
-        $privacy = DB::table('acquisition_privacy')->value('id');
-        $subject = BillingStore::id();
-        $grantedAt = now()->subMinutes(3);
-        $checkoutAt = now()->subMinutes(2);
-        DB::table('acquisition_privacy')->where('id', $privacy)->update(['viewer_id' => $viewer,
-            'analytics' => $analytics ? 'granted' : 'denied', 'analytics_granted_at' => $analytics ? $grantedAt : null]);
-        DB::table('acquisition_subjects')->insert(['id' => $subject, 'privacy_id' => $privacy, 'viewer_id' => $viewer,
-            'session_key' => BillingStore::id(), 'created_at' => $checkoutAt, 'updated_at' => $checkoutAt]);
-        DB::table('acquisition_analytics_orders')->insert(['viewer_id' => $viewer, 'order_id' => $order, 'subject_id' => $subject,
-            'privacy_id' => $privacy, 'source_id' => $advertising ? DB::table('acquisition_sources')->value('id') : null,
-            'checkout_at' => $checkoutAt, 'created_at' => $checkoutAt]);
+        $subject = $analytics ? $this->analyticsCheckout($order, $viewer, true) : null;
+        if ($withdrawAdvertising) {
+            DB::table('acquisition_privacy')->update(['advertising' => 'denied']);
+            DB::table('acquisition_sources')->update(['revoked_at' => now()]);
+        }
 
-        Http::fake(['business-api.tiktok.com/*' => Http::response(['code' => 0], $httpStatus)]);
+        Http::fake($platform === 'tiktok'
+            ? ['business-api.tiktok.com/*' => Http::response(['code' => 0], $httpStatus)]
+            : ['graph.facebook.com/*' => Http::response(['events_received' => 1], $httpStatus)]);
         $this->assertSame($httpStatus === 200 ? 0 : 1, Artisan::call('acquisition:dispatch-production-purchases'));
-        $this->assertStringContainsString($analytics ? '"site_analytics":"accepted"' : '"site_analytics":"skipped"', Artisan::output());
+        $expectedSiteState = $analytics ? 'accepted' : ($mode === 'continuous' ? 'waiting' : 'skipped');
+        $this->assertSame($expectedSiteState, json_decode(Artisan::output(), true, flags: JSON_THROW_ON_ERROR)['site_analytics']);
         $this->travel(2)->minutes();
         $this->artisan('acquisition:dispatch-production-purchases')->assertSuccessful();
         $this->assertDatabaseHas('billing_entitlements', ['payment_id' => $payment, 'revoked_at' => null]);
@@ -391,10 +402,15 @@ final class ProductionPurchaseSenderTest extends TestCase
             $this->assertDatabaseHas('acquisition_behaviors', ['viewer_id' => $viewer, 'event_name' => 'payment_confirmed',
                 'subject_id' => $subject, 'is_test' => false]);
         }
-        Http::assertSentCount($advertising ? 1 : 0);
-        if ($advertising) {
+        $expectAd = $advertising && ! $withdrawAdvertising;
+        Http::assertSentCount($expectAd ? 1 : 0);
+        if ($expectAd) {
             $this->assertDatabaseHas('acquisition_deliveries', ['state' => $httpStatus === 200 ? 'api_accepted' : 'failed',
-                'attempts' => 1, 'platform' => 'tiktok']);
+                'attempts' => 1, 'platform' => $platform]);
+            Http::assertSent(fn (Request $request): bool => str_contains($request->url(), $platform === 'tiktok' ? 'business-api.tiktok.com' : 'graph.facebook.com'));
+        }
+        if ($mode === 'continuous' && $analytics) {
+            $this->assertNotNull(DB::table('acquisition_analytics_orders')->where('order_id', $order)->value('purchase_processed_at'));
         }
 
         $actor = new StaffIdentity(BillingStore::id(), 'Synthetic Owner', Role::Owner);
@@ -411,6 +427,35 @@ final class ProductionPurchaseSenderTest extends TestCase
             $this->assertFalse($summary['diagnostics']['enabled']);
             $this->assertSame(399, $summary['finance']['gross_minor']);
         }
+    }
+
+    public function test_continuous_does_not_reprocess_paid_trials_or_pre_activation_orders_in_either_branch(): void
+    {
+        [$oldPayment, $oldOrder] = $this->paid($oldViewer = BillingStore::id());
+        $this->analyticsCheckout($oldOrder, $oldViewer, true);
+        $this->travel(5)->minutes();
+
+        Http::fake(['graph.facebook.com/*' => Http::response(['events_received' => 1])]);
+        [$exactPayment, $exactOrder] = $this->paid($exactViewer = BillingStore::id());
+        $this->analyticsCheckout($exactOrder, $exactViewer, true);
+        $this->artisan('acquisition:purchase-production', ['payment' => $exactPayment, 'order' => $exactOrder])->assertSuccessful();
+
+        [$trialPayment, $trialOrder] = $this->paid($trialViewer = BillingStore::id());
+        $this->analyticsCheckout($trialOrder, $trialViewer, true);
+        $this->enableAutomatic('single', $trialViewer);
+        $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"api_accepted":1')->assertSuccessful();
+
+        $this->enableAutomatic('continuous');
+        config(['h5.acquisition_automatic_site_analytics' => true]);
+        $this->assertSame(0, Artisan::call('acquisition:dispatch-production-purchases'));
+        $summary = json_decode(Artisan::output(), true, flags: JSON_THROW_ON_ERROR);
+        $this->assertSame('waiting', $summary['site_analytics']);
+        $this->assertSame(0, $summary['selected']);
+        $this->assertDatabaseCount('acquisition_behaviors', 0);
+        $this->assertDatabaseMissing('acquisition_automatic_purchases', ['payment_id' => $oldPayment]);
+        $this->assertDatabaseHas('acquisition_production_purchase', ['payment_id' => $exactPayment, 'slot' => 1]);
+        $this->assertNotNull(DB::table('acquisition_automatic_purchases')->where('payment_id', $trialPayment)->value('run_id'));
+        Http::assertSentCount(2);
     }
 
     public function test_continuous_task_rotates_preflight_failures_and_ignores_pre_activation_orders(): void
@@ -436,10 +481,11 @@ final class ProductionPurchaseSenderTest extends TestCase
     {
         [$payment] = $this->paid();
         $this->enableAutomatic('continuous');
-        $worker = app(\App\Modules\Acquisition\Production\AutomaticPurchaseWorker::class);
+        $worker = app(AutomaticPurchaseWorker::class);
         $nested = null;
         Http::fake(['graph.facebook.com/*' => function () use (&$nested, $worker) {
             $nested = $worker->run(5);
+
             return Http::response(['error' => ['is_transient' => true]], 504);
         }]);
         $this->artisan('acquisition:dispatch-production-purchases')->expectsOutputToContain('"unconfirmed":1')->assertFailed();
@@ -499,7 +545,7 @@ final class ProductionPurchaseSenderTest extends TestCase
         $this->credential();
     }
 
-    private function paid(?string $viewer = null, bool $advertising = true): array
+    private function paid(?string $viewer = null, bool $advertising = true, bool $replay = false): array
     {
         $paidAt = now()->toImmutable()->subMinute();
         $scope = $this->scope;
@@ -552,11 +598,34 @@ final class ProductionPurchaseSenderTest extends TestCase
                 'pixel_config_version' => 1, 'captured_at' => BillingStore::iso($created), 'consent' => 'granted', 'checkout_context_id' => $context]) : null,
         ]);
 
-        $payment = app(PaymentLedger::class)->record($subscription, new ExternalPayment(
-            $scope, $sale, $sale, $providerId, 'PAYERFIXTURE', $order, true, 399, 1299, 'USD', $paidAt, $paidAt->addWeek(), $paidAt,
-        ));
+        $fact = new ExternalPayment($scope, $sale, $sale, $providerId, 'PAYERFIXTURE', $order, true, 399, 1299,
+            'USD', $paidAt, $paidAt->addWeek(), $paidAt);
+        $ledger = app(PaymentLedger::class);
+        $payment = $ledger->record($subscription, $fact);
+        if ($replay) {
+            $this->assertSame($payment, $ledger->record($subscription, $fact));
+            $this->assertSame(1, DB::table('billing_outbox')->where('payment_id', $payment)->count());
+        }
 
         return [$payment, $order];
+    }
+
+    private function analyticsCheckout(string $order, string $viewer, bool $analytics): string
+    {
+        $data = json_decode(DB::table('billing_orders')->where('id', $order)->value('attribution_snapshot') ?? 'null', true);
+        $source = isset($data['source_id']) ? DB::table('acquisition_sources')->find($data['source_id']) : null;
+        $privacy = $source?->privacy_id ?? DB::table('acquisition_privacy')->value('id');
+        $subject = BillingStore::id();
+        $grantedAt = now()->subMinutes(3);
+        $checkoutAt = now()->subMinutes(2);
+        DB::table('acquisition_privacy')->where('id', $privacy)->update(['viewer_id' => $viewer,
+            'analytics' => $analytics ? 'granted' : 'denied', 'analytics_granted_at' => $analytics ? $grantedAt : null]);
+        DB::table('acquisition_subjects')->insert(['id' => $subject, 'privacy_id' => $privacy, 'viewer_id' => $viewer,
+            'session_key' => BillingStore::id(), 'created_at' => $checkoutAt, 'updated_at' => $checkoutAt]);
+        DB::table('acquisition_analytics_orders')->insert(['viewer_id' => $viewer, 'order_id' => $order, 'subject_id' => $subject,
+            'privacy_id' => $privacy, 'source_id' => $source?->id, 'checkout_at' => $checkoutAt, 'created_at' => $checkoutAt]);
+
+        return $subject;
     }
 
     private function billingRows(): array
