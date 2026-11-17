@@ -50,13 +50,15 @@ final class BillingEngine implements BillingService, MembershipReader
         $eligible = $viewer ? $account?->first_paid_at === null : null;
         $id = BillingStore::id();
         $expires = now()->addSeconds(config('billing.offer_ttl_seconds'));
-        DB::table('billing_offers')->insert(['id' => $id, 'viewer_id' => $viewer?->id, 'price_version' => $price->version,
-            'regular_amount_minor' => $price->regular_amount_minor, 'first_week_amount_minor' => $price->first_week_amount_minor,
-            'currency' => $price->currency, 'is_test' => $price->is_test, 'eligible_first_offer' => $eligible, 'expires_at' => $expires, 'created_at' => now()]);
-        $account = $viewer ? DB::table('billing_accounts')->where('viewer_id', $viewer->id)->first() : null;
+        // Guest offers display current prices. Only an authenticated viewer can redeem a persisted offer.
+        if ($viewer) {
+            DB::table('billing_offers')->insert(['id' => $id, 'viewer_id' => $viewer->id, 'price_version' => $price->version,
+                'regular_amount_minor' => $price->regular_amount_minor, 'first_week_amount_minor' => $price->first_week_amount_minor,
+                'currency' => $price->currency, 'is_test' => $price->is_test, 'eligible_first_offer' => $eligible, 'expires_at' => $expires, 'created_at' => now()]);
+        }
 
         return new Offer($id, $price->version, $price->currency, $price->regular_amount_minor, $price->first_week_amount_minor,
-            $viewer ? $account?->first_paid_at === null : null, BillingStore::iso($expires), $price->regular_amount_minor);
+            $eligible, BillingStore::iso($expires), $price->regular_amount_minor);
     }
 
     public function checkout(ViewerIdentity $viewer, CheckoutInput $input, string $idempotencyKey, ?AttributionSnapshot $source): Checkout

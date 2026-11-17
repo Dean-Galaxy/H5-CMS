@@ -92,6 +92,9 @@ final class BillingUiTest extends BillingTestCase
     {
         $this->get('/membership')->assertOk()->assertHeader('Cache-Control', 'no-store, private')
             ->assertSee('USD 3.00')->assertSee('Sign in to purchase')->assertDontSee('action="/membership/checkout"', false);
+        $this->get('/membership?lang=zh_CN')->assertOk()->assertSee('USD 3.00');
+        $this->assertDatabaseCount('billing_offers', 0);
+
         DB::table('billing_prices')->delete();
         $this->get('/membership')->assertStatus(503)->assertSee('Payment is not available')->assertDontSee('USD 3.00');
     }
