@@ -107,6 +107,27 @@ final class MediaTest extends ContentTestCase
         $this->assertSame(0, fileperms(app(MediaStore::class)->path($a->output_key.'/media.mp4')) & 0077);
     }
 
+    public function test_hls_short_tail_uses_the_peak_window_and_cannot_hide_an_oversized_start(): void
+    {
+        $video = $this->readyAsset();
+        $media = app(MediaStore::class);
+        $tier = $media->path($video->output_key.'/'.$video->metadata['playback_optimization']['efficient_key']);
+        file_put_contents($tier.'/index.m3u8', "#EXTM3U\n#EXT-X-INDEPENDENT-SEGMENTS\n#EXTINF:4,\nsegment-00000.ts\n#EXTINF:1.583333,\nsegment-00001.ts\n#EXT-X-ENDLIST\n");
+        file_put_contents($tier.'/segment-00000.ts', str_repeat('a', 64000));
+        file_put_contents($tier.'/segment-00001.ts', str_repeat('b', 41736));
+        $this->assertTrue($media->optimized($video));
+
+        file_put_contents($tier.'/segment-00000.ts', str_repeat('a', 85000));
+        clearstatcache();
+        $this->assertFalse($media->optimized($video));
+
+        file_put_contents($tier.'/segment-00000.ts', str_repeat('a', 92000));
+        unlink($tier.'/segment-00001.ts');
+        file_put_contents($tier.'/index.m3u8', "#EXTM3U\n#EXT-X-INDEPENDENT-SEGMENTS\n#EXTINF:4,\nsegment-00000.ts\n#EXT-X-ENDLIST\n");
+        clearstatcache();
+        $this->assertFalse($media->optimized($video));
+    }
+
     public function test_real_image_is_reencoded_and_subtitle_out_of_duration_blocks_publish(): void
     {
         $im = imagecreatetruecolor(32, 48);

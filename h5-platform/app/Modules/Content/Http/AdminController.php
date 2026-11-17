@@ -23,6 +23,7 @@ final class AdminController
         $dramas = DramaRecord::with(['plan', 'categories', 'episodes.video', 'episodes.subtitle'])->withCount(['episodes as published_count' => fn ($q) => $q->whereNotNull('published_at')])->orderBy('sort_order')->orderBy('id')->get();
         foreach ($dramas as $drama) {
             $drama->setAttribute('ready_count', $drama->episodes->filter(fn ($e) => $e->video?->state === 'ready'
+                && ($e->video->metadata['playback_optimization']['version'] ?? null) === MediaStore::OPTIMIZATION_VERSION
                 && (! $e->subtitle_asset_id || ($e->subtitle?->state === 'ready'
                     && ($e->subtitle->metadata['last_end'] ?? INF) <= ($e->video->metadata['duration'] ?? 0) + .5)))->count());
             $drama->unsetRelation('episodes');

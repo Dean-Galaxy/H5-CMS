@@ -481,6 +481,7 @@ final class MediaStore
         }
         $duration = 0.0;
         $segments = [];
+        $sizes = [];
         foreach (explode("\n", $text) as $line) {
             if (preg_match('/^#EXTINF:(\d+(?:\.\d+)?),$/D', $line, $match)) {
                 $duration = (float) $match[1];
@@ -490,13 +491,23 @@ final class MediaStore
                 }
                 $file = $directory.'/'.$line;
                 $bytes = is_file($file) && is_readable($file) ? filesize($file) : 0;
-                // MPEG-TS mux overhead on very short tail segments can exceed their proportional budget.
-                $budget = $bandwidth * max($duration, 1.0) / 8;
-                if (! $bytes || $bytes > $budget) {
+                // Limit individual downloads, including an isolated very short upload.
+                if (! $bytes || $bytes * 8 > $bandwidth * max($duration, 2.0)) {
                     return [];
                 }
                 $segments[] = $duration;
+                $sizes[] = $bytes;
                 $duration = 0.0;
+            }
+        }
+
+        // HLS peak-rate windows span 0.5 to 1.5 target durations. For our 4-second
+        // segments, a short tail also needs to fit the budget together with its predecessor.
+        $last = count($segments) - 1;
+        if ($last > 0 && $segments[$last] < 2.0) {
+            $window = $segments[$last - 1] + $segments[$last];
+            if ($window <= 6.0 && ($sizes[$last - 1] + $sizes[$last]) * 8 > $bandwidth * $window) {
+                return [];
             }
         }
 
