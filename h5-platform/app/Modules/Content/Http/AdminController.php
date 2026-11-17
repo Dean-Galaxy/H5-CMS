@@ -192,7 +192,12 @@ final class AdminController
 
     private function asset(Asset $a): array
     {
-        return $a->only(['id', 'kind', 'state', 'expected_bytes', 'received_bytes', 'metadata', 'error_code', 'created_at']);
+        $data = $a->only(['id', 'kind', 'state', 'expected_bytes', 'received_bytes', 'metadata', 'error_code', 'created_at']);
+        if ($a->kind === 'video') {
+            $data['playback_optimized'] = $a->state === 'ready' && app(MediaStore::class)->optimized($a);
+        }
+
+        return $data;
     }
 
     public function upload(Request $r, MediaStore $m)

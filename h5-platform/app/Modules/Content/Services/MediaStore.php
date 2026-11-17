@@ -7,12 +7,21 @@ use App\Modules\Content\Models\Asset;
 use App\Modules\Content\Models\DramaRecord;
 use App\Modules\Content\Models\EpisodeRecord;
 use App\Support\ApiProblem;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Process\Process;
 
 final class MediaStore
 {
+    public const OPTIMIZATION_VERSION = 1;
+
+    private const PLAYBACK_PROFILES = [
+        'efficient' => ['edge' => 240, 'video' => '80k', 'max' => '96k', 'buffer' => '192k', 'audio' => '24k', 'bandwidth' => 175000, 'version' => 1],
+        'balanced' => ['edge' => 360, 'video' => '175k', 'max' => '210k', 'buffer' => '420k', 'audio' => '32k', 'bandwidth' => 340000, 'version' => 1],
+        'web' => ['edge' => 720, 'video' => '1200k', 'max' => '1500k', 'buffer' => '3000k', 'audio' => '96k', 'bandwidth' => 2200000, 'version' => 2],
+    ];
+
     public function path(string $key): string
     {
         if (! preg_match('~^[a-zA-Z0-9_/.-]+$~D', $key) || str_contains($key, '..') || str_starts_with($key, '/')) {
@@ -261,6 +270,19 @@ final class MediaStore
         }
     }
 
+    public function withWorkerLock(callable $work, int $busyResult): int
+    {
+        $lock = fopen($this->path('.processing.lock'), 'c');
+        if (! $lock) {
+            throw new \RuntimeException('MEDIA_PROCESS_FAILED');
+        }
+        try {
+            return flock($lock, LOCK_EX | LOCK_NB) ? $work() : $busyResult;
+        } finally {
+            fclose($lock);
+        }
+    }
+
     public function processNext(): ?Asset
     {
         $id = Asset::where('state', 'pending')->orWhere(fn ($q) => $q->where('state', 'processing')->where('processing_until', '<=', now()))->orderBy('created_at')->value('id');
@@ -280,7 +302,7 @@ final class MediaStore
 
                 return $a;
             }
-            $a->update(['state' => 'processing', 'processing_token' => (string) Str::uuid7(), 'processing_until' => now()->addMinutes(20), 'attempts' => $a->attempts + 1]);
+            $a->update(['state' => 'processing', 'processing_token' => (string) Str::uuid7(), 'processing_until' => now()->addMinutes(40), 'attempts' => $a->attempts + 1]);
             $a->setAttribute('_claimed', true);
 
             return $a;
@@ -302,7 +324,7 @@ final class MediaStore
                 'state' => 'ready', 'output_key' => $outKey, 'metadata' => json_encode([...($asset->metadata ?? []), ...$meta], JSON_THROW_ON_ERROR), 'error_code' => null, 'processing_until' => null,
             ]);
         } catch (\Throwable $e) {
-            $allowed = ['UNSUPPORTED_VIDEO', 'VIDEO_DECODE_FAILED', 'INVALID_SUBTITLE', 'INVALID_IMAGE', 'MEDIA_TOOL_UNAVAILABLE', 'MEDIA_PROCESS_FAILED'];
+            $allowed = ['UNSUPPORTED_VIDEO', 'VIDEO_DECODE_FAILED', 'INVALID_SUBTITLE', 'INVALID_IMAGE', 'MEDIA_TOOL_UNAVAILABLE', 'MEDIA_PROCESS_FAILED', 'PLAYBACK_OPTIMIZATION_FAILED'];
             $code = in_array($e->getMessage(), $allowed, true) ? $e->getMessage() : 'MEDIA_PROCESS_FAILED';
             Asset::whereKey($id)->where('processing_token', $asset->processing_token)->update(['state' => 'failed', 'error_code' => $code, 'processing_until' => null]);
         }
@@ -351,7 +373,134 @@ final class MediaStore
             chmod($p, 0600);
         }
 
-        return [...$this->rendition($out.'/media.mp4', $out, 'mobile'), ...$this->rendition($out.'/media.mp4', $out, 'web'), 'duration' => $duration, 'duration_seconds' => (int) ceil($duration), 'width' => $videos[0]['width'], 'height' => $videos[0]['height'], 'video_codec' => 'h264', 'audio_codec' => $audios ? 'aac' : null, 'decode_checked' => true, 'hls_timestamp_base' => $timestampBase];
+        return [...$this->optimization($out.'/media.mp4', $out), 'duration' => $duration, 'duration_seconds' => (int) ceil($duration), 'width' => $videos[0]['width'], 'height' => $videos[0]['height'], 'video_codec' => 'h264', 'audio_codec' => $audios ? 'aac' : null, 'decode_checked' => true, 'hls_timestamp_base' => $timestampBase];
+    }
+
+    public function optimized(Asset $asset): bool
+    {
+        $optimization = $asset->metadata['playback_optimization'] ?? [];
+        if (($optimization['version'] ?? null) !== self::OPTIMIZATION_VERSION || ! $asset->output_key) {
+            return false;
+        }
+
+        foreach (self::PLAYBACK_PROFILES as $name => $profile) {
+            $key = $optimization[$name.'_key'] ?? '';
+            if (! preg_match('/^'.$name.'-[0-9a-f-]{36}$/D', $key)
+                || ! $this->segments($this->path($asset->output_key.'/'.$key), $profile['bandwidth'])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function optimizeExisting(Asset $asset): Asset
+    {
+        if ($asset->kind !== 'video' || ! $this->playable($asset)) {
+            throw new \RuntimeException('MEDIA_NOT_READY');
+        }
+        if ($this->optimized($asset)) {
+            return $asset;
+        }
+
+        $output = $this->path($asset->output_key);
+        // A file lock also protects against a concurrent invocation on the same shared media mount.
+        $lock = fopen($output.'/.optimize-v1.lock', 'c');
+        if (! $lock) {
+            throw new \RuntimeException('MEDIA_PROCESS_FAILED');
+        }
+        try {
+            if (! flock($lock, LOCK_EX | LOCK_NB)) {
+                throw new \RuntimeException('PLAYBACK_OPTIMIZATION_IN_PROGRESS');
+            }
+            $current = Asset::findOrFail($asset->id);
+            if ($current->output_key !== $asset->output_key || $current->state !== 'ready') {
+                throw new \RuntimeException('MEDIA_CHANGED');
+            }
+            if ($this->optimized($current)) {
+                return $current;
+            }
+
+            $metadata = $this->optimization($output.'/media.mp4', $output);
+
+            return ContentGuard::mutate(function () use ($current, $metadata): Asset {
+                $fresh = Asset::findOrFail($current->id);
+                if ($fresh->output_key !== $current->output_key || $fresh->state !== 'ready') {
+                    throw new \RuntimeException('MEDIA_CHANGED');
+                }
+                $fresh->update(['metadata' => [...$fresh->metadata, ...$metadata]]);
+
+                return $fresh;
+            });
+        } finally {
+            fclose($lock);
+        }
+    }
+
+    private function optimization(string $source, string $output): array
+    {
+        $variants = ['version' => self::OPTIMIZATION_VERSION];
+        $boundaries = null;
+        $created = [];
+        try {
+            foreach (self::PLAYBACK_PROFILES as $name => $profile) {
+                $variant = $this->rendition($source, $output, $name, $profile);
+                $path = $output.'/'.$variant[$name.'_key'];
+                $created[] = $path;
+                $segments = $this->segments($path, $profile['bandwidth']);
+                if ($segments === [] || ($boundaries !== null && $segments !== $boundaries)) {
+                    throw new \RuntimeException('PLAYBACK_OPTIMIZATION_FAILED');
+                }
+                $boundaries = $segments;
+                $this->command([config('content.ffmpeg'), '-nostdin', '-v', 'error', '-xerror', '-threads', '2',
+                    '-protocol_whitelist', 'file,pipe', '-i', $path.'/index.m3u8',
+                    '-map', '0:v:0', '-map', '0:a:0?', '-f', 'null', '-'], 120, 'PLAYBACK_OPTIMIZATION_FAILED');
+                $variants += $variant;
+            }
+        } catch (\Throwable $failure) {
+            foreach ($created as $directory) {
+                File::deleteDirectory($directory);
+            }
+
+            throw $failure;
+        }
+
+        return ['playback_optimization' => $variants];
+    }
+
+    /** Read the local VOD manifest, check its complete bounded payload and return segment durations. */
+    private function segments(string $directory, int $bandwidth): array
+    {
+        $manifest = $directory.'/index.m3u8';
+        if (! is_file($manifest) || ! is_readable($manifest) || filesize($manifest) > 262144) {
+            return [];
+        }
+        $text = file_get_contents($manifest);
+        if ($text === false || ! str_contains($text, '#EXT-X-ENDLIST') || ! str_contains($text, '#EXT-X-INDEPENDENT-SEGMENTS')) {
+            return [];
+        }
+        $duration = 0.0;
+        $segments = [];
+        foreach (explode("\n", $text) as $line) {
+            if (preg_match('/^#EXTINF:(\d+(?:\.\d+)?),$/D', $line, $match)) {
+                $duration = (float) $match[1];
+            } elseif ($line !== '' && ! str_starts_with($line, '#')) {
+                if ($line !== sprintf('segment-%05d.ts', count($segments)) || $duration <= 0 || $duration > 4.25) {
+                    return [];
+                }
+                $file = $directory.'/'.$line;
+                $bytes = is_file($file) && is_readable($file) ? filesize($file) : 0;
+                // MPEG-TS mux overhead on very short tail segments can exceed their proportional budget.
+                $budget = $bandwidth * max($duration, 1.0) / 8;
+                if (! $bytes || $bytes > $budget) {
+                    return [];
+                }
+                $segments[] = $duration;
+                $duration = 0.0;
+            }
+        }
+
+        return $segments;
     }
 
     public function addWebRenditions(string $id): Asset
@@ -413,13 +562,13 @@ final class MediaStore
                 + (int) round(($times[1] - $times[0]) * 90000) + 8589934592) % 8589934592];
     }
 
-    private function rendition(string $source, string $out, string $name): array
+    private function rendition(string $source, string $out, string $name, ?array $profile = null): array
     {
         $profiles = [
             'mobile' => ['edge' => 240, 'video' => '64k', 'max' => '72k', 'buffer' => '144k', 'audio' => '24k', 'bandwidth' => 128000, 'version' => 3],
             'web' => ['edge' => 720, 'video' => '1200k', 'max' => '1500k', 'buffer' => '3000k', 'audio' => '96k', 'bandwidth' => 1800000, 'version' => 2],
         ];
-        $profile = $profiles[$name];
+        $profile ??= $profiles[$name];
         $probe = config('content.ffprobe', '/opt/homebrew/bin/ffprobe');
         $info = json_decode($this->command([$probe, '-v', 'error', '-select_streams', 'v:0',
             '-show_entries', 'stream=width,height,start_time', '-of', 'json', $source], 120), true, flags: JSON_THROW_ON_ERROR)['streams'][0];
@@ -431,18 +580,24 @@ final class MediaStore
         if (! mkdir($directory, 0700)) {
             throw new \RuntimeException('MEDIA_PROCESS_FAILED');
         }
-        $this->command([config('content.ffmpeg', '/opt/homebrew/bin/ffmpeg'), '-nostdin', '-v', 'error',
-            '-protocol_whitelist', 'file,pipe', '-i', $source, '-map', '0:v:0', '-map', '0:a:0?', '-map_metadata', '-1',
-            '-vf', 'scale='.$width.':'.$height, '-c:v', 'libx264', '-threads', '2', '-preset', 'veryfast',
-            '-profile:v', 'baseline', '-pix_fmt', 'yuv420p', '-bf', '0', '-b:v', $profile['video'], '-maxrate', $profile['max'], '-bufsize', $profile['buffer'],
-            '-force_key_frames', 'expr:gte(t,n_forced*2)', '-c:a', 'aac', '-b:a', $profile['audio'], '-ac', '1', '-ar', '24000',
-            '-hls_time', '4', '-hls_playlist_type', 'vod', '-hls_flags', 'independent_segments',
-            '-hls_segment_filename', $directory.'/segment-%05d.ts', $directory.'/index.m3u8']);
-        $timing = json_decode($this->command([$probe, '-v', 'error', '-select_streams', 'v:0',
-            '-show_entries', 'stream=start_time', '-of', 'json', $directory.'/segment-00000.ts'], 120), true, flags: JSON_THROW_ON_ERROR);
-        $timestamp = (float) ($timing['streams'][0]['start_time'] ?? throw new \RuntimeException('MEDIA_PROCESS_FAILED'));
-        foreach (glob($directory.'/*') as $file) {
-            chmod($file, 0600);
+        try {
+            $this->command([config('content.ffmpeg', '/opt/homebrew/bin/ffmpeg'), '-nostdin', '-v', 'error',
+                '-protocol_whitelist', 'file,pipe', '-i', $source, '-map', '0:v:0', '-map', '0:a:0?', '-map_metadata', '-1',
+                '-vf', 'scale='.$width.':'.$height, '-c:v', 'libx264', '-threads', '2', '-preset', 'veryfast',
+                '-profile:v', 'baseline', '-pix_fmt', 'yuv420p', '-bf', '0', '-b:v', $profile['video'], '-maxrate', $profile['max'], '-bufsize', $profile['buffer'],
+                '-sc_threshold', '0', '-force_key_frames', 'expr:gte(t,n_forced*2)', '-c:a', 'aac', '-b:a', $profile['audio'], '-ac', '1', '-ar', '24000',
+                '-hls_time', '4', '-hls_playlist_type', 'vod', '-hls_flags', 'independent_segments',
+                '-hls_segment_filename', $directory.'/segment-%05d.ts', $directory.'/index.m3u8'], 240);
+            $timing = json_decode($this->command([$probe, '-v', 'error', '-select_streams', 'v:0',
+                '-show_entries', 'stream=start_time', '-of', 'json', $directory.'/segment-00000.ts'], 120), true, flags: JSON_THROW_ON_ERROR);
+            $timestamp = (float) ($timing['streams'][0]['start_time'] ?? throw new \RuntimeException('MEDIA_PROCESS_FAILED'));
+            foreach (glob($directory.'/*') as $file) {
+                chmod($file, 0600);
+            }
+        } catch (\Throwable $failure) {
+            File::deleteDirectory($directory);
+
+            throw $failure;
         }
 
         return [$name.'_key' => $key, $name.'_width' => $width, $name.'_height' => $height,

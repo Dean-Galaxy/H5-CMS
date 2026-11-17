@@ -17,6 +17,11 @@ final class ProcessMedia extends Command
         if (! $limit) {
             return self::INVALID;
         }
+        return $media->withWorkerLock(fn () => $this->processAssets($media, $limit), self::SUCCESS);
+    }
+
+    private function processAssets(MediaStore $media, int $limit): int
+    {
         for ($i = 0; $i < $limit; $i++) {
             $asset = $media->processNext();
             if (! $asset) {

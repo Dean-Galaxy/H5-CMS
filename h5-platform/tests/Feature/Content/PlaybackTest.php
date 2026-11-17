@@ -115,7 +115,8 @@ final class PlaybackTest extends ContentTestCase
     {
         $drama = $this->fixture(6, 6, true);
         $ep = $drama->episodes[0];
-        $video = $ep->video;
+        $video = $this->readyAsset('video', false);
+        $ep->update(['video_asset_id' => $video->id]);
         $key = 'mobile-019a2b3c-1234-7000-8000-000000000001';
         $video->update(['metadata' => [...$video->metadata, 'mobile_key' => $key,
             'mobile_width' => 240, 'mobile_height' => 420, 'mobile_bandwidth' => 176000, 'mobile_timestamp_base' => 126000]]);
@@ -145,7 +146,7 @@ final class PlaybackTest extends ContentTestCase
     {
         $drama = $this->fixture(6, 6, true);
         $ep = $drama->episodes[5];
-        $video = $this->readyAsset('video');
+        $video = $this->readyAsset('video', false);
         $ep->update(['video_asset_id' => $video->id]);
         $metadata = $video->metadata;
         foreach (['mobile' => [240, 418, 128000, 126000], 'efficient' => [240, 418, 150000, 133500],
@@ -162,8 +163,8 @@ final class PlaybackTest extends ContentTestCase
         $ep->update(['subtitle_asset_id' => $this->readyAsset('subtitle')->id, 'subtitle_language' => 'en']);
 
         $free = $this->grant($drama->episodes[4]->id)->assertOk()->json();
-        $this->get($free['short_lived_url'])->assertOk()->assertDontSee('efficient-index.m3u8', false)
-            ->assertDontSee('balanced-index.m3u8', false);
+        $this->get($free['short_lived_url'])->assertOk()->assertSee('opt1-efficient-index.m3u8', false)
+            ->assertSee('opt1-balanced-index.m3u8', false);
         $this->get($this->signed($free['grant_id'], 'balanced-segment-00000.ts'))->assertNotFound();
         $this->grant($ep->id)->assertOk()->assertJsonPath('reason', 'MEMBERSHIP_REQUIRED');
 

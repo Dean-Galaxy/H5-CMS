@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 
 final class MediaController
 {
-    public const RENDITION_PATTERN = 'mobile|efficient|balanced|web';
+    public const RENDITION_PATTERN = 'mobile|efficient|balanced|web|opt1-(?:efficient|balanced|web)';
 
     public function __construct(private MediaStore $store, private Availability $availability) {}
 
@@ -109,16 +109,21 @@ final class MediaController
             // Keep previously signed mobile URLs usable while new manifests select the improved low tier.
             $low = empty($ep->video->metadata['efficient_key']) ? 'mobile' : 'efficient';
             $variants = array_filter([$low, 'balanced', 'web'], fn ($name) => ! empty($ep->video->metadata[$name.'_key']));
+            $optimization = $ep->video->metadata['playback_optimization'] ?? [];
+            if (($optimization['version'] ?? null) === MediaStore::OPTIMIZATION_VERSION) {
+                $variants = ['opt1-efficient', 'opt1-balanced', 'opt1-web'];
+            }
             if ($hasSub && ! $variants) {
                 $text .= '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="'.($ep->subtitle_language === 'zh_CN' ? 'Chinese' : 'English').'",LANGUAGE="'.($ep->subtitle_language === 'zh_CN' ? 'zh-Hans' : 'en').'",AUTOSELECT=YES,DEFAULT=YES,URI="'.$url('captions.m3u8')."\"\n";
             }
             foreach ($variants as $name) {
+                [$metadata, $tier] = $this->renditionMetadata($ep->video, $name);
                 $group = $name.'-subs';
                 if ($hasSub) {
                     $text .= '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="'.$group.'",NAME="'.($ep->subtitle_language === 'zh_CN' ? 'Chinese' : 'English').'",LANGUAGE="'.($ep->subtitle_language === 'zh_CN' ? 'zh-Hans' : 'en').'",AUTOSELECT=YES,DEFAULT=YES,URI="'.$url($name.'-captions.m3u8')."\"\n";
                 }
-                $text .= '#EXT-X-STREAM-INF:BANDWIDTH='.$ep->video->metadata[$name.'_bandwidth']
-                    .',RESOLUTION='.$ep->video->metadata[$name.'_width'].'x'.$ep->video->metadata[$name.'_height']
+                $text .= '#EXT-X-STREAM-INF:BANDWIDTH='.$metadata[$tier.'_bandwidth']
+                    .',RESOLUTION='.$metadata[$tier.'_width'].'x'.$metadata[$tier.'_height']
                     .($hasSub ? ',SUBTITLES="'.$group.'"' : '')."\n".$url($name.'-index.m3u8')."\n";
             }
             // Original uploads have different keyframe boundaries. Only advertise
@@ -166,7 +171,8 @@ final class MediaController
                     throw new ApiProblem('MEDIA_NOT_READY', 409, '字幕文件不可用');
                 }
                 $text = file_get_contents($path);
-                $map = (int) ($ep->video->metadata[$variant ? $variant.'_timestamp_base' : 'hls_timestamp_base'] ?? 0);
+                [$metadata, $tier] = $this->renditionMetadata($ep->video, $variant ?? 'hls');
+                $map = (int) ($metadata[$tier.'_timestamp_base'] ?? 0);
                 $text = preg_replace('/^WEBVTT\n/', 'WEBVTT'."\nX-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:".$map."\n", $text, 1);
 
                 return response($text, 200, ['Content-Type' => 'text/vtt; charset=utf-8', ...$headers]);
@@ -187,10 +193,20 @@ final class MediaController
         return $this->file($ep->video, $file, $file === 'media.mp4' ? 'video/mp4' : 'video/mp2t');
     }
 
+    private function renditionMetadata(Asset $asset, string $name): array
+    {
+        if (str_starts_with($name, 'opt1-')) {
+            return [$asset->metadata['playback_optimization'] ?? [], substr($name, strlen('opt1-'))];
+        }
+
+        return [$asset->metadata, $name];
+    }
+
     private function renditionKey(Asset $asset, string $name): string
     {
-        $key = $asset->metadata[$name.'_key'] ?? '';
-        if (! preg_match('/^'.$name.'-[0-9a-f-]{36}$/D', $key)) {
+        [$metadata, $tier] = $this->renditionMetadata($asset, $name);
+        $key = $metadata[$tier.'_key'] ?? '';
+        if (! preg_match('/^'.$tier.'-[0-9a-f-]{36}$/D', $key)) {
             throw new ApiProblem('NOT_FOUND', 404, '当前视频没有低带宽版本');
         }
 

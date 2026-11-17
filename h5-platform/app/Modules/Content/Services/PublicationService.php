@@ -34,11 +34,11 @@ final class PublicationService
                 }
                 $next = $this->future($data['next_at']);
             }
-            $reason = $this->blockReason($drama, $from, $through, now());
+            $reason = $this->blockReason($drama, $from, $through, now(), $blockedEpisode);
             $result = ['drama_id' => $drama->id, 'drama_version' => $drama->version, 'plan_version' => $plan->version,
                 'mode' => $data['mode'], 'interval_days' => $data['interval_days'], 'batch_size' => $data['batch_size'],
                 'from' => $from, 'through' => $through, 'count' => max(0, $through - $from + 1),
-                'next_at' => $next?->toIso8601ZuluString(), 'blocked_reason' => $reason];
+                'next_at' => $next?->toIso8601ZuluString(), 'blocked_reason' => $reason, 'blocked_episode' => $blockedEpisode];
             $result['confirmation'] = hash_hmac('sha256', json_encode($result, JSON_THROW_ON_ERROR), config('app.key'));
 
             return $result;
@@ -95,7 +95,8 @@ final class PublicationService
             [$from, $through] = $this->range($drama, $plan);
             $result = ['drama_id' => $drama->id, 'drama_version' => $drama->version, 'plan_version' => $plan->version,
                 'from' => $from, 'through' => $through, 'next_at' => $plan->next_at->toIso8601ZuluString(),
-                'blocked_reason' => $this->blockReason($drama, $from, $through, now())];
+                'blocked_reason' => $this->blockReason($drama, $from, $through, now(), $blockedEpisode),
+                'blocked_episode' => $blockedEpisode];
             $result['confirmation'] = hash_hmac('sha256', json_encode($result, JSON_THROW_ON_ERROR), config('app.key'));
 
             return $result;
@@ -220,11 +221,11 @@ final class PublicationService
         $plan = $drama->plan;
         [$from, $through] = $this->range($drama, $plan, $manualThrough);
         $at = $manualThrough === null ? $plan->launch_at : now();
-        $error = $this->blockReason($drama, $from, $through, $at);
+        $error = $this->blockReason($drama, $from, $through, $at, $blockedEpisode);
         $data = ['drama_id' => $drama->id, 'drama_version' => $drama->version, 'plan_version' => $plan->version,
             'manual' => $manualThrough !== null, 'from' => $from, 'through' => $through, 'count' => max(0, $through - $from + 1), 'mode' => $plan->mode,
             'launch_at' => $plan->launch_at->toIso8601ZuluString(), 'interval_days' => $plan->interval_days,
-            'batch_size' => $plan->batch_size, 'total_episodes' => $drama->total_episodes, 'blocked_reason' => $error];
+            'batch_size' => $plan->batch_size, 'total_episodes' => $drama->total_episodes, 'blocked_reason' => $error, 'blocked_episode' => $blockedEpisode];
         $data['confirmation'] = hash_hmac('sha256', json_encode($data, JSON_THROW_ON_ERROR), config('app.key'));
 
         return $data;
@@ -460,8 +461,9 @@ final class PublicationService
         return $drama->total_episodes !== null && $this->nextNumber($drama) === $drama->total_episodes + 1;
     }
 
-    public function blockReason(DramaRecord $drama, int $from, int $through, CarbonImmutable $at): ?string
+    public function blockReason(DramaRecord $drama, int $from, int $through, CarbonImmutable $at, ?int &$blockedEpisode = null): ?string
     {
+        $blockedEpisode = null;
         if (! trim($drama->title_en.$drama->title_zh)) {
             return 'TITLE_REQUIRED';
         }
@@ -475,11 +477,13 @@ final class PublicationService
         if ($through < $from || $through < 1) {
             return 'TOTAL_OR_RANGE_INVALID';
         }
-        $episodes = $drama->episodes()->with(['video', 'subtitle'])->whereBetween('number', [$from, $through])->get();
+        $episodes = $drama->episodes()->with(['video', 'subtitle'])->whereBetween('number', [$from, $through])->orderBy('number')->get();
         if ($episodes->count() !== $through - $from + 1) {
             return 'EPISODE_GAP';
         }
+        $media = app(MediaStore::class);
         foreach ($episodes as $ep) {
+            $blockedEpisode = $ep->number;
             if (! $ep->video || $ep->video->state !== 'ready') {
                 return 'MEDIA_NOT_READY';
             }
@@ -492,10 +496,15 @@ final class PublicationService
             if ($ep->subtitle && ($ep->subtitle->metadata['last_end'] ?? INF) > ($ep->video->metadata['duration'] ?? 0) + 0.5) {
                 return 'SUBTITLE_OUT_OF_RANGE';
             }
-            if (! app(MediaStore::class)->playable($ep->video)) {
+            if (! $media->playable($ep->video)) {
                 return 'MEDIA_FILE_MISSING';
             }
+            if (! $media->optimized($ep->video)) {
+                return 'PLAYBACK_OPTIMIZATION_REQUIRED';
+            }
         }
+
+        $blockedEpisode = null;
 
         return null;
     }

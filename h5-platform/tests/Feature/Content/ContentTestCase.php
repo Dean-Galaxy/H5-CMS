@@ -122,7 +122,7 @@ abstract class ContentTestCase extends TestCase
     }
 
     /** Explicit testing-only files and state; never used by ordinary runtime or real media imports. */
-    protected function readyAsset(string $kind = 'video'): Asset
+    protected function readyAsset(string $kind = 'video', bool $optimized = true): Asset
     {
         $a = Asset::create(['created_by' => $this->owner->id, 'kind' => $kind, 'state' => 'ready', 'extension' => $kind === 'video' ? 'mp4' : 'png',
             'expected_bytes' => 1024, 'received_bytes' => 1024, 'metadata' => ['duration' => 10.0, 'duration_seconds' => 10, 'last_end' => 5.0, 'width' => 48, 'height' => 64]]);
@@ -134,7 +134,19 @@ abstract class ContentTestCase extends TestCase
         }
         file_put_contents($path.'/index.m3u8', "#EXTM3U\n#EXT-X-TARGETDURATION:10\n#EXTINF:10,\nsegment-00000.ts\n#EXT-X-ENDLIST\n");
         file_put_contents($path.'/subtitles.vtt', "WEBVTT\n\n1\n00:00:01.000 --> 00:00:02.000\nTest\n");
-        $a->update(['output_key' => $key]);
+        $metadata = $a->metadata;
+        if ($kind === 'video' && $optimized) {
+            $variants = ['version' => MediaStore::OPTIMIZATION_VERSION];
+            foreach (['efficient' => 175000, 'balanced' => 340000, 'web' => 2200000] as $name => $bandwidth) {
+                $variant = $name.'-'.Str::uuid7();
+                mkdir($path.'/'.$variant, 0700);
+                file_put_contents($path.'/'.$variant.'/index.m3u8', "#EXTM3U\n#EXT-X-INDEPENDENT-SEGMENTS\n#EXTINF:4.0,\nsegment-00000.ts\n#EXT-X-ENDLIST\n");
+                copy($path.'/segment-00000.ts', $path.'/'.$variant.'/segment-00000.ts');
+                $variants += [$name.'_key' => $variant, $name.'_bandwidth' => $bandwidth, $name.'_width' => 48, $name.'_height' => 64];
+            }
+            $metadata['playback_optimization'] = $variants;
+        }
+        $a->update(['output_key' => $key, 'metadata' => $metadata]);
 
         return $a;
     }

@@ -5,6 +5,7 @@ namespace App\Modules\Content;
 use App\Contracts\CatalogReader;
 use App\Contracts\PlaybackAuthorizer;
 use App\Contracts\PromotableCatalog;
+use App\Modules\Content\Console\OptimizePlayback;
 use App\Modules\Content\Console\ProcessMedia;
 use App\Modules\Content\Console\PublishDue;
 use App\Modules\Content\Services\ContentCatalog;
@@ -25,7 +26,7 @@ final class ContentServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->commands([ProcessMedia::class, PublishDue::class]);
+        $this->commands([ProcessMedia::class, PublishDue::class, OptimizePlayback::class]);
         $this->app->afterResolving(Schedule::class, function (Schedule $schedule) {
             $schedule->command('content:publish-due')->everyMinute()->withoutOverlapping(5);
             $schedule->command('content:process-media --limit=1')->everyMinute()->withoutOverlapping(25)->runInBackground();

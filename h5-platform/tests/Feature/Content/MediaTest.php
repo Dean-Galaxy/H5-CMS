@@ -73,39 +73,33 @@ final class MediaTest extends ContentTestCase
     public function test_actual_small_h264_aac_is_decoded_and_packaged_privately(): void
     {
         $source = app(MediaStore::class)->path('fixture-source.mp4');
-        $p = new Process([config('content.ffmpeg'), '-nostdin', '-v', 'error', '-f', 'lavfi', '-i', 'color=c=black:s=64x64:r=10:d=2', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', $source]);
+        $p = new Process([config('content.ffmpeg'), '-nostdin', '-v', 'error', '-f', 'lavfi', '-i', 'testsrc2=s=360x640:r=25:d=8.36', '-f', 'lavfi', '-i', 'sine=frequency=440:duration=8.36', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-shortest', $source]);
         $p->setTimeout(30);
         $p->mustRun();
         $a = $this->upload('video', '1.mp4', file_get_contents($source));
         $this->assertSame('ready', $a->state);
         $this->assertTrue($a->metadata['decode_checked']);
-        $this->assertLessThanOrEqual(240, min($a->metadata['mobile_width'], $a->metadata['mobile_height']));
-        $mobile = app(MediaStore::class)->path($a->output_key.'/'.$a->metadata['mobile_key']);
-        $this->assertFileExists($mobile.'/index.m3u8');
-        $this->assertFileExists($mobile.'/segment-00000.ts');
-        $web = app(MediaStore::class)->path($a->output_key.'/'.$a->metadata['web_key']);
-        $this->assertFileExists($web.'/segment-00000.ts');
-        $this->assertLessThanOrEqual(720, min($a->metadata['web_width'], $a->metadata['web_height']));
-        $this->assertSame(1800000, $a->metadata['web_bandwidth']);
+        $media = app(MediaStore::class);
+        $this->assertTrue($media->optimized($a));
+        foreach (['efficient' => 240, 'balanced' => 360, 'web' => 360] as $tier => $width) {
+            $variants = $a->metadata['playback_optimization'];
+            $this->assertSame($width, $variants[$tier.'_width']);
+            $path = $media->path($a->output_key.'/'.$variants[$tier.'_key']);
+            $this->assertStringContainsString('#EXT-X-INDEPENDENT-SEGMENTS', file_get_contents($path.'/index.m3u8'));
+            $this->assertSame(0, fileperms($path.'/segment-00000.ts') & 0077);
+        }
 
-        $this->assertStringContainsString('#EXT-X-INDEPENDENT-SEGMENTS', file_get_contents($mobile.'/index.m3u8'));
-        $this->assertSame(0, fileperms($mobile.'/segment-00000.ts') & 0077);
-        $this->assertSame($a->metadata['mobile_key'], app(MediaStore::class)->addWebRenditions($a->id)->metadata['mobile_key']);
         $originalKey = $a->output_key;
-        $originalHash = hash_file('sha256', app(MediaStore::class)->path($originalKey.'/segment-00000.ts'));
-        $originalMobile = $a->metadata['mobile_key'];
-        $a->update(['metadata' => array_filter($a->metadata, fn ($key) => ! str_starts_with($key, 'mobile_'), ARRAY_FILTER_USE_KEY)]);
-        $upgraded = app(MediaStore::class)->addWebRenditions($a->id);
-        $this->assertNotSame($originalMobile, $upgraded->metadata['mobile_key']);
+        $originalHash = hash_file('sha256', $media->path($originalKey.'/segment-00000.ts'));
+        $legacy = $a->metadata;
+        unset($legacy['playback_optimization']);
+        $a->update(['metadata' => $legacy]);
+        $this->assertFalse($media->optimized($a));
+        $upgraded = $media->optimizeExisting($a);
+        $this->assertTrue($media->optimized($upgraded));
         $this->assertSame($originalKey, $upgraded->output_key);
-        $this->assertSame($originalHash, hash_file('sha256', app(MediaStore::class)->path($originalKey.'/segment-00000.ts')));
-        $upgraded->update(['metadata' => [...$upgraded->metadata, 'mobile_profile_version' => 2, 'web_profile_version' => 1]]);
-        $repacked = app(MediaStore::class)->addWebRenditions($upgraded->id);
-        $this->assertSame(3, $repacked->metadata['mobile_profile_version']);
-        $this->assertSame(2, $repacked->metadata['web_profile_version']);
-        $this->assertSame($originalHash, hash_file('sha256', app(MediaStore::class)->path($originalKey.'/segment-00000.ts')));
-
-
+        $this->assertSame($originalHash, hash_file('sha256', $media->path($originalKey.'/segment-00000.ts')));
+        $this->assertSame($upgraded->metadata, $media->optimizeExisting($upgraded)->metadata);
 
         $this->assertGreaterThan(0, $a->metadata['hls_timestamp_base']);
         $this->assertFileExists(app(MediaStore::class)->path($a->output_key.'/index.m3u8'));

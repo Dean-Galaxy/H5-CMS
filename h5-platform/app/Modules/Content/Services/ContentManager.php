@@ -146,6 +146,9 @@ final class ContentManager
             if ($role === 'video' && ! app(MediaStore::class)->playable($asset)) {
                 throw ValidationException::withMessages(['asset_id' => '候选视频文件或 HLS 清单检查失败']);
             }
+            if ($role === 'video' && $episode->published_at && ! app(MediaStore::class)->optimized($asset)) {
+                throw ValidationException::withMessages(['asset_id' => '已公开分集只能换成通过三档播放检查的视频']);
+            }
             if ($role === 'subtitle') {
                 $path = $asset->output_key ? app(MediaStore::class)->path($asset->output_key.'/subtitles.vtt') : null;
                 if (! $path || ! is_file($path) || filesize($path) === 0 || ! in_array($data['subtitle_language'] ?? null, ['en', 'zh_CN'], true)) {

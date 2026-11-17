@@ -64,6 +64,29 @@ final class PublicationTest extends ContentTestCase
         $this->assertSame(0, $d->episodes()->whereNotNull('published_at')->count());
     }
 
+    public function test_both_publication_paths_require_optimized_media_only_in_the_current_batch(): void
+    {
+        $drama = $this->fixture(3);
+        $episode = $drama->episodes()->where('number', 2)->firstOrFail();
+        $episode->update(['video_asset_id' => $this->readyAsset('video', false)->id]);
+        $drama->plan->update(['batch_size' => 2]);
+
+        $this->postJson('/api/v1/admin/content/dramas/'.$drama->id.'/publication-preview', ['through' => 2])
+            ->assertOk()->assertJsonPath('blocked_reason', 'PLAYBACK_OPTIMIZATION_REQUIRED')->assertJsonPath('blocked_episode', 2);
+        $this->publish($drama, 2)->assertUnprocessable();
+        $plan = $drama->plan()->firstOrFail();
+        $this->assertSame('blocked', app(PublicationService::class)->execute($plan->id, $plan->version, $plan->next_at));
+        $this->assertSame('PLAYBACK_OPTIMIZATION_REQUIRED', $plan->fresh()->last_error);
+        $this->assertSame(0, $drama->episodes()->whereNotNull('published_at')->count());
+
+        $episode->update(['video_asset_id' => $drama->episodes()->where('number', 1)->value('video_asset_id')]);
+        $drama->episodes()->where('number', 3)->update(['video_asset_id' => $this->readyAsset('video', false)->id]);
+        $plan->refresh();
+        $this->travelTo($plan->next_at);
+        $this->assertSame('published', app(PublicationService::class)->execute($plan->id, $plan->version, $plan->next_at));
+        $this->assertSame([1, 2], $drama->episodes()->whereNotNull('published_at')->orderBy('number')->pluck('number')->all());
+    }
+
     public function test_manual_pause_resume_edit_and_withdraw_make_old_executions_obsolete(): void
     {
         $d = $this->fixture(20);
