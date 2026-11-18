@@ -444,10 +444,17 @@ final class MediaStore
         $created = [];
         try {
             foreach (self::PLAYBACK_PROFILES as $name => $profile) {
-                $variant = $this->rendition($source, $output, $name, $profile);
-                $path = $output.'/'.$variant[$name.'_key'];
-                $created[] = $path;
-                $segments = $this->segments($path, $profile['bandwidth']);
+                // A short VBV buffer constrains brief peaks without changing the tier or its advertised budget.
+                foreach ([$profile, [...$profile, 'buffer' => $profile['max']]] as $encodingProfile) {
+                    $variant = $this->rendition($source, $output, $name, $encodingProfile);
+                    $path = $output.'/'.$variant[$name.'_key'];
+                    $created[] = $path;
+                    $segments = $this->segments($path, $profile['bandwidth'], $overBudget);
+                    if (! $overBudget) {
+                        break;
+                    }
+                    File::deleteDirectory($path);
+                }
                 if ($segments === [] || ($boundaries !== null && $segments !== $boundaries)) {
                     throw new \RuntimeException('PLAYBACK_OPTIMIZATION_FAILED');
                 }
@@ -469,8 +476,9 @@ final class MediaStore
     }
 
     /** Read the local VOD manifest, check its complete bounded payload and return segment durations. */
-    private function segments(string $directory, int $bandwidth): array
+    private function segments(string $directory, int $bandwidth, ?bool &$overBudget = null): array
     {
+        $overBudget = false;
         $manifest = $directory.'/index.m3u8';
         if (! is_file($manifest) || ! is_readable($manifest) || filesize($manifest) > 262144) {
             return [];
@@ -492,7 +500,12 @@ final class MediaStore
                 $file = $directory.'/'.$line;
                 $bytes = is_file($file) && is_readable($file) ? filesize($file) : 0;
                 // Limit individual downloads, including an isolated very short upload.
-                if (! $bytes || $bytes * 8 > $bandwidth * max($duration, 2.0)) {
+                if (! $bytes) {
+                    return [];
+                }
+                if ($bytes * 8 > $bandwidth * max($duration, 2.0)) {
+                    $overBudget = true;
+
                     return [];
                 }
                 $segments[] = $duration;
@@ -507,6 +520,8 @@ final class MediaStore
         if ($last > 0 && $segments[$last] < 2.0) {
             $window = $segments[$last - 1] + $segments[$last];
             if ($window <= 6.0 && ($sizes[$last - 1] + $sizes[$last]) * 8 > $bandwidth * $window) {
+                $overBudget = true;
+
                 return [];
             }
         }

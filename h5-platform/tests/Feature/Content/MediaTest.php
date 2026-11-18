@@ -95,7 +95,31 @@ final class MediaTest extends ContentTestCase
         unset($legacy['playback_optimization']);
         $a->update(['metadata' => $legacy]);
         $this->assertFalse($media->optimized($a));
+        $ffmpeg = escapeshellarg(config('content.ffmpeg'));
+        $log = $media->path('encoder-retries.log');
+        $shellLog = escapeshellarg($log);
+        $wrapper = $media->path('test-ffmpeg');
+        file_put_contents($wrapper, <<<SH
+            #!/bin/sh
+            $ffmpeg "\$@" || exit \$?
+            for last do :; done
+            case "\$last" in
+                */efficient-*/index.m3u8)
+                    case " \$* " in
+                        *" -bufsize 192k "*)
+                            printf 'default\\n' >> $shellLog
+                            dd if=/dev/zero bs=100000 count=1 2>/dev/null >> "\${last%/*}/segment-00000.ts"
+                            ;;
+                        *" -bufsize 96k "*) printf 'tight\\n' >> $shellLog ;;
+                    esac
+                    ;;
+            esac
+            SH);
+        chmod($wrapper, 0700);
+        config(['content.ffmpeg' => $wrapper]);
+
         $upgraded = $media->optimizeExisting($a);
+        $this->assertSame(['default', 'tight'], file($log, FILE_IGNORE_NEW_LINES));
         $this->assertTrue($media->optimized($upgraded));
         $this->assertSame($originalKey, $upgraded->output_key);
         $this->assertSame($originalHash, hash_file('sha256', $media->path($originalKey.'/segment-00000.ts')));
